@@ -1,0 +1,103 @@
+/**
+ * Process and Instance Types
+ * Based on Bizuit BPM Process Controller
+ */
+
+export type ParameterType = 'SingleValue' | 'Xml' | 'ComplexObject'
+export type ParameterDirection = 'In' | 'Out' | 'InOut'
+export type ProcessStatus = 'Completed' | 'Waiting' | 'Running' | 'Error'
+
+export interface IParameter {
+  name: string
+  value: string | null
+  valueJson?: string | null
+  type: ParameterType
+  direction: ParameterDirection
+  path?: string
+  schema?: string
+  isVariable?: boolean
+  isSystemParameter?: boolean
+  hasBinding?: boolean
+}
+
+export interface IEventParameter extends IParameter {
+  parameterType: 1 | 2 // 1 = SingleValue, 2 = Complex
+}
+
+export interface IInitializeParams {
+  processName: string
+  activityName?: string
+  version?: string
+  instanceId?: string
+  userName?: string
+  token?: string
+  sessionToken?: string
+  formId?: number
+  formDraftId?: number
+  childProcessName?: string
+}
+
+export interface IProcessData {
+  parameters: IParameter[]
+  variables?: IParameter[]
+  activities?: IActivityResult[]
+  processName: string
+  version: string
+  instanceId?: string
+}
+
+export interface IActivityResult {
+  name: string
+  parameters: IParameter[]
+  completedDate?: string
+  status: string
+}
+
+export interface IRaiseEventParams {
+  eventName: string
+  instanceId?: string
+  parameters: IParameter[]
+  eventVersion?: string
+  closeOnSuccess?: boolean
+  deletedDocuments?: string[]
+}
+
+export interface IRaiseEventResult {
+  instanceId: string
+  status: ProcessStatus
+  parameters: IEventParameter[]
+  errorMessage?: string
+}
+
+export interface IInstanceData {
+  instanceId: string
+  processName: string
+  activityName: string
+  status: ProcessStatus
+  parameters: IParameter[]
+  variables: IParameter[]
+  createdDate: string
+  completedDate?: string
+  lockedBy?: string
+  lockedDate?: string
+}
+
+export interface ILockStatus {
+  available: boolean
+  reason?: string
+  user?: string
+  sessionToken?: string
+}
+
+export interface ILockRequest {
+  instanceId: string
+  activityName: string
+  operation: number
+  processName: string
+}
+
+export interface IUnlockRequest {
+  instanceId: string
+  activityName: string
+  sessionToken?: string
+}
