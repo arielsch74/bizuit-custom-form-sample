@@ -6,11 +6,6 @@ node_modules/
 # Testing
 coverage/
 .nyc_output/
-test-screenshots/
-test-*.js
-test-*.md
-*-report.md
-TESTING*.md
 
 # Production builds
 dist/
