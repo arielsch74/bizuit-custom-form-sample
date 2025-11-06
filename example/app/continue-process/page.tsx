@@ -11,13 +11,7 @@ import {
 } from '@bizuit/ui-components'
 import { Button } from '@bizuit/ui-components'
 import Link from 'next/link'
-
-// Configuración del SDK
-const sdkConfig = {
-  formsApiUrl: process.env.NEXT_PUBLIC_BIZUIT_FORMS_API_URL || 'https://api.bizuit.com/forms',
-  dashboardApiUrl: process.env.NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL || 'https://api.bizuit.com/dashboard',
-  timeout: 30000,
-}
+import { bizuitConfig } from '@/lib/config'
 
 function ContinueProcessForm() {
   const sdk = useBizuitSDK()
@@ -265,7 +259,7 @@ function ContinueProcessForm() {
                 value={instanceId}
                 onChange={(e) => setInstanceId(e.target.value)}
                 placeholder="Ej: INST-12345"
-                className="w-full px-3 py-2 border rounded-md"
+                className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
                 disabled={status === 'initializing'}
               />
             </div>
@@ -279,7 +273,7 @@ function ContinueProcessForm() {
                 onChange={(e) => setToken(e.target.value)}
                 placeholder="Ingrese el token JWT"
                 rows={4}
-                className="w-full px-3 py-2 border rounded-md font-mono text-xs"
+                className="w-full px-3 py-2 border rounded-md font-mono text-xs bg-background text-foreground"
                 disabled={status === 'initializing'}
               />
             </div>
@@ -465,7 +459,7 @@ function ContinueProcessForm() {
                   onChange={(e) => setFormData({ ...formData, comments: e.target.value })}
                   placeholder="Agregue comentarios sobre esta actividad"
                   rows={4}
-                  className="w-full px-3 py-2 border rounded-md"
+                  className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
                 />
               </div>
             </div>
@@ -549,7 +543,7 @@ function ContinueProcessForm() {
 
 export default function ContinueProcessPage() {
   return (
-    <BizuitSDKProvider config={sdkConfig}>
+    <BizuitSDKProvider config={bizuitConfig}>
       <ContinueProcessForm />
     </BizuitSDKProvider>
   )

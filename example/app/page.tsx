@@ -42,6 +42,22 @@ export default function Home() {
 
         <div className="mt-16 text-center">
           <h3 className="text-xl font-semibold mb-4">Componentes Disponibles</h3>
+          <p className="text-sm opacity-50 mb-4">
+            Prueba todos los componentes de forma interactiva
+          </p>
+
+          <Link
+            href="/components-demo"
+            className="inline-block group rounded-lg border border-transparent px-8 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30 mb-6"
+          >
+            <span className="text-lg font-semibold">
+              Ver Demo Interactiva{' '}
+              <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+                →
+              </span>
+            </span>
+          </Link>
+
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
             <div className="p-4 rounded-lg bg-muted">
               <p className="font-mono">BizuitDataGrid</p>
