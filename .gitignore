@@ -43,7 +43,7 @@ lerna-debug.log*
 .vercel/
 .claude/
 
-# Package manager lock files (opcional - descomenta si quieres ignorarlos)
-# package-lock.json
-# yarn.lock
-# pnpm-lock.yaml
+# Package manager lock files (ignorados para reducir tamaño de commits)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
