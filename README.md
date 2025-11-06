@@ -42,6 +42,8 @@ npm run dev
 
 Abre [http://localhost:3000](http://localhost:3000) para ver el ejemplo.
 
+> **Nota**: Si el puerto 3000 está ocupado, Next.js usará automáticamente el siguiente puerto disponible (3001, 3002, etc.). La URL correcta se mostrará en la consola.
+
 ## 📚 Paquetes
 
 ### @bizuit/form-sdk

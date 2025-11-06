@@ -85,10 +85,16 @@ Después de ejecutar los tests, encontrarás:
 
 ### Cambiar URL Base
 
-Por defecto usa `http://localhost:3001`. Para cambiar:
+El script detecta automáticamente el puerto que usa Next.js. Si el puerto 3000 está ocupado, Next.js usará 3001, 3002, etc.
+
+Para forzar un puerto específico:
 
 ```bash
+# Opción 1: Variable de entorno para el script de test
 BASE_URL=http://localhost:3000 npm run test:e2e
+
+# Opción 2: Especificar puerto para Next.js
+PORT=3002 npm run dev
 ```
 
 ### Modificar Tests
