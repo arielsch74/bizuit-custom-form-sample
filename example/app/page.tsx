@@ -1,11 +1,32 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { AppToolbar } from '@/components/app-toolbar'
 import { useTranslation } from '@bizuit/ui-components'
 
 export default function Home() {
   const { t } = useTranslation()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Show loading state until mounted to avoid hydration mismatch
+  if (!mounted) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center p-24">
+        <AppToolbar />
+        <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm">
+          <h1 className="text-4xl font-bold mb-8 text-center">
+            Bizuit Form Example
+          </h1>
+          <div className="text-center text-muted-foreground">Loading...</div>
+        </div>
+      </main>
+    )
+  }
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
