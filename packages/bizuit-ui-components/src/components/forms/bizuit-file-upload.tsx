@@ -56,10 +56,14 @@ export function BizuitFileUpload({
   const [previews, setPreviews] = React.useState<Record<string, string>>({})
   const inputRef = React.useRef<HTMLInputElement>(null)
 
-  // Sync with external value
+  // Sync with external value (only when length or content changes)
   React.useEffect(() => {
-    setFiles(value)
-  }, [value])
+    // Only update if the arrays are actually different
+    if (value.length !== files.length ||
+        value.some((file, i) => file !== files[i])) {
+      setFiles(value)
+    }
+  }, [value, files])
 
   // Generate previews for images
   React.useEffect(() => {

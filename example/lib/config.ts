@@ -11,8 +11,8 @@ import type { IBizuitConfig } from '@bizuit/form-sdk'
  * Configuración del SDK de Bizuit
  */
 export const bizuitConfig: IBizuitConfig = {
-  formsApiUrl: process.env.NEXT_PUBLIC_BIZUIT_FORMS_API_URL || 'https://api.bizuit.com/forms',
-  dashboardApiUrl: process.env.NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL || 'https://api.bizuit.com/dashboard',
+  formsApiUrl: process.env.NEXT_PUBLIC_BIZUIT_FORMS_API_URL || 'https://test.bizuit.com/arielschbizuitdashboardapi/api',
+  dashboardApiUrl: process.env.NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL || 'https://test.bizuit.com/arielschbizuitdashboardapi/api',
   timeout: parseInt(process.env.NEXT_PUBLIC_BIZUIT_TIMEOUT || '30000'),
 }
 
@@ -20,15 +20,14 @@ export const bizuitConfig: IBizuitConfig = {
  * URLs base de la API
  *
  * IMPORTANTE: Actualiza estas URLs en tu archivo .env.local
- * según tu entorno:
+ * según tu entorno.
  *
- * Desarrollo:
- * NEXT_PUBLIC_BIZUIT_FORMS_API_URL=http://localhost:5000/api/forms
- * NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=http://localhost:5000/api/dashboard
+ * La URL base debe terminar en /api (sin /forms o /dashboard)
+ * Los endpoints específicos se agregan en el SDK.
  *
- * Producción:
- * NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://tu-servidor.com/api/forms
- * NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://tu-servidor.com/api/dashboard
+ * Ejemplo:
+ * NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api
+ * NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api
  */
 export const API_CONFIG = {
   FORMS_API: bizuitConfig.formsApiUrl,

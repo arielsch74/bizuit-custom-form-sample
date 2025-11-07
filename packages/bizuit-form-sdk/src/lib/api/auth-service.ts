@@ -10,6 +10,8 @@ import type {
   IRequestCheckFormAuth,
   ILoginSettings,
   IBizuitConfig,
+  ILoginRequest,
+  ILoginResponse,
 } from '../types'
 
 export class BizuitAuthService {
@@ -158,5 +160,68 @@ export class BizuitAuthService {
         Authorization: `Basic ${token}`,
       },
     })
+  }
+
+  /**
+   * Login with username and password
+   * Uses HTTP Basic Authentication as per Bizuit API specification
+   * Returns token and user information
+   *
+   * Example response from API:
+   * {
+   *   "token": "ZMdufWTdCsSYUXj7...",
+   *   "user": {
+   *     "username": "admin",
+   *     "userID": 1,
+   *     "displayName": "Administrator Account",
+   *     "image": null
+   *   },
+   *   "forceChange": false,
+   *   "expirationDate": "2025-11-27T22:07:20.5095101Z"
+   * }
+   */
+  async login(credentials: ILoginRequest): Promise<ILoginResponse> {
+    const { username, password } = credentials
+
+    // Create Basic Auth header: base64(username:password)
+    const authString = `${username}:${password}`
+    const base64Auth = btoa(authString)
+    const authHeader = `Basic ${base64Auth}`
+
+    try {
+      // The API returns a JSON object with token and user info
+      const response = await this.client.get<any>(
+        `${this.formsApiUrl}/Login`,
+        {
+          headers: {
+            'Authorization': authHeader,
+          },
+        }
+      )
+
+      // Map the API response to our ILoginResponse format
+      const loginResponse: ILoginResponse = {
+        Token: `Basic ${response.token}`, // Prepend "Basic " to the token
+        User: {
+          Username: response.user.username,
+          UserID: response.user.userID,
+          DisplayName: response.user.displayName,
+          Image: response.user.image,
+        },
+        ForceChange: response.forceChange,
+        ExpirationDate: response.expirationDate,
+      }
+
+      return loginResponse
+    } catch (error: any) {
+      // Handle specific error messages from API
+      if (error.statusCode === 401) {
+        throw new Error('Nombre de Usuario y/o Contraseña incorrectos.')
+      } else if (error.statusCode === 403) {
+        throw new Error('Acceso denegado, no tiene permiso para acceder.')
+      }
+
+      throw error
+    }
   }
 }

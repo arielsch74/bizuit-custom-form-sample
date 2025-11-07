@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { BizuitSDKProvider, useBizuitSDK, useAuth } from '@bizuit/form-sdk'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { BizuitSDKProvider, useBizuitSDK, BizuitAuthService, type ILoginResponse } from '@bizuit/form-sdk'
+import { useBizuitAuth, useTranslation } from '@bizuit/ui-components'
 import {
   BizuitCombo,
   BizuitDateTimePicker,
@@ -12,18 +14,85 @@ import {
 import { Button } from '@bizuit/ui-components'
 import Link from 'next/link'
 import { bizuitConfig } from '@/lib/config'
+import { formDataToParameters } from '@/lib/form-utils'
 import { AppToolbar } from '@/components/app-toolbar'
 
 function StartProcessForm() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const sdk = useBizuitSDK()
-  const { validateToken, checkFormAuth, getUserInfo, isAuthenticated, user, isLoading } = useAuth()
+  const { t } = useTranslation()
+  const { isAuthenticated, token: authToken, user, login: setAuthData } = useBizuitAuth()
 
-  const [processId, setProcessId] = useState('')
-  const [token, setToken] = useState('')
+  // Get URL parameters
+  const urlToken = searchParams.get('token')
+  const urlEventName = searchParams.get('eventName')
+
+  const [eventName, setEventName] = useState(urlEventName || '')
   const [formData, setFormData] = useState<any>({})
   const [processData, setProcessData] = useState<any>(null)
   const [status, setStatus] = useState<'idle' | 'initializing' | 'ready' | 'submitting' | 'success' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
+  const [urlTokenProcessed, setUrlTokenProcessed] = useState(false)
+
+  // The actual token to use: URL token takes precedence over auth context
+  const activeToken = urlToken || authToken
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Process URL token if provided (auto-login from Bizuit BPM)
+  useEffect(() => {
+    if (mounted && urlToken && !urlTokenProcessed) {
+      setUrlTokenProcessed(true)
+
+      // If we have a URL token, we need to validate it and extract user info
+      // For now, we'll create a mock user object
+      // In production, you might want to call an endpoint to validate the token and get user info
+      const mockUserFromToken: ILoginResponse = {
+        Token: urlToken,
+        User: {
+          Username: 'bizuit-user',
+          UserID: 0,
+          DisplayName: 'Usuario Bizuit',
+        },
+        ExpirationDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+      }
+
+      setAuthData(mockUserFromToken)
+    }
+  }, [mounted, urlToken, urlTokenProcessed, setAuthData])
+
+  // Redirect to login if not authenticated and no URL token
+  // Wait a bit to allow AuthProvider to load from localStorage
+  useEffect(() => {
+    console.log('[StartProcess] Auth check:', { mounted, isAuthenticated, urlToken, activeToken })
+
+    if (!mounted || urlToken) return
+
+    // Small delay to let AuthProvider restore session from localStorage
+    const timer = setTimeout(() => {
+      console.log('[StartProcess] After delay - isAuthenticated:', isAuthenticated)
+      if (!isAuthenticated) {
+        const params = new URLSearchParams()
+        const returnUrl = `/start-process${urlEventName ? `?eventName=${encodeURIComponent(urlEventName)}` : ''}`
+        params.set('redirect', returnUrl)
+        console.log('[StartProcess] Redirecting to login:', `/login?${params.toString()}`)
+        router.push(`/login?${params.toString()}`)
+      }
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [mounted, isAuthenticated, urlToken, router, urlEventName, activeToken])
+
+  // Auto-set status to ready if we have eventName from URL
+  useEffect(() => {
+    if (mounted && activeToken && urlEventName && status === 'idle') {
+      setStatus('ready')
+    }
+  }, [mounted, activeToken, urlEventName, status])
 
   // Opciones de ejemplo para el combo
   const priorityOptions = [
@@ -62,60 +131,43 @@ function StartProcessForm() {
     { id: 3, name: 'Item 3', value: 300 },
   ])
 
-  const handleAuthenticate = async () => {
-    try {
-      setStatus('initializing')
-      setError(null)
-
-      // Validar token
-      const isValid = await validateToken(token)
-      if (!isValid) {
-        throw new Error('Token inválido')
-      }
-
-      // Verificar permisos para el formulario
-      const authResult = await checkFormAuth({
-        processName: processId,
-        userName: user?.username
-      })
-      if (!authResult) {
-        throw new Error('No tiene permisos para iniciar este proceso')
-      }
-
-      // Obtener información del usuario (opcional - si necesitas más detalles del usuario)
-      // const userInfo = await getUserInfo(token, userName)
-      // console.log('Usuario autenticado:', userInfo)
-
-      // Inicializar proceso
-      const result = await sdk.process.initialize({
-        processName: processId,
-        token
-      })
-
-      setProcessData(result)
-      setStatus('ready')
-    } catch (err: any) {
-      setError(err.message || 'Error al autenticar')
-      setStatus('error')
+  const handleStartProcess = () => {
+    if (!activeToken) {
+      const redirectUrl = `/login?redirect=/start-process${eventName ? `?eventName=${encodeURIComponent(eventName)}` : ''}`
+      router.push(redirectUrl)
+      return
     }
+
+    if (!eventName) {
+      setError('El nombre del evento es requerido')
+      return
+    }
+
+    // Simply set status to ready to show the form
+    setStatus('ready')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    if (!activeToken) {
+      const redirectUrl = `/login?redirect=/start-process${eventName ? `?eventName=${encodeURIComponent(eventName)}` : ''}`
+      router.push(redirectUrl)
+      return
+    }
+
     try {
       setStatus('submitting')
       setError(null)
 
-      // Ejecutar RaiseEvent para crear la instancia del proceso
-      // NOTE: This is a simplified example. In production, you need to convert
-      // formData to IParameter[] format as expected by the SDK
+      // Execute RaiseEvent to create process instance
       const result = await sdk.process.raiseEvent(
         {
-          eventName: 'StartProcess',
-          parameters: [], // Convert formData to IParameter[]
+          eventName: eventName,
+          parameters: formDataToParameters(formData),
         },
-        [] // files
+        formData.files || [], // Pass the files from formData
+        activeToken // Pass the authentication token
       )
 
       console.log('Proceso iniciado:', result)
@@ -126,12 +178,12 @@ function StartProcessForm() {
     }
   }
 
-  if (isLoading) {
+  if (!mounted || (!isAuthenticated && !urlToken)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Cargando...</p>
+          <p className="text-muted-foreground">{t('login.redirecting')}</p>
         </div>
       </div>
     )
@@ -144,40 +196,47 @@ function StartProcessForm() {
 
         <div className="mb-6">
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
-            ← Volver al inicio
+            {t('nav.backToHome')}
           </Link>
         </div>
 
         <div className="border rounded-lg p-6 bg-card">
-          <h1 className="text-3xl font-bold mb-6">Iniciar Proceso</h1>
+          <h1 className="text-3xl font-bold mb-6">{t('startProcess.title')}</h1>
+
+          {user && (
+            <div className="mb-4 p-3 bg-muted/50 rounded-md">
+              <p className="text-sm">
+                <strong>{t('login.username')}:</strong> {user.DisplayName || user.Username}
+              </p>
+            </div>
+          )}
+
+          {urlToken && (
+            <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+              <p className="text-sm text-blue-900 dark:text-blue-100">
+                <strong>✓ Token recibido desde URL</strong> (Modo Bizuit BPM)
+              </p>
+            </div>
+          )}
 
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2">
-                ID del Proceso
+                {t('startProcess.processId')} / Nombre del Evento
               </label>
               <input
                 type="text"
-                value={processId}
-                onChange={(e) => setProcessId(e.target.value)}
-                placeholder="Ej: PROC-001"
+                value={eventName}
+                onChange={(e) => setEventName(e.target.value)}
+                placeholder="Ej: NombreDelEvento"
                 className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
-                disabled={status === 'initializing'}
+                disabled={status === 'initializing' || !!urlEventName}
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Token de Autenticación
-              </label>
-              <textarea
-                value={token}
-                onChange={(e) => setToken(e.target.value)}
-                placeholder="Ingrese el token JWT"
-                rows={4}
-                className="w-full px-3 py-2 border rounded-md font-mono text-xs bg-background text-foreground"
-                disabled={status === 'initializing'}
-              />
+              {urlEventName && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Nombre del evento recibido desde URL
+                </p>
+              )}
             </div>
 
             {error && (
@@ -187,19 +246,25 @@ function StartProcessForm() {
             )}
 
             <Button
-              onClick={handleAuthenticate}
-              disabled={!processId || !token || status === 'initializing'}
+              onClick={handleStartProcess}
+              disabled={!eventName}
               className="w-full"
             >
-              {status === 'initializing' ? 'Autenticando...' : 'Autenticar e Inicializar'}
+              {t('startProcess.authenticate')}
             </Button>
           </div>
 
           <div className="mt-6 p-4 bg-muted rounded-md">
             <p className="text-sm text-muted-foreground">
-              <strong>Nota:</strong> En un entorno real, el token vendría como parámetro de la URL
-              desde el BPMS Bizuit. Esta pantalla es solo para propósitos de demostración.
+              <strong>{t('startProcess.note')}</strong> {t('startProcess.note.description')}
             </p>
+            {!urlToken && !urlEventName && (
+              <p className="text-sm text-muted-foreground mt-2">
+                <strong>URL de ejemplo:</strong> <code className="text-xs bg-background px-1 py-0.5 rounded">
+                  /start-process?token=TU_TOKEN&eventName=NombreDelEvento
+                </code>
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -209,18 +274,20 @@ function StartProcessForm() {
   if (status === 'ready') {
     return (
       <div className="container max-w-4xl mx-auto py-8 px-4">
+        <AppToolbar />
+
         <div className="mb-6">
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
-            ← Volver al inicio
+            {t('nav.backToHome')}
           </Link>
         </div>
 
         <div className="border rounded-lg p-6 bg-card">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-3xl font-bold">Formulario de Proceso</h1>
-            {isAuthenticated && user && (
+            {user && (
               <div className="text-sm text-muted-foreground">
-                Usuario: <span className="font-medium">{user.displayName || user.username}</span>
+                Usuario: <span className="font-medium">{user.DisplayName || user.Username}</span>
               </div>
             )}
           </div>
@@ -330,7 +397,7 @@ function StartProcessForm() {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Ingrese una descripción del proceso"
                 rows={4}
-                className="w-full px-3 py-2 border rounded-md"
+                className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
               />
             </div>
 
@@ -374,6 +441,8 @@ function StartProcessForm() {
   if (status === 'success') {
     return (
       <div className="container max-w-2xl mx-auto py-8 px-4">
+        <AppToolbar />
+
         <div className="border rounded-lg p-6 bg-card text-center">
           <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

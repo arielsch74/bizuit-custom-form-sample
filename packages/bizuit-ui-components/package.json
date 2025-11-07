@@ -48,6 +48,7 @@
   "author": "Bizuit Team",
   "license": "MIT",
   "peerDependencies": {
+    "@bizuit/form-sdk": "*",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
@@ -75,6 +76,7 @@
     "zod": "^3.22.0"
   },
   "devDependencies": {
+    "@bizuit/form-sdk": "file:../bizuit-form-sdk",
     "@storybook/addon-essentials": "^7.6.0",
     "@storybook/addon-interactions": "^7.6.0",
     "@storybook/addon-links": "^7.6.0",

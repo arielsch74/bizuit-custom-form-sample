@@ -73,6 +73,18 @@ export const translations = {
     'continueProcess.pessimisticLocking': 'Pessimistic Locking:',
     'continueProcess.pessimisticLocking.description': 'This functionality implements pessimistic locking to ensure only one user can edit the instance at a time.',
     'continueProcess.pessimisticLocking.release': 'The lock will be automatically released when submitting the form or canceling the edit.',
+
+    // Login
+    'login.title': 'Login to Bizuit',
+    'login.username': 'Username',
+    'login.username.placeholder': 'Enter your username',
+    'login.password': 'Password',
+    'login.password.placeholder': 'Enter your password',
+    'login.submit': 'Login',
+    'login.submitting': 'Logging in...',
+    'login.error': 'Login Error',
+    'login.success': 'Login Successful',
+    'login.redirecting': 'Redirecting...',
   },
   es: {
     // Navigation
@@ -148,6 +160,18 @@ export const translations = {
     'continueProcess.pessimisticLocking': 'Bloqueo Pesimista:',
     'continueProcess.pessimisticLocking.description': 'Esta funcionalidad implementa bloqueo pesimista para garantizar que solo un usuario pueda editar la instancia a la vez.',
     'continueProcess.pessimisticLocking.release': 'El bloqueo se liberará automáticamente al enviar el formulario o cancelar la edición.',
+
+    // Login
+    'login.title': 'Iniciar Sesión en Bizuit',
+    'login.username': 'Usuario',
+    'login.username.placeholder': 'Ingrese su usuario',
+    'login.password': 'Contraseña',
+    'login.password.placeholder': 'Ingrese su contraseña',
+    'login.submit': 'Iniciar Sesión',
+    'login.submitting': 'Iniciando sesión...',
+    'login.error': 'Error de Login',
+    'login.success': 'Login Exitoso',
+    'login.redirecting': 'Redirigiendo...',
   },
 }
 

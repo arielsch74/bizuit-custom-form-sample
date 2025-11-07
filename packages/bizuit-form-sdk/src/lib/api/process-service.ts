@@ -1,6 +1,7 @@
 /**
  * Bizuit Process Service
  * Handles process initialization and RaiseEvent operations
+ * Updated to match Bizuit API specification exactly
  */
 
 import { BizuitHttpClient } from './http-client'
@@ -23,6 +24,7 @@ export class BizuitProcessService {
 
   /**
    * Initialize process - Get parameters for new or existing instance
+   * Uses standard Authorization header as per API specification
    */
   async initialize(params: IInitializeParams): Promise<IProcessData> {
     const queryParams = new URLSearchParams()
@@ -34,12 +36,13 @@ export class BizuitProcessService {
 
     const headers: Record<string, string> = {}
 
-    if (params.sessionToken) {
-      headers['BZ-SESSION-TOKEN'] = params.sessionToken
+    // Use standard Authorization header with token
+    if (params.token) {
+      headers['Authorization'] = params.token
     }
 
-    if (params.token) {
-      headers['BZ-AUTH-TOKEN'] = params.token
+    if (params.sessionToken) {
+      headers['BZ-SESSION-TOKEN'] = params.sessionToken
     }
 
     if (params.userName) {
@@ -76,60 +79,70 @@ export class BizuitProcessService {
 
   /**
    * RaiseEvent - Execute process or continue instance
-   * Supports file uploads via FormData
+   * Sends JSON directly as per Bizuit API specification
+   *
+   * Example from curl:
+   * POST /api/instances
+   * Authorization: Basic TOKEN
+   * Content-Type: application/json
+   * {
+   *   "eventName": "DemoFlow",
+   *   "parameters": [
+   *     {
+   *       "name": "pData",
+   *       "value": "A",
+   *       "type": "SingleValue",
+   *       "direction": "In"
+   *     }
+   *   ]
+   * }
    */
   async raiseEvent(
     params: IRaiseEventParams,
     files?: File[],
-    sessionToken?: string,
-    userName?: string
+    token?: string
   ): Promise<IRaiseEventResult> {
-    const formData = new FormData()
-
-    // Add process data
-    const dataPayload = {
-      eventName: params.eventName,
-      instanceId: params.instanceId,
-      parameters: params.parameters,
-      eventVersion: params.eventVersion,
-      closeOnSuccess: params.closeOnSuccess || false,
-      deletedDocuments: params.deletedDocuments || [],
-    }
-
-    const jsonString = JSON.stringify(dataPayload)
-    const base64Data = btoa(jsonString)
-    formData.append('data', base64Data)
-
-    // Add files
-    if (files && files.length > 0) {
-      files.forEach((file) => {
-        formData.append(file.name, file, file.name)
-      })
-    }
-
     const headers: Record<string, string> = {
-      // Don't set Content-Type, let browser set it with boundary for multipart
+      'Content-Type': 'application/json',
     }
 
-    if (sessionToken) {
-      headers['BZ-SESSION-TOKEN'] = sessionToken
+    // Use standard Authorization header with token
+    if (token) {
+      headers['Authorization'] = token
     }
 
-    if (userName) {
-      headers['BZ-USER-NAME'] = userName
+    // Build the payload exactly as the API expects
+    const payload: any = {
+      eventName: params.eventName,
+      parameters: params.parameters || [],
     }
 
-    if (params.eventName) {
-      headers['BZ-PROCESS-NAME'] = params.eventName
-    }
-
+    // Add optional fields only if provided
     if (params.instanceId) {
-      headers['BZ-INSTANCEID'] = params.instanceId
+      payload.instanceId = params.instanceId
+    }
+
+    if (params.eventVersion) {
+      payload.eventVersion = params.eventVersion
+    }
+
+    if (params.closeOnSuccess !== undefined) {
+      payload.closeOnSuccess = params.closeOnSuccess
+    }
+
+    if (params.deletedDocuments && params.deletedDocuments.length > 0) {
+      payload.deletedDocuments = params.deletedDocuments
+    }
+
+    // Note: File upload support would require multipart/form-data
+    // For now, we're implementing JSON-only as per the curl examples
+    if (files && files.length > 0) {
+      console.warn('File upload in RaiseEvent is not yet implemented in JSON mode')
     }
 
     const result = await this.client.post<IRaiseEventResult>(
-      `${this.formsApiUrl}/Process/RaiseEvent`,
-      formData,
+      `${this.formsApiUrl}/instances`,
+      payload,
       { headers }
     )
 
@@ -154,22 +167,128 @@ export class BizuitProcessService {
 
   /**
    * Get instance data
+   * Uses standard Authorization header
+   *
+   * Example from curl:
+   * GET /api/instances?instanceId=8d2d0e04-ea83-48f2-953d-ff858581e3df
+   * Authorization: Basic TOKEN
    */
   async getInstanceData(
     instanceId: string,
-    sessionToken?: string
+    token?: string
   ): Promise<IProcessData> {
     const headers: Record<string, string> = {}
 
-    if (sessionToken) {
-      headers['BZ-SESSION-TOKEN'] = sessionToken
+    if (token) {
+      headers['Authorization'] = token
     }
 
     const data = await this.client.get<IProcessData>(
-      `${this.formsApiUrl}/Process/Initialize?instanceId=${instanceId}`,
+      `${this.formsApiUrl}/instances?instanceId=${instanceId}`,
       { headers }
     )
 
     return data
+  }
+
+  /**
+   * Acquire pessimistic lock on instance
+   * Prevents concurrent editing
+   */
+  async acquireLock(params: {
+    instanceId: string
+    token: string
+  }): Promise<{ sessionToken: string; processData: IProcessData }> {
+    const headers: Record<string, string> = {
+      'Authorization': params.token,
+    }
+
+    const result = await this.client.post<{ sessionToken: string; processData: IProcessData }>(
+      `${this.formsApiUrl}/ProcessInstance/AcquireLock`,
+      { instanceId: params.instanceId },
+      { headers }
+    )
+
+    return result
+  }
+
+  /**
+   * Release pessimistic lock on instance
+   */
+  async releaseLock(params: {
+    instanceId: string
+    sessionToken: string
+  }): Promise<void> {
+    const headers: Record<string, string> = {
+      'BZ-SESSION-TOKEN': params.sessionToken,
+    }
+
+    await this.client.post<void>(
+      `${this.formsApiUrl}/ProcessInstance/ReleaseLock`,
+      { instanceId: params.instanceId },
+      { headers }
+    )
+  }
+
+  /**
+   * Continue instance with updated parameters
+   * Uses PUT method instead of POST
+   *
+   * Example from curl:
+   * PUT /api/instances
+   * Authorization: Basic TOKEN
+   * Content-Type: application/json
+   * {
+   *   "eventName": "DemoFlow",
+   *   "parameters": [...],
+   *   "instanceId": "e3137f94-0ab5-4ae7-b256-10806fe92958"
+   * }
+   */
+  async continueInstance(
+    params: IRaiseEventParams,
+    files?: File[],
+    token?: string
+  ): Promise<IRaiseEventResult> {
+    if (!params.instanceId) {
+      throw new Error('instanceId is required for continueInstance')
+    }
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    }
+
+    if (token) {
+      headers['Authorization'] = token
+    }
+
+    const payload: any = {
+      eventName: params.eventName,
+      parameters: params.parameters || [],
+      instanceId: params.instanceId,
+    }
+
+    if (params.eventVersion) {
+      payload.eventVersion = params.eventVersion
+    }
+
+    if (params.closeOnSuccess !== undefined) {
+      payload.closeOnSuccess = params.closeOnSuccess
+    }
+
+    if (params.deletedDocuments && params.deletedDocuments.length > 0) {
+      payload.deletedDocuments = params.deletedDocuments
+    }
+
+    if (files && files.length > 0) {
+      console.warn('File upload in continueInstance is not yet implemented in JSON mode')
+    }
+
+    const result = await this.client.put<IRaiseEventResult>(
+      `${this.formsApiUrl}/instances`,
+      payload,
+      { headers }
+    )
+
+    return result
   }
 }

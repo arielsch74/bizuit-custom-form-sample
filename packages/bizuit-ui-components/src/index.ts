@@ -38,5 +38,12 @@ export { useTranslation } from './providers/use-translation'
 export { translations } from './providers/translations'
 export type { TranslationKey } from './providers/translations'
 
+// Authentication
+export { BizuitAuthProvider, useBizuitAuth } from './providers/auth-provider'
+export type { BizuitAuthContextType, BizuitAuthProviderProps } from './providers/auth-provider'
+
+export { BizuitLogin } from './components/BizuitLogin'
+export type { BizuitLoginProps } from './components/BizuitLogin'
+
 // Version
 export const VERSION = '1.0.0'

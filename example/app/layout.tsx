@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { BizuitThemeProvider } from "@bizuit/ui-components";
+import { BizuitThemeProvider, BizuitAuthProvider } from "@bizuit/ui-components";
 
 export const metadata: Metadata = {
   title: "Bizuit Form Example",
@@ -20,7 +20,9 @@ export default function RootLayout({
           defaultColorTheme="blue"
           defaultLanguage="es"
         >
-          {children}
+          <BizuitAuthProvider>
+            {children}
+          </BizuitAuthProvider>
         </BizuitThemeProvider>
       </body>
     </html>

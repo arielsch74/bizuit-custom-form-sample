@@ -59,6 +59,23 @@ export interface IRequestCheckFormAuth {
   instanceId?: string
 }
 
+export interface ILoginRequest {
+  username: string
+  password: string
+}
+
+export interface ILoginResponse {
+  Token: string
+  User: {
+    Username: string
+    UserID: number
+    DisplayName: string
+    Image?: string | null
+  }
+  ForceChange?: boolean
+  ExpirationDate: string
+}
+
 export type AuthControlType = 'secure' | 'anonymous'
 
 export interface IBizuitAuthHeaders {

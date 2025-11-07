@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { BizuitSDKProvider, useBizuitSDK, useAuth } from '@bizuit/form-sdk'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { BizuitSDKProvider, useBizuitSDK, type ILoginResponse } from '@bizuit/form-sdk'
+import { useBizuitAuth, useTranslation } from '@bizuit/ui-components'
 import {
   BizuitCombo,
   BizuitDateTimePicker,
@@ -12,20 +14,80 @@ import {
 import { Button } from '@bizuit/ui-components'
 import Link from 'next/link'
 import { bizuitConfig } from '@/lib/config'
+import { formDataToParameters, parametersToFormData } from '@/lib/form-utils'
 import { AppToolbar } from '@/components/app-toolbar'
 
 function ContinueProcessForm() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const sdk = useBizuitSDK()
-  const { validateToken, checkFormAuth, getUserInfo, isAuthenticated, user, isLoading } = useAuth()
+  const { t } = useTranslation()
+  const { isAuthenticated, token: authToken, user, login: setAuthData } = useBizuitAuth()
 
-  const [instanceId, setInstanceId] = useState('')
-  const [token, setToken] = useState('')
+  // Get URL parameters
+  const urlToken = searchParams.get('token')
+  const urlInstanceId = searchParams.get('instanceId')
+
+  const [instanceId, setInstanceId] = useState(urlInstanceId || '')
   const [formData, setFormData] = useState<any>({})
   const [processData, setProcessData] = useState<any>(null)
   const [lockStatus, setLockStatus] = useState<'unlocked' | 'locked-by-me' | 'locked-by-other' | 'checking'>('unlocked')
   const [sessionToken, setSessionToken] = useState<string | null>(null)
-  const [status, setStatus] = useState<'idle' | 'initializing' | 'ready' | 'submitting' | 'success' | 'error'>('idle')
+  const [status, setStatus] = useState<'idle' | 'loading' | 'initializing' | 'ready' | 'submitting' | 'success' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
+  const [urlTokenProcessed, setUrlTokenProcessed] = useState(false)
+
+  // The actual token to use: URL token takes precedence over auth context
+  const activeToken = urlToken || authToken
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Process URL token if provided (auto-login from Bizuit BPM)
+  useEffect(() => {
+    if (mounted && urlToken && !urlTokenProcessed) {
+      setUrlTokenProcessed(true)
+
+      const mockUserFromToken: ILoginResponse = {
+        Token: urlToken,
+        User: {
+          Username: 'bizuit-user',
+          UserID: 0,
+          DisplayName: 'Usuario Bizuit',
+        },
+        ExpirationDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      }
+
+      setAuthData(mockUserFromToken)
+    }
+  }, [mounted, urlToken, urlTokenProcessed, setAuthData])
+
+  // Redirect to login if not authenticated and no URL token
+  // Wait a bit to allow AuthProvider to load from localStorage
+  useEffect(() => {
+    if (!mounted || urlToken) return
+
+    // Small delay to let AuthProvider restore session from localStorage
+    const timer = setTimeout(() => {
+      if (!isAuthenticated) {
+        const params = new URLSearchParams()
+        const returnUrl = `/continue-process${urlInstanceId ? `?instanceId=${encodeURIComponent(urlInstanceId)}` : ''}`
+        params.set('redirect', returnUrl)
+        router.push(`/login?${params.toString()}`)
+      }
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [mounted, isAuthenticated, urlToken, router, urlInstanceId])
+
+  // Auto-load instance data if we have instanceId from URL
+  useEffect(() => {
+    if (mounted && activeToken && urlInstanceId && status === 'idle') {
+      loadInstanceData()
+    }
+  }, [mounted, activeToken, urlInstanceId, status])
 
   // Opciones de ejemplo
   const statusOptions = [
@@ -49,7 +111,7 @@ function ContinueProcessForm() {
     },
     {
       accessorKey: 'completedBy',
-      header: 'Completado por',
+      header: 'Completado Por',
     },
     {
       accessorKey: 'completedAt',
@@ -62,109 +124,83 @@ function ContinueProcessForm() {
   ]
 
   const [activityData] = useState([
-    {
-      activityName: 'Solicitud Inicial',
-      completedBy: 'Juan Pérez',
-      completedAt: '2024-01-15 10:30',
-      result: 'Aprobado',
-    },
-    {
-      activityName: 'Revisión Técnica',
-      completedBy: 'María García',
-      completedAt: '2024-01-16 14:20',
-      result: 'Aprobado con observaciones',
-    },
+    { activityName: 'Inicio', completedBy: 'Sistema', completedAt: '2024-01-15 10:00', result: 'OK' },
+    { activityName: 'Validación', completedBy: 'Juan Pérez', completedAt: '2024-01-15 11:30', result: 'Aprobado' },
+    { activityName: 'Revisión', completedBy: 'María García', completedAt: '2024-01-15 14:00', result: 'Aprobado' },
   ])
 
-  // Auto-unlock cuando el componente se desmonta
-  useEffect(() => {
-    return () => {
-      if (sessionToken && instanceId) {
-        sdk.instanceLock.unlock(
-          { instanceId, activityName: 'ContinueActivity', sessionToken },
-          token
-        ).catch(console.error)
-      }
+  const loadInstanceData = async () => {
+    if (!activeToken) {
+      const redirectUrl = `/login?redirect=/continue-process${instanceId ? `?instanceId=${encodeURIComponent(instanceId)}` : ''}`
+      router.push(redirectUrl)
+      return
     }
-  }, [sessionToken, instanceId, token])
 
-  const handleAuthenticate = async () => {
+    if (!instanceId) {
+      setError('El ID de instancia es requerido')
+      return
+    }
+
     try {
-      setStatus('initializing')
+      setStatus('loading')
       setError(null)
 
-      // Validar token
-      const isValid = await validateToken(token)
-      if (!isValid) {
-        throw new Error('Token inválido')
-      }
+      // Get instance data using getInstanceData
+      const data = await sdk.process.getInstanceData(instanceId, activeToken)
 
-      // Verificar permisos
-      const authResult = await checkFormAuth({
-        instanceId,
-        userName: user?.username
-      })
-      if (!authResult) {
-        throw new Error('No tiene permisos para continuar este proceso')
-      }
+      setProcessData(data)
 
-      // Usuario autenticado disponible en el hook useAuth
-      console.log('Usuario autenticado:', user)
-
-      // Verificar estado del bloqueo
-      setLockStatus('checking')
-      const lockResult = await sdk.instanceLock.checkLockStatus(
-        instanceId,
-        'ContinueActivity',
-        token
-      )
-
-      if (!lockResult.available) {
-        setLockStatus('locked-by-other')
-        throw new Error('El proceso está bloqueado por otro usuario')
-      }
-
-      // Intentar bloquear la instancia
-      const lockResponse = await sdk.instanceLock.lock(
-        {
-          instanceId,
-          activityName: 'ContinueActivity',
-          operation: 1, // Continue operation
-          processName: 'ContinueProcess'
-        },
-        token
-      )
-
-      setSessionToken(lockResponse.sessionToken || '')
-      setLockStatus('locked-by-me')
-
-      // Inicializar proceso con la instancia existente
-      const result = await sdk.process.initialize({
-        processName: 'ContinueProcess',
-        instanceId,
-        token
-      })
-
-      setProcessData(result)
-
-      // Pre-cargar datos de parámetros y variables
-      if (result.parameters) {
-        setFormData({ ...result.parameters, ...result.variables })
+      // Parse data.parameters and populate formData
+      if (data.parameters && Array.isArray(data.parameters)) {
+        const parsedFormData = parametersToFormData(data.parameters)
+        setFormData(parsedFormData)
       }
 
       setStatus('ready')
     } catch (err: any) {
-      setError(err.message || 'Error al autenticar')
+      setError(err.message || 'Error al cargar los datos de la instancia')
       setStatus('error')
-      setLockStatus('unlocked')
+    }
+  }
+
+  const handleAuthenticateAndLock = async () => {
+    if (!activeToken) {
+      const redirectUrl = `/login?redirect=/continue-process${instanceId ? `?instanceId=${encodeURIComponent(instanceId)}` : ''}`
+      router.push(redirectUrl)
+      return
+    }
+
+    if (!instanceId) {
+      setError('El ID de instancia es requerido')
+      return
+    }
+
+    try {
+      setStatus('initializing')
+      setError(null)
+
+      // Lock instance with pessimistic locking
+      const result = await sdk.process.acquireLock({
+        instanceId,
+        token: activeToken
+      })
+
+      setSessionToken(result.sessionToken)
+      setProcessData(result.processData)
+      setLockStatus('locked-by-me')
+      setStatus('ready')
+    } catch (err: any) {
+      setError(err.message || 'Error al bloquear la instancia')
+      setStatus('error')
     }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!sessionToken) {
-      setError('No se ha establecido una sesión de bloqueo')
+    if (!activeToken) {
+      const redirectUrl = `/login?redirect=/continue-process${instanceId ? `?instanceId=${encodeURIComponent(instanceId)}` : ''}`
+      router.push(redirectUrl)
       return
     }
 
@@ -172,113 +208,112 @@ function ContinueProcessForm() {
       setStatus('submitting')
       setError(null)
 
-      // Usar withLock para asegurar el desbloqueo automático
-      await sdk.instanceLock.withLock(
+      // Submit changes and release lock
+      const result = await sdk.process.continueInstance(
         {
           instanceId,
-          activityName: 'ContinueActivity',
-          operation: 1,
-          processName: 'ContinueProcess'
+          eventName: 'ContinueProcess', // Event name for continuing process
+          parameters: formDataToParameters(formData),
         },
-        token,
-        async (lockSessionToken) => {
-          // Ejecutar RaiseEvent para continuar el proceso
-          // NOTE: This is a simplified example. In production, you need to convert
-          // formData to IParameter[] format as expected by the SDK
-          const result = await sdk.process.raiseEvent(
-            {
-              eventName: 'ContinueProcess',
-              instanceId,
-              parameters: [], // Convert formData to IParameter[]
-            },
-            [], // files
-            lockSessionToken
-          )
-
-          console.log('Proceso continuado:', result)
-          return result
-        }
+        formData.files || [], // Pass the files from formData
+        activeToken // Pass the authentication token
       )
 
-      setStatus('success')
+      console.log('Instancia actualizada:', result)
       setLockStatus('unlocked')
-      setSessionToken(null)
+      setStatus('success')
     } catch (err: any) {
-      setError(err.message || 'Error al continuar proceso')
+      setError(err.message || 'Error al actualizar la instancia')
       setStatus('error')
     }
   }
 
   const handleCancel = async () => {
-    if (sessionToken && instanceId) {
+    if (sessionToken) {
       try {
-        await sdk.instanceLock.unlock(
-          { instanceId, activityName: 'ContinueActivity', sessionToken },
-          token
-        )
-        setSessionToken(null)
+        // Release lock without submitting
+        await sdk.process.releaseLock({
+          instanceId,
+          sessionToken
+        })
         setLockStatus('unlocked')
+        setSessionToken(null)
         setStatus('idle')
       } catch (err: any) {
-        setError(`Error al desbloquear: ${err.message}`)
+        console.error('Error al liberar bloqueo:', err)
       }
     } else {
       setStatus('idle')
     }
   }
 
-  if (isLoading) {
+  if (!mounted || (!isAuthenticated && !urlToken)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Cargando...</p>
+          <p className="text-muted-foreground">{t('login.redirecting')}</p>
         </div>
       </div>
     )
   }
 
-  if (status === 'idle' || status === 'initializing') {
+  if (status === 'idle' || status === 'loading' || status === 'initializing') {
     return (
       <div className="container max-w-2xl mx-auto py-8 px-4">
         <AppToolbar />
 
         <div className="mb-6">
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
-            ← Volver al inicio
+            {t('nav.backToHome')}
           </Link>
         </div>
 
         <div className="border rounded-lg p-6 bg-card">
-          <h1 className="text-3xl font-bold mb-6">Continuar Proceso</h1>
+          <h1 className="text-3xl font-bold mb-6">{t('continueProcess.title')}</h1>
+
+          {user && (
+            <div className="mb-4 p-3 bg-muted/50 rounded-md">
+              <p className="text-sm">
+                <strong>{t('login.username')}:</strong> {user.DisplayName || user.Username}
+              </p>
+            </div>
+          )}
+
+          {urlToken && (
+            <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+              <p className="text-sm text-blue-900 dark:text-blue-100">
+                <strong>✓ Token recibido desde URL</strong> (Modo Bizuit BPM)
+              </p>
+            </div>
+          )}
+
+          {status === 'loading' && (
+            <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+              <p className="text-sm text-blue-900 dark:text-blue-100">
+                <strong>⏳ Cargando datos de la instancia...</strong>
+              </p>
+            </div>
+          )}
 
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2">
-                ID de Instancia
+                {t('continueProcess.instanceId')}
               </label>
               <input
                 type="text"
                 value={instanceId}
                 onChange={(e) => setInstanceId(e.target.value)}
-                placeholder="Ej: INST-12345"
+                placeholder={t('continueProcess.instanceId.placeholder')}
                 className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
-                disabled={status === 'initializing'}
+                disabled={status === 'loading' || status === 'initializing' || !!urlInstanceId}
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Token de Autenticación
-              </label>
-              <textarea
-                value={token}
-                onChange={(e) => setToken(e.target.value)}
-                placeholder="Ingrese el token JWT"
-                rows={4}
-                className="w-full px-3 py-2 border rounded-md font-mono text-xs bg-background text-foreground"
-                disabled={status === 'initializing'}
-              />
+              {urlInstanceId && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  ID de instancia recibido desde URL
+                </p>
+              )}
             </div>
 
             {error && (
@@ -287,35 +322,38 @@ function ContinueProcessForm() {
               </div>
             )}
 
-            {lockStatus === 'checking' && (
-              <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 px-4 py-3 rounded-md">
-                Verificando estado del bloqueo...
-              </div>
+            {status === 'idle' && (
+              <Button
+                onClick={loadInstanceData}
+                disabled={!instanceId}
+                className="w-full"
+              >
+                Cargar Datos de Instancia
+              </Button>
             )}
 
-            {lockStatus === 'locked-by-other' && (
-              <div className="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 px-4 py-3 rounded-md">
-                El proceso está bloqueado por otro usuario
+            {(status === 'loading' || status === 'initializing') && (
+              <div className="flex items-center justify-center py-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
               </div>
             )}
-
-            <Button
-              onClick={handleAuthenticate}
-              disabled={!instanceId || !token || status === 'initializing'}
-              className="w-full"
-            >
-              {status === 'initializing' ? 'Autenticando y Bloqueando...' : 'Autenticar y Bloquear Instancia'}
-            </Button>
           </div>
 
           <div className="mt-6 p-4 bg-muted rounded-md space-y-2">
+            <p className="text-sm font-medium">{t('continueProcess.pessimisticLocking')}</p>
             <p className="text-sm text-muted-foreground">
-              <strong>Bloqueo Pesimista:</strong> Esta funcionalidad implementa bloqueo pesimista
-              para garantizar que solo un usuario pueda editar la instancia a la vez.
+              {t('continueProcess.pessimisticLocking.description')}
             </p>
             <p className="text-sm text-muted-foreground">
-              El bloqueo se liberará automáticamente al enviar el formulario o cancelar la edición.
+              {t('continueProcess.pessimisticLocking.release')}
             </p>
+            {!urlToken && !urlInstanceId && (
+              <p className="text-sm text-muted-foreground mt-3">
+                <strong>URL de ejemplo:</strong> <code className="text-xs bg-background px-1 py-0.5 rounded">
+                  /continue-process?token=TU_TOKEN&instanceId=INSTANCE_ID
+                </code>
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -325,146 +363,133 @@ function ContinueProcessForm() {
   if (status === 'ready') {
     return (
       <div className="container max-w-4xl mx-auto py-8 px-4">
+        <AppToolbar />
+
         <div className="mb-6">
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
-            ← Volver al inicio
+            {t('nav.backToHome')}
           </Link>
         </div>
 
         <div className="border rounded-lg p-6 bg-card">
           <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold">Continuar Proceso</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Instancia: {instanceId}
-              </p>
-            </div>
-            <div className="text-right">
-              {isAuthenticated && user && (
-                <div className="text-sm text-muted-foreground mb-1">
-                  Usuario: <span className="font-medium">{user.displayName || user.username}</span>
-                </div>
-              )}
+            <h1 className="text-3xl font-bold">Continuar Proceso</h1>
+            <div className="flex items-center gap-4">
               {lockStatus === 'locked-by-me' && (
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs">
-                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                   </svg>
-                  Bloqueado por ti
+                  <span className="text-sm font-medium">Bloqueado por ti</span>
+                </div>
+              )}
+              {user && (
+                <div className="text-sm text-muted-foreground">
+                  Usuario: <span className="font-medium">{user.DisplayName || user.Username}</span>
                 </div>
               )}
             </div>
           </div>
 
+          {/* Historial de Actividades */}
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold mb-3">Actividades Completadas</h2>
+            <BizuitDataGrid
+              columns={activityColumns}
+              data={activityData}
+              sortable
+              paginated={false}
+            />
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Sección de Actividades Completadas (Solo Lectura) */}
-            <div className="p-4 bg-muted rounded-lg">
-              <h3 className="text-lg font-semibold mb-3">Historial de Actividades</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Las siguientes actividades ya fueron completadas (solo lectura)
-              </p>
-              <BizuitDataGrid
-                columns={activityColumns}
-                data={activityData}
-                selectable="none"
-                sortable={false}
-                filterable={false}
-                paginated={false}
+            {/* Estado */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Estado Actual
+              </label>
+              <BizuitCombo
+                options={statusOptions}
+                value={formData.status}
+                onChange={(value) => setFormData({ ...formData, status: value })}
+                placeholder="Seleccione el estado"
+                searchable
               />
             </div>
 
-            {/* Sección de Datos Editables */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Datos Editables</h3>
+            {/* Asignado a */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Reasignar a
+              </label>
+              <BizuitCombo
+                options={assigneeOptions}
+                value={formData.assignee}
+                onChange={(value) => setFormData({ ...formData, assignee: value })}
+                placeholder="Seleccione un usuario"
+                searchable
+              />
+            </div>
 
-              {/* Estado */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Estado del Proceso
-                </label>
-                <BizuitCombo
-                  options={statusOptions}
-                  value={formData.status}
-                  onChange={(value) => setFormData({ ...formData, status: value })}
-                  placeholder="Seleccione un estado"
-                  searchable
-                />
-              </div>
+            {/* Fecha Límite */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Nueva Fecha Límite
+              </label>
+              <BizuitDateTimePicker
+                value={formData.dueDate}
+                onChange={(value) => setFormData({ ...formData, dueDate: value })}
+                mode="datetime"
+                locale="es"
+              />
+            </div>
 
-              {/* Asignado */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Asignar a
-                </label>
-                <BizuitCombo
-                  options={assigneeOptions}
-                  value={formData.assignedTo}
-                  onChange={(value) => setFormData({ ...formData, assignedTo: value })}
-                  placeholder="Seleccione un usuario"
-                  searchable
-                />
-              </div>
+            {/* Prioridad */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Nivel de Prioridad
+              </label>
+              <BizuitSlider
+                value={formData.priority || 50}
+                onChange={(value) => setFormData({ ...formData, priority: value })}
+                min={0}
+                max={100}
+                step={10}
+                showTooltip
+                marks={[
+                  { value: 0, label: 'Baja' },
+                  { value: 50, label: 'Media' },
+                  { value: 100, label: 'Alta' },
+                ]}
+              />
+            </div>
 
-              {/* Fecha de Vencimiento */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Fecha de Vencimiento
-                </label>
-                <BizuitDateTimePicker
-                  value={formData.dueDate}
-                  onChange={(value) => setFormData({ ...formData, dueDate: value })}
-                  mode="datetime"
-                  locale="es"
-                />
-              </div>
+            {/* Archivos Adjuntos */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Documentos Adicionales
+              </label>
+              <BizuitFileUpload
+                value={formData.files}
+                onChange={(files) => setFormData({ ...formData, files })}
+                multiple
+                maxSize={10 * 1024 * 1024} // 10MB
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
+              />
+            </div>
 
-              {/* Progreso */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Progreso (%)
-                </label>
-                <BizuitSlider
-                  value={formData.progress || 0}
-                  onChange={(value) => setFormData({ ...formData, progress: value })}
-                  min={0}
-                  max={100}
-                  step={10}
-                  showTooltip
-                  marks={[
-                    { value: 0, label: '0%' },
-                    { value: 50, label: '50%' },
-                    { value: 100, label: '100%' },
-                  ]}
-                />
-              </div>
-
-              {/* Archivos Adicionales */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Archivos Adicionales
-                </label>
-                <BizuitFileUpload
-                  value={formData.additionalFiles}
-                  onChange={(files) => setFormData({ ...formData, additionalFiles: files })}
-                  multiple
-                  maxSize={10 * 1024 * 1024} // 10MB
-                  accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-                />
-              </div>
-
-              {/* Comentarios */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Comentarios
-                </label>
-                <textarea
-                  value={formData.comments || ''}
-                  onChange={(e) => setFormData({ ...formData, comments: e.target.value })}
-                  placeholder="Agregue comentarios sobre esta actividad"
-                  rows={4}
-                  className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
-                />
-              </div>
+            {/* Comentarios */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Comentarios / Observaciones
+              </label>
+              <textarea
+                value={formData.comments || ''}
+                onChange={(e) => setFormData({ ...formData, comments: e.target.value })}
+                placeholder="Ingrese comentarios u observaciones sobre el proceso"
+                rows={5}
+                className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
+              />
             </div>
 
             {error && (
@@ -479,15 +504,14 @@ function ContinueProcessForm() {
                 disabled={status !== 'ready'}
                 className="flex-1"
               >
-                {status !== 'ready' ? 'Continuando Proceso...' : 'Continuar Proceso'}
+                {status !== 'ready' ? 'Guardando Cambios...' : 'Guardar y Continuar'}
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 onClick={handleCancel}
-                disabled={status !== 'ready'}
               >
-                Cancelar y Desbloquear
+                Cancelar y Liberar Bloqueo
               </Button>
             </div>
           </form>
@@ -495,7 +519,7 @@ function ContinueProcessForm() {
           {processData && (
             <div className="mt-6 p-4 bg-muted rounded-md">
               <p className="text-sm font-medium mb-2">Datos de la Instancia:</p>
-              <pre className="text-xs overflow-auto max-h-64">
+              <pre className="text-xs overflow-auto">
                 {JSON.stringify(processData, null, 2)}
               </pre>
             </div>
@@ -508,26 +532,20 @@ function ContinueProcessForm() {
   if (status === 'success') {
     return (
       <div className="container max-w-2xl mx-auto py-8 px-4">
+        <AppToolbar />
+
         <div className="border rounded-lg p-6 bg-card text-center">
           <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold mb-2">Proceso Continuado Exitosamente</h2>
-          <p className="text-muted-foreground mb-2">
-            La instancia {instanceId} ha sido actualizada correctamente
-          </p>
-          <p className="text-sm text-muted-foreground mb-6">
-            El bloqueo ha sido liberado automáticamente
+          <h2 className="text-2xl font-bold mb-2">Instancia Actualizada Exitosamente</h2>
+          <p className="text-muted-foreground mb-6">
+            Los cambios han sido guardados y el bloqueo ha sido liberado
           </p>
           <div className="flex gap-4 justify-center">
-            <Button onClick={() => {
-              setStatus('idle')
-              setInstanceId('')
-              setFormData({})
-              setProcessData(null)
-            }}>
+            <Button onClick={() => setStatus('idle')}>
               Continuar Otra Instancia
             </Button>
             <Link href="/">
