@@ -9,6 +9,8 @@ import {
   formDataToParameters,
   parametersToFormData,
   isParameterRequired,
+  filterContinueParameters,
+  loadInstanceDataForContinue,
   type IBizuitProcessParameter
 } from '@bizuit/form-sdk'
 import { useBizuitAuth, useTranslation } from '@bizuit/ui-components'
@@ -98,29 +100,6 @@ function ContinueProcessForm() {
       loadInstanceData()
     }
   }, [mounted, activeToken, urlInstanceId, status])
-
-  /**
-   * Filter parameters for continue process
-   * Shows: Input (direction=1), Optional (direction=3), AND Variables (isVariable=true)
-   * Excludes: Output-only (direction=2) and system parameters
-   */
-  const filterContinueParameters = (parameters: IBizuitProcessParameter[]): IBizuitProcessParameter[] => {
-    return parameters.filter((param) => {
-      // Exclude system parameters
-      if (param.isSystemParameter) {
-        return false
-      }
-
-      // Include Variables
-      if (param.isVariable) {
-        return true
-      }
-
-      // Include Input (1) and Optional (3) parameters
-      // Exclude Output-only (2) parameters
-      return param.parameterDirection === 1 || param.parameterDirection === 3
-    })
-  }
 
   /**
    * Render form field based on parameter type
@@ -281,48 +260,19 @@ function ContinueProcessForm() {
       setStatus('loading')
       setError(null)
 
-      console.log('[ContinueProcess] Fetching instance data for:', instanceId)
+      console.log('[ContinueProcess] Loading instance data for:', instanceId)
 
-      // 1. Get instance data using getInstanceData
-      const data = await sdk.process.getInstanceData(instanceId, activeToken)
+      // Use SDK helper to load all data
+      const result = await loadInstanceDataForContinue(sdk, instanceId, activeToken)
 
-      console.log('[ContinueProcess] Instance data received:', data)
+      console.log('[ContinueProcess] Result:', result)
 
-      setProcessData(data)
-
-      // Extract process name and event name from instance data
-      // TODO: Verify field names with actual API response
-      const processNameFromData = data.processName || data.workflowName || ''
-      const eventNameFromData = data.eventName || data.currentEvent || ''
-
-      setProcessName(processNameFromData)
-      setEventName(eventNameFromData)
-
-      console.log('[ContinueProcess] Process name:', processNameFromData)
-      console.log('[ContinueProcess] Event name:', eventNameFromData)
-
-      // 2. Get process parameters schema if we have process name
-      if (processNameFromData) {
-        console.log('[ContinueProcess] Fetching process parameters for:', processNameFromData)
-
-        const allParameters = await sdk.process.getProcessParameters(processNameFromData, '', activeToken)
-
-        console.log('[ContinueProcess] All parameters received:', allParameters)
-
-        // Filter to show Input, Optional, AND Variables (not just Input/Optional like start-process)
-        const formParameters = filterContinueParameters(allParameters)
-
-        console.log('[ContinueProcess] Filtered form parameters:', formParameters)
-
-        setProcessParameters(formParameters)
-      }
-
-      // 3. Parse existing data.parameters and populate formData
-      if (data.parameters && Array.isArray(data.parameters)) {
-        const parsedFormData = parametersToFormData(data.parameters)
-        setFormData(parsedFormData)
-        console.log('[ContinueProcess] Form data populated:', parsedFormData)
-      }
+      // Update all state from helper result
+      setProcessData(result.instanceData)
+      setProcessName(result.processName)
+      setEventName(result.eventName)
+      setProcessParameters(result.formParameters)
+      setFormData(result.formData)
 
       setStatus('ready')
     } catch (err: any) {
@@ -373,25 +323,41 @@ function ContinueProcessForm() {
       return
     }
 
+    // Validate we have an event name
+    if (!eventName) {
+      setError('No se pudo determinar el nombre del evento. Por favor recargue los datos de la instancia.')
+      return
+    }
+
     try {
       setStatus('submitting')
       setError(null)
 
-      // Submit changes and release lock
+      console.log('[ContinueProcess] Submitting with:', {
+        instanceId,
+        eventName,
+        parametersCount: formDataToParameters(formData).length
+      })
+
+      // Submit changes using the event name from instance data
       const result = await sdk.process.continueInstance(
         {
           instanceId,
-          eventName: 'ContinueProcess', // Event name for continuing process
+          eventName, // Use dynamic event name from instance data
           parameters: formDataToParameters(formData),
         },
         formData.files || [], // Pass the files from formData
         activeToken // Pass the authentication token
       )
 
-      console.log('Instancia actualizada:', result)
+      console.log('[ContinueProcess] Result:', result)
+
+      // Store the result
+      setProcessData(result)
       setLockStatus('unlocked')
       setStatus('success')
     } catch (err: any) {
+      console.error('[ContinueProcess] Error:', err)
       setError(err.message || 'Error al actualizar la instancia')
       setStatus('error')
     }
@@ -560,130 +526,85 @@ function ContinueProcessForm() {
             </div>
           </div>
 
-          {/* Historial de Actividades */}
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold mb-3">Actividades Completadas</h2>
-            <BizuitDataGrid
-              columns={activityColumns}
-              data={activityData}
-              sortable
-              paginated={false}
-            />
+          {/* Process Info */}
+          <div className="mb-6 p-4 bg-muted/50 rounded-md">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-muted-foreground">Instance ID:</span>
+                <p className="font-mono text-xs mt-1">{instanceId}</p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Process Name:</span>
+                <p className="font-semibold mt-1">{processName || 'N/A'}</p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Event Name:</span>
+                <p className="font-semibold mt-1">{eventName || 'N/A'}</p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Parameters:</span>
+                <p className="font-semibold mt-1">{processParameters.length} campos</p>
+              </div>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Estado */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Estado Actual
-              </label>
-              <BizuitCombo
-                options={statusOptions}
-                value={formData.status}
-                onChange={(value) => setFormData({ ...formData, status: value })}
-                placeholder="Seleccione el estado"
-                searchable
-              />
-            </div>
+          {processParameters.length > 0 ? (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Render dynamic form fields based on process parameters */}
+              {processParameters.map((param) => renderFormField(param))}
 
-            {/* Asignado a */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Reasignar a
-              </label>
-              <BizuitCombo
-                options={assigneeOptions}
-                value={formData.assignee}
-                onChange={(value) => setFormData({ ...formData, assignee: value })}
-                placeholder="Seleccione un usuario"
-                searchable
-              />
-            </div>
+              {error && (
+                <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md">
+                  {error}
+                </div>
+              )}
 
-            {/* Fecha Límite */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Nueva Fecha Límite
-              </label>
-              <BizuitDateTimePicker
-                value={formData.dueDate}
-                onChange={(value) => setFormData({ ...formData, dueDate: value })}
-                mode="datetime"
-                locale="es"
-              />
-            </div>
-
-            {/* Prioridad */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Nivel de Prioridad
-              </label>
-              <BizuitSlider
-                value={formData.priority || 50}
-                onChange={(value) => setFormData({ ...formData, priority: value })}
-                min={0}
-                max={100}
-                step={10}
-                showTooltip
-                marks={[
-                  { value: 0, label: 'Baja' },
-                  { value: 50, label: 'Media' },
-                  { value: 100, label: 'Alta' },
-                ]}
-              />
-            </div>
-
-            {/* Archivos Adjuntos */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Documentos Adicionales
-              </label>
-              <BizuitFileUpload
-                value={formData.files}
-                onChange={(files) => setFormData({ ...formData, files })}
-                multiple
-                maxSize={10 * 1024 * 1024} // 10MB
-                accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
-              />
-            </div>
-
-            {/* Comentarios */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Comentarios / Observaciones
-              </label>
-              <textarea
-                value={formData.comments || ''}
-                onChange={(e) => setFormData({ ...formData, comments: e.target.value })}
-                placeholder="Ingrese comentarios u observaciones sobre el proceso"
-                rows={5}
-                className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
-              />
-            </div>
-
-            {error && (
-              <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md">
-                {error}
+              <div className="flex gap-4">
+                <Button
+                  type="submit"
+                  disabled={status !== 'ready'}
+                  className="flex-1"
+                >
+                  {status !== 'ready' ? 'Guardando Cambios...' : 'Guardar y Continuar'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setStatus('idle')
+                    setInstanceId('')
+                    setProcessName('')
+                    setEventName('')
+                    setProcessParameters([])
+                    setFormData({})
+                    setProcessData(null)
+                  }}
+                >
+                  Cancelar
+                </Button>
               </div>
-            )}
-
-            <div className="flex gap-4">
+            </form>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">
+                No se encontraron parámetros editables para este proceso.
+              </p>
               <Button
-                type="submit"
-                disabled={status !== 'ready'}
-                className="flex-1"
+                onClick={() => {
+                  setStatus('idle')
+                  setInstanceId('')
+                  setProcessName('')
+                  setEventName('')
+                  setProcessParameters([])
+                  setFormData({})
+                  setProcessData(null)
+                }}
+                className="mt-4"
               >
-                {status !== 'ready' ? 'Guardando Cambios...' : 'Guardar y Continuar'}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleCancel}
-              >
-                Cancelar y Liberar Bloqueo
+                Volver
               </Button>
             </div>
-          </form>
+          )}
 
           {processData && (
             <div className="mt-6 p-4 bg-muted rounded-md">
