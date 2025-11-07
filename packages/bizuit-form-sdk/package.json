@@ -1,5 +1,5 @@
 {
-  "name": "@bizuit/form-sdk",
+  "name": "@tyconsa/bizuit-form-sdk",
   "version": "1.0.0",
   "description": "Core SDK for Bizuit BPM form integration - handles authentication, process management, and instance locking",
   "main": "./dist/index.js",

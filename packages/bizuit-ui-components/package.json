@@ -1,5 +1,5 @@
 {
-  "name": "@bizuit/ui-components",
+  "name": "@tyconsa/bizuit-ui-components",
   "version": "1.0.0",
   "description": "Production-ready, fully customizable UI components for Bizuit BPM forms - Built with Radix UI, Tailwind CSS, and React",
   "main": "./dist/index.js",
@@ -60,7 +60,7 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@bizuit/form-sdk": "*",
+    "@tyconsa/bizuit-form-sdk": "*",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
@@ -88,7 +88,7 @@
     "zod": "^3.22.0"
   },
   "devDependencies": {
-    "@bizuit/form-sdk": "file:../bizuit-form-sdk",
+    "@tyconsa/bizuit-form-sdk": "file:../bizuit-form-sdk",
     "@storybook/addon-essentials": "^7.6.0",
     "@storybook/addon-interactions": "^7.6.0",
     "@storybook/addon-links": "^7.6.0",
