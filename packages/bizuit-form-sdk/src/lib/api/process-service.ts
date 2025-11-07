@@ -152,17 +152,37 @@ export class BizuitProcessService {
   /**
    * Get process parameters schema
    * Useful for dynamic form generation
+   *
+   * Example:
+   * GET /api/eventmanager/workflowDefinition/parameters/{processName}?version={version}
+   * Authorization: Basic TOKEN
+   *
+   * Returns array of parameters with:
+   * - parameterType: 1 (SingleValue) or 2 (Xml)
+   * - parameterDirection: 1 (In), 2 (Out), 3 (Optional)
+   * - name, type, schema, isSystemParameter, isVariable
    */
   async getProcessParameters(
     processName: string,
     version?: string,
     token?: string
-  ): Promise<IProcessData> {
-    return this.initialize({
-      processName,
-      version,
-      token,
-    })
+  ): Promise<any[]> {
+    const headers: Record<string, string> = {}
+
+    if (token) {
+      headers['Authorization'] = token
+    }
+
+    const queryParams = new URLSearchParams()
+    if (version) {
+      queryParams.append('version', version)
+    }
+
+    const url = `${this.formsApiUrl}/eventmanager/workflowDefinition/parameters/${processName}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+
+    const parameters = await this.client.get<any[]>(url, { headers })
+
+    return parameters
   }
 
   /**
