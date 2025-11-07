@@ -447,3 +447,49 @@ export async function loadInstanceDataForContinue(
     formData,
   }
 }
+
+/**
+ * Processes a URL token and creates a mock login response
+ * This is useful when Bizuit BPM passes a token via URL parameter
+ *
+ * @param token - The authentication token from URL
+ * @param username - Optional username (defaults to 'bizuit-user')
+ * @param displayName - Optional display name (defaults to 'Usuario Bizuit')
+ * @param expirationHours - Token expiration in hours (defaults to 24)
+ * @returns ILoginResponse object ready for auth context
+ *
+ * @example
+ * ```typescript
+ * import { processUrlToken } from '@bizuit/form-sdk'
+ *
+ * const urlToken = searchParams.get('token')
+ * if (urlToken) {
+ *   const loginResponse = processUrlToken(urlToken)
+ *   setAuthData(loginResponse)
+ * }
+ * ```
+ */
+export function processUrlToken(
+  token: string,
+  username: string = 'bizuit-user',
+  displayName: string = 'Usuario Bizuit',
+  expirationHours: number = 24
+): {
+  Token: string
+  User: {
+    Username: string
+    UserID: number
+    DisplayName: string
+  }
+  ExpirationDate: string
+} {
+  return {
+    Token: token,
+    User: {
+      Username: username,
+      UserID: 0,
+      DisplayName: displayName,
+    },
+    ExpirationDate: new Date(Date.now() + expirationHours * 60 * 60 * 1000).toISOString(),
+  }
+}

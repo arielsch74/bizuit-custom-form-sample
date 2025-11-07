@@ -27,6 +27,9 @@ export type { BizuitSliderProps, SliderMark } from './components/forms/bizuit-sl
 export { BizuitFileUpload } from './components/forms/bizuit-file-upload'
 export type { BizuitFileUploadProps } from './components/forms/bizuit-file-upload'
 
+export { DynamicFormField } from './components/forms/dynamic-form-field'
+export type { DynamicFormFieldProps } from './components/forms/dynamic-form-field'
+
 // Theme and Internationalization
 export { BizuitThemeProvider, useBizuitTheme } from './providers/theme-provider'
 export type { Theme, ColorTheme, Language } from './providers/theme-provider'
@@ -44,6 +47,10 @@ export type { BizuitAuthContextType, BizuitAuthProviderProps } from './providers
 
 export { BizuitLogin } from './components/BizuitLogin'
 export type { BizuitLoginProps } from './components/BizuitLogin'
+
+// Process Components
+export { ProcessSuccessScreen } from './components/process-success-screen'
+export type { ProcessSuccessScreenProps } from './components/process-success-screen'
 
 // Version
 export const VERSION = '1.0.0'
