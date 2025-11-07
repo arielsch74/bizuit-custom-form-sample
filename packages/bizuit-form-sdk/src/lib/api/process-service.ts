@@ -174,11 +174,10 @@ export class BizuitProcessService {
     }
 
     const queryParams = new URLSearchParams()
-    if (version) {
-      queryParams.append('version', version)
-    }
+    // Always add version parameter, even if empty (API requires it)
+    queryParams.append('version', version || '')
 
-    const url = `${this.formsApiUrl}/eventmanager/workflowDefinition/parameters/${processName}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+    const url = `${this.formsApiUrl}/eventmanager/workflowDefinition/parameters/${processName}?${queryParams.toString()}`
 
     const parameters = await this.client.get<any[]>(url, { headers })
 

@@ -56,6 +56,12 @@ async function handleRequest(
       }
     })
 
+    console.log(`[Bizuit Proxy] Headers being sent:`, {
+      authorization: headers['authorization'] ? headers['authorization'].substring(0, 20) + '...' : 'NOT PRESENT',
+      contentType: headers['content-type'],
+      allHeaders: Object.keys(headers)
+    })
+
     // Prepare fetch options
     const fetchOptions: RequestInit = {
       method,

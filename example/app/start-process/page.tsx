@@ -2,7 +2,16 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { BizuitSDKProvider, useBizuitSDK, BizuitAuthService, type ILoginResponse } from '@bizuit/form-sdk'
+import {
+  BizuitSDKProvider,
+  useBizuitSDK,
+  BizuitAuthService,
+  type ILoginResponse,
+  formDataToParameters,
+  filterFormParameters,
+  isParameterRequired,
+  type IBizuitProcessParameter
+} from '@bizuit/form-sdk'
 import { useBizuitAuth, useTranslation } from '@bizuit/ui-components'
 import {
   BizuitCombo,
@@ -14,7 +23,6 @@ import {
 import { Button } from '@bizuit/ui-components'
 import Link from 'next/link'
 import { bizuitConfig } from '@/lib/config'
-import { formDataToParameters } from '@/lib/form-utils'
 import { AppToolbar } from '@/components/app-toolbar'
 
 function StartProcessForm() {
@@ -31,6 +39,7 @@ function StartProcessForm() {
   const [eventName, setEventName] = useState(urlEventName || '')
   const [formData, setFormData] = useState<any>({})
   const [processData, setProcessData] = useState<any>(null)
+  const [processParameters, setProcessParameters] = useState<IBizuitProcessParameter[]>([])
   const [status, setStatus] = useState<'idle' | 'initializing' | 'ready' | 'submitting' | 'success' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
@@ -131,7 +140,7 @@ function StartProcessForm() {
     { id: 3, name: 'Item 3', value: 300 },
   ])
 
-  const handleStartProcess = () => {
+  const handleStartProcess = async () => {
     if (!activeToken) {
       const redirectUrl = `/login?redirect=/start-process${eventName ? `?eventName=${encodeURIComponent(eventName)}` : ''}`
       router.push(redirectUrl)
@@ -143,8 +152,46 @@ function StartProcessForm() {
       return
     }
 
-    // Simply set status to ready to show the form
-    setStatus('ready')
+    try {
+      setStatus('initializing')
+      setError(null)
+
+      console.log('[StartProcess] Fetching process parameters for:', eventName)
+
+      // Fetch process parameters from API
+      const allParameters = await sdk.process.getProcessParameters(eventName, '', activeToken)
+
+      console.log('[StartProcess] All parameters received:', allParameters)
+
+      // Check if we got a valid response
+      if (!Array.isArray(allParameters)) {
+        throw new Error('La respuesta del API no es un array de parámetros')
+      }
+
+      // Filter to show only input and optional parameters (not output or variables)
+      const formParameters = filterFormParameters(allParameters)
+
+      console.log('[StartProcess] Filtered form parameters:', formParameters)
+
+      setProcessParameters(formParameters)
+      setStatus('ready')
+    } catch (err: any) {
+      console.error('[StartProcess] Error fetching parameters:', err)
+
+      let errorMessage = 'Error al obtener los parámetros del proceso'
+
+      if (err.message) {
+        errorMessage = err.message
+      }
+
+      // Check if it's a 404 error
+      if (err.status === 404 || (err.message && err.message.includes('404'))) {
+        errorMessage = `El proceso "${eventName}" no existe o no tiene parámetros definidos. Verifique el nombre del proceso.`
+      }
+
+      setError(errorMessage)
+      setStatus('error')
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -171,6 +218,9 @@ function StartProcessForm() {
       )
 
       console.log('Proceso iniciado:', result)
+
+      // Store the process result (includes instanceId, status, tyconParameters)
+      setProcessData(result)
       setStatus('success')
     } catch (err: any) {
       setError(err.message || 'Error al iniciar proceso')
@@ -271,6 +321,106 @@ function StartProcessForm() {
     )
   }
 
+  // Helper function to render form fields based on parameter type
+  const renderFormField = (param: IBizuitProcessParameter) => {
+    const isRequired = isParameterRequired(param)
+    const label = `${param.name}${isRequired ? ' *' : ' (opcional)'}`
+
+    // Determine field type based on parameter metadata
+    const paramType = param.type.toLowerCase()
+
+    // String types
+    if (paramType === 'string' || paramType === 'text') {
+      return (
+        <div key={param.name}>
+          <label className="block text-sm font-medium mb-2">
+            {label}
+          </label>
+          <input
+            type="text"
+            value={formData[param.name] || ''}
+            onChange={(e) => setFormData({ ...formData, [param.name]: e.target.value })}
+            placeholder={`Ingrese ${param.name}`}
+            required={isRequired}
+            className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
+          />
+        </div>
+      )
+    }
+
+    // Numeric types
+    if (paramType === 'int' || paramType === 'integer' || paramType === 'number' || paramType === 'decimal' || paramType === 'double') {
+      return (
+        <div key={param.name}>
+          <label className="block text-sm font-medium mb-2">
+            {label}
+          </label>
+          <input
+            type="number"
+            value={formData[param.name] || ''}
+            onChange={(e) => setFormData({ ...formData, [param.name]: e.target.value })}
+            placeholder={`Ingrese ${param.name}`}
+            required={isRequired}
+            className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
+          />
+        </div>
+      )
+    }
+
+    // Boolean types
+    if (paramType === 'bool' || paramType === 'boolean') {
+      return (
+        <div key={param.name} className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id={param.name}
+            checked={formData[param.name] || false}
+            onChange={(e) => setFormData({ ...formData, [param.name]: e.target.checked })}
+            className="w-4 h-4 border rounded"
+          />
+          <label htmlFor={param.name} className="text-sm font-medium">
+            {label}
+          </label>
+        </div>
+      )
+    }
+
+    // Date/DateTime types
+    if (paramType === 'date' || paramType === 'datetime' || paramType === 'timestamp') {
+      return (
+        <div key={param.name}>
+          <label className="block text-sm font-medium mb-2">
+            {label}
+          </label>
+          <BizuitDateTimePicker
+            value={formData[param.name]}
+            onChange={(value) => setFormData({ ...formData, [param.name]: value })}
+            mode={paramType === 'date' ? 'date' : 'datetime'}
+            locale="es"
+          />
+        </div>
+      )
+    }
+
+    // Default to text input for unknown types
+    return (
+      <div key={param.name}>
+        <label className="block text-sm font-medium mb-2">
+          {label}
+          <span className="text-xs text-muted-foreground ml-2">({param.type})</span>
+        </label>
+        <input
+          type="text"
+          value={formData[param.name] || ''}
+          onChange={(e) => setFormData({ ...formData, [param.name]: e.target.value })}
+          placeholder={`Ingrese ${param.name}`}
+          required={isRequired}
+          className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
+        />
+      </div>
+    )
+  }
+
   if (status === 'ready') {
     return (
       <div className="container max-w-4xl mx-auto py-8 px-4">
@@ -284,7 +434,7 @@ function StartProcessForm() {
 
         <div className="border rounded-lg p-6 bg-card">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-3xl font-bold">Formulario de Proceso</h1>
+            <h1 className="text-3xl font-bold">Formulario de Proceso: {eventName}</h1>
             {user && (
               <div className="text-sm text-muted-foreground">
                 Usuario: <span className="font-medium">{user.DisplayName || user.Username}</span>
@@ -292,138 +442,54 @@ function StartProcessForm() {
             )}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Combo Simple */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Prioridad
-              </label>
-              <BizuitCombo
-                options={priorityOptions}
-                value={formData.priority}
-                onChange={(value) => setFormData({ ...formData, priority: value })}
-                placeholder="Seleccione una prioridad"
-                searchable
-              />
-            </div>
+          {processParameters.length > 0 ? (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Render dynamic form fields based on process parameters */}
+              {processParameters.map((param) => renderFormField(param))}
 
-            {/* Combo Múltiple */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Categorías
-              </label>
-              <BizuitCombo
-                options={categoryOptions}
-                value={formData.categories}
-                onChange={(value) => setFormData({ ...formData, categories: value })}
-                placeholder="Seleccione categorías"
-                multiSelect
-                searchable
-              />
-            </div>
+              {error && (
+                <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md">
+                  {error}
+                </div>
+              )}
 
-            {/* Date Time Picker */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Fecha de Inicio
-              </label>
-              <BizuitDateTimePicker
-                value={formData.startDate}
-                onChange={(value) => setFormData({ ...formData, startDate: value })}
-                mode="datetime"
-                locale="es"
-              />
-            </div>
-
-            {/* Slider */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Presupuesto (en miles)
-              </label>
-              <BizuitSlider
-                value={formData.budget || 50}
-                onChange={(value) => setFormData({ ...formData, budget: value })}
-                min={0}
-                max={100}
-                step={5}
-                showTooltip
-                marks={[
-                  { value: 0, label: '0' },
-                  { value: 50, label: '50K' },
-                  { value: 100, label: '100K' },
-                ]}
-              />
-            </div>
-
-            {/* File Upload */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Documentos Adjuntos
-              </label>
-              <BizuitFileUpload
-                value={formData.files}
-                onChange={(files) => setFormData({ ...formData, files })}
-                multiple
-                maxSize={5 * 1024 * 1024} // 5MB
-                accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-              />
-            </div>
-
-            {/* Data Grid */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Datos del Proceso
-              </label>
-              <BizuitDataGrid
-                columns={columns}
-                data={gridData}
-                selectable="multiple"
-                sortable
-                filterable
-                paginated
-                onSelectionChange={(selected) =>
-                  setFormData({ ...formData, selectedItems: selected })
-                }
-              />
-            </div>
-
-            {/* Campo de texto simple */}
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Descripción
-              </label>
-              <textarea
-                value={formData.description || ''}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Ingrese una descripción del proceso"
-                rows={4}
-                className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
-              />
-            </div>
-
-            {error && (
-              <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md">
-                {error}
+              <div className="flex gap-4">
+                <Button
+                  type="submit"
+                  disabled={status !== 'ready'}
+                  className="flex-1"
+                >
+                  {status !== 'ready' ? 'Iniciando Proceso...' : 'Iniciar Proceso'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setStatus('idle')
+                    setProcessParameters([])
+                    setFormData({})
+                  }}
+                >
+                  Cancelar
+                </Button>
               </div>
-            )}
-
-            <div className="flex gap-4">
+            </form>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">
+                No se encontraron parámetros de entrada para este proceso.
+              </p>
               <Button
-                type="submit"
-                disabled={status !== 'ready'}
-                className="flex-1"
+                onClick={() => {
+                  setStatus('idle')
+                  setProcessParameters([])
+                }}
+                className="mt-4"
               >
-                {status !== 'ready' ? 'Iniciando Proceso...' : 'Iniciar Proceso'}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setStatus('idle')}
-              >
-                Cancelar
+                Volver
               </Button>
             </div>
-          </form>
+          )}
 
           {processData && (
             <div className="mt-6 p-4 bg-muted rounded-md">
@@ -453,8 +519,38 @@ function StartProcessForm() {
           <p className="text-muted-foreground mb-6">
             El proceso ha sido creado correctamente en el BPMS Bizuit
           </p>
+
+          {processData && (
+            <div className="mb-6 p-4 bg-muted rounded-md text-left">
+              <p className="text-sm font-medium mb-2">Información del Proceso:</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Instance ID:</span>
+                  <span className="font-mono text-xs">{processData.instanceId}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Status:</span>
+                  <span className="font-semibold">{processData.status}</span>
+                </div>
+                {processData.tyconParameters && (
+                  <div className="mt-3">
+                    <p className="text-muted-foreground mb-1">Parámetros de Retorno:</p>
+                    <pre className="text-xs bg-background p-2 rounded overflow-auto">
+                      {JSON.stringify(processData.tyconParameters, null, 2)}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-4 justify-center">
-            <Button onClick={() => setStatus('idle')}>
+            <Button onClick={() => {
+              setStatus('idle')
+              setProcessData(null)
+              setFormData({})
+              setProcessParameters([])
+            }}>
               Iniciar Otro Proceso
             </Button>
             <Link href="/">

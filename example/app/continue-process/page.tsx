@@ -2,7 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { BizuitSDKProvider, useBizuitSDK, type ILoginResponse } from '@bizuit/form-sdk'
+import {
+  BizuitSDKProvider,
+  useBizuitSDK,
+  type ILoginResponse,
+  formDataToParameters,
+  parametersToFormData,
+  isParameterRequired,
+  type IBizuitProcessParameter
+} from '@bizuit/form-sdk'
 import { useBizuitAuth, useTranslation } from '@bizuit/ui-components'
 import {
   BizuitCombo,
@@ -14,7 +22,6 @@ import {
 import { Button } from '@bizuit/ui-components'
 import Link from 'next/link'
 import { bizuitConfig } from '@/lib/config'
-import { formDataToParameters, parametersToFormData } from '@/lib/form-utils'
 import { AppToolbar } from '@/components/app-toolbar'
 
 function ContinueProcessForm() {
@@ -29,8 +36,11 @@ function ContinueProcessForm() {
   const urlInstanceId = searchParams.get('instanceId')
 
   const [instanceId, setInstanceId] = useState(urlInstanceId || '')
+  const [eventName, setEventName] = useState('')
+  const [processName, setProcessName] = useState('')
   const [formData, setFormData] = useState<any>({})
   const [processData, setProcessData] = useState<any>(null)
+  const [processParameters, setProcessParameters] = useState<IBizuitProcessParameter[]>([])
   const [lockStatus, setLockStatus] = useState<'unlocked' | 'locked-by-me' | 'locked-by-other' | 'checking'>('unlocked')
   const [sessionToken, setSessionToken] = useState<string | null>(null)
   const [status, setStatus] = useState<'idle' | 'loading' | 'initializing' | 'ready' | 'submitting' | 'success' | 'error'>('idle')
@@ -89,6 +99,132 @@ function ContinueProcessForm() {
     }
   }, [mounted, activeToken, urlInstanceId, status])
 
+  /**
+   * Filter parameters for continue process
+   * Shows: Input (direction=1), Optional (direction=3), AND Variables (isVariable=true)
+   * Excludes: Output-only (direction=2) and system parameters
+   */
+  const filterContinueParameters = (parameters: IBizuitProcessParameter[]): IBizuitProcessParameter[] => {
+    return parameters.filter((param) => {
+      // Exclude system parameters
+      if (param.isSystemParameter) {
+        return false
+      }
+
+      // Include Variables
+      if (param.isVariable) {
+        return true
+      }
+
+      // Include Input (1) and Optional (3) parameters
+      // Exclude Output-only (2) parameters
+      return param.parameterDirection === 1 || param.parameterDirection === 3
+    })
+  }
+
+  /**
+   * Render form field based on parameter type
+   * Same as start-process but now includes variables
+   */
+  const renderFormField = (param: IBizuitProcessParameter) => {
+    const isRequired = !param.isVariable && isParameterRequired(param)
+    const label = `${param.name}${isRequired ? ' *' : param.isVariable ? ' (variable)' : ' (opcional)'}`
+
+    // Determine field type based on parameter metadata
+    const paramType = param.type.toLowerCase()
+
+    // String types
+    if (paramType === 'string' || paramType === 'text') {
+      return (
+        <div key={param.name}>
+          <label className="block text-sm font-medium mb-2">
+            {label}
+          </label>
+          <input
+            type="text"
+            value={formData[param.name] || ''}
+            onChange={(e) => setFormData({ ...formData, [param.name]: e.target.value })}
+            placeholder={`Ingrese ${param.name}`}
+            required={isRequired}
+            className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
+          />
+        </div>
+      )
+    }
+
+    // Numeric types
+    if (paramType === 'int' || paramType === 'integer' || paramType === 'number' || paramType === 'decimal' || paramType === 'double') {
+      return (
+        <div key={param.name}>
+          <label className="block text-sm font-medium mb-2">
+            {label}
+          </label>
+          <input
+            type="number"
+            value={formData[param.name] || ''}
+            onChange={(e) => setFormData({ ...formData, [param.name]: e.target.value })}
+            placeholder={`Ingrese ${param.name}`}
+            required={isRequired}
+            className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
+          />
+        </div>
+      )
+    }
+
+    // Boolean types
+    if (paramType === 'bool' || paramType === 'boolean') {
+      return (
+        <div key={param.name} className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id={param.name}
+            checked={formData[param.name] || false}
+            onChange={(e) => setFormData({ ...formData, [param.name]: e.target.checked })}
+            className="w-4 h-4 border rounded"
+          />
+          <label htmlFor={param.name} className="text-sm font-medium">
+            {label}
+          </label>
+        </div>
+      )
+    }
+
+    // Date/DateTime types
+    if (paramType === 'date' || paramType === 'datetime' || paramType === 'timestamp') {
+      return (
+        <div key={param.name}>
+          <label className="block text-sm font-medium mb-2">
+            {label}
+          </label>
+          <BizuitDateTimePicker
+            value={formData[param.name]}
+            onChange={(value) => setFormData({ ...formData, [param.name]: value })}
+            mode={paramType === 'date' ? 'date' : 'datetime'}
+            locale="es"
+          />
+        </div>
+      )
+    }
+
+    // Default to text input for unknown types
+    return (
+      <div key={param.name}>
+        <label className="block text-sm font-medium mb-2">
+          {label}
+          <span className="text-xs text-muted-foreground ml-2">({param.type})</span>
+        </label>
+        <input
+          type="text"
+          value={formData[param.name] || ''}
+          onChange={(e) => setFormData({ ...formData, [param.name]: e.target.value })}
+          placeholder={`Ingrese ${param.name}`}
+          required={isRequired}
+          className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
+        />
+      </div>
+    )
+  }
+
   // Opciones de ejemplo
   const statusOptions = [
     { value: 'pending', label: 'Pendiente', group: 'Estado' },
@@ -145,19 +281,52 @@ function ContinueProcessForm() {
       setStatus('loading')
       setError(null)
 
-      // Get instance data using getInstanceData
+      console.log('[ContinueProcess] Fetching instance data for:', instanceId)
+
+      // 1. Get instance data using getInstanceData
       const data = await sdk.process.getInstanceData(instanceId, activeToken)
+
+      console.log('[ContinueProcess] Instance data received:', data)
 
       setProcessData(data)
 
-      // Parse data.parameters and populate formData
+      // Extract process name and event name from instance data
+      // TODO: Verify field names with actual API response
+      const processNameFromData = data.processName || data.workflowName || ''
+      const eventNameFromData = data.eventName || data.currentEvent || ''
+
+      setProcessName(processNameFromData)
+      setEventName(eventNameFromData)
+
+      console.log('[ContinueProcess] Process name:', processNameFromData)
+      console.log('[ContinueProcess] Event name:', eventNameFromData)
+
+      // 2. Get process parameters schema if we have process name
+      if (processNameFromData) {
+        console.log('[ContinueProcess] Fetching process parameters for:', processNameFromData)
+
+        const allParameters = await sdk.process.getProcessParameters(processNameFromData, '', activeToken)
+
+        console.log('[ContinueProcess] All parameters received:', allParameters)
+
+        // Filter to show Input, Optional, AND Variables (not just Input/Optional like start-process)
+        const formParameters = filterContinueParameters(allParameters)
+
+        console.log('[ContinueProcess] Filtered form parameters:', formParameters)
+
+        setProcessParameters(formParameters)
+      }
+
+      // 3. Parse existing data.parameters and populate formData
       if (data.parameters && Array.isArray(data.parameters)) {
         const parsedFormData = parametersToFormData(data.parameters)
         setFormData(parsedFormData)
+        console.log('[ContinueProcess] Form data populated:', parsedFormData)
       }
 
       setStatus('ready')
     } catch (err: any) {
+      console.error('[ContinueProcess] Error loading instance data:', err)
       setError(err.message || 'Error al cargar los datos de la instancia')
       setStatus('error')
     }
