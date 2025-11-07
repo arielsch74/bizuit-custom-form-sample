@@ -12,7 +12,7 @@ import {
 import { Button } from '@bizuit/ui-components'
 import Link from 'next/link'
 import { bizuitConfig } from '@/lib/config'
-import { ThemeToggle } from '@/components/theme-toggle'
+import { AppToolbar } from '@/components/app-toolbar'
 
 function StartProcessForm() {
   const sdk = useBizuitSDK()
@@ -140,9 +140,7 @@ function StartProcessForm() {
   if (status === 'idle' || status === 'initializing') {
     return (
       <div className="container max-w-2xl mx-auto py-8 px-4">
-        <div className="fixed top-4 right-4 z-50">
-          <ThemeToggle />
-        </div>
+        <AppToolbar />
 
         <div className="mb-6">
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">

@@ -27,5 +27,13 @@ export type { BizuitSliderProps, SliderMark } from './components/forms/bizuit-sl
 export { BizuitFileUpload } from './components/forms/bizuit-file-upload'
 export type { BizuitFileUploadProps } from './components/forms/bizuit-file-upload'
 
+// Theme and Internationalization
+export { BizuitThemeProvider, useBizuitTheme } from './providers/theme-provider'
+export type { Theme, ColorTheme, Language } from './providers/theme-provider'
+
+export { ThemeToggle } from './providers/theme-toggle'
+export { ColorThemeSelector } from './providers/color-theme-selector'
+export { LanguageSelector } from './providers/language-selector'
+
 // Version
 export const VERSION = '1.0.0'

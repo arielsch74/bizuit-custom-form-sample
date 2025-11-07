@@ -26,6 +26,66 @@
     --radius: 0.5rem;
   }
 
+  /* Green Theme */
+  .theme-green {
+    --primary: 142.1 76.2% 36.3%;
+    --primary-foreground: 355.7 100% 97.3%;
+    --ring: 142.1 76.2% 36.3%;
+  }
+
+  .theme-green.dark {
+    --primary: 142.1 70.6% 45.3%;
+    --primary-foreground: 144.9 80.4% 10%;
+  }
+
+  /* Purple Theme */
+  .theme-purple {
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 210 20% 98%;
+    --ring: 262.1 83.3% 57.8%;
+  }
+
+  .theme-purple.dark {
+    --primary: 263.4 70% 50.4%;
+    --primary-foreground: 210 20% 98%;
+  }
+
+  /* Orange Theme */
+  .theme-orange {
+    --primary: 24.6 95% 53.1%;
+    --primary-foreground: 60 9.1% 97.8%;
+    --ring: 24.6 95% 53.1%;
+  }
+
+  .theme-orange.dark {
+    --primary: 20.5 90.2% 48.2%;
+    --primary-foreground: 60 9.1% 97.8%;
+  }
+
+  /* Red Theme */
+  .theme-red {
+    --primary: 0 72.2% 50.6%;
+    --primary-foreground: 0 85.7% 97.3%;
+    --ring: 0 72.2% 50.6%;
+  }
+
+  .theme-red.dark {
+    --primary: 0 72.2% 50.6%;
+    --primary-foreground: 0 85.7% 97.3%;
+  }
+
+  /* Slate Theme */
+  .theme-slate {
+    --primary: 215.4 16.3% 46.9%;
+    --primary-foreground: 210 20% 98%;
+    --ring: 215.4 16.3% 46.9%;
+  }
+
+  .theme-slate.dark {
+    --primary: 217.9 10.6% 64.9%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+  }
+
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;

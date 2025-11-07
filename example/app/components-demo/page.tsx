@@ -10,7 +10,7 @@ import {
   BizuitFileUpload,
   Button
 } from '@bizuit/ui-components'
-import { ThemeToggle } from '@/components/theme-toggle'
+import { AppToolbar } from '@/components/app-toolbar'
 
 export default function ComponentsDemo() {
   // Estados para cada componente
@@ -44,9 +44,7 @@ export default function ComponentsDemo() {
 
   return (
     <div className="container max-w-6xl mx-auto py-8 px-4">
-      <div className="fixed top-4 right-4 z-50">
-        <ThemeToggle />
-      </div>
+      <AppToolbar />
 
       <div className="mb-6">
         <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
