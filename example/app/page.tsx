@@ -111,8 +111,8 @@ export default function Home() {
         <div className="mt-8 p-6 rounded-lg border border-border bg-card">
           <h4 className="font-semibold mb-2">📦 {t('home.packages.title')}</h4>
           <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-            <li><code className="text-xs bg-muted px-1 py-0.5 rounded">@bizuit/form-sdk</code> - SDK Core</li>
-            <li><code className="text-xs bg-muted px-1 py-0.5 rounded">@bizuit/ui-components</code> - UI Components</li>
+            <li><code className="text-xs bg-muted px-1 py-0.5 rounded">@tyconsa/bizuit-form-sdk</code> - SDK Core</li>
+            <li><code className="text-xs bg-muted px-1 py-0.5 rounded">@tyconsa/bizuit-ui-components</code> - UI Components</li>
             <li><code className="text-xs bg-muted px-1 py-0.5 rounded">Next.js 15</code> - Framework</li>
             <li><code className="text-xs bg-muted px-1 py-0.5 rounded">Tailwind CSS</code> - Styling</li>
             <li><code className="text-xs bg-muted px-1 py-0.5 rounded">TypeScript 5</code> - Type Safety</li>
