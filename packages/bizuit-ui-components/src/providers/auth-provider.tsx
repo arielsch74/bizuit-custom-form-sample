@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import type { ILoginResponse } from '@bizuit/form-sdk'
+import type { ILoginResponse } from '@tyconsa/bizuit-form-sdk'
 
 export interface BizuitAuthContextType {
   token: string | null

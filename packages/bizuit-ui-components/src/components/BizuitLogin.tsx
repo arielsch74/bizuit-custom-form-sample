@@ -3,7 +3,7 @@
 import { useState, FormEvent } from 'react'
 import { Button } from './ui/button'
 import { useTranslation } from '../providers/use-translation'
-import type { BizuitAuthService, ILoginResponse } from '@bizuit/form-sdk'
+import type { BizuitAuthService, ILoginResponse } from '@tyconsa/bizuit-form-sdk'
 
 export interface BizuitLoginProps {
   authService: BizuitAuthService
@@ -19,7 +19,7 @@ export interface BizuitLoginProps {
  * @example
  * ```tsx
  * import { BizuitLogin } from '@bizuit/ui-components'
- * import { BizuitAuthService } from '@bizuit/form-sdk'
+ * import { BizuitAuthService } from '@tyconsa/bizuit-form-sdk'
  *
  * const authService = new BizuitAuthService(bizuitConfig)
  *

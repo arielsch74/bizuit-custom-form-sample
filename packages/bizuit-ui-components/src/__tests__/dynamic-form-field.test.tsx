@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DynamicFormField } from '../components/forms/dynamic-form-field'
-import type { IBizuitProcessParameter } from '@bizuit/form-sdk'
+import type { IBizuitProcessParameter } from '@tyconsa/bizuit-form-sdk'
 
 describe('DynamicFormField', () => {
   describe('String/Text fields', () => {

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { BizuitDateTimePicker } from './bizuit-date-time-picker'
-import type { IBizuitProcessParameter } from '@bizuit/form-sdk'
+import type { IBizuitProcessParameter } from '@tyconsa/bizuit-form-sdk'
 
 export interface DynamicFormFieldProps {
   parameter: IBizuitProcessParameter
