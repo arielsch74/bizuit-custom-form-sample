@@ -328,13 +328,69 @@ export interface ILoadInstanceDataResult {
 }
 
 /**
+ * Maps Bizuit API parameter structure to IBizuitProcessParameter format
+ * API returns different field names and structure
+ */
+function mapApiParameterToInternal(apiParam: any): IParameter {
+  return {
+    name: apiParam.name,
+    value: typeof apiParam.value === 'object' ? JSON.stringify(apiParam.value) : String(apiParam.value || ''),
+    type: apiParam.parameterType === 'SingleValue' ? 'SingleValue' : apiParam.parameterType === 'Xml' ? 'Xml' : 'SingleValue',
+    direction: apiParam.parameterDirection === 'In' ? 'In' : apiParam.parameterDirection === 'Out' ? 'Out' : apiParam.parameterDirection === 'Optional' ? 'InOut' : 'In',
+  }
+}
+
+/**
+ * Converts API parameter structure to IBizuitProcessParameter
+ * for form rendering
+ */
+function mapApiParameterToFormParameter(apiParam: any): IBizuitProcessParameter {
+  // Map parameterDirection string to number
+  let direction = 1 // Default In
+  if (apiParam.parameterDirection === 'Out') direction = 2
+  else if (apiParam.parameterDirection === 'Optional') direction = 3
+  else if (apiParam.parameterDirection === 'In') direction = 1
+
+  // Map parameterType
+  let paramType = 1 // Default SingleValue
+  if (apiParam.parameterType === 'Xml') paramType = 2
+
+  return {
+    name: apiParam.name,
+    parameterType: paramType,
+    parameterDirection: direction,
+    type: guessTypeFromValue(apiParam.value),
+    schema: '',
+    value: typeof apiParam.value === 'object' ? JSON.stringify(apiParam.value) : String(apiParam.value || ''),
+    isSystemParameter: apiParam.name === 'InstanceId' || apiParam.name === 'LoggedUser' || apiParam.name === 'ExceptionParameter',
+    isVariable: false, // API doesn't distinguish, assume false for now
+  }
+}
+
+/**
+ * Guess data type from value for form rendering
+ */
+function guessTypeFromValue(value: any): string {
+  if (value === null || value === undefined || value === '') return 'string'
+  if (typeof value === 'boolean') return 'bool'
+  if (typeof value === 'number') return 'int'
+  if (typeof value === 'object') return 'string' // Will be JSON
+
+  // Try to parse as number
+  if (!isNaN(Number(value)) && value.toString().trim() !== '') return 'int'
+
+  return 'string'
+}
+
+/**
  * Helper function to load all necessary data for continuing a process instance
  * This encapsulates the business logic of:
- * 1. Getting instance data
- * 2. Extracting process/event names
- * 3. Getting process parameters
- * 4. Filtering for continue form (includes variables)
- * 5. Parsing existing parameter values into form data
+ * 1. Getting instance data with parameters
+ * 2. Converting API parameters to form-friendly format
+ * 3. Filtering editable parameters (excludes Output-only and system params)
+ * 4. Parsing existing parameter values into form data
+ *
+ * NOTE: Only instanceId is required. eventName must be provided separately.
  *
  * @param sdk - Bizuit SDK instance with process service
  * @param instanceId - Instance ID to load
@@ -344,11 +400,7 @@ export interface ILoadInstanceDataResult {
  * @example
  * ```typescript
  * const result = await loadInstanceDataForContinue(sdk, instanceId, token)
- * setProcessData(result.instanceData)
- * setProcessName(result.processName)
- * setEventName(result.eventName)
- * setProcessParameters(result.formParameters)
- * setFormData(result.formData)
+ * // Returns: instanceData, formParameters (with values), formData
  * ```
  */
 export async function loadInstanceDataForContinue(
@@ -359,31 +411,38 @@ export async function loadInstanceDataForContinue(
   // 1. Get instance data
   const instanceData = await sdk.process.getInstanceData(instanceId, token)
 
-  // 2. Extract process name and event name
-  // TODO: Verify these field names with actual API response
-  const processName = instanceData.processName || instanceData.workflowName || ''
-  const eventName = instanceData.eventName || instanceData.currentEvent || ''
-
   let formParameters: IBizuitProcessParameter[] = []
   let formData: Record<string, any> = {}
 
-  // 3. Get process parameters if we have a process name
-  if (processName) {
-    const allParameters = await sdk.process.getProcessParameters(processName, '', token)
+  // 2. Parse parameters from API response
+  // API structure: results.tyconParameters.tyconParameter[]
+  const apiParameters = instanceData?.results?.tyconParameters?.tyconParameter
 
-    // 4. Filter for continue form (includes Input, Optional, AND Variables)
-    formParameters = filterContinueParameters(allParameters)
-  }
+  if (apiParameters && Array.isArray(apiParameters)) {
+    // Convert API structure to IBizuitProcessParameter[]
+    const allParams = apiParameters.map(mapApiParameterToFormParameter)
 
-  // 5. Parse existing instance parameters into form data
-  if (instanceData.parameters && Array.isArray(instanceData.parameters)) {
-    formData = parametersToFormData(instanceData.parameters)
+    // Filter for continue form (excludes Output-only and system params)
+    formParameters = allParams.filter(param => {
+      // Exclude system parameters
+      if (param.isSystemParameter) return false
+
+      // Exclude Output-only (direction = 2)
+      if (param.parameterDirection === 2) return false
+
+      // Include Input (1), Optional (3), and Variables
+      return true
+    })
+
+    // Convert API parameter structure to IParameter[] for form data
+    const parameters = apiParameters.map(mapApiParameterToInternal)
+    formData = parametersToFormData(parameters)
   }
 
   return {
     instanceData,
-    processName,
-    eventName,
+    processName: '', // Not available from getInstanceData
+    eventName: '', // Must be provided by user
     formParameters,
     formData,
   }

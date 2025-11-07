@@ -256,23 +256,30 @@ function ContinueProcessForm() {
       return
     }
 
+    if (!eventName) {
+      setError('El nombre del evento es requerido')
+      return
+    }
+
     try {
       setStatus('loading')
       setError(null)
 
-      console.log('[ContinueProcess] Loading instance data for:', instanceId)
+      console.log('[ContinueProcess] Loading instance data for:', { instanceId, eventName })
 
       // Use SDK helper to load all data
+      // The helper will get instance data and extract parameters automatically
       const result = await loadInstanceDataForContinue(sdk, instanceId, activeToken)
 
       console.log('[ContinueProcess] Result:', result)
 
       // Update all state from helper result
       setProcessData(result.instanceData)
-      setProcessName(result.processName)
-      setEventName(result.eventName)
       setProcessParameters(result.formParameters)
       setFormData(result.formData)
+
+      // processName is not returned by API, but we don't need it for continue
+      setProcessName(result.processName || 'N/A')
 
       setStatus('ready')
     } catch (err: any) {
@@ -449,6 +456,23 @@ function ContinueProcessForm() {
                   ID de instancia recibido desde URL
                 </p>
               )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Nombre del Evento
+              </label>
+              <input
+                type="text"
+                value={eventName}
+                onChange={(e) => setEventName(e.target.value)}
+                placeholder="Ej: ContinueEvent"
+                className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
+                disabled={status === 'loading' || status === 'initializing'}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Nombre del evento para continuar el proceso
+              </p>
             </div>
 
             {error && (
