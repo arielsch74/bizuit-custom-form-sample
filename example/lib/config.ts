@@ -5,7 +5,7 @@
  * Ver .env.example para la configuración.
  */
 
-import type { IBizuitConfig } from '@bizuit/form-sdk'
+import type { IBizuitConfig } from '@tyconsa/bizuit-form-sdk'
 
 /**
  * Configuración del SDK de Bizuit

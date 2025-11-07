@@ -9,7 +9,7 @@ import {
   BizuitSlider,
   BizuitFileUpload,
   Button
-} from '@bizuit/ui-components'
+} from '@tyconsa/bizuit-ui-components'
 import { AppToolbar } from '@/components/app-toolbar'
 
 export default function ComponentsDemo() {
@@ -55,7 +55,7 @@ export default function ComponentsDemo() {
       <h1 className="text-4xl font-bold mb-8">Demostración de Componentes</h1>
 
       <p className="text-muted-foreground mb-8">
-        Prueba todos los componentes de @bizuit/ui-components de forma interactiva
+        Prueba todos los componentes de @tyconsa/bizuit-ui-components de forma interactiva
       </p>
 
       <div className="space-y-12">

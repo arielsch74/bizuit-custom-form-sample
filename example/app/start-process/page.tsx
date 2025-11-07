@@ -11,16 +11,16 @@ import {
   filterFormParameters,
   isParameterRequired,
   type IBizuitProcessParameter
-} from '@bizuit/form-sdk'
-import { useBizuitAuth, useTranslation } from '@bizuit/ui-components'
+} from '@tyconsa/bizuit-form-sdk'
+import { useBizuitAuth, useTranslation } from '@tyconsa/bizuit-ui-components'
 import {
   BizuitCombo,
   BizuitDateTimePicker,
   BizuitFileUpload,
   BizuitSlider,
   BizuitDataGrid
-} from '@bizuit/ui-components'
-import { Button } from '@bizuit/ui-components'
+} from '@tyconsa/bizuit-ui-components'
+import { Button } from '@tyconsa/bizuit-ui-components'
 import Link from 'next/link'
 import { bizuitConfig } from '@/lib/config'
 import { AppToolbar } from '@/components/app-toolbar'

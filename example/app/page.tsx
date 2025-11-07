@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { AppToolbar } from '@/components/app-toolbar'
-import { useTranslation } from '@bizuit/ui-components'
+import { useTranslation } from '@tyconsa/bizuit-ui-components'
 
 export default function Home() {
   const { t } = useTranslation()

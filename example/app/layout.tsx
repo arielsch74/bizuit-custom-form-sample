@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { BizuitThemeProvider, BizuitAuthProvider } from "@bizuit/ui-components";
+import { BizuitThemeProvider, BizuitAuthProvider } from "@tyconsa/bizuit-ui-components";
 
 export const metadata: Metadata = {
   title: "Bizuit Form Example",
-  description: "Example app using @bizuit/form-sdk and @bizuit/ui-components",
+  description: "Example app using @tyconsa/bizuit-form-sdk and @tyconsa/bizuit-ui-components",
 };
 
 export default function RootLayout({

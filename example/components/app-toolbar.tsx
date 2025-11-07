@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ThemeToggle, ColorThemeSelector, LanguageSelector } from '@bizuit/ui-components'
+import { ThemeToggle, ColorThemeSelector, LanguageSelector } from '@tyconsa/bizuit-ui-components'
 
 export function AppToolbar() {
   const [mounted, setMounted] = useState(false)

@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { BizuitLogin, useBizuitAuth, useTranslation } from '@bizuit/ui-components'
-import { BizuitAuthService } from '@bizuit/form-sdk'
+import { BizuitLogin, useBizuitAuth, useTranslation } from '@tyconsa/bizuit-ui-components'
+import { BizuitAuthService } from '@tyconsa/bizuit-form-sdk'
 import { bizuitConfig } from '@/lib/config'
 import Link from 'next/link'
 
