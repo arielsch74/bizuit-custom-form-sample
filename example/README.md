@@ -1,381 +1,336 @@
-# Bizuit Form Example
+# Bizuit Form Template - Example Project
 
-Example Next.js application demonstrating integration with Bizuit BPM using the [@bizuit/form-sdk](../BizuitFormTemplate/packages/bizuit-form-sdk) and [@bizuit/ui-components](../BizuitFormTemplate/packages/bizuit-ui-components) packages.
+> Complete Next.js example demonstrating Bizuit BPM integration with dynamic forms, process management, and reusable UI components.
 
-## Features Demonstrated
+**Live npm packages:**
+- [@tyconsa/bizuit-form-sdk](https://www.npmjs.com/package/@tyconsa/bizuit-form-sdk) - Core SDK
+- [@tyconsa/bizuit-ui-components](https://www.npmjs.com/package/@tyconsa/bizuit-ui-components) - UI Components
 
-This example project showcases:
+---
 
-### 1. Authentication & Authorization
-- Token validation from Bizuit BPM
-- Permission checking for process operations
-- User information extraction from JWT tokens
-- Support for OAuth, Azure AD, and Entra ID
-
-### 2. Start Process Flow
-- Process initialization
-- Parameter binding to UI components
-- Process instance creation via RaiseEvent
-- Error handling and success feedback
-
-### 3. Continue Process Flow
-- Pessimistic locking implementation
-- Lock status checking
-- Automatic lock/unlock with `withLock` pattern
-- Instance data retrieval
-- Bidirectional binding for parameters/variables
-- Read-only display of completed activities
-
-### 4. UI Components
-All @bizuit/ui-components are demonstrated:
-- **BizuitDataGrid**: Sortable, filterable, paginated data tables
-- **BizuitCombo**: Single/multi-select with search and async loading
-- **BizuitDateTimePicker**: Date, time, and datetime selection
-- **BizuitSlider**: Range values with custom marks
-- **BizuitFileUpload**: Drag & drop file upload with previews
-
-## Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 18.17 or later
-- npm or yarn
-- Access to Bizuit BPM API
+- **Node.js 18.17+**
+- **npm** or **yarn**
+- **Access to Bizuit BPM API**
 
 ### Installation
 
-1. Clone the repository and navigate to the example project:
-
 ```bash
-cd /Users/arielschwindt/SourceCode/PlayGround/bizuit-form-example
-```
-
-2. Install dependencies:
-
-```bash
+# 1. Install dependencies
 npm install
-```
 
-3. Configure environment variables:
-
-```bash
+# 2. Configure environment
 cp .env.example .env.local
+
+# Edit .env.local with your Bizuit API URL
+# NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://your-bizuit-api.com/api
+
+# 3. Run development server
+npm run dev
+
+# 4. Open http://localhost:3000
 ```
 
-Edit `.env.local` with your Bizuit BPM API configuration:
+---
+
+## 📚 Documentation for Developers
+
+**Start here if this is your first time:**
+
+1. **[Getting Started Guide](./docs/GETTING_STARTED.md)** - Complete step-by-step guide
+   - Learn all concepts from zero
+   - Authentication (URL tokens, manual login)
+   - Dynamic forms vs manual forms
+   - Start and continue process workflows
+
+2. **[Quick Reference](./docs/QUICK_REFERENCE.md)** - Copy-paste code snippets
+   - Common tasks with ready-to-use code
+   - All SDK functions
+   - Component examples
+
+3. **[Code Examples](./docs/examples/)** - Full working examples
+   - `01-dynamic-form-simple.tsx` - Easiest way to start a process
+   - `06-get-instance-data.tsx` - Query instance information
+
+---
+
+## 🎯 What's Included
+
+### Working Pages
+
+| Page | URL | Description |
+|------|-----|-------------|
+| **Home** | `/` | Navigation and links to all features |
+| **Start Process** | `/start-process` | Initiate a new Bizuit process with dynamic forms |
+| **Continue Process** | `/continue-process` | Continue an existing process instance |
+| **Components Demo** | `/components-demo` | Interactive showcase of all UI components |
+| **Login** | `/login` | Manual authentication page |
+
+### Core Features
+
+#### ✅ Authentication
+- **URL Token**: Receive token from Bizuit BPM (`?token=...&eventName=...&instanceId=...`)
+- **Manual Login**: User/password authentication
+- **Hybrid Mode**: Support both methods seamlessly
+
+#### ✅ Process Management
+- **Start Process**:
+  - Dynamic form generation from process metadata
+  - Manual form creation with custom controls
+  - Parameter validation and submission
+
+- **Continue Process**:
+  - Load existing instance data
+  - Pre-fill forms with current values
+  - Update parameters and variables
+  - Handle locked instances
+
+#### ✅ UI Components Library
+All production-ready components from `@tyconsa/bizuit-ui-components`:
+
+- `<DynamicFormField />` - Auto-generate form fields by parameter type
+- `<ProcessSuccessScreen />` - Success state with process info
+- `<BizuitDataGrid />` - Sortable, filterable tables
+- `<BizuitCombo />` - Advanced dropdown with search
+- `<BizuitDateTimePicker />` - Date/time selection
+- `<BizuitSlider />` - Range values
+- `<BizuitFileUpload />` - Drag & drop files
+- `<BizuitLogin />` - Authentication form
+- Theme & i18n support (English/Spanish)
+
+---
+
+## 📁 Project Structure
+
+```
+example/
+├── app/                          # Next.js 15 App Router
+│   ├── layout.tsx               # Root layout with providers
+│   ├── page.tsx                 # Home page
+│   ├── start-process/           # Start process flow
+│   ├── continue-process/        # Continue process flow
+│   ├── components-demo/         # UI components showcase
+│   ├── login/                   # Manual login page
+│   └── api/bizuit/              # API proxy for CORS
+│
+├── components/
+│   └── app-toolbar.tsx          # Theme/language selector
+│
+├── lib/
+│   └── config.ts                # Bizuit SDK configuration
+│
+├── docs/                         # 📚 Developer documentation
+│   ├── GETTING_STARTED.md       # Complete guide
+│   ├── QUICK_REFERENCE.md       # Code snippets
+│   └── examples/                # Full code examples
+│       ├── 01-dynamic-form-simple.tsx
+│       └── 06-get-instance-data.tsx
+│
+├── .env.example                  # Environment template
+├── .env.local                    # Your config (create this)
+├── package.json
+└── README.md                     # This file
+```
+
+---
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Create `.env.local` with:
 
 ```env
-NEXT_PUBLIC_BIZUIT_API_URL=https://your-bizuit-api.com
+# Required: Bizuit API URLs
+NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://test.bizuit.com/your-api/api
+NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/your-api
 ```
 
-4. Run the development server:
+### SDK Setup
 
-```bash
-npm run dev
-```
-
-5. Open [http://localhost:3000](http://localhost:3000) in your browser
-
-## Project Structure
-
-```
-bizuit-form-example/
-├── app/
-│   ├── layout.tsx              # Root layout with theme provider
-│   ├── globals.css             # Global styles with dark mode
-│   ├── page.tsx                # Home page with navigation
-│   ├── start-process/
-│   │   └── page.tsx            # Start process example
-│   └── continue-process/
-│       └── page.tsx            # Continue process example
-├── .env.example                # Environment variables template
-├── next.config.js              # Next.js configuration
-├── tailwind.config.ts          # Tailwind CSS configuration
-├── tsconfig.json               # TypeScript configuration
-└── package.json                # Project dependencies
-```
-
-## Usage Examples
-
-### Start Process Page
-
-Navigate to `/start-process` to see:
-
-1. **Authentication Form**:
-   - Enter Process ID (e.g., "PROC-001")
-   - Paste JWT token from Bizuit BPM
-   - Click "Autenticar e Inicializar"
-
-2. **Process Form**:
-   - Fill in form fields using various UI components
-   - All components are fully interactive
-   - Submit to create process instance
-
-3. **Success Screen**:
-   - Confirmation of process creation
-   - Option to start another process or return home
-
-### Continue Process Page
-
-Navigate to `/continue-process` to see:
-
-1. **Authentication & Locking**:
-   - Enter Instance ID
-   - Paste JWT token
-   - System checks lock status
-   - Automatically locks instance for editing
-
-2. **Process Form with History**:
-   - View completed activities (read-only DataGrid)
-   - Edit current activity data
-   - All changes are tracked with pessimistic lock
-
-3. **Automatic Unlock**:
-   - Lock released on successful submit
-   - Lock released on cancel
-   - Lock released on page unload
-
-## SDK Configuration
-
-The SDK is configured in each page component:
+The SDK is configured globally in `lib/config.ts`:
 
 ```typescript
-import { BizuitSDKProvider } from '@bizuit/form-sdk'
-
-const sdkConfig = {
-  baseUrl: process.env.NEXT_PUBLIC_BIZUIT_API_URL || 'https://api.bizuit.com',
+export const bizuitConfig = {
+  formsApiUrl: process.env.NEXT_PUBLIC_BIZUIT_FORMS_API_URL || '',
+  dashboardApiUrl: process.env.NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL || '',
   timeout: 30000,
-  retries: 3,
 }
+```
 
-export default function MyPage() {
+And initialized in `app/layout.tsx`:
+
+```typescript
+import { BizuitSDKProvider } from '@tyconsa/bizuit-form-sdk'
+import { BizuitThemeProvider, BizuitAuthProvider } from '@tyconsa/bizuit-ui-components'
+
+export default function RootLayout({ children }) {
   return (
-    <BizuitSDKProvider config={sdkConfig}>
-      {/* Your component */}
+    <BizuitSDKProvider config={bizuitConfig}>
+      <BizuitThemeProvider>
+        <BizuitAuthProvider>
+          {children}
+        </BizuitAuthProvider>
+      </BizuitThemeProvider>
     </BizuitSDKProvider>
   )
 }
 ```
 
-## Using the Hooks
+---
 
-### useAuth Hook
+## 💡 Common Use Cases
 
-```typescript
-import { useAuth } from '@bizuit/form-sdk'
-
-function MyComponent() {
-  const {
-    validateToken,
-    checkFormAuth,
-    getUserInfo,
-    isAuthenticated,
-    user,
-    loading
-  } = useAuth()
-
-  // Validate token
-  const isValid = await validateToken(token)
-
-  // Check permissions
-  const authResult = await checkFormAuth(token, processId, 'start')
-
-  // Get user info
-  const userInfo = await getUserInfo(token)
-}
-```
-
-### useBizuitSDK Hook
+### 1. Start a Process with Dynamic Form
 
 ```typescript
-import { useBizuitSDK } from '@bizuit/form-sdk'
+import { useBizuitSDK, filterFormParameters, formDataToParameters } from '@tyconsa/bizuit-form-sdk'
+import { DynamicFormField } from '@tyconsa/bizuit-ui-components'
 
-function MyComponent() {
-  const sdk = useBizuitSDK()
+// Get process parameters
+const allParams = await sdk.process.getProcessParameters('ProcessName', '', token)
+const formParams = filterFormParameters(allParams) // Only input params
 
-  // Initialize process
-  const result = await sdk.process.initialize(
-    { processId: 'PROC-001' },
-    token
-  )
+// Render form
+{formParams.map(param => (
+  <DynamicFormField
+    key={param.name}
+    parameter={param}
+    value={formData[param.name]}
+    onChange={(value) => setFormData({ ...formData, [param.name]: value })}
+  />
+))}
 
-  // Start process
-  await sdk.process.raiseEvent(
-    {
-      processId: 'PROC-001',
-      parameters: formData,
-    },
-    token
-  )
+// Submit
+const result = await sdk.process.raiseEvent({
+  eventName: 'ProcessName',
+  parameters: formDataToParameters(formData),
+}, [], token)
 
-  // Continue process with locking
-  await sdk.instanceLock.withLock(
-    { instanceId: 'INST-123' },
-    token,
-    async (sessionToken) => {
-      return await sdk.process.raiseEvent(
-        {
-          instanceId: 'INST-123',
-          parameters: formData,
-          sessionToken,
-        },
-        token
-      )
-    }
-  )
-}
+console.log('Instance ID:', result.instanceId)
 ```
 
-## UI Components Examples
-
-### BizuitCombo
+### 2. Continue a Process
 
 ```typescript
-import { BizuitCombo } from '@bizuit/ui-components'
+import { loadInstanceDataForContinue } from '@tyconsa/bizuit-form-sdk'
 
-const options = [
-  { value: 'opt1', label: 'Option 1', group: 'Group A' },
-  { value: 'opt2', label: 'Option 2', group: 'Group A' },
-]
+// Load instance
+const result = await loadInstanceDataForContinue(sdk, instanceId, token)
 
-<BizuitCombo
-  options={options}
-  value={value}
-  onChange={setValue}
-  placeholder="Select option"
-  searchable
-  multiSelect={false}
-/>
+// result.formParameters - editable params with current values
+// result.formData - pre-filled form data
+
+setFormData(result.formData)
+
+// Submit changes
+await sdk.process.continueInstance({
+  instanceId,
+  eventName: 'ContinueEvent',
+  parameters: formDataToParameters(formData),
+}, [], token)
 ```
 
-### BizuitDateTimePicker
+### 3. Receive Token from Bizuit BPM
+
+When Bizuit calls your app with `?token=...&eventName=...&instanceId=...`:
 
 ```typescript
-import { BizuitDateTimePicker } from '@bizuit/ui-components'
+import { useSearchParams } from 'next/navigation'
+import { processUrlToken } from '@tyconsa/bizuit-form-sdk'
+import { useBizuitAuth } from '@tyconsa/bizuit-ui-components'
 
-<BizuitDateTimePicker
-  value={date}
-  onChange={setDate}
-  mode="datetime"
-  locale="es"
-/>
+const searchParams = useSearchParams()
+const { login } = useBizuitAuth()
+
+const urlToken = searchParams.get('token')
+const eventName = searchParams.get('eventName')
+const instanceId = searchParams.get('instanceId')
+
+useEffect(() => {
+  if (urlToken) {
+    const loginResponse = processUrlToken(urlToken)
+    login(loginResponse)
+  }
+}, [urlToken])
 ```
 
-### BizuitDataGrid
+---
 
-```typescript
-import { BizuitDataGrid } from '@bizuit/ui-components'
+## 🎨 Customization
 
-const columns = [
-  { accessorKey: 'id', header: 'ID' },
-  { accessorKey: 'name', header: 'Name' },
-]
+### Styling
 
-<BizuitDataGrid
-  columns={columns}
-  data={data}
-  selectable="multiple"
-  sortable
-  filterable
-  paginated
-  onSelectionChange={setSelection}
-/>
+This project uses **Tailwind CSS** with full dark mode support.
+
+**Customize colors**: Edit `tailwind.config.ts`
+**Dark mode CSS variables**: Edit `app/globals.css`
+
+### Components
+
+All UI components support:
+- Custom className prop
+- Tailwind utility classes
+- CSS variable theming
+- Dark mode out of the box
+
+---
+
+## 🧪 Development
+
+```bash
+# Development server
+npm run dev
+
+# Type checking
+npm run build
+
+# Production build
+npm run start
 ```
 
-### BizuitSlider
+---
 
-```typescript
-import { BizuitSlider } from '@bizuit/ui-components'
+## 📖 Learn More
 
-<BizuitSlider
-  value={value}
-  onChange={setValue}
-  min={0}
-  max={100}
-  step={5}
-  showTooltip
-  marks={[
-    { value: 0, label: '0' },
-    { value: 50, label: '50' },
-    { value: 100, label: '100' },
-  ]}
-/>
-```
+### Official Documentation
+- [Getting Started Guide](./docs/GETTING_STARTED.md) - Learn everything step-by-step
+- [Quick Reference](./docs/QUICK_REFERENCE.md) - Code snippets for common tasks
+- [Code Examples](./docs/examples/) - Full working examples
 
-### BizuitFileUpload
+### npm Packages
+- [@tyconsa/bizuit-form-sdk](https://www.npmjs.com/package/@tyconsa/bizuit-form-sdk) - SDK documentation
+- [@tyconsa/bizuit-ui-components](https://www.npmjs.com/package/@tyconsa/bizuit-ui-components) - Component docs
 
-```typescript
-import { BizuitFileUpload } from '@bizuit/ui-components'
+### Technologies
+- [Next.js 15](https://nextjs.org/docs) - React framework
+- [Tailwind CSS](https://tailwindcss.com/docs) - Utility-first CSS
+- [TypeScript 5](https://www.typescriptlang.org/docs/) - Type safety
+- [Radix UI](https://www.radix-ui.com/) - Headless UI components
 
-<BizuitFileUpload
-  value={files}
-  onChange={setFiles}
-  multiple
-  maxSize={5 * 1024 * 1024} // 5MB
-  accept={{
-    'application/pdf': ['.pdf'],
-    'image/*': ['.png', '.jpg'],
-  }}
-/>
-```
+---
 
-## Dark Mode
+## 🤝 Support
 
-Dark mode is supported out of the box. The theme automatically switches based on system preferences or can be manually toggled.
+**Issues or questions?**
+1. Check the [Getting Started Guide](./docs/GETTING_STARTED.md)
+2. Review [Code Examples](./docs/examples/)
+3. Consult [Quick Reference](./docs/QUICK_REFERENCE.md)
 
-The theme is configured in:
-- [app/globals.css](app/globals.css) - CSS variables for light/dark themes
-- [tailwind.config.ts](tailwind.config.ts) - Tailwind dark mode configuration
+---
 
-## TypeScript
-
-This project is fully typed with TypeScript. All SDK methods, hooks, and UI components have complete type definitions.
-
-## Browser Support
-
-- Chrome/Edge (latest)
-- Safari (latest)
-- Opera (latest)
-- Mobile browsers (iOS Safari, Chrome Mobile)
-
-## Localization
-
-The example supports Spanish (es) and English (en) locales, primarily for date/time pickers.
-
-## Troubleshooting
-
-### Token Validation Fails
-
-- Ensure your token is valid and not expired
-- Check that the `baseUrl` in your `.env.local` matches your Bizuit API
-- Verify CORS settings on your API
-
-### Lock Errors
-
-- If you get "Instance is locked" errors, wait for the lock to expire or contact the user who has it locked
-- Ensure you're properly releasing locks with `unlock()` or using `withLock()`
-
-### Component Styling Issues
-
-- Make sure Tailwind CSS is properly configured
-- Check that `globals.css` is imported in `layout.tsx`
-- Verify CSS variables are defined for both light and dark themes
-
-## Next Steps
-
-To create your own forms:
-
-1. Copy one of the example pages as a starting point
-2. Modify the form fields to match your process parameters
-3. Update the SDK calls with your actual process/instance IDs
-4. Customize the UI components with your brand colors and styles
-5. Add validation with React Hook Form + Zod (optional)
-
-## Related Packages
-
-- [@bizuit/form-sdk](../BizuitFormTemplate/packages/bizuit-form-sdk) - Core SDK for Bizuit BPM integration
-- [@bizuit/ui-components](../BizuitFormTemplate/packages/bizuit-ui-components) - React UI components
-
-## License
+## 📄 License
 
 MIT
+
+---
+
+## 🚀 Next Steps
+
+1. **Read** [docs/GETTING_STARTED.md](./docs/GETTING_STARTED.md) for complete walkthrough
+2. **Explore** the live pages at http://localhost:3000
+3. **Review** code examples in `docs/examples/`
+4. **Build** your first Bizuit process screen!
