@@ -34,6 +34,9 @@ export type { Theme, ColorTheme, Language } from './providers/theme-provider'
 export { ThemeToggle } from './providers/theme-toggle'
 export { ColorThemeSelector } from './providers/color-theme-selector'
 export { LanguageSelector } from './providers/language-selector'
+export { useTranslation } from './providers/use-translation'
+export { translations } from './providers/translations'
+export type { TranslationKey } from './providers/translations'
 
 // Version
 export const VERSION = '1.0.0'
