@@ -2,14 +2,23 @@
 
 Template completo para desarrollo de formularios web integrados con Bizuit BPMS.
 
+**🎉 Paquetes publicados en npm:**
+- [@tyconsa/bizuit-form-sdk](https://www.npmjs.com/package/@tyconsa/bizuit-form-sdk) - SDK para integración con Bizuit BPM
+- [@tyconsa/bizuit-ui-components](https://www.npmjs.com/package/@tyconsa/bizuit-ui-components) - Componentes UI personalizables
+
+**✅ Testing:** 77 tests unitarios (100% passing) con Vitest
+
 ## 📦 Estructura del Proyecto
 
 ```
 BizuitFormTemplate/
-├── packages/                    # Paquetes NPM reutilizables
-│   ├── bizuit-form-sdk/        # SDK core para integración con Bizuit BPM
-│   └── bizuit-ui-components/   # Biblioteca de componentes UI
+├── packages/                    # Paquetes NPM publicados
+│   ├── bizuit-form-sdk/        # SDK core (@tyconsa/bizuit-form-sdk)
+│   │   └── src/__tests__/      # 36 tests unitarios
+│   └── bizuit-ui-components/   # Componentes UI (@tyconsa/bizuit-ui-components)
+│       └── src/__tests__/      # 41 tests unitarios
 ├── example/                     # Proyecto de ejemplo Next.js 15
+│   └── docs/                    # Documentación completa para desarrolladores
 └── README.md                    # Este archivo
 ```
 
@@ -46,7 +55,14 @@ Abre [http://localhost:3000](http://localhost:3000) para ver el ejemplo.
 
 ## 📚 Paquetes
 
-### @bizuit/form-sdk
+### @tyconsa/bizuit-form-sdk
+
+**Instalación desde npm:**
+```bash
+npm install @tyconsa/bizuit-form-sdk
+```
+
+### Características
 
 SDK completo para integración con Bizuit BPM que incluye:
 
@@ -59,7 +75,16 @@ SDK completo para integración con Bizuit BPM que incluye:
 
 [Ver documentación completa →](packages/bizuit-form-sdk/README.md)
 
-### @bizuit/ui-components
+**Testing:** 36 tests unitarios (100% passing)
+
+### @tyconsa/bizuit-ui-components
+
+**Instalación desde npm:**
+```bash
+npm install @tyconsa/bizuit-ui-components
+```
+
+### Componentes Incluidos
 
 Biblioteca de componentes React altamente personalizables:
 
@@ -78,6 +103,12 @@ Biblioteca de componentes React altamente personalizables:
 - ✅ TypeScript completo
 
 [Ver documentación completa →](packages/bizuit-ui-components/README.md)
+
+**Testing:** 41 tests unitarios (100% passing)
+
+**Componentes nuevos:**
+- **DynamicFormField**: Genera automáticamente campos de formulario basados en metadatos de parámetros
+- **ProcessSuccessScreen**: Pantalla de éxito con información del proceso completado
 
 ## 📱 Proyecto de Ejemplo
 
@@ -101,6 +132,11 @@ El directorio [example/](example/) contiene una aplicación Next.js 15 completa 
 6. Historial de actividades (solo lectura)
 
 [Ver documentación del ejemplo →](example/README.md)
+
+**📚 Documentación para desarrolladores:**
+- [GETTING_STARTED.md](example/docs/GETTING_STARTED.md) - Guía completa paso a paso (600+ líneas)
+- [QUICK_REFERENCE.md](example/docs/QUICK_REFERENCE.md) - Referencia rápida de código
+- [examples/](example/docs/examples/) - 6 ejemplos completos con código funcional
 
 ## 🛠️ Stack Tecnológico
 
@@ -190,7 +226,7 @@ import {
   BizuitDateTimePicker,
   BizuitSlider,
   BizuitFileUpload
-} from '@bizuit/ui-components'
+} from '@tyconsa/bizuit-ui-components'
 
 // Combo con búsqueda
 <BizuitCombo
@@ -238,19 +274,19 @@ Los componentes de fecha soportan múltiples idiomas:
 />
 ```
 
-## 📦 Publicar Paquetes
+## 📦 Paquetes Publicados en npm
 
-Para publicar los paquetes a NPM (cuando estés listo):
+Los paquetes ya están publicados y disponibles en npm:
 
 ```bash
-# SDK
-cd packages/bizuit-form-sdk
-npm publish --access public
-
-# UI Components
-cd ../bizuit-ui-components
-npm publish --access public
+# Instalar desde npm
+npm install @tyconsa/bizuit-form-sdk
+npm install @tyconsa/bizuit-ui-components
 ```
+
+**Enlaces:**
+- [@tyconsa/bizuit-form-sdk en npm](https://www.npmjs.com/package/@tyconsa/bizuit-form-sdk)
+- [@tyconsa/bizuit-ui-components en npm](https://www.npmjs.com/package/@tyconsa/bizuit-ui-components)
 
 ## 🔧 Desarrollo
 
