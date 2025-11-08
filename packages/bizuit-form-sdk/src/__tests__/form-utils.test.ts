@@ -8,6 +8,7 @@ import {
   createParameter,
   mergeParameters,
   isParameterRequired,
+  buildParameters,
   type IBizuitProcessParameter,
 } from '../lib/utils/form-utils'
 
@@ -441,5 +442,493 @@ describe('isParameterRequired', () => {
     }
 
     expect(isParameterRequired(param)).toBe(false)
+  })
+})
+
+describe('buildParameters', () => {
+  describe('Basic field mapping', () => {
+    it('should map simple field to parameter', () => {
+      const mapping = {
+        'nombre': { parameterName: 'pNombre' },
+      }
+      const formData = { nombre: 'Juan Pérez' }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result).toEqual([
+        {
+          name: 'pNombre',
+          value: 'Juan Pérez',
+          type: 'SingleValue',
+          direction: 'In',
+        },
+      ])
+    })
+
+    it('should map multiple fields', () => {
+      const mapping = {
+        'nombre': { parameterName: 'pNombre' },
+        'email': { parameterName: 'pEmail' },
+        'edad': { parameterName: 'pEdad' },
+      }
+      const formData = {
+        nombre: 'Juan',
+        email: 'juan@example.com',
+        edad: 30,
+      }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result).toHaveLength(3)
+      expect(result.find(p => p.name === 'pNombre')?.value).toBe('Juan')
+      expect(result.find(p => p.name === 'pEmail')?.value).toBe('juan@example.com')
+      expect(result.find(p => p.name === 'pEdad')?.value).toBe('30')
+    })
+
+    it('should only include mapped fields', () => {
+      const mapping = {
+        'nombre': { parameterName: 'pNombre' },
+      }
+      const formData = {
+        nombre: 'Juan',
+        apellido: 'Pérez',
+        email: 'juan@example.com',
+      }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result).toHaveLength(1)
+      expect(result[0].name).toBe('pNombre')
+    })
+
+    it('should skip fields not present in formData', () => {
+      const mapping = {
+        'nombre': { parameterName: 'pNombre' },
+        'apellido': { parameterName: 'pApellido' },
+      }
+      const formData = {
+        nombre: 'Juan',
+      }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result).toHaveLength(1)
+      expect(result[0].name).toBe('pNombre')
+    })
+  })
+
+  describe('Value transformation', () => {
+    it('should apply transform function', () => {
+      const mapping = {
+        'monto': {
+          parameterName: 'pMonto',
+          transform: (val) => parseFloat(val).toFixed(2),
+        },
+      }
+      const formData = { monto: '1000.5' }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result[0].value).toBe('1000.50')
+    })
+
+    it('should transform multiple values differently', () => {
+      const mapping = {
+        'precio': {
+          parameterName: 'pPrecio',
+          transform: (val) => (parseFloat(val) * 1.21).toFixed(2), // Add tax
+        },
+        'nombre': {
+          parameterName: 'pNombre',
+          transform: (val) => val.toUpperCase(),
+        },
+      }
+      const formData = {
+        precio: '100',
+        nombre: 'producto',
+      }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result.find(p => p.name === 'pPrecio')?.value).toBe('121.00')
+      expect(result.find(p => p.name === 'pNombre')?.value).toBe('PRODUCTO')
+    })
+
+    it('should allow transform to return objects', () => {
+      const mapping = {
+        'fecha': {
+          parameterName: 'pFecha',
+          transform: (val) => ({ day: val.getUTCDate(), month: val.getUTCMonth() + 1 }),
+        },
+      }
+      const formData = { fecha: new Date('2024-03-15T00:00:00.000Z') }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result[0].value).toBe('{"day":15,"month":3}')
+    })
+
+    it('should include null/empty values when transform is provided', () => {
+      const mapping = {
+        'campo': {
+          parameterName: 'pCampo',
+          transform: (val) => val || 'default',
+        },
+      }
+      const formData = { campo: '' }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result).toHaveLength(1)
+      expect(result[0].value).toBe('default')
+    })
+  })
+
+  describe('Variable vs Parameter', () => {
+    it('should map to variable when isVariable is true', () => {
+      const mapping = {
+        'aprobado': {
+          parameterName: 'vAprobado',
+          isVariable: true,
+        },
+      }
+      const formData = { aprobado: true }
+
+      const result = buildParameters(mapping, formData)
+
+      // Variables are still returned as parameters with 'In' direction
+      expect(result[0].name).toBe('vAprobado')
+      expect(result[0].value).toBe('true')
+    })
+
+    it('should handle mix of variables and parameters', () => {
+      const mapping = {
+        'empleado': { parameterName: 'pEmpleado' },
+        'aprobado': {
+          parameterName: 'vAprobado',
+          isVariable: true,
+        },
+      }
+      const formData = {
+        empleado: 'Juan',
+        aprobado: false,
+      }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result).toHaveLength(2)
+      expect(result.find(p => p.name === 'pEmpleado')).toBeDefined()
+      expect(result.find(p => p.name === 'vAprobado')).toBeDefined()
+    })
+  })
+
+  describe('Parameter types', () => {
+    it('should use SingleValue type by default', () => {
+      const mapping = {
+        'campo': { parameterName: 'pCampo' },
+      }
+      const formData = { campo: 'valor' }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result[0].type).toBe('SingleValue')
+    })
+
+    it('should use specified type', () => {
+      const mapping = {
+        'xmlData': {
+          parameterName: 'pXmlData',
+          type: 'Xml' as const,
+        },
+      }
+      const formData = { xmlData: '<root><item>data</item></root>' }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result[0].type).toBe('Xml')
+    })
+
+    it('should use ComplexObject type for objects', () => {
+      const mapping = {
+        'config': {
+          parameterName: 'pConfig',
+          type: 'ComplexObject' as const,
+        },
+      }
+      const formData = {
+        config: { theme: 'dark', lang: 'es' },
+      }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result[0].type).toBe('ComplexObject')
+      expect(result[0].value).toBe('{"theme":"dark","lang":"es"}')
+    })
+  })
+
+  describe('Parameter directions', () => {
+    it('should use In direction by default', () => {
+      const mapping = {
+        'campo': { parameterName: 'pCampo' },
+      }
+      const formData = { campo: 'valor' }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result[0].direction).toBe('In')
+    })
+
+    it('should use specified direction', () => {
+      const mapping = {
+        'output': {
+          parameterName: 'pOutput',
+          direction: 'Out' as const,
+        },
+      }
+      const formData = { output: 'data' }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result[0].direction).toBe('Out')
+    })
+
+    it('should support InOut direction', () => {
+      const mapping = {
+        'shared': {
+          parameterName: 'pShared',
+          direction: 'InOut' as const,
+        },
+      }
+      const formData = { shared: 'value' }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result[0].direction).toBe('InOut')
+    })
+  })
+
+  describe('Value type handling', () => {
+    it('should convert numbers to strings', () => {
+      const mapping = {
+        'edad': { parameterName: 'pEdad' },
+        'precio': { parameterName: 'pPrecio' },
+      }
+      const formData = {
+        edad: 25,
+        precio: 1000.50,
+      }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result.find(p => p.name === 'pEdad')?.value).toBe('25')
+      expect(result.find(p => p.name === 'pPrecio')?.value).toBe('1000.5')
+    })
+
+    it('should convert booleans to strings', () => {
+      const mapping = {
+        'activo': { parameterName: 'pActivo' },
+        'verificado': { parameterName: 'pVerificado' },
+      }
+      const formData = {
+        activo: true,
+        verificado: false,
+      }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result.find(p => p.name === 'pActivo')?.value).toBe('true')
+      expect(result.find(p => p.name === 'pVerificado')?.value).toBe('false')
+    })
+
+    it('should stringify arrays', () => {
+      const mapping = {
+        'tags': { parameterName: 'pTags' },
+      }
+      const formData = {
+        tags: ['javascript', 'typescript', 'react'],
+      }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result[0].value).toBe('["javascript","typescript","react"]')
+    })
+
+    it('should stringify objects', () => {
+      const mapping = {
+        'direccion': { parameterName: 'pDireccion' },
+      }
+      const formData = {
+        direccion: {
+          calle: 'Main St',
+          numero: 123,
+        },
+      }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result[0].value).toBe('{"calle":"Main St","numero":123}')
+      expect(result[0].type).toBe('ComplexObject')
+    })
+
+    it('should handle Date objects', () => {
+      const mapping = {
+        'fecha': { parameterName: 'pFecha' },
+      }
+      const date = new Date('2024-01-15T10:30:00.000Z')
+      const formData = { fecha: date }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result[0].value).toBe('2024-01-15T10:30:00.000Z')
+    })
+
+    it('should skip File objects in arrays', () => {
+      const mapping = {
+        'files': { parameterName: 'pFiles' },
+      }
+      const formData = {
+        files: [new File(['content'], 'test.txt')],
+      }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result).toHaveLength(0)
+    })
+  })
+
+  describe('Edge cases', () => {
+    it('should skip null values without transform', () => {
+      const mapping = {
+        'campo': { parameterName: 'pCampo' },
+      }
+      const formData = { campo: null }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result).toHaveLength(0)
+    })
+
+    it('should skip empty strings without transform', () => {
+      const mapping = {
+        'campo': { parameterName: 'pCampo' },
+      }
+      const formData = { campo: '' }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result).toHaveLength(0)
+    })
+
+    it('should handle empty mapping', () => {
+      const mapping = {}
+      const formData = { campo: 'valor' }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result).toEqual([])
+    })
+
+    it('should handle empty formData', () => {
+      const mapping = {
+        'campo': { parameterName: 'pCampo' },
+      }
+      const formData = {}
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result).toEqual([])
+    })
+
+    it('should include zero values', () => {
+      const mapping = {
+        'cantidad': { parameterName: 'pCantidad' },
+      }
+      const formData = { cantidad: 0 }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result).toHaveLength(1)
+      expect(result[0].value).toBe('0')
+    })
+
+    it('should include false values', () => {
+      const mapping = {
+        'activo': { parameterName: 'pActivo' },
+      }
+      const formData = { activo: false }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result).toHaveLength(1)
+      expect(result[0].value).toBe('false')
+    })
+  })
+
+  describe('Complete real-world scenarios', () => {
+    it('should handle expense approval form', () => {
+      const mapping = {
+        'empleado': { parameterName: 'pEmpleado' },
+        'monto': {
+          parameterName: 'pMonto',
+          transform: (val) => parseFloat(val).toFixed(2),
+        },
+        'categoria': { parameterName: 'pCategoria' },
+        'aprobado': {
+          parameterName: 'vAprobado',
+          isVariable: true,
+          transform: (val) => val ? 'SI' : 'NO',
+        },
+      }
+      const formData = {
+        empleado: 'Juan Pérez',
+        monto: '1250.5',
+        categoria: 'Viajes',
+        aprobado: true,
+        // Extra fields not mapped
+        comentarios: 'Viaje a cliente importante',
+        fecha: new Date(),
+      }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result).toHaveLength(4)
+      expect(result.find(p => p.name === 'pEmpleado')?.value).toBe('Juan Pérez')
+      expect(result.find(p => p.name === 'pMonto')?.value).toBe('1250.50')
+      expect(result.find(p => p.name === 'pCategoria')?.value).toBe('Viajes')
+      expect(result.find(p => p.name === 'vAprobado')?.value).toBe('SI')
+    })
+
+    it('should handle customer registration with complex data', () => {
+      const mapping = {
+        'nombre': { parameterName: 'pNombre' },
+        'email': { parameterName: 'pEmail' },
+        'direccion': {
+          parameterName: 'pDireccion',
+          type: 'ComplexObject' as const,
+        },
+        'notificaciones': {
+          parameterName: 'vNotificaciones',
+          isVariable: true,
+        },
+      }
+      const formData = {
+        nombre: 'María García',
+        email: 'maria@example.com',
+        direccion: {
+          calle: 'Av. Principal',
+          numero: 456,
+          ciudad: 'Buenos Aires',
+          codigoPostal: '1234',
+        },
+        notificaciones: true,
+      }
+
+      const result = buildParameters(mapping, formData)
+
+      expect(result).toHaveLength(4)
+      const direccion = result.find(p => p.name === 'pDireccion')
+      expect(direccion?.type).toBe('ComplexObject')
+      expect(JSON.parse(direccion!.value)).toEqual(formData.direccion)
+    })
   })
 })

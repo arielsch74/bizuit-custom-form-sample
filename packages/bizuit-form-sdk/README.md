@@ -291,6 +291,91 @@ if (!validation.valid) {
 }
 ```
 
+### Selective Parameter Mapping (New in v1.0.2)
+
+The `buildParameters()` utility allows you to selectively map form fields to specific Bizuit parameters/variables, instead of sending all form data. This is useful when you only want to send specific fields or need to transform values before sending.
+
+```typescript
+import { buildParameters, type IParameterMapping } from '@tyconsa/bizuit-form-sdk'
+
+// Simple mapping: only send specific fields
+const mapping = {
+  'empleado': { parameterName: 'pEmpleado' },
+  'monto': { parameterName: 'pMonto' },
+  'categoria': { parameterName: 'pCategoria' },
+}
+
+const formData = {
+  empleado: 'Juan Pérez',
+  monto: '1500.50',
+  categoria: 'Viajes',
+  // These fields won't be included:
+  comentarios: 'Internal notes',
+  prioridad: 'Alta',
+}
+
+const parameters = buildParameters(mapping, formData)
+// Result: only 3 parameters (empleado, monto, categoria)
+```
+
+**With value transformations:**
+
+```typescript
+const mapping = {
+  'empleado': {
+    parameterName: 'pEmpleado',
+    transform: (val) => val.toUpperCase(),
+  },
+  'monto': {
+    parameterName: 'pMonto',
+    transform: (val) => parseFloat(val).toFixed(2),
+  },
+}
+
+const parameters = buildParameters(mapping, formData)
+// empleado will be 'JUAN PÉREZ', monto will be '1500.50'
+```
+
+**Map to variables:**
+
+```typescript
+const mapping = {
+  'aprobado': {
+    parameterName: 'vAprobado',
+    isVariable: true,
+    transform: (val) => val ? 'SI' : 'NO',
+  },
+}
+```
+
+**Specify parameter types and directions:**
+
+```typescript
+const mapping = {
+  'xmlData': {
+    parameterName: 'pXmlData',
+    type: 'Xml' as const,
+  },
+  'config': {
+    parameterName: 'pConfig',
+    type: 'ComplexObject' as const,
+    direction: 'InOut' as const,
+  },
+}
+```
+
+**IParameterMapping Interface:**
+
+```typescript
+interface IParameterMapping {
+  parameterName: string               // Bizuit parameter/variable name
+  isVariable?: boolean                // true for variables, false/undefined for parameters
+  transform?: (value: any) => any     // Optional value transformation function
+  type?: 'SingleValue' | 'Xml' | 'ComplexObject'  // Parameter type (default: SingleValue)
+  direction?: 'In' | 'Out' | 'InOut'  // Parameter direction (default: In)
+}
+```
+
 ## React Hooks
 
 ### useAuth

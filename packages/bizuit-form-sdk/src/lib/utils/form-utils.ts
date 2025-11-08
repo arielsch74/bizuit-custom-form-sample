@@ -493,3 +493,144 @@ export function processUrlToken(
     ExpirationDate: new Date(Date.now() + expirationHours * 60 * 60 * 1000).toISOString(),
   }
 }
+
+/**
+ * Parameter mapping configuration
+ * Maps form fields to Bizuit parameters/variables with optional transformation
+ */
+export interface IParameterMapping {
+  /** Name of the Bizuit parameter or variable */
+  parameterName: string
+  /** Whether this is a variable (true) or parameter (false). Default: false */
+  isVariable?: boolean
+  /** Optional function to transform the form value before sending */
+  transform?: (value: any) => any
+  /** Parameter type. Default: 'SingleValue' */
+  type?: 'SingleValue' | 'Xml' | 'ComplexObject'
+  /** Parameter direction. Default: 'In' */
+  direction?: 'In' | 'Out' | 'InOut'
+}
+
+/**
+ * Builds parameters array by selectively mapping form fields to Bizuit parameters/variables
+ *
+ * This function gives you complete control over which form fields are sent as parameters,
+ * allowing you to:
+ * - Map form field names to different parameter names
+ * - Specify which fields are variables vs parameters
+ * - Transform values before sending
+ * - Send only specific fields instead of all form data
+ *
+ * @param mapping - Object mapping form field names to parameter configuration
+ * @param formData - Form data object
+ * @returns Array of IParameter objects ready for Bizuit API
+ *
+ * @example
+ * ```typescript
+ * // Map form fields to parameters and variables
+ * const parameters = buildParameters({
+ *   // Simple mapping: form field 'empleado' → parameter 'pEmpleado'
+ *   'empleado': {
+ *     parameterName: 'pEmpleado'
+ *   },
+ *
+ *   // Map to different name with transformation
+ *   'monto': {
+ *     parameterName: 'pMonto',
+ *     transform: (val) => parseFloat(val).toFixed(2)
+ *   },
+ *
+ *   // Map to a variable (for continue process)
+ *   'aprobado': {
+ *     parameterName: 'vAprobado',
+ *     isVariable: true
+ *   },
+ *
+ *   // Complex object with custom type
+ *   'detalles': {
+ *     parameterName: 'pDetalles',
+ *     type: 'ComplexObject'
+ *   }
+ * }, formData)
+ *
+ * // Only fields in mapping are included, all others are ignored
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Continue process with selective fields
+ * const parameters = buildParameters({
+ *   // Only send these 2 fields, ignore all others
+ *   'comentarios': { parameterName: 'pComentarios' },
+ *   'estadoAprobacion': {
+ *     parameterName: 'vEstado',
+ *     isVariable: true
+ *   }
+ * }, formData)
+ *
+ * await sdk.process.raiseEvent({
+ *   eventName: 'AprobacionVacaciones',
+ *   instanceId: 'existing-instance-id',
+ *   parameters
+ * }, [], token)
+ * ```
+ */
+export function buildParameters(
+  mapping: Record<string, IParameterMapping>,
+  formData: Record<string, any>
+): IParameter[] {
+  const parameters: IParameter[] = []
+
+  // Iterate over the mapping (not formData) to ensure we only include mapped fields
+  for (const [formFieldName, config] of Object.entries(mapping)) {
+    // Get value from form data
+    let value = formData[formFieldName]
+
+    // Skip if value doesn't exist in form data
+    if (value === undefined) {
+      continue
+    }
+
+    // Skip null or empty values (unless explicitly transformed)
+    if ((value === null || value === '') && !config.transform) {
+      continue
+    }
+
+    // Apply transformation if provided
+    if (config.transform) {
+      value = config.transform(value)
+    }
+
+    // Convert value to string based on type
+    let stringValue: string
+    let paramType: 'SingleValue' | 'Xml' | 'ComplexObject' = config.type || 'SingleValue'
+
+    if (value instanceof File || (Array.isArray(value) && value.length > 0 && value[0] instanceof File)) {
+      // Skip file objects - files are handled separately
+      continue
+    } else if (Array.isArray(value)) {
+      stringValue = JSON.stringify(value)
+    } else if (value instanceof Date) {
+      stringValue = value.toISOString()
+    } else if (typeof value === 'object' && value !== null) {
+      stringValue = JSON.stringify(value)
+      if (!config.type) {
+        paramType = 'ComplexObject'
+      }
+    } else if (typeof value === 'boolean') {
+      stringValue = value.toString()
+    } else {
+      stringValue = String(value)
+    }
+
+    // Create parameter
+    parameters.push({
+      name: config.parameterName,
+      value: stringValue,
+      type: paramType,
+      direction: config.direction || 'In',
+    })
+  }
+
+  return parameters
+}
