@@ -22,6 +22,104 @@ yarn add @bizuit/form-sdk
 pnpm add @bizuit/form-sdk
 ```
 
+## Form Implementation Strategies
+
+There are **three main approaches** to building forms with Bizuit BPM. Choose the one that best fits your needs:
+
+### Strategy 1: Dynamic Fields from API 🔄
+
+**Best for:** Generic forms, prototypes, unknown parameters
+
+```typescript
+// Auto-generate fields from API
+const params = await sdk.process.getProcessParameters('ProcessName', '', token)
+
+// Render fields dynamically
+{params.map(param => (
+  <DynamicFormField
+    key={param.name}
+    parameter={param}
+    value={formData[param.name]}
+    onChange={(val) => setFormData({...formData, [param.name]: val})}
+  />
+))}
+
+// Send ALL fields
+const parameters = formDataToParameters(formData)
+await sdk.process.raiseEvent({ eventName, parameters }, undefined, token)
+```
+
+✅ **Pros:** No code changes for new parameters, fast development
+❌ **Cons:** Less control over UI, sends all fields
+
+---
+
+### Strategy 2: Manual Fields + Send All 📝
+
+**Best for:** Custom UI, simple forms
+
+```typescript
+// Define form state
+const [formData, setFormData] = useState({
+  pEmpleado: '',
+  pMonto: '',
+  pCategoria: ''
+})
+
+// Create inputs manually
+<input
+  value={formData.pEmpleado}
+  onChange={(e) => setFormData({...formData, pEmpleado: e.target.value})}
+/>
+
+// Send ALL fields
+const parameters = formDataToParameters(formData)
+await sdk.process.raiseEvent({ eventName, parameters }, undefined, token)
+```
+
+✅ **Pros:** Full UI control, custom validations
+❌ **Cons:** Sends all fields even if not needed
+
+---
+
+### Strategy 3: Manual Fields + Selective Mapping ⭐ **RECOMMENDED**
+
+**Best for:** Production apps, selective field sending, value transformations
+
+```typescript
+const [formData, setFormData] = useState({
+  empleado: '',      // Will be sent
+  monto: '',         // Will be sent
+  comentarios: ''    // Won't be sent (not in mapping)
+})
+
+// Define selective mapping
+const mapping = {
+  'empleado': {
+    parameterName: 'pEmpleado',
+    transform: (val) => val.toUpperCase()
+  },
+  'monto': {
+    parameterName: 'pMonto',
+    transform: (val) => parseFloat(val).toFixed(2)
+  }
+  // 'comentarios' not included - won't be sent
+}
+
+// Send ONLY mapped fields with transformations
+const parameters = buildParameters(mapping, formData)
+await sdk.process.raiseEvent({ eventName, parameters }, undefined, token)
+```
+
+✅ **Pros:** Full control, selective sending, value transformations, better performance
+❌ **Cons:** More initial setup
+
+**🎯 This is the BEST PRACTICE for production applications.**
+
+[See full examples →](https://github.com/bizuit/form-template/tree/main/example/app)
+
+---
+
 ## Quick Start
 
 ### 1. Setup SDK Provider (React)

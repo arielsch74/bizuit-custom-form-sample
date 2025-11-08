@@ -83,15 +83,79 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="mt-16 text-center">
-          <h3 className="text-xl font-semibold mb-4">{t('home.components.title')}</h3>
-          <p className="text-sm opacity-50 mb-4">
+        <div className="mt-16">
+          <h3 className="text-xl font-semibold mb-4 text-center">📚 Form Implementation Examples</h3>
+          <p className="text-sm opacity-50 mb-6 text-center">
+            Three different approaches to building forms with Bizuit BPM
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-4 mb-12">
+            <Link
+              href="/example-1-dynamic"
+              className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:dark:border-blue-700 hover:dark:bg-blue-900/20"
+            >
+              <h4 className="mb-2 text-lg font-semibold">
+                1. Dynamic Fields{' '}
+                <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+                  →
+                </span>
+              </h4>
+              <p className="text-sm opacity-70">
+                Auto-generate fields from API. Best for generic forms.
+              </p>
+              <p className="text-xs mt-2 text-blue-600 dark:text-blue-400">
+                Uses: DynamicFormField + formDataToParameters()
+              </p>
+            </Link>
+
+            <Link
+              href="/example-2-manual-all"
+              className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-amber-300 hover:bg-amber-50 hover:dark:border-amber-700 hover:dark:bg-amber-900/20"
+            >
+              <h4 className="mb-2 text-lg font-semibold">
+                2. Manual + Send All{' '}
+                <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+                  →
+                </span>
+              </h4>
+              <p className="text-sm opacity-70">
+                Custom UI, sends all form data. Good for simple forms.
+              </p>
+              <p className="text-xs mt-2 text-amber-600 dark:text-amber-400">
+                Uses: HTML inputs + formDataToParameters()
+              </p>
+            </Link>
+
+            <Link
+              href="/example-3-manual-selective"
+              className="group rounded-lg border border-green-500 px-5 py-4 transition-colors hover:border-green-400 hover:bg-green-50 hover:dark:border-green-600 hover:dark:bg-green-900/20 relative"
+            >
+              <div className="absolute top-2 right-2 text-xs bg-green-600 text-white px-2 py-0.5 rounded-full">
+                BEST PRACTICE ⭐
+              </div>
+              <h4 className="mb-2 text-lg font-semibold">
+                3. Manual + Selective{' '}
+                <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+                  →
+                </span>
+              </h4>
+              <p className="text-sm opacity-70">
+                Custom UI, selective mapping with transformations.
+              </p>
+              <p className="text-xs mt-2 text-green-600 dark:text-green-400">
+                Uses: HTML inputs + buildParameters() 🎯
+              </p>
+            </Link>
+          </div>
+
+          <h3 className="text-xl font-semibold mb-4 text-center">{t('home.components.title')}</h3>
+          <p className="text-sm opacity-50 mb-4 text-center">
             {t('home.components.description')}
           </p>
 
           <Link
             href="/components-demo"
-            className="inline-block group rounded-lg border border-transparent px-8 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30 mb-6"
+            className="inline-block group rounded-lg border border-transparent px-8 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30 mb-6 mx-auto block text-center"
           >
             <span className="text-lg font-semibold">
               {t('home.components.demo')}{' '}

@@ -45,6 +45,18 @@ module.exports = {
 }
 ```
 
+## Usage Patterns
+
+See **[@tyconsa/bizuit-form-sdk](https://www.npmjs.com/package/@tyconsa/bizuit-form-sdk)** for the three recommended form implementation strategies:
+
+1. **Dynamic Fields** - Auto-generate with `DynamicFormField` (good for generic forms)
+2. **Manual + Send All** - Custom UI with `formDataToParameters()` (good for simple forms)
+3. **Manual + Selective** - Custom UI with `buildParameters()` ⭐ **BEST PRACTICE** (production apps)
+
+[View full strategy guide →](https://github.com/bizuit/form-template/blob/main/packages/bizuit-form-sdk/README.md#form-implementation-strategies)
+
+[Live examples →](https://github.com/bizuit/form-template/tree/main/example/app)
+
 ### Import Styles
 
 In your root layout or `_app.tsx`:
