@@ -90,21 +90,30 @@ stages:
                       Write-Host "Stopping PM2 application: $(appName)"
 
                       # Check if PM2 is installed
-                      $pm2Installed = Get-Command pm2 -ErrorAction SilentlyContinue
-                      if (-not $pm2Installed) {
+                      $pm2Path = "$env:APPDATA\npm\pm2.cmd"
+                      if (-not (Test-Path $pm2Path)) {
                           Write-Host "PM2 not installed. Installing PM2 globally..."
                           npm install -g pm2
-                          pm2 startup
+                          Write-Host "PM2 installed successfully"
+                      } else {
+                          Write-Host "PM2 is already installed"
                       }
 
+                      # Refresh PATH to include npm global binaries
+                      $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
                       # Stop and delete existing PM2 process if exists
-                      $processExists = pm2 list | Select-String "$(appName)"
-                      if ($processExists) {
-                          Write-Host "Stopping existing PM2 process..."
-                          pm2 stop $(appName)
-                          pm2 delete $(appName)
-                      } else {
-                          Write-Host "No existing PM2 process found."
+                      try {
+                          $pmList = & pm2 list 2>&1 | Out-String
+                          if ($pmList -match "$(appName)") {
+                              Write-Host "Stopping existing PM2 process..."
+                              & pm2 stop $(appName)
+                              & pm2 delete $(appName)
+                          } else {
+                              Write-Host "No existing PM2 process found."
+                          }
+                      } catch {
+                          Write-Host "PM2 process check skipped (first deployment or PM2 not configured)"
                       }
 
                       # Clean deployment directory
@@ -133,15 +142,18 @@ stages:
                       Write-Host "Installing production dependencies..."
                       npm ci --production
 
+                      # Refresh PATH to include npm global binaries
+                      $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
                       Write-Host "Starting Next.js application with PM2..."
-                      pm2 start npm --name "$(appName)" -- start
-                      pm2 save
+                      & pm2 start npm --name "$(appName)" -- start
+                      & pm2 save
 
                       Write-Host "Deployment completed successfully!"
                       Write-Host "Application running on port $(appPort)"
 
                       # Show PM2 status
-                      pm2 list
+                      & pm2 list
                   displayName: 'Install Dependencies and Start Application'
 
                 - task: PowerShell@2
@@ -150,6 +162,9 @@ stages:
                     script: |
                       Write-Host "Verifying deployment..."
                       Start-Sleep -Seconds 5
+
+                      # Refresh PATH to include npm global binaries
+                      $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 
                       try {
                           $response = Invoke-WebRequest -Uri "http://localhost:$(appPort)" -UseBasicParsing -TimeoutSec 10
@@ -161,7 +176,7 @@ stages:
                           }
                       } catch {
                           Write-Error "❌ Application health check failed: $_"
-                          pm2 logs $(appName) --lines 50
+                          & pm2 logs $(appName) --lines 50
                           exit 1
                       }
                   displayName: 'Health Check'
