@@ -5,6 +5,7 @@ import { useBizuitSDK, buildParameters, formDataToParameters } from '@tyconsa/bi
 import { Button, useBizuitAuth } from '@tyconsa/bizuit-ui-components'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { RequireAuth } from '@/components/require-auth'
+import { LiveCodeEditor } from '@/components/live-code-editor'
 import Link from 'next/link'
 
 /**
@@ -103,8 +104,8 @@ function Example3ManualSelectiveContent() {
         submittedFrom: 'web-form',
 
         // Cálculos basados en formData
-        montoConIVA: parseFloat(formData.pMonto || '0') * 1.21,
-        requiereAprobacionGerente: parseFloat(formData.pMonto || '0') > 5000,
+        montoConIVA: parseFloat(formData.monto || '0') * 1.21,
+        requiereAprobacionGerente: parseFloat(formData.monto || '0') > 5000,
 
         // Metadata y constantes
         formVersion: '3.0.0',
@@ -166,8 +167,8 @@ function Example3ManualSelectiveContent() {
         submittedBy: token ? 'user123' : 'anonymous',
         submittedAt: new Date().toISOString(),
         submittedFrom: 'web-form',
-        montoConIVA: parseFloat(formData.pMonto || '0') * 1.21,
-        requiereAprobacionGerente: parseFloat(formData.pMonto || '0') > 5000,
+        montoConIVA: parseFloat(formData.monto || '0') * 1.21,
+        requiereAprobacionGerente: parseFloat(formData.monto || '0') > 5000,
         formVersion: '3.0.0',
         browserInfo: navigator.userAgent.substring(0, 50),
       }
@@ -184,8 +185,535 @@ function Example3ManualSelectiveContent() {
     }
   }
 
+  // Código para el LiveCodeEditor
+  const liveCodeFiles = {
+    'App.js': `import React, { useState } from 'react';
+import './styles.css';
+
+export default function SelectiveMappingForm() {
+  const [formData, setFormData] = useState({
+    empleado: '',
+    legajo: '',
+    monto: '',
+    categoria: 'Viajes',
+    descripcion: '',
+    aprobadoSupervisor: false,
+    // Campos que NO se enviarán:
+    comentariosInternos: '',
+    prioridad: 'Media'
+  });
+
+  const [showModal, setShowModal] = useState(false);
+  const [paramsToSend, setParamsToSend] = useState({ visible: [], hidden: [], all: [] });
+
+  // Definir el mapeo selectivo
+  const parameterMapping = {
+    'empleado': {
+      parameterName: 'pEmpleado',
+      transform: (val) => val.toUpperCase()
+    },
+    'legajo': {
+      parameterName: 'pLegajo'
+    },
+    'monto': {
+      parameterName: 'pMonto',
+      transform: (val) => parseFloat(val).toFixed(2)
+    },
+    'categoria': {
+      parameterName: 'pCategoria'
+    },
+    'descripcion': {
+      parameterName: 'pDescripcion'
+    },
+    'aprobadoSupervisor': {
+      parameterName: 'vAprobadoSupervisor',
+      isVariable: true,
+      transform: (val) => val ? 'SI' : 'NO'
+    }
+    // NOTA: comentariosInternos y prioridad NO están aquí, no se enviarán
+  };
+
+  // Función buildParameters simplificada
+  const buildParameters = (mapping, data) => {
+    return Object.entries(mapping).map(([fieldName, config]) => ({
+      name: config.parameterName,
+      value: config.transform
+        ? config.transform(data[fieldName])
+        : data[fieldName],
+      direction: config.isVariable ? 'Variable' : 'Input'
+    }));
+  };
+
+  const handleChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Parámetros visibles (mapeados del formulario)
+    const visibleParams = buildParameters(parameterMapping, formData);
+
+    // Parámetros ocultos/calculados
+    const hiddenParams = [
+      { name: 'submittedBy', value: 'user123', direction: 'Input' },
+      { name: 'submittedAt', value: new Date().toISOString(), direction: 'Input' },
+      { name: 'montoConIVA', value: (parseFloat(formData.monto || '0') * 1.21).toFixed(2), direction: 'Input' },
+      { name: 'requiereAprobacionGerente', value: parseFloat(formData.monto || '0') > 5000, direction: 'Input' }
+    ];
+
+    // Combinar todos
+    const allParams = [...visibleParams, ...hiddenParams];
+
+    setParamsToSend({ visible: visibleParams, hidden: hiddenParams, all: allParams });
+    setShowModal(true);
+
+    console.log('📤 Enviando a Bizuit:', allParams);
+  };
+
+  const closeModal = () => setShowModal(false);
+
   return (
-    <div className="container mx-auto py-8 px-4 max-w-6xl">
+    <div className="container">
+      <h2>Solicitud de Reembolso</h2>
+
+      <form onSubmit={handleSubmit}>
+        {/* Empleado */}
+        <div className="form-group">
+          <label>Nombre del Empleado * ✅ Se envía (en MAYÚSCULAS)</label>
+          <input
+            type="text"
+            value={formData.empleado}
+            onChange={(e) => handleChange('empleado', e.target.value)}
+            placeholder="juan pérez"
+            required
+            className="form-input"
+          />
+          <p className="hint">
+            Se enviará como: pEmpleado = "{formData.empleado.toUpperCase() || 'JUAN PÉREZ'}"
+          </p>
+        </div>
+
+        {/* Legajo */}
+        <div className="form-group">
+          <label>Número de Legajo * ✅ Se envía</label>
+          <input
+            type="text"
+            value={formData.legajo}
+            onChange={(e) => handleChange('legajo', e.target.value)}
+            placeholder="12345"
+            required
+            className="form-input"
+          />
+        </div>
+
+        {/* Monto */}
+        <div className="form-group">
+          <label>Monto Solicitado * ✅ Se envía (formato decimal)</label>
+          <input
+            type="number"
+            step="0.01"
+            value={formData.monto}
+            onChange={(e) => handleChange('monto', e.target.value)}
+            placeholder="1500"
+            required
+            className="form-input"
+          />
+          <p className="hint">
+            Se enviará como: pMonto = "{formData.monto ? parseFloat(formData.monto).toFixed(2) : '1500.00'}"
+          </p>
+        </div>
+
+        {/* Categoría */}
+        <div className="form-group">
+          <label>Categoría * ✅ Se envía</label>
+          <select
+            value={formData.categoria}
+            onChange={(e) => handleChange('categoria', e.target.value)}
+            className="form-input"
+          >
+            <option value="Viajes">Viajes</option>
+            <option value="Comidas">Comidas</option>
+            <option value="Alojamiento">Alojamiento</option>
+            <option value="Transporte">Transporte</option>
+          </select>
+        </div>
+
+        {/* Descripción */}
+        <div className="form-group">
+          <label>Descripción * ✅ Se envía</label>
+          <textarea
+            value={formData.descripcion}
+            onChange={(e) => handleChange('descripcion', e.target.value)}
+            placeholder="Describa el motivo del gasto..."
+            required
+            rows={3}
+            className="form-input"
+          />
+        </div>
+
+        {/* Aprobado */}
+        <div className="form-group">
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={formData.aprobadoSupervisor}
+              onChange={(e) => handleChange('aprobadoSupervisor', e.target.checked)}
+            />
+            ✅ Pre-aprobado por supervisor (se envía como variable)
+          </label>
+        </div>
+
+        {/* Campos que NO se envían */}
+        <div className="no-send-section">
+          <p className="warning">⚠️ Campos siguientes NO se envían a Bizuit:</p>
+
+          <div className="form-group">
+            <label>❌ Comentarios Internos (NO se envía)</label>
+            <textarea
+              value={formData.comentariosInternos}
+              onChange={(e) => handleChange('comentariosInternos', e.target.value)}
+              placeholder="Solo para uso interno..."
+              rows={2}
+              className="form-input no-send"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>❌ Prioridad (NO se envía)</label>
+            <select
+              value={formData.prioridad}
+              onChange={(e) => handleChange('prioridad', e.target.value)}
+              className="form-input no-send"
+            >
+              <option value="Baja">Baja</option>
+              <option value="Media">Media</option>
+              <option value="Alta">Alta</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" className="btn-submit">
+          Enviar Solicitud
+        </button>
+      </form>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>📤 Parámetros que se enviarán a Bizuit</h3>
+              <button onClick={closeModal} className="modal-close">×</button>
+            </div>
+
+            <div className="modal-body">
+              <div className="params-section">
+                <h4 className="params-title visible">
+                  👁️ Parámetros Visibles ({paramsToSend.visible.length}):
+                </h4>
+                <div className="params-list">
+                  {paramsToSend.visible.map((param, idx) => (
+                    <div key={idx} className="param-item">
+                      <span className="param-name">{param.name}:</span>
+                      <span className="param-value">{JSON.stringify(param.value)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="params-section">
+                <h4 className="params-title hidden">
+                  🔒 Parámetros Ocultos ({paramsToSend.hidden.length}):
+                </h4>
+                <div className="params-list">
+                  {paramsToSend.hidden.map((param, idx) => (
+                    <div key={idx} className="param-item">
+                      <span className="param-name">{param.name}:</span>
+                      <span className="param-value">{JSON.stringify(param.value)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="params-total">
+                <strong>Total: {paramsToSend.all.length} parámetros</strong>
+                <span> ({paramsToSend.visible.length} visibles + {paramsToSend.hidden.length} ocultos)</span>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button onClick={closeModal} className="btn-modal-close">
+                Aceptar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}`,
+    'styles.css': `.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #1f2937;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #374151;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: white;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.hint {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.no-send-section {
+  border-top: 2px solid #e5e7eb;
+  padding-top: 16px;
+  margin-top: 16px;
+}
+
+.warning {
+  font-size: 14px;
+  font-weight: 500;
+  color: #d97706;
+  margin-bottom: 12px;
+}
+
+.form-input.no-send {
+  opacity: 0.7;
+  background: #f9fafb;
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-top: 20px;
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  padding: 20px;
+  border-bottom: 2px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.params-section {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.params-section:last-of-type {
+  border-bottom: none;
+}
+
+.params-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.params-title.visible {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.params-title.hidden {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.params-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.param-item {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.param-name {
+  font-weight: 600;
+  color: #374151;
+  min-width: 180px;
+}
+
+.param-value {
+  color: #6b7280;
+  word-break: break-all;
+}
+
+.params-total {
+  margin-top: 16px;
+  padding: 12px;
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+  border-radius: 8px;
+  text-align: center;
+  color: #5b21b6;
+  font-size: 14px;
+}
+
+.params-total strong {
+  font-weight: 700;
+}
+
+.modal-footer {
+  padding: 16px 20px;
+  border-top: 2px solid #e5e7eb;
+  text-align: center;
+}
+
+.btn-modal-close {
+  padding: 10px 32px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-modal-close:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}`
+  };
+
+  return (
+    <div className="container mx-auto py-8 px-4 max-w-7xl">
       <div className="mb-6">
         <Link href="/" className="text-sm text-primary hover:underline">
           ← Volver al inicio
@@ -197,307 +725,23 @@ function Example3ManualSelectiveContent() {
         Los campos se crean manualmente con control total de la UI, se eligen selectivamente cuáles enviar con transformaciones
       </p>
 
-      <div className="grid lg:grid-cols-2 gap-6">
-        {/* Formulario */}
-        {(status === 'idle' || status === 'submitting') && (
-          <>
-            <div className="space-y-6">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <Card className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">Solicitud de Reembolso</h2>
-
-                  <div className="space-y-4">
-                    {/* Empleado */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Nombre del Empleado * ✅ Se envía (en mayúsculas)
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.empleado}
-                        onChange={(e) => handleChange('empleado', e.target.value)}
-                        placeholder="juan pérez"
-                        required
-                        className="w-full px-3 py-2 border rounded-md dark:bg-gray-800"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Se enviará como: pEmpleado = "{formData.empleado.toUpperCase() || 'JUAN PÉREZ'}"
-                      </p>
-                    </div>
-
-                    {/* Legajo */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Número de Legajo * ✅ Se envía
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.legajo}
-                        onChange={(e) => handleChange('legajo', e.target.value)}
-                        placeholder="12345"
-                        required
-                        className="w-full px-3 py-2 border rounded-md dark:bg-gray-800"
-                      />
-                    </div>
-
-                    {/* Monto */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Monto Solicitado * ✅ Se envía (formato decimal)
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={formData.monto}
-                        onChange={(e) => handleChange('monto', e.target.value)}
-                        placeholder="1500"
-                        required
-                        className="w-full px-3 py-2 border rounded-md dark:bg-gray-800"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Se enviará como: pMonto = "{formData.monto ? parseFloat(formData.monto).toFixed(2) : '1500.00'}"
-                      </p>
-                    </div>
-
-                    {/* Categoría */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Categoría * ✅ Se envía
-                      </label>
-                      <select
-                        value={formData.categoria}
-                        onChange={(e) => handleChange('categoria', e.target.value)}
-                        className="w-full px-3 py-2 border rounded-md dark:bg-gray-800"
-                      >
-                        <option value="Viajes">Viajes</option>
-                        <option value="Comidas">Comidas</option>
-                        <option value="Alojamiento">Alojamiento</option>
-                        <option value="Transporte">Transporte</option>
-                      </select>
-                    </div>
-
-                    {/* Descripción */}
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Descripción * ✅ Se envía
-                      </label>
-                      <textarea
-                        value={formData.descripcion}
-                        onChange={(e) => handleChange('descripcion', e.target.value)}
-                        placeholder="Describa el motivo del gasto..."
-                        required
-                        rows={3}
-                        className="w-full px-3 py-2 border rounded-md dark:bg-gray-800"
-                      />
-                    </div>
-
-                    {/* Aprobado */}
-                    <div className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id="aprobado"
-                        checked={formData.aprobadoSupervisor}
-                        onChange={(e) => handleChange('aprobadoSupervisor', e.target.checked)}
-                        className="mr-2"
-                      />
-                      <label htmlFor="aprobado" className="text-sm font-medium">
-                        ✅ Pre-aprobado por supervisor (se envía como variable vAprobadoSupervisor)
-                      </label>
-                    </div>
-
-                    <div className="border-t pt-4 mt-4">
-                      <p className="text-sm font-medium mb-3 text-amber-600 dark:text-amber-400">
-                        ⚠️ Campos siguientes NO se envían a Bizuit (solo para UI):
-                      </p>
-
-                      {/* Comentarios Internos - NO se envía */}
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium mb-2">
-                          ❌ Comentarios Internos (NO se envía)
-                        </label>
-                        <textarea
-                          value={formData.comentariosInternos}
-                          onChange={(e) => handleChange('comentariosInternos', e.target.value)}
-                          placeholder="Solo para uso interno..."
-                          rows={2}
-                          className="w-full px-3 py-2 border rounded-md dark:bg-gray-800 opacity-70"
-                        />
-                      </div>
-
-                      {/* Prioridad - NO se envía */}
-                      <div className="mb-4">
-                        <label className="block text-sm font-medium mb-2">
-                          ❌ Prioridad (NO se envía)
-                        </label>
-                        <select
-                          value={formData.prioridad}
-                          onChange={(e) => handleChange('prioridad', e.target.value)}
-                          className="w-full px-3 py-2 border rounded-md dark:bg-gray-800 opacity-70"
-                        >
-                          <option value="Baja">Baja</option>
-                          <option value="Media">Media</option>
-                          <option value="Alta">Alta</option>
-                        </select>
-                      </div>
-
-                      {/* Notificar - NO se envía */}
-                      <div className="flex items-center opacity-70">
-                        <input
-                          type="checkbox"
-                          id="notificar"
-                          checked={formData.notificarPorEmail}
-                          onChange={(e) => handleChange('notificarPorEmail', e.target.checked)}
-                          className="mr-2"
-                        />
-                        <label htmlFor="notificar" className="text-sm font-medium">
-                          ❌ Notificar por email (NO se envía)
-                        </label>
-                      </div>
-                    </div>
-
-                    {error && (
-                      <div className="p-3 bg-destructive/10 text-destructive rounded-md">
-                        {error}
-                      </div>
-                    )}
-
-                    <div className="flex gap-3">
-                      <Button
-                        type="submit"
-                        disabled={status === 'submitting'}
-                        className="flex-1"
-                      >
-                        {status === 'submitting' ? 'Enviando...' : 'Enviar Solicitud'}
-                      </Button>
-                      <Button type="button" variant="outline" onClick={handleReset}>
-                        Limpiar
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              </form>
-            </div>
-
-            {/* Preview en Tiempo Real */}
-            <div className="space-y-6">
-              <Card className="p-6 sticky top-4">
-                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <span className="text-2xl">⚡</span>
-                  Vista Previa en Tiempo Real
-                </h3>
-
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Total de campos en el formulario: <strong>{Object.keys(formData).length}</strong>
-                    </p>
-                    <p className="text-sm text-green-600 dark:text-green-400 font-medium">
-                      ✅ Parámetros visibles: <strong>{previewParameters().visible.length}</strong>
-                    </p>
-                    <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
-                      🔒 Parámetros ocultos/calculados: <strong>{previewParameters().hidden.length}</strong>
-                    </p>
-                    <p className="text-sm text-purple-600 dark:text-purple-400 font-bold">
-                      📦 Total a enviar: <strong>{previewParameters().all.length}</strong>
-                    </p>
-                    <p className="text-sm text-amber-600 dark:text-amber-400">
-                      ❌ Campos que NO se enviarán: <strong>{Object.keys(formData).length - Object.keys(parameterMapping).length}</strong>
-                    </p>
-                  </div>
-
-                  <div className="border-t pt-4">
-                    <h4 className="text-sm font-semibold mb-2 text-green-700 dark:text-green-400">
-                      ✅ Parámetros Visibles del Formulario ({previewParameters().visible.length}):
-                    </h4>
-                    <pre className="bg-muted p-3 rounded-md overflow-auto text-xs max-h-48">
-                      {JSON.stringify(previewParameters().visible, null, 2)}
-                    </pre>
-                  </div>
-
-                  <div className="border-t pt-4">
-                    <h4 className="text-sm font-semibold mb-2 text-blue-700 dark:text-blue-400">
-                      🔒 Parámetros Ocultos/Calculados ({previewParameters().hidden.length}):
-                    </h4>
-                    <pre className="bg-muted p-3 rounded-md overflow-auto text-xs max-h-48">
-                      {JSON.stringify(previewParameters().hidden, null, 2)}
-                    </pre>
-                  </div>
-
-                  <div className="border-t pt-4 bg-purple-50 dark:bg-purple-900/20 p-3 rounded-md">
-                    <h4 className="text-sm font-semibold mb-2 text-purple-700 dark:text-purple-400">
-                      📦 Todos los Parámetros a Enviar ({previewParameters().all.length}):
-                    </h4>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      Esta es la combinación final que se envía a Bizuit
-                    </p>
-                    <pre className="bg-background p-3 rounded-md overflow-auto text-xs max-h-64">
-                      {JSON.stringify(previewParameters().all, null, 2)}
-                    </pre>
-                  </div>
-
-                  <div className="border-t pt-4">
-                    <h4 className="text-sm font-semibold mb-2">✨ Transformaciones Aplicadas:</h4>
-                    <ul className="text-xs space-y-1">
-                      <li>• <code>empleado</code> → <code>MAYÚSCULAS</code></li>
-                      <li>• <code>monto</code> → <code>formato decimal (.00)</code></li>
-                      <li>• <code>aprobadoSupervisor</code> → <code>SI/NO</code> (variable)</li>
-                    </ul>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </>
-        )}
-
-        {/* Success */}
-        {status === 'success' && result && (
-          <div className="lg:col-span-2">
-            <Card className="p-6">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <h2 className="text-2xl font-bold mb-2">¡Solicitud Enviada!</h2>
-                <p className="text-muted-foreground">
-                  Instance ID: <code className="text-xs bg-muted px-2 py-1 rounded">{result.instanceId}</code>
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4 mb-6">
-                <div>
-                  <h3 className="font-semibold mb-2">Parámetros Enviados ({mappedParameters.length}):</h3>
-                  <pre className="bg-muted p-4 rounded-md overflow-auto text-xs max-h-64">
-                    {JSON.stringify(mappedParameters, null, 2)}
-                  </pre>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold mb-2">Respuesta del Servidor:</h3>
-                  <pre className="bg-muted p-4 rounded-md overflow-auto text-xs max-h-64">
-                    {JSON.stringify(result, null, 2)}
-                  </pre>
-                </div>
-              </div>
-
-              <Button onClick={handleReset} className="w-full">
-                Nueva Solicitud
-              </Button>
-            </Card>
-          </div>
-        )}
+      {/* Live Code Editor */}
+      <div className="mb-8">
+        <LiveCodeEditor
+          title="Código Interactivo - Mapeo Selectivo"
+          description="Edita el código y ve los cambios en tiempo real. Este ejemplo muestra cómo usar buildParameters() para enviar solo los campos necesarios."
+          files={liveCodeFiles}
+        />
       </div>
 
       {/* Documentación */}
-      {(status === 'idle' || status === 'submitting') && (
-        <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 mt-6">
-          <h3 className="font-semibold mb-3 text-lg">💡 Cómo funciona el Mapeo Selectivo</h3>
+      <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 mt-6">
+        <h3 className="font-semibold mb-3 text-lg">💡 Cómo funciona el Mapeo Selectivo</h3>
 
-          <div className="space-y-4 text-sm">
-            <div>
-              <h4 className="font-medium mb-2">1️⃣ Definir el mapeo de campos:</h4>
-              <pre className="bg-background/80 p-3 rounded text-xs overflow-auto">
+        <div className="space-y-4 text-sm">
+          <div>
+            <h4 className="font-medium mb-2">1️⃣ Definir el mapeo de campos:</h4>
+            <pre className="bg-background/80 p-3 rounded text-xs overflow-auto">
 {`const mapping = {
   'empleado': {
     parameterName: 'pEmpleado',
@@ -514,18 +758,18 @@ function Example3ManualSelectiveContent() {
   }
   // comentariosInternos NO está aquí, no se enviará
 }`}</pre>
-            </div>
+          </div>
 
-            <div>
-              <h4 className="font-medium mb-2">2️⃣ Construir parámetros selectivamente:</h4>
-              <pre className="bg-background/80 p-3 rounded text-xs overflow-auto">
+          <div>
+            <h4 className="font-medium mb-2">2️⃣ Construir parámetros selectivamente:</h4>
+            <pre className="bg-background/80 p-3 rounded text-xs overflow-auto">
 {`const parameters = buildParameters(mapping, formData)
 // Solo genera parámetros para los campos del mapping`}</pre>
-            </div>
+          </div>
 
-            <div>
-              <h4 className="font-medium mb-2">3️⃣ Agregar parámetros ocultos/calculados:</h4>
-              <pre className="bg-background/80 p-3 rounded text-xs overflow-auto">
+          <div>
+            <h4 className="font-medium mb-2">3️⃣ Agregar parámetros ocultos/calculados:</h4>
+            <pre className="bg-background/80 p-3 rounded text-xs overflow-auto">
 {`// Parámetros que NO están en el formulario
 const hiddenData = {
   submittedBy: 'user123',
@@ -536,35 +780,34 @@ const hiddenData = {
 }
 
 const hiddenParameters = formDataToParameters(hiddenData)`}</pre>
-            </div>
+          </div>
 
-            <div>
-              <h4 className="font-medium mb-2">4️⃣ Combinar y enviar al proceso:</h4>
-              <pre className="bg-background/80 p-3 rounded text-xs overflow-auto">
+          <div>
+            <h4 className="font-medium mb-2">4️⃣ Combinar y enviar al proceso:</h4>
+            <pre className="bg-background/80 p-3 rounded text-xs overflow-auto">
 {`// Combinar parámetros visibles + ocultos
 const allParameters = [...parameters, ...hiddenParameters]
 
 await sdk.process.raiseEvent({
   eventName: 'AprobacionGastos',
-  parameters: allParameters // 6 visibles + 7 ocultos = 13 total
+  parameters: allParameters // 6 visibles + 4 ocultos = 10 total
 })`}</pre>
-            </div>
           </div>
+        </div>
 
-          <div className="mt-6 pt-4 border-t border-primary/20">
-            <p className="text-sm">
-              <strong className="text-primary">✅ MEJOR PRÁCTICA:</strong> Usar mapeo selectivo con buildParameters()
-            </p>
-            <ul className="mt-2 space-y-1 text-sm">
-              <li>✓ Envía solo lo necesario (mejor performance)</li>
-              <li>✓ Transforma valores automáticamente</li>
-              <li>✓ Mapea nombres de campos diferentes</li>
-              <li>✓ Distingue parámetros de variables</li>
-              <li>✓ Código más limpio y mantenible</li>
-            </ul>
-          </div>
-        </Card>
-      )}
+        <div className="mt-6 pt-4 border-t border-primary/20">
+          <p className="text-sm">
+            <strong className="text-primary">✅ MEJOR PRÁCTICA:</strong> Usar mapeo selectivo con buildParameters()
+          </p>
+          <ul className="mt-2 space-y-1 text-sm">
+            <li>✓ Envía solo lo necesario (mejor performance)</li>
+            <li>✓ Transforma valores automáticamente</li>
+            <li>✓ Mapea nombres de campos diferentes</li>
+            <li>✓ Distingue parámetros de variables</li>
+            <li>✓ Código más limpio y mantenible</li>
+          </ul>
+        </div>
+      </Card>
     </div>
   )
 }

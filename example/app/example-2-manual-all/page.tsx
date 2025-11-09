@@ -164,8 +164,16 @@ export default function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Parámetros visibles del formulario
-    const visibleParams = Object.entries(formData).map(([key, value]) => ({
+    // Aplicar transformaciones a los valores antes de enviar
+    const transformedData = {
+      ...formData,
+      pEmpleado: formData.pEmpleado.toUpperCase(), // ✨ Transformación: MAYÚSCULAS
+      pMonto: parseFloat(formData.pMonto || '0').toFixed(2), // ✨ Transformación: formato decimal
+      pAprobado: formData.pAprobado ? 'SI' : 'NO' // ✨ Transformación: boolean a texto
+    };
+
+    // Parámetros visibles del formulario (con transformaciones aplicadas)
+    const visibleParams = Object.entries(transformedData).map(([key, value]) => ({
       name: key,
       value: value,
       direction: 'Input'
@@ -789,12 +797,23 @@ input[type="date"].form-input {
             </div>
 
             <div>
-              <h4 className="font-medium mb-1">3. Agregar parámetros ocultos/calculados:</h4>
+              <h4 className="font-medium mb-1">3. Aplicar transformaciones a los valores:</h4>
               <pre className="bg-background p-3 rounded text-xs overflow-auto">
-{`// Parámetros visibles del formulario
-const visibleParameters = formDataToParameters(formData)
+{`// ✨ Transformar valores antes de enviar
+const transformedData = {
+  ...formData,
+  pEmpleado: formData.pEmpleado.toUpperCase(), // MAYÚSCULAS
+  pMonto: parseFloat(formData.pMonto).toFixed(2), // Formato decimal
+  pAprobado: formData.pAprobado ? 'SI' : 'NO' // Boolean a texto
+}
 
-// Parámetros que NO están en el formulario
+const visibleParameters = formDataToParameters(transformedData)`}</pre>
+            </div>
+
+            <div>
+              <h4 className="font-medium mb-1">4. Agregar parámetros ocultos/calculados:</h4>
+              <pre className="bg-background p-3 rounded text-xs overflow-auto">
+{`// Parámetros que NO están en el formulario
 const hiddenParameters = formDataToParameters({
   submittedBy: 'user123',
   submittedAt: new Date().toISOString(),
@@ -805,9 +824,9 @@ const hiddenParameters = formDataToParameters({
             </div>
 
             <div>
-              <h4 className="font-medium mb-1">4. Combinar y enviar TODOS los campos:</h4>
+              <h4 className="font-medium mb-1">5. Combinar y enviar TODOS los campos:</h4>
               <pre className="bg-background p-3 rounded text-xs overflow-auto">
-{`// Combinar parámetros visibles + ocultos
+{`// Combinar parámetros visibles (transformados) + ocultos
 const allParameters = [...visibleParameters, ...hiddenParameters]
 
 await sdk.process.raiseEvent({

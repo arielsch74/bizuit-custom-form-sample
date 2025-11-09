@@ -33,7 +33,7 @@ export default function Home() {
       <AppToolbar />
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm">
         <h1 className="text-4xl font-bold mb-8 text-center">
-          {t('home.title')}
+          BIZUIT Custom Forms Samples
         </h1>
 
         <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-3 lg:text-left gap-4">

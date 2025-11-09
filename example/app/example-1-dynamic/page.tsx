@@ -5,6 +5,7 @@ import { useBizuitSDK, formDataToParameters, type IBizuitProcessParameter } from
 import { DynamicFormField, Button, useBizuitAuth } from '@tyconsa/bizuit-ui-components'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { RequireAuth } from '@/components/require-auth'
+import { LiveCodeEditor } from '@/components/live-code-editor'
 import Link from 'next/link'
 
 /**
@@ -145,6 +146,512 @@ function Example1DynamicContent() {
       <p className="text-muted-foreground mb-6">
         Los campos se generan automáticamente desde la API de Bizuit y se envían todos los valores
       </p>
+
+      {/* Live Code Editor */}
+      <div className="mb-8">
+        <LiveCodeEditor
+          title="⚡ Editor Interactivo - Generación Dinámica de Campos"
+          description="Este código simula cómo los campos se generan automáticamente desde parámetros de la API. Los parámetros están hardcodeados para demostración."
+          files={{
+            '/App.js': `import { useState } from 'react';
+import './styles.css';
+
+export default function DynamicFormDemo() {
+  // 🔹 CÓDIGO REAL (comentado porque no funciona en Sandpack):
+  // const sdk = useBizuitSDK();
+  // const { token } = useBizuitAuth();
+  // const [parameters, setParameters] = useState([]);
+  //
+  // // Obtener parámetros desde la API de Bizuit:
+  // const loadParameters = async () => {
+  //   const params = await sdk.process.getProcessParameters('DemoFlow', '', token);
+  //   const inputParams = params.filter(p =>
+  //     !p.isSystemParameter &&
+  //     (p.direction === 'In' || p.direction === 'Optional')
+  //   );
+  //   setParameters(inputParams);
+  // };
+
+  // 🔹 Para esta demostración, usamos parámetros hardcodeados:
+  const mockParameters = [
+    { name: 'pEmpleado', type: 'SingleValue', direction: 'Input' },
+    { name: 'pLegajo', type: 'SingleValue', direction: 'Input' },
+    { name: 'pMonto', type: 'SingleValue', direction: 'Input' },
+    { name: 'pCategoria', type: 'SingleValue', direction: 'Input' },
+    { name: 'pFechaSolicitud', type: 'SingleValue', direction: 'Input' },
+  ];
+
+  const [formData, setFormData] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [paramsToSend, setParamsToSend] = useState({ visible: [], hidden: [], all: [] });
+
+  const handleChange = (paramName, value) => {
+    setFormData(prev => ({ ...prev, [paramName]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Convertir formData a parámetros
+    const visibleParams = Object.entries(formData).map(([key, value]) => ({
+      name: key,
+      value: value,
+      direction: 'Input'
+    }));
+
+    // Parámetros ocultos/calculados
+    const hiddenParams = [
+      { name: 'submittedAt', value: new Date().toISOString(), direction: 'Input' },
+      { name: 'formVersion', value: '1.0.0', direction: 'Input' },
+    ];
+
+    const allParams = [...visibleParams, ...hiddenParams];
+
+    // 🔹 Para demostración, mostramos el modal
+    setParamsToSend({ visible: visibleParams, hidden: hiddenParams, all: allParams });
+    setShowModal(true);
+    console.log('📤 Enviando a Bizuit:', allParams);
+
+    // 🔹 CÓDIGO REAL para enviar a Bizuit (comentado porque no funciona en Sandpack):
+    // try {
+    //   const response = await sdk.process.raiseEvent({
+    //     eventName: 'DemoFlow',
+    //     parameters: allParams
+    //   }, undefined, token);
+    //
+    //   console.log('✅ Respuesta de Bizuit:', response);
+    //   alert(\`Proceso iniciado exitosamente! Instance ID: \${response.instanceId}\`);
+    // } catch (error) {
+    //   console.error('❌ Error al enviar a Bizuit:', error);
+    //   alert(\`Error: \${error.message}\`);
+    // }
+  };
+
+  const closeModal = () => setShowModal(false);
+
+  // 🔹 Función para renderizar campo según tipo de parámetro
+  const renderField = (param) => {
+    const fieldName = param.name.replace('p', ''); // Quitar 'p' del nombre
+
+    return (
+      <div key={param.name} className="form-group">
+        <label className="form-label">
+          {fieldName} *
+        </label>
+        <input
+          type={param.name.includes('Fecha') ? 'date' :
+                param.name.includes('Monto') ? 'number' : 'text'}
+          value={formData[param.name] || ''}
+          onChange={(e) => handleChange(param.name, e.target.value)}
+          className="form-input"
+          required
+        />
+      </div>
+    );
+  };
+
+  return (
+    <div className="container">
+      <div className="card">
+        <h2 className="card-title">Formulario Generado Dinámicamente</h2>
+        <p className="card-description">
+          Los campos se crean automáticamente desde los par\u00e1metros de la API
+        </p>
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-grid">
+            {/* 🔹 Generar campos dinámicamente */}
+            {mockParameters.map(param => renderField(param))}
+          </div>
+
+          <button type="submit" className="btn-submit">
+            Enviar Solicitud
+          </button>
+        </form>
+      </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>📤 Parámetros que se enviarán a Bizuit</h3>
+              <button onClick={closeModal} className="modal-close">×</button>
+            </div>
+
+            <div className="modal-body">
+              <div className="params-section">
+                <h4 className="params-title visible">
+                  👁️ Parámetros Visibles ({paramsToSend.visible.length}):
+                </h4>
+                <div className="params-list">
+                  {paramsToSend.visible.map((param, idx) => (
+                    <div key={idx} className="param-item">
+                      <span className="param-name">{param.name}:</span>
+                      <span className="param-value">{JSON.stringify(param.value)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="params-section">
+                <h4 className="params-title hidden">
+                  🔒 Parámetros Ocultos ({paramsToSend.hidden.length}):
+                </h4>
+                <div className="params-list">
+                  {paramsToSend.hidden.map((param, idx) => (
+                    <div key={idx} className="param-item">
+                      <span className="param-name">{param.name}:</span>
+                      <span className="param-value">{JSON.stringify(param.value)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="params-total">
+                <strong>Total: {paramsToSend.all.length} parámetros</strong>
+                <span> ({paramsToSend.visible.length} visibles + {paramsToSend.hidden.length} ocultos)</span>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button onClick={closeModal} className="btn-modal-close">
+                Aceptar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}`,
+            '/styles.css': `.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.card {
+  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+.card-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #111827;
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card-description {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 24px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+  padding: 0 8px;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #374151;
+  position: relative;
+  z-index: 2;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: white;
+  transition: border-color 0.2s;
+  position: relative;
+  z-index: 2;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+  letter-spacing: 0.3px;
+}
+
+.btn-submit:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(249, 115, 22, 0.4);
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #111827;
+  }
+
+  .card {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    border-color: #374151;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  }
+
+  .card-title {
+    color: #f9fafb;
+    background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .card-description {
+    color: #9ca3af;
+  }
+
+  .form-label {
+    color: #e5e7eb;
+  }
+
+  .form-input {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+
+  .form-input:focus {
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+  }
+
+  .preview {
+    background: #0f172a;
+    border-color: #374151;
+  }
+
+  .preview h3 {
+    color: #e5e7eb;
+  }
+
+  .preview-code {
+    background: #1e293b;
+    border-color: #374151;
+    color: #e5e7eb;
+  }
+
+  .modal-content {
+    background: #1f2937;
+  }
+
+  .param-item {
+    background: #374151;
+  }
+
+  .param-name {
+    color: #e5e7eb;
+  }
+
+  .param-value {
+    color: #9ca3af;
+  }
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  padding: 20px;
+  border-bottom: 2px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.params-section {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.params-section:last-of-type {
+  border-bottom: none;
+}
+
+.params-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.params-title.visible {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.params-title.hidden {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.params-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.param-item {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.param-name {
+  font-weight: 600;
+  color: #374151;
+  min-width: 180px;
+}
+
+.param-value {
+  color: #6b7280;
+  word-break: break-all;
+}
+
+.params-total {
+  margin-top: 16px;
+  padding: 12px;
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+  border-radius: 8px;
+  text-align: center;
+  color: #5b21b6;
+  font-size: 14px;
+}
+
+.params-total strong {
+  font-weight: 700;
+}
+
+.modal-footer {
+  padding: 16px 20px;
+  border-top: 2px solid #e5e7eb;
+  text-align: center;
+}
+
+.btn-modal-close {
+  padding: 10px 32px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-modal-close:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}`
+          }}
+        />
+      </div>
 
       <div className="grid gap-6">
         {/* Configuración Inicial */}
