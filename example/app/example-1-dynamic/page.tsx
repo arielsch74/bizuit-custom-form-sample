@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import { useBizuitSDK, formDataToParameters, type IBizuitProcessParameter } from '@tyconsa/bizuit-form-sdk'
-import { DynamicFormField, Card, Button } from '@tyconsa/bizuit-ui-components'
+import { DynamicFormField, Button, useBizuitAuth } from '@tyconsa/bizuit-ui-components'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { RequireAuth } from '@/components/require-auth'
 import Link from 'next/link'
 
 /**
@@ -23,11 +25,11 @@ import Link from 'next/link'
  * - Envía todos los campos (no selectivo)
  * - No permite transformaciones personalizadas
  */
-export default function Example1DynamicPage() {
+function Example1DynamicContent() {
   const sdk = useBizuitSDK()
+  const { token } = useBizuitAuth()
 
   const [processName, setProcessName] = useState('DemoFlow')
-  const [token, setToken] = useState('')
   const [parameters, setParameters] = useState<IBizuitProcessParameter[]>([])
   const [formData, setFormData] = useState<Record<string, any>>({})
   const [status, setStatus] = useState<'idle' | 'loading' | 'ready' | 'submitting' | 'success' | 'error'>('idle')
@@ -65,7 +67,7 @@ export default function Example1DynamicPage() {
     }
   }
 
-  // Paso 2: Enviar proceso con TODOS los campos
+  // Paso 2: Enviar proceso con TODOS los campos + parámetros ocultos
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -74,9 +76,40 @@ export default function Example1DynamicPage() {
       setError(null)
 
       // formDataToParameters() convierte TODO el formData a parámetros
-      const parametersToSend = formDataToParameters(formData)
+      const visibleParameters = formDataToParameters(formData)
 
-      console.log('Enviando parámetros:', parametersToSend)
+      // NUEVO: Agregar parámetros ocultos/calculados que NO están en el formulario
+      const hiddenParameters = formDataToParameters({
+        // Datos del usuario autenticado
+        userId: token ? 'user123' : 'anonymous',
+        userEmail: 'user@example.com',
+
+        // Timestamps y fechas
+        submittedAt: new Date().toISOString(),
+        submittedDate: new Date().toLocaleDateString('es-AR'),
+
+        // Información del entorno
+        appVersion: '1.0.0',
+        environment: process.env.NODE_ENV || 'development',
+
+        // Valores calculados
+        totalFields: parameters.length,
+        formHash: Math.random().toString(36).substring(7),
+
+        // Constantes de negocio
+        defaultPriority: 'medium',
+        defaultStatus: 'pending',
+      })
+
+      // Combinar parámetros visibles + ocultos
+      const parametersToSend = [...visibleParameters, ...hiddenParameters]
+
+      console.log('Enviando parámetros:', {
+        visible: visibleParameters.length,
+        hidden: hiddenParameters.length,
+        total: parametersToSend.length,
+        all: parametersToSend
+      })
 
       // Iniciar proceso
       const response = await sdk.process.raiseEvent({
@@ -129,19 +162,6 @@ export default function Example1DynamicPage() {
                   value={processName}
                   onChange={(e) => setProcessName(e.target.value)}
                   placeholder="Ej: DemoFlow"
-                  className="w-full px-3 py-2 border rounded-md dark:bg-gray-800"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Token de Autenticación
-                </label>
-                <input
-                  type="text"
-                  value={token}
-                  onChange={(e) => setToken(e.target.value)}
-                  placeholder="Basic xxxxx"
                   className="w-full px-3 py-2 border rounded-md dark:bg-gray-800"
                 />
               </div>
@@ -202,12 +222,43 @@ export default function Example1DynamicPage() {
             {/* Preview de Parámetros */}
             <Card className="p-6">
               <h3 className="font-semibold mb-2">Vista Previa: Parámetros a Enviar</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                Se enviarán TODOS los {parameters.length} campos:
-              </p>
-              <pre className="bg-muted p-4 rounded-md overflow-auto text-xs">
-                {JSON.stringify(formDataToParameters(formData), null, 2)}
-              </pre>
+
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    ✅ Parámetros visibles del formulario ({parameters.length}):
+                  </p>
+                  <pre className="bg-muted p-3 rounded-md overflow-auto text-xs">
+                    {JSON.stringify(formDataToParameters(formData), null, 2)}
+                  </pre>
+                </div>
+
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    🔒 Parámetros ocultos/calculados (8):
+                  </p>
+                  <pre className="bg-muted p-3 rounded-md overflow-auto text-xs">
+                    {JSON.stringify(formDataToParameters({
+                      userId: token ? 'user123' : 'anonymous',
+                      userEmail: 'user@example.com',
+                      submittedAt: new Date().toISOString(),
+                      submittedDate: new Date().toLocaleDateString('es-AR'),
+                      appVersion: '1.0.0',
+                      environment: process.env.NODE_ENV || 'development',
+                      totalFields: parameters.length,
+                      formHash: '...(generado al enviar)',
+                      defaultPriority: 'medium',
+                      defaultStatus: 'pending',
+                    }), null, 2)}
+                  </pre>
+                </div>
+
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                  <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                    💡 Total: {parameters.length + 10} parámetros ({parameters.length} visibles + 10 ocultos)
+                  </p>
+                </div>
+              </div>
             </Card>
           </form>
         )}
@@ -292,13 +343,25 @@ export default function Example1DynamicPage() {
             </div>
 
             <div>
-              <h4 className="font-medium mb-1">3. Enviar todos los campos:</h4>
+              <h4 className="font-medium mb-1">3. Enviar todos los campos + parámetros ocultos:</h4>
               <pre className="bg-background p-3 rounded text-xs overflow-auto">
-{`const parameters = formDataToParameters(formData)
+{`// Parámetros del formulario
+const visibleParameters = formDataToParameters(formData)
+
+// Parámetros ocultos/calculados
+const hiddenParameters = formDataToParameters({
+  userId: 'user123',
+  submittedAt: new Date().toISOString(),
+  appVersion: '1.0.0',
+  // ... más parámetros ocultos
+})
+
+// Combinar ambos
+const allParameters = [...visibleParameters, ...hiddenParameters]
 
 await sdk.process.raiseEvent({
   eventName: 'NombreProceso',
-  parameters: parameters // Envía TODOS los campos
+  parameters: allParameters
 }, undefined, token)`}</pre>
             </div>
           </div>
@@ -314,5 +377,13 @@ await sdk.process.raiseEvent({
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function Example1DynamicPage() {
+  return (
+    <RequireAuth returnUrl="/example-1-dynamic">
+      <Example1DynamicContent />
+    </RequireAuth>
   )
 }

@@ -207,11 +207,32 @@ function StartProcessForm() {
       setStatus('submitting')
       setError(null)
 
+      // Parámetros del formulario
+      const visibleParameters = formDataToParameters(formData)
+
+      // Parámetros ocultos/calculados
+      const hiddenParameters = formDataToParameters({
+        initiatedBy: activeToken ? 'authenticated-user' : 'anonymous',
+        initiatedAt: new Date().toISOString(),
+        initiatedFrom: 'start-process-page',
+        browserInfo: navigator.userAgent.substring(0, 100),
+        formVersion: '1.0.0',
+      })
+
+      // Combinar parámetros
+      const allParameters = [...visibleParameters, ...hiddenParameters]
+
+      console.log('Parámetros a enviar:', {
+        visible: visibleParameters.length,
+        hidden: hiddenParameters.length,
+        total: allParameters.length
+      })
+
       // Execute RaiseEvent to create process instance
       const result = await sdk.process.raiseEvent(
         {
           eventName: eventName,
-          parameters: formDataToParameters(formData),
+          parameters: allParameters,
         },
         formData.files || [], // Pass the files from formData
         activeToken // Pass the authentication token

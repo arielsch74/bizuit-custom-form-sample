@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { buildParameters } from '@tyconsa/bizuit-form-sdk'
-import { Card } from '@tyconsa/bizuit-ui-components'
+import { buildParameters, formDataToParameters } from '@tyconsa/bizuit-form-sdk'
+import { Card } from '@/components/ui/card'
 
 /**
  * Selective Parameter Mapping Example
@@ -109,6 +109,39 @@ export default function SelectiveMappingPage() {
 
     const parameters = buildParameters(mapping, formData)
     setMappedParameters(parameters)
+  }
+
+  const handleMapWithHiddenParameters = () => {
+    // NUEVO: Mapeo selectivo + parámetros ocultos/calculados
+    const mapping = {
+      'empleado': {
+        parameterName: 'pEmpleado',
+        transform: (val: string) => val.toUpperCase(),
+      },
+      'monto': {
+        parameterName: 'pMonto',
+        transform: (val: string) => parseFloat(val).toFixed(2),
+      },
+      'categoria': { parameterName: 'pCategoria' },
+    }
+
+    // Parámetros visibles del formulario (solo 3 campos mapeados)
+    const visibleParameters = buildParameters(mapping, formData)
+
+    // Parámetros ocultos/calculados que NO están en el formulario
+    const hiddenData = {
+      submittedBy: 'user123',
+      submittedAt: new Date().toISOString(),
+      submittedFrom: 'selective-mapping-page',
+      montoConIVA: (parseFloat(formData.monto) * 1.21).toFixed(2),
+      requiereAprobacionGerente: parseFloat(formData.monto) > 5000,
+      formVersion: '1.0.0',
+    }
+    const hiddenParameters = formDataToParameters(hiddenData)
+
+    // Combinar parámetros visibles + ocultos
+    const allParameters = [...visibleParameters, ...hiddenParameters]
+    setMappedParameters(allParameters)
   }
 
   return (
@@ -270,6 +303,16 @@ export default function SelectiveMappingPage() {
               <p className="text-sm text-muted-foreground">
                 Maps 7 fields with all features: transformations, variables, dates
               </p>
+
+              <button
+                onClick={handleMapWithHiddenParameters}
+                className="w-full px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 font-semibold"
+              >
+                5. Selective + Hidden Parameters ⭐
+              </button>
+              <p className="text-sm text-muted-foreground">
+                Maps 3 visible fields + 6 hidden/calculated parameters (9 total)
+              </p>
             </div>
           </Card>
 
@@ -354,6 +397,51 @@ const parameters = buildParameters(mapping, formData)`}</pre>
 }
 
 const parameters = buildParameters(mapping, formData)`}</pre>
+          </div>
+
+          <div>
+            <h3 className="font-semibold mb-2 text-purple-700 dark:text-purple-400">
+              5. Selective + Hidden Parameters ⭐ (BEST PRACTICE)
+            </h3>
+            <pre className="bg-muted p-4 rounded-md overflow-auto text-xs">
+{`// 1. Mapeo selectivo de campos visibles
+const mapping = {
+  'empleado': {
+    parameterName: 'pEmpleado',
+    transform: (val) => val.toUpperCase(),
+  },
+  'monto': {
+    parameterName: 'pMonto',
+    transform: (val) => parseFloat(val).toFixed(2),
+  },
+  'categoria': { parameterName: 'pCategoria' },
+}
+
+// 2. Generar parámetros visibles
+const visibleParameters = buildParameters(mapping, formData)
+
+// 3. Crear parámetros ocultos/calculados (NO están en el formulario)
+const hiddenData = {
+  submittedBy: 'user123',
+  submittedAt: new Date().toISOString(),
+  submittedFrom: 'selective-mapping-page',
+  montoConIVA: (parseFloat(formData.monto) * 1.21).toFixed(2),
+  requiereAprobacionGerente: parseFloat(formData.monto) > 5000,
+  formVersion: '1.0.0',
+}
+
+const hiddenParameters = formDataToParameters(hiddenData)
+
+// 4. Combinar parámetros visibles + ocultos
+const allParameters = [...visibleParameters, ...hiddenParameters]
+// Resultado: 3 visibles + 6 ocultos = 9 parámetros totales
+
+// 5. Enviar al proceso
+const result = await raiseEvent(bizuitApiUrl, token, processAlias, allParameters)`}</pre>
+            <p className="text-sm text-purple-600 dark:text-purple-400 mt-2 font-medium">
+              💡 Este patrón permite enviar datos de auditoría, cálculos automáticos y metadata
+              sin contaminar el formulario con campos ocultos.
+            </p>
           </div>
 
           <div>

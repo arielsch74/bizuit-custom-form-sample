@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { BizuitThemeProvider, BizuitAuthProvider } from "@tyconsa/bizuit-ui-components";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "Bizuit Form Example",
@@ -15,15 +15,9 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body className="antialiased">
-        <BizuitThemeProvider
-          defaultTheme="system"
-          defaultColorTheme="blue"
-          defaultLanguage="es"
-        >
-          <BizuitAuthProvider>
-            {children}
-          </BizuitAuthProvider>
-        </BizuitThemeProvider>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

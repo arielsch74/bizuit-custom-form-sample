@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import { useBizuitSDK, formDataToParameters } from '@tyconsa/bizuit-form-sdk'
-import { Card, Button } from '@tyconsa/bizuit-ui-components'
+import { Button, useBizuitAuth } from '@tyconsa/bizuit-ui-components'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { RequireAuth } from '@/components/require-auth'
 import Link from 'next/link'
 
 /**
@@ -24,10 +26,9 @@ import Link from 'next/link'
  * - Cambios en el proceso requieren cambios en el código
  * - Envía todos los campos (no selectivo)
  */
-export default function Example2ManualAllPage() {
+function Example2ManualAllContent() {
   const sdk = useBizuitSDK()
-
-  const [token] = useState('Basic tu-token-aqui')
+  const { token } = useBizuitAuth()
 
   // Estado del formulario con campos definidos manualmente
   const [formData, setFormData] = useState({
@@ -58,14 +59,38 @@ export default function Example2ManualAllPage() {
       setStatus('submitting')
       setError(null)
 
-      // formDataToParameters() convierte TODO el formData a parámetros
-      const parameters = formDataToParameters(formData)
+      // Parámetros visibles del formulario
+      const visibleParameters = formDataToParameters(formData)
 
-      console.log('Enviando TODOS los parámetros:', parameters)
+      // Parámetros ocultos/calculados
+      const hiddenParameters = formDataToParameters({
+        // Datos de auditoría
+        submittedBy: token ? 'user123' : 'anonymous',
+        submittedAt: new Date().toISOString(),
+        submittedFrom: 'web-form',
+
+        // Cálculos automáticos
+        montoConIVA: parseFloat(formData.pMonto || '0') * 1.21,
+        esMontoAlto: parseFloat(formData.pMonto || '0') > 10000,
+
+        // Metadata
+        formVersion: '2.0.0',
+        deviceInfo: navigator.userAgent,
+      })
+
+      // Combinar todos los parámetros
+      const allParameters = [...visibleParameters, ...hiddenParameters]
+
+      console.log('Enviando parámetros:', {
+        visible: visibleParameters.length,
+        hidden: hiddenParameters.length,
+        total: allParameters.length,
+        all: allParameters
+      })
 
       const response = await sdk.process.raiseEvent({
         eventName: 'AprobacionGastos',
-        parameters: parameters // Envía TODOS los 9 campos
+        parameters: allParameters
       }, undefined, token)
 
       setResult(response)
@@ -276,15 +301,44 @@ export default function Example2ManualAllPage() {
             {/* Preview */}
             <Card className="p-6">
               <h3 className="font-semibold mb-2">Vista Previa: Parámetros a Enviar</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                Se enviarán TODOS los {Object.keys(formData).length} campos:
-              </p>
-              <pre className="bg-muted p-4 rounded-md overflow-auto text-xs">
-                {JSON.stringify(formDataToParameters(formData), null, 2)}
-              </pre>
-              <p className="text-sm text-amber-600 dark:text-amber-400 mt-3">
-                ⚠️ Nota: Incluso campos vacíos o innecesarios se enviarán al proceso
-              </p>
+
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-green-600 dark:text-green-400 font-medium mb-2">
+                    ✅ Parámetros visibles del formulario ({Object.keys(formData).length}):
+                  </p>
+                  <pre className="bg-muted p-3 rounded-md overflow-auto text-xs max-h-64">
+                    {JSON.stringify(formDataToParameters(formData), null, 2)}
+                  </pre>
+                </div>
+
+                <div>
+                  <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mb-2">
+                    🔒 Parámetros ocultos/calculados (7):
+                  </p>
+                  <pre className="bg-muted p-3 rounded-md overflow-auto text-xs max-h-48">
+                    {JSON.stringify(formDataToParameters({
+                      submittedBy: token ? 'user123' : 'anonymous',
+                      submittedAt: new Date().toISOString(),
+                      submittedFrom: 'web-form',
+                      montoConIVA: parseFloat(formData.pMonto || '0') * 1.21,
+                      esMontoAlto: parseFloat(formData.pMonto || '0') > 10000,
+                      formVersion: '2.0.0',
+                      deviceInfo: '...(user agent)',
+                    }), null, 2)}
+                  </pre>
+                </div>
+
+                <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-md">
+                  <p className="text-sm font-medium text-purple-900 dark:text-purple-100">
+                    💡 Total: {Object.keys(formData).length + 7} parámetros ({Object.keys(formData).length} visibles + 7 ocultos)
+                  </p>
+                </div>
+
+                <p className="text-sm text-amber-600 dark:text-amber-400">
+                  ⚠️ Nota: Este ejemplo envía TODOS los campos (visibles + ocultos)
+                </p>
+              </div>
             </Card>
           </form>
         )}
@@ -348,13 +402,30 @@ export default function Example2ManualAllPage() {
             </div>
 
             <div>
-              <h4 className="font-medium mb-1">3. Enviar TODOS los campos:</h4>
+              <h4 className="font-medium mb-1">3. Agregar parámetros ocultos/calculados:</h4>
               <pre className="bg-background p-3 rounded text-xs overflow-auto">
-{`const parameters = formDataToParameters(formData)
+{`// Parámetros visibles del formulario
+const visibleParameters = formDataToParameters(formData)
+
+// Parámetros que NO están en el formulario
+const hiddenParameters = formDataToParameters({
+  submittedBy: 'user123',
+  submittedAt: new Date().toISOString(),
+  montoConIVA: parseFloat(formData.pMonto) * 1.21,
+  esMontoAlto: formData.pMonto > 10000,
+  formVersion: '2.0.0'
+})`}</pre>
+            </div>
+
+            <div>
+              <h4 className="font-medium mb-1">4. Combinar y enviar TODOS los campos:</h4>
+              <pre className="bg-background p-3 rounded text-xs overflow-auto">
+{`// Combinar parámetros visibles + ocultos
+const allParameters = [...visibleParameters, ...hiddenParameters]
 
 await sdk.process.raiseEvent({
   eventName: 'AprobacionGastos',
-  parameters: parameters // Envía TODOS: pEmpleado, pMonto, etc.
+  parameters: allParameters // Envía TODO
 })`}</pre>
             </div>
           </div>
@@ -373,5 +444,13 @@ await sdk.process.raiseEvent({
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function Example2ManualAllPage() {
+  return (
+    <RequireAuth returnUrl="/example-2-manual-all">
+      <Example2ManualAllContent />
+    </RequireAuth>
   )
 }

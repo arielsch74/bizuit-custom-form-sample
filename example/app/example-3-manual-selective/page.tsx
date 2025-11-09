@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { useBizuitSDK, buildParameters } from '@tyconsa/bizuit-form-sdk'
-import { Card, Button } from '@tyconsa/bizuit-ui-components'
+import { useBizuitSDK, buildParameters, formDataToParameters } from '@tyconsa/bizuit-form-sdk'
+import { Button, useBizuitAuth } from '@tyconsa/bizuit-ui-components'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { RequireAuth } from '@/components/require-auth'
 import Link from 'next/link'
 
 /**
@@ -24,10 +26,9 @@ import Link from 'next/link'
  *
  * Esta es la MEJOR PRÁCTICA para formularios personalizados.
  */
-export default function Example3ManualSelectivePage() {
+function Example3ManualSelectiveContent() {
   const sdk = useBizuitSDK()
-
-  const [token] = useState('Basic tu-token-aqui')
+  const { token } = useBizuitAuth()
 
   // Estado del formulario - puede tener más campos de los que se envían
   const [formData, setFormData] = useState({
@@ -91,15 +92,41 @@ export default function Example3ManualSelectivePage() {
       setStatus('submitting')
       setError(null)
 
-      // buildParameters() convierte SOLO los campos mapeados
-      const parameters = buildParameters(parameterMapping, formData)
-      setMappedParameters(parameters)
+      // buildParameters() convierte SOLO los campos mapeados del formulario
+      const visibleParameters = buildParameters(parameterMapping, formData)
 
-      console.log('Enviando SOLO parámetros seleccionados:', parameters)
+      // NUEVO: Agregar parámetros ocultos/calculados usando formDataToParameters()
+      const hiddenData = {
+        // Datos de auditoría (valor directo, NO del formData)
+        submittedBy: token ? 'user123' : 'anonymous',
+        submittedAt: new Date().toISOString(),
+        submittedFrom: 'web-form',
+
+        // Cálculos basados en formData
+        montoConIVA: parseFloat(formData.pMonto || '0') * 1.21,
+        requiereAprobacionGerente: parseFloat(formData.pMonto || '0') > 5000,
+
+        // Metadata y constantes
+        formVersion: '3.0.0',
+        browserInfo: navigator.userAgent.substring(0, 50),
+      }
+
+      const hiddenParameters = formDataToParameters(hiddenData)
+
+      // Combinar parámetros visibles + ocultos
+      const allParameters = [...visibleParameters, ...hiddenParameters]
+      setMappedParameters(allParameters)
+
+      console.log('Enviando parámetros:', {
+        visible: visibleParameters.length,
+        hidden: hiddenParameters.length,
+        total: allParameters.length,
+        all: allParameters
+      })
 
       const response = await sdk.process.raiseEvent({
         eventName: 'AprobacionGastos',
-        parameters: parameters // Solo 6 campos (no 10)
+        parameters: allParameters
       }, undefined, token)
 
       setResult(response)
@@ -132,9 +159,28 @@ export default function Example3ManualSelectivePage() {
   // Preview en tiempo real de los parámetros que se enviarán
   const previewParameters = () => {
     try {
-      return buildParameters(parameterMapping, formData)
-    } catch {
-      return []
+      const visibleParams = buildParameters(parameterMapping, formData)
+
+      // Parámetros ocultos/calculados - usando formDataToParameters() para valores directos
+      const hiddenData = {
+        submittedBy: token ? 'user123' : 'anonymous',
+        submittedAt: new Date().toISOString(),
+        submittedFrom: 'web-form',
+        montoConIVA: parseFloat(formData.pMonto || '0') * 1.21,
+        requiereAprobacionGerente: parseFloat(formData.pMonto || '0') > 5000,
+        formVersion: '3.0.0',
+        browserInfo: navigator.userAgent.substring(0, 50),
+      }
+      const hiddenParams = formDataToParameters(hiddenData)
+
+      return {
+        visible: visibleParams,
+        hidden: hiddenParams,
+        all: [...visibleParams, ...hiddenParams]
+      }
+    } catch (err) {
+      console.error('Error en previewParameters:', err)
+      return { visible: [], hidden: [], all: [] }
     }
   }
 
@@ -346,17 +392,46 @@ export default function Example3ManualSelectivePage() {
                       Total de campos en el formulario: <strong>{Object.keys(formData).length}</strong>
                     </p>
                     <p className="text-sm text-green-600 dark:text-green-400 font-medium">
-                      Campos que SE ENVIARÁN: <strong>{Object.keys(parameterMapping).length}</strong>
+                      ✅ Parámetros visibles: <strong>{previewParameters().visible.length}</strong>
+                    </p>
+                    <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                      🔒 Parámetros ocultos/calculados: <strong>{previewParameters().hidden.length}</strong>
+                    </p>
+                    <p className="text-sm text-purple-600 dark:text-purple-400 font-bold">
+                      📦 Total a enviar: <strong>{previewParameters().all.length}</strong>
                     </p>
                     <p className="text-sm text-amber-600 dark:text-amber-400">
-                      Campos que NO se enviarán: <strong>{Object.keys(formData).length - Object.keys(parameterMapping).length}</strong>
+                      ❌ Campos que NO se enviarán: <strong>{Object.keys(formData).length - Object.keys(parameterMapping).length}</strong>
                     </p>
                   </div>
 
                   <div className="border-t pt-4">
-                    <h4 className="text-sm font-semibold mb-2">Parámetros a Enviar:</h4>
-                    <pre className="bg-muted p-4 rounded-md overflow-auto text-xs max-h-96">
-                      {JSON.stringify(previewParameters(), null, 2)}
+                    <h4 className="text-sm font-semibold mb-2 text-green-700 dark:text-green-400">
+                      ✅ Parámetros Visibles del Formulario ({previewParameters().visible.length}):
+                    </h4>
+                    <pre className="bg-muted p-3 rounded-md overflow-auto text-xs max-h-48">
+                      {JSON.stringify(previewParameters().visible, null, 2)}
+                    </pre>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <h4 className="text-sm font-semibold mb-2 text-blue-700 dark:text-blue-400">
+                      🔒 Parámetros Ocultos/Calculados ({previewParameters().hidden.length}):
+                    </h4>
+                    <pre className="bg-muted p-3 rounded-md overflow-auto text-xs max-h-48">
+                      {JSON.stringify(previewParameters().hidden, null, 2)}
+                    </pre>
+                  </div>
+
+                  <div className="border-t pt-4 bg-purple-50 dark:bg-purple-900/20 p-3 rounded-md">
+                    <h4 className="text-sm font-semibold mb-2 text-purple-700 dark:text-purple-400">
+                      📦 Todos los Parámetros a Enviar ({previewParameters().all.length}):
+                    </h4>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Esta es la combinación final que se envía a Bizuit
+                    </p>
+                    <pre className="bg-background p-3 rounded-md overflow-auto text-xs max-h-64">
+                      {JSON.stringify(previewParameters().all, null, 2)}
                     </pre>
                   </div>
 
@@ -449,11 +524,29 @@ export default function Example3ManualSelectivePage() {
             </div>
 
             <div>
-              <h4 className="font-medium mb-2">3️⃣ Enviar al proceso:</h4>
+              <h4 className="font-medium mb-2">3️⃣ Agregar parámetros ocultos/calculados:</h4>
               <pre className="bg-background/80 p-3 rounded text-xs overflow-auto">
-{`await sdk.process.raiseEvent({
+{`// Parámetros que NO están en el formulario
+const hiddenData = {
+  submittedBy: 'user123',
+  submittedAt: new Date().toISOString(),
+  montoConIVA: parseFloat(formData.pMonto) * 1.21,
+  requiereAprobacion: formData.pMonto > 5000,
+  formVersion: '3.0.0'
+}
+
+const hiddenParameters = formDataToParameters(hiddenData)`}</pre>
+            </div>
+
+            <div>
+              <h4 className="font-medium mb-2">4️⃣ Combinar y enviar al proceso:</h4>
+              <pre className="bg-background/80 p-3 rounded text-xs overflow-auto">
+{`// Combinar parámetros visibles + ocultos
+const allParameters = [...parameters, ...hiddenParameters]
+
+await sdk.process.raiseEvent({
   eventName: 'AprobacionGastos',
-  parameters: parameters // Solo 6 campos mapeados (no 10)
+  parameters: allParameters // 6 visibles + 7 ocultos = 13 total
 })`}</pre>
             </div>
           </div>
@@ -473,5 +566,13 @@ export default function Example3ManualSelectivePage() {
         </Card>
       )}
     </div>
+  )
+}
+
+export default function Example3ManualSelectivePage() {
+  return (
+    <RequireAuth returnUrl="/example-3-manual-selective">
+      <Example3ManualSelectiveContent />
+    </RequireAuth>
   )
 }
