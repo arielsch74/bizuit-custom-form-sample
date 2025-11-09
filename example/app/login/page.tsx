@@ -61,7 +61,9 @@ export default function LoginPage() {
             router.push(redirectTo)
           }}
           onLoginError={(error) => {
-            console.error('Login error:', error)
+            if (error && typeof error === 'object' && Object.keys(error).length > 0) {
+              console.error('Login error:', error)
+            }
           }}
         />
       </div>

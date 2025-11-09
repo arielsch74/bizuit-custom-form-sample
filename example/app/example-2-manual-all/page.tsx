@@ -5,6 +5,7 @@ import { useBizuitSDK, formDataToParameters } from '@tyconsa/bizuit-form-sdk'
 import { Button, useBizuitAuth } from '@tyconsa/bizuit-ui-components'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { RequireAuth } from '@/components/require-auth'
+import { LiveCodeEditor } from '@/components/live-code-editor'
 import Link from 'next/link'
 
 /**
@@ -119,7 +120,7 @@ function Example2ManualAllContent() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
+    <div className="container mx-auto py-8 px-4 max-w-7xl">
       <div className="mb-6">
         <Link href="/" className="text-sm text-primary hover:underline">
           ← Volver al inicio
@@ -132,246 +133,632 @@ function Example2ManualAllContent() {
       </p>
 
       <div className="grid gap-6">
-        {(status === 'idle' || status === 'submitting') && (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Formulario Manual */}
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Solicitud de Reembolso de Gastos</h2>
+        {/* Editor Interactivo en Vivo - ARRIBA */}
+        <LiveCodeEditor
+          title="⚡ Editor Interactivo en Vivo"
+          description="Edita el código en el panel izquierdo y ve los cambios EN TIEMPO REAL en el panel derecho. Prueba cambiar los placeholders, agregar campos, modificar estilos, etc."
+          files={{
+            '/App.js': `import { useState } from 'react';
+import './styles.css';
 
-              <div className="grid md:grid-cols-2 gap-4">
-                {/* Empleado */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Nombre del Empleado *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.pEmpleado}
-                    onChange={(e) => handleChange('pEmpleado', e.target.value)}
-                    placeholder="Juan Pérez"
-                    required
-                    className="w-full px-3 py-2 border rounded-md dark:bg-gray-800"
-                  />
-                </div>
+export default function App() {
+  const [formData, setFormData] = useState({
+    pEmpleado: '',
+    pLegajo: '',
+    pMonto: '',
+    pCategoria: 'Viajes',
+    pDescripcion: '',
+    pFechaSolicitud: new Date().toISOString().split('T')[0],
+    pAprobado: false,
+    pComentarios: '',
+    pPrioridad: 'Media'
+  });
 
-                {/* Legajo */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Número de Legajo *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.pLegajo}
-                    onChange={(e) => handleChange('pLegajo', e.target.value)}
-                    placeholder="12345"
-                    required
-                    className="w-full px-3 py-2 border rounded-md dark:bg-gray-800"
-                  />
-                </div>
+  const [showModal, setShowModal] = useState(false);
+  const [paramsToSend, setParamsToSend] = useState({ visible: [], hidden: [], all: [] });
 
-                {/* Monto */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Monto Solicitado * (AR$)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.pMonto}
-                    onChange={(e) => handleChange('pMonto', e.target.value)}
-                    placeholder="1500.00"
-                    required
-                    className="w-full px-3 py-2 border rounded-md dark:bg-gray-800"
-                  />
-                </div>
+  const handleChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
-                {/* Categoría */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Categoría de Gasto *
-                  </label>
-                  <select
-                    value={formData.pCategoria}
-                    onChange={(e) => handleChange('pCategoria', e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md dark:bg-gray-800"
-                  >
-                    <option value="Viajes">Viajes</option>
-                    <option value="Comidas">Comidas</option>
-                    <option value="Alojamiento">Alojamiento</option>
-                    <option value="Transporte">Transporte</option>
-                    <option value="Otros">Otros</option>
-                  </select>
-                </div>
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-                {/* Fecha */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Fecha de Solicitud *
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.pFechaSolicitud}
-                    onChange={(e) => handleChange('pFechaSolicitud', e.target.value)}
-                    required
-                    className="w-full px-3 py-2 border rounded-md dark:bg-gray-800"
-                  />
-                </div>
+    // Parámetros visibles del formulario
+    const visibleParams = Object.entries(formData).map(([key, value]) => ({
+      name: key,
+      value: value,
+      direction: 'Input'
+    }));
 
-                {/* Prioridad */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Prioridad
-                  </label>
-                  <select
-                    value={formData.pPrioridad}
-                    onChange={(e) => handleChange('pPrioridad', e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md dark:bg-gray-800"
-                  >
-                    <option value="Baja">Baja</option>
-                    <option value="Media">Media</option>
-                    <option value="Alta">Alta</option>
-                    <option value="Urgente">Urgente</option>
-                  </select>
-                </div>
-              </div>
+    // Parámetros ocultos/calculados
+    const hiddenParams = [
+      { name: 'submittedBy', value: 'user123', direction: 'Input' },
+      { name: 'submittedAt', value: new Date().toISOString(), direction: 'Input' },
+      { name: 'montoConIVA', value: (parseFloat(formData.pMonto || '0') * 1.21).toFixed(2), direction: 'Input' },
+      { name: 'esMontoAlto', value: parseFloat(formData.pMonto || '0') > 10000, direction: 'Input' },
+    ];
 
-              {/* Descripción */}
-              <div className="mt-4">
-                <label className="block text-sm font-medium mb-2">
-                  Descripción del Gasto *
-                </label>
-                <textarea
-                  value={formData.pDescripcion}
-                  onChange={(e) => handleChange('pDescripcion', e.target.value)}
-                  placeholder="Describa el motivo del gasto..."
-                  required
-                  rows={3}
-                  className="w-full px-3 py-2 border rounded-md dark:bg-gray-800"
-                />
-              </div>
+    // ¡IMPORTANTE! Combinar TODOS los parámetros (visibles + ocultos)
+    const allParams = [...visibleParams, ...hiddenParams];
 
-              {/* Comentarios */}
-              <div className="mt-4">
-                <label className="block text-sm font-medium mb-2">
-                  Comentarios Adicionales
-                </label>
-                <textarea
-                  value={formData.pComentarios}
-                  onChange={(e) => handleChange('pComentarios', e.target.value)}
-                  placeholder="Comentarios opcionales..."
-                  rows={2}
-                  className="w-full px-3 py-2 border rounded-md dark:bg-gray-800"
-                />
-              </div>
+    // Guardar los parámetros y mostrar modal
+    setParamsToSend({ visible: visibleParams, hidden: hiddenParams, all: allParams });
+    setShowModal(true);
 
-              {/* Checkbox */}
-              <div className="mt-4 flex items-center">
-                <input
-                  type="checkbox"
-                  id="aprobado"
-                  checked={formData.pAprobado}
-                  onChange={(e) => handleChange('pAprobado', e.target.checked)}
-                  className="mr-2"
-                />
-                <label htmlFor="aprobado" className="text-sm font-medium">
-                  Pre-aprobado por supervisor inmediato
-                </label>
-              </div>
+    // Simular envío a Bizuit con TODOS los parámetros
+    console.log('📤 Enviando a Bizuit:', allParams);
+  };
 
-              {error && (
-                <div className="mt-4 p-3 bg-destructive/10 text-destructive rounded-md">
-                  {error}
-                </div>
-              )}
+  const closeModal = () => {
+    setShowModal(false);
+  };
 
-              <div className="mt-6 flex gap-3">
-                <Button
-                  type="submit"
-                  disabled={status === 'submitting'}
-                  className="flex-1"
-                >
-                  {status === 'submitting' ? 'Enviando...' : 'Enviar Solicitud'}
-                </Button>
-                <Button type="button" variant="outline" onClick={handleReset}>
-                  Limpiar
-                </Button>
-              </div>
-            </Card>
+  return (
+    <div className="container">
+      <div className="card">
+        <h2 className="card-title">Solicitud de Reembolso de Gastos</h2>
 
-            {/* Preview */}
-            <Card className="p-6">
-              <h3 className="font-semibold mb-2">Vista Previa: Parámetros a Enviar</h3>
-
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-green-600 dark:text-green-400 font-medium mb-2">
-                    ✅ Parámetros visibles del formulario ({Object.keys(formData).length}):
-                  </p>
-                  <pre className="bg-muted p-3 rounded-md overflow-auto text-xs max-h-64">
-                    {JSON.stringify(formDataToParameters(formData), null, 2)}
-                  </pre>
-                </div>
-
-                <div>
-                  <p className="text-sm text-blue-600 dark:text-blue-400 font-medium mb-2">
-                    🔒 Parámetros ocultos/calculados (7):
-                  </p>
-                  <pre className="bg-muted p-3 rounded-md overflow-auto text-xs max-h-48">
-                    {JSON.stringify(formDataToParameters({
-                      submittedBy: token ? 'user123' : 'anonymous',
-                      submittedAt: new Date().toISOString(),
-                      submittedFrom: 'web-form',
-                      montoConIVA: parseFloat(formData.pMonto || '0') * 1.21,
-                      esMontoAlto: parseFloat(formData.pMonto || '0') > 10000,
-                      formVersion: '2.0.0',
-                      deviceInfo: '...(user agent)',
-                    }), null, 2)}
-                  </pre>
-                </div>
-
-                <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-md">
-                  <p className="text-sm font-medium text-purple-900 dark:text-purple-100">
-                    💡 Total: {Object.keys(formData).length + 7} parámetros ({Object.keys(formData).length} visibles + 7 ocultos)
-                  </p>
-                </div>
-
-                <p className="text-sm text-amber-600 dark:text-amber-400">
-                  ⚠️ Nota: Este ejemplo envía TODOS los campos (visibles + ocultos)
-                </p>
-              </div>
-            </Card>
-          </form>
-        )}
-
-        {/* Success */}
-        {status === 'success' && result && (
-          <Card className="p-6">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Solicitud Enviada</h2>
-              <p className="text-muted-foreground">
-                Instance ID: <code className="text-xs bg-muted px-2 py-1 rounded">{result.instanceId}</code>
-              </p>
+        <form onSubmit={handleSubmit}>
+          <div className="form-grid">
+            {/* Empleado */}
+            <div>
+              <label className="form-label">Nombre del Empleado *</label>
+              <input
+                type="text"
+                value={formData.pEmpleado}
+                onChange={(e) => handleChange('pEmpleado', e.target.value)}
+                placeholder="Juan Pérez"
+                required
+                className="form-input"
+              />
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-semibold mb-2">Respuesta del Servidor:</h3>
-                <pre className="bg-muted p-4 rounded-md overflow-auto text-xs">
-                  {JSON.stringify(result, null, 2)}
-                </pre>
+            {/* Legajo */}
+            <div>
+              <label className="form-label">Número de Legajo *</label>
+              <input
+                type="text"
+                value={formData.pLegajo}
+                onChange={(e) => handleChange('pLegajo', e.target.value)}
+                placeholder="12345"
+                required
+                className="form-input"
+              />
+            </div>
+
+            {/* Monto */}
+            <div>
+              <label className="form-label">Monto Solicitado * (AR$)</label>
+              <input
+                type="number"
+                step="0.01"
+                value={formData.pMonto}
+                onChange={(e) => handleChange('pMonto', e.target.value)}
+                placeholder="1500.00"
+                required
+                className="form-input"
+              />
+            </div>
+
+            {/* Categoría */}
+            <div>
+              <label className="form-label">Categoría de Gasto *</label>
+              <select
+                value={formData.pCategoria}
+                onChange={(e) => handleChange('pCategoria', e.target.value)}
+                className="form-input"
+              >
+                <option value="Viajes">Viajes</option>
+                <option value="Comidas">Comidas</option>
+                <option value="Alojamiento">Alojamiento</option>
+                <option value="Transporte">Transporte</option>
+                <option value="Otros">Otros</option>
+              </select>
+            </div>
+
+            {/* Fecha */}
+            <div>
+              <label className="form-label">Fecha de Solicitud *</label>
+              <input
+                type="date"
+                value={formData.pFechaSolicitud}
+                onChange={(e) => handleChange('pFechaSolicitud', e.target.value)}
+                required
+                className="form-input"
+              />
+            </div>
+
+            {/* Prioridad */}
+            <div>
+              <label className="form-label">Prioridad</label>
+              <select
+                value={formData.pPrioridad}
+                onChange={(e) => handleChange('pPrioridad', e.target.value)}
+                className="form-input"
+              >
+                <option value="Baja">Baja</option>
+                <option value="Media">Media</option>
+                <option value="Alta">Alta</option>
+                <option value="Urgente">Urgente</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Descripción */}
+          <div className="form-field">
+            <label className="form-label">Descripción del Gasto *</label>
+            <textarea
+              value={formData.pDescripcion}
+              onChange={(e) => handleChange('pDescripcion', e.target.value)}
+              placeholder="Describa el motivo del gasto..."
+              required
+              rows={3}
+              className="form-input"
+            />
+          </div>
+
+          {/* Comentarios */}
+          <div className="form-field">
+            <label className="form-label">Comentarios Adicionales</label>
+            <textarea
+              value={formData.pComentarios}
+              onChange={(e) => handleChange('pComentarios', e.target.value)}
+              placeholder="Comentarios opcionales..."
+              rows={2}
+              className="form-input"
+            />
+          </div>
+
+          {/* Checkbox */}
+          <div className="form-checkbox">
+            <input
+              type="checkbox"
+              id="aprobado"
+              checked={formData.pAprobado}
+              onChange={(e) => handleChange('pAprobado', e.target.checked)}
+            />
+            <label htmlFor="aprobado">Pre-aprobado por supervisor inmediato</label>
+          </div>
+
+          <div className="form-actions">
+            <button type="submit" className="btn-primary">
+              Enviar Solicitud
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => setFormData({
+                pEmpleado: '', pLegajo: '', pMonto: '', pCategoria: 'Viajes',
+                pDescripcion: '', pFechaSolicitud: new Date().toISOString().split('T')[0],
+                pAprobado: false, pComentarios: '', pPrioridad: 'Media'
+              })}
+            >
+              Limpiar
+            </button>
+          </div>
+        </form>
+
+        {/* Modal - Parámetros a enviar a Bizuit */}
+        {showModal && (
+          <div className="modal-overlay" onClick={closeModal}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>📤 Parámetros que se enviarán a Bizuit</h3>
+                <button onClick={closeModal} className="modal-close">×</button>
               </div>
 
-              <Button onClick={handleReset} className="w-full">
-                Nueva Solicitud
-              </Button>
+              <div className="modal-body">
+                <div className="params-section">
+                  <h4 className="params-title visible">
+                    👁️ Parámetros Visibles ({paramsToSend.visible.length}):
+                  </h4>
+                  <div className="params-list">
+                    {paramsToSend.visible.map((param, idx) => (
+                      <div key={idx} className="param-item">
+                        <span className="param-name">{param.name}:</span>
+                        <span className="param-value">{JSON.stringify(param.value)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="params-section">
+                  <h4 className="params-title hidden">
+                    🔒 Parámetros Ocultos ({paramsToSend.hidden.length}):
+                  </h4>
+                  <div className="params-list">
+                    {paramsToSend.hidden.map((param, idx) => (
+                      <div key={idx} className="param-item">
+                        <span className="param-name">{param.name}:</span>
+                        <span className="param-value">{JSON.stringify(param.value)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="params-total">
+                  <strong>Total: {paramsToSend.all.length} parámetros</strong>
+                  ({paramsToSend.visible.length} visibles + {paramsToSend.hidden.length} ocultos)
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button onClick={closeModal} className="btn-modal-close">
+                  Aceptar
+                </button>
+              </div>
             </div>
-          </Card>
+          </div>
         )}
+
+        {/* Preview - Datos completos con parámetros ocultos */}
+        <div className="preview">
+          <h3>Vista Previa de Datos:</h3>
+          <div style={{ marginBottom: '16px' }}>
+            <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#16a34a', marginBottom: '8px' }}>
+              ✅ Parámetros Visibles ({Object.keys(formData).length}):
+            </h4>
+            <pre className="preview-code">{JSON.stringify(formData, null, 2)}</pre>
+          </div>
+
+          <div style={{ marginBottom: '16px' }}>
+            <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#2563eb', marginBottom: '8px' }}>
+              🔒 Parámetros Ocultos/Calculados (4):
+            </h4>
+            <pre className="preview-code">{JSON.stringify({
+              submittedBy: 'user123',
+              submittedAt: new Date().toISOString(),
+              montoConIVA: (parseFloat(formData.pMonto || '0') * 1.21).toFixed(2),
+              esMontoAlto: parseFloat(formData.pMonto || '0') > 10000
+            }, null, 2)}</pre>
+          </div>
+
+          <div style={{ padding: '12px', background: '#f3f4f6', borderRadius: '6px', border: '1px solid #d1d5db' }}>
+            <p style={{ fontSize: '14px', fontWeight: '600', margin: 0 }}>
+              💡 Total: {Object.keys(formData).length + 4} parámetros
+              ({Object.keys(formData).length} visibles + 4 ocultos)
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}`,
+            '/styles.css': `* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #f9fafb;
+  padding: 20px;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #111827;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-field {
+  margin-top: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #374151;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: white;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Asegurar que el datepicker use la misma fuente */
+input[type="date"].form-input {
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.form-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.form-checkbox label {
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn-primary {
+  flex: 1;
+  padding: 12px 24px;
+  background: #f97316;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: #ea580c;
+}
+
+.btn-primary:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  padding: 12px 24px;
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.preview {
+  margin-top: 24px;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.preview h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #374151;
+}
+
+.preview-code {
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 12px;
+  overflow-x: auto;
+  background: white;
+  padding: 12px;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+  color: #1f2937;
+}
+
+@media (prefers-color-scheme: dark) {
+  body { background: #111827; }
+  .card { background: #1f2937; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); }
+  .card-title { color: #f9fafb; }
+  .form-label { color: #e5e7eb; }
+  .form-input {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+  .form-checkbox label { color: #e5e7eb; }
+  .btn-secondary {
+    background: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+  }
+  .btn-secondary:hover {
+    background: #4b5563;
+  }
+  .preview {
+    background: #111827;
+    border-color: #374151;
+  }
+  .preview h3 { color: #e5e7eb; }
+  .preview-code {
+    background: #0f172a;
+    border-color: #374151;
+    color: #e5e7eb;
+  }
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 32px;
+  color: #6b7280;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+}
+
+.modal-close:hover {
+  color: #111827;
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.params-section {
+  margin-bottom: 24px;
+}
+
+.params-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.params-title.visible {
+  color: #16a34a;
+}
+
+.params-title.hidden {
+  color: #2563eb;
+}
+
+.params-list {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.param-item {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-family: 'Monaco', 'Courier New', monospace;
+}
+
+.param-item:last-child {
+  margin-bottom: 0;
+}
+
+.param-name {
+  font-weight: 600;
+  color: #4b5563;
+  min-width: 140px;
+}
+
+.param-value {
+  color: #111827;
+  word-break: break-all;
+}
+
+.params-total {
+  padding: 16px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+  color: #374151;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-modal-close {
+  padding: 10px 24px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-modal-close:hover {
+  background: #2563eb;
+}`
+          }}
+        />
 
         {/* Documentación */}
         <Card className="p-6 bg-muted/50">
