@@ -19,6 +19,7 @@ variables:
   deployPath: 'E:\DevSites\BIZUITCustomForms'
   appName: 'bizuit-custom-forms'
   appPort: 3000
+  basePath: '/BIZUITCustomForms'
 
 stages:
   - stage: Build
@@ -203,10 +204,11 @@ stages:
                           Start-Sleep -Seconds $attemptDelay
 
                           try {
-                              $response = Invoke-WebRequest -Uri "http://localhost:$(appPort)" -UseBasicParsing -TimeoutSec 5
+                              $response = Invoke-WebRequest -Uri "http://localhost:$(appPort)$(basePath)/" -UseBasicParsing -TimeoutSec 5
                               if ($response.StatusCode -eq 200) {
                                   Write-Host "`n✅ Application is running successfully!" -ForegroundColor Green
                                   Write-Host "Status Code: $($response.StatusCode)"
+                                  Write-Host "URL: http://localhost:$(appPort)$(basePath)/"
                                   Write-Host "Startup time: ~$($i * $attemptDelay) seconds"
                                   $success = $true
                                   break
