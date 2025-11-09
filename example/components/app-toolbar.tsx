@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { ThemeToggle, ColorThemeSelector, LanguageSelector } from '@tyconsa/bizuit-ui-components'
+import { ApiConfigDialog } from './api-config-dialog'
 
 export function AppToolbar() {
   const [mounted, setMounted] = useState(false)
@@ -20,6 +21,8 @@ export function AppToolbar() {
 
   return (
     <div className="fixed top-4 right-4 z-50 flex items-center gap-2 rounded-lg border bg-card p-2 shadow-lg">
+      <ApiConfigDialog />
+      <div className="h-6 w-px bg-border" />
       <ThemeToggle />
       <div className="h-6 w-px bg-border" />
       <ColorThemeSelector />

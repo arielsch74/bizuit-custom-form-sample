@@ -20,7 +20,7 @@ export default function Home() {
         <AppToolbar />
         <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm">
           <h1 className="text-4xl font-bold mb-8 text-center">
-            Bizuit Form Example
+            BIZUIT Custom Forms Samples
           </h1>
           <div className="text-center text-muted-foreground">Loading...</div>
         </div>

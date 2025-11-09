@@ -3,7 +3,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Bizuit Form Example",
+  title: "BIZUIT Custom Forms Samples",
   description: "Example app using @tyconsa/bizuit-form-sdk and @tyconsa/bizuit-ui-components",
 };
 
