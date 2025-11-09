@@ -19,91 +19,53 @@ export function LiveCodeEditor({
   files,
   template = 'react-ts'
 }: LiveCodeEditorProps) {
-  const [isCodeVisible, setIsCodeVisible] = useState(false)
-
-  const handleToggle = () => {
-    console.log('Toggle clicked, current state:', isCodeVisible)
-    setIsCodeVisible(prev => !prev)
-  }
-
   return (
-    <Card className="p-6 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <div className="flex-1">
-          <h3 className="text-xl font-bold flex items-center gap-2 text-gray-900 dark:text-gray-100">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-xl font-bold flex items-center gap-2">
             <span className="text-2xl">⚡</span>
             {title}
           </h3>
           {description && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 leading-relaxed">{description}</p>
+            <p className="text-sm text-muted-foreground mt-1">{description}</p>
           )}
         </div>
-
-        <button
-          onClick={handleToggle}
-          className={`
-            shrink-0 px-6 py-3 rounded-lg font-semibold text-sm
-            transition-all duration-200 ease-in-out
-            shadow-md hover:shadow-xl
-            flex items-center gap-2
-            ${isCodeVisible
-              ? 'bg-gray-600 hover:bg-gray-700 text-white'
-              : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
-            }
-          `}
-        >
-          {isCodeVisible ? (
-            <>
-              <span>👁️</span>
-              Ocultar Código
-            </>
-          ) : (
-            <>
-              <span>💻</span>
-              Ver/Editar Código
-            </>
-          )}
-        </button>
       </div>
 
-      {/* Sandpack Editor - CodePen Style */}
-      <div className="rounded-lg overflow-hidden border border-border shadow-lg">
+      {/* Sandpack Editor - Always Visible */}
+      <div className="rounded-lg overflow-hidden border-2 border-primary/20 shadow-xl">
         <Sandpack
-          key={isCodeVisible ? 'editor-visible' : 'editor-hidden'}
           template="react"
           files={files}
-          theme="light"
+          theme="auto"
           options={{
             showNavigator: false,
-            showTabs: isCodeVisible,
-            showLineNumbers: isCodeVisible,
-            showInlineErrors: isCodeVisible,
+            showTabs: true,
+            showLineNumbers: true,
+            showInlineErrors: true,
             wrapContent: true,
-            editorHeight: 700,
-            editorWidthPercentage: isCodeVisible ? 50 : 0,
+            editorHeight: 600,
+            editorWidthPercentage: 50,
             activeFile: Object.keys(files)[0],
-            showConsole: false,
-            showConsoleButton: false,
           }}
           customSetup={{
             dependencies: {
-              '@tyconsa/bizuit-form-sdk': 'latest',
-              '@tyconsa/bizuit-ui-components': 'latest',
-            }
+              '@tyconsa/bizuit-ui-components': '1.3.2',
+              '@tyconsa/bizuit-form-sdk': '1.1.1',
+            },
           }}
         />
       </div>
 
-      <div className="mt-4 p-4 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
+      <div className="p-4 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
         <p className="text-sm leading-relaxed">
-          <strong className="text-blue-900 dark:text-blue-100 text-base">💡 Tip:</strong>{' '}
+          <strong className="text-blue-900 dark:text-blue-100">💡 Tip:</strong>{' '}
           <span className="text-blue-800 dark:text-blue-200">
-            {isCodeVisible
-              ? 'Edita el código en el panel izquierdo y verás los cambios EN TIEMPO REAL en el panel derecho.'
-              : 'Haz clic en "Ver/Editar Código" para ver y modificar el código fuente del formulario.'}
+            Edita el código en el panel izquierdo y verás los cambios EN TIEMPO REAL en el panel derecho.
           </span>
         </p>
       </div>
-    </Card>
+    </div>
   )
 }

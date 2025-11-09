@@ -1,148 +1,189 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
-import { LiveCodeEditor } from '@/components/live-code-editor'
-import * as examples from './component-examples'
+import { ArrowLeft, Sparkles, Package } from 'lucide-react'
+import ComponentsSidebar from './ComponentsSidebar'
+import ComponentView from './ComponentView'
+import { ALL_COMPONENTS_DOCS } from './all-components-docs'
 
 export default function ComponentsDemo() {
+  const [selectedComponentId, setSelectedComponentId] = useState('button')
+
+  const selectedComponent = ALL_COMPONENTS_DOCS.find(
+    (comp) => comp.id === selectedComponentId
+  )
+
+  // Calculate stats
+  const categories = [...new Set(ALL_COMPONENTS_DOCS.map((c) => c.category))]
+  const categoryCount = categories.length
+
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="text-primary hover:underline flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Volver al inicio
-          </Link>
-        </div>
+    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <ComponentsSidebar
+        selectedComponentId={selectedComponentId}
+        onComponentSelect={setSelectedComponentId}
+      />
 
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-4">Cat\u00e1logo Interactivo de Componentes</h1>
-          <p className="text-xl text-muted-foreground mb-2">
-            Explora, edita y prueba todos los componentes de @tyconsa/bizuit-ui-components v1.3.1
-          </p>
-          <p className="text-sm text-muted-foreground">
-            \u00a1Haz clic en "Ver/Editar C\u00f3digo" para jugar con los ejemplos en tiempo real!
-          </p>
-        </div>
-
-        {/* Form Components */}
-        <section className="space-y-6">
-          <h2 className="text-3xl font-bold border-b-2 border-primary pb-2">Componentes de Formulario</h2>
-          
-          <LiveCodeEditor
-            title="BizuitSlider - Control Deslizante"
-            description="Control deslizante para seleccionar valores num\u00e9ricos dentro de un rango"
-            files={examples.sliderExample}
-          />
-
-          <LiveCodeEditor
-            title="BizuitCombo - Selector Desplegable"
-            description="Selector de opciones con b\u00fasqueda y autocompletado"
-            files={examples.comboExample}
-          />
-
-          <LiveCodeEditor
-            title="BizuitRadioButton - Bot\u00f3n de Radio"
-            description="Grupo de opciones mutuamente excluyentes"
-            files={examples.radioExample}
-          />
-
-          <LiveCodeEditor
-            title="BizuitSignature - Firma Digital"
-            description="Captura de firmas manuscritas en canvas"
-            files={examples.signatureExample}
-          />
-
-          <LiveCodeEditor
-            title="BizuitSubForm - Tabla Din\u00e1mica"
-            description="Tabla editable con filas din\u00e1micas para datos tabulares"
-            files={examples.subFormExample}
-          />
-        </section>
-
-        {/* Layout Components */}
-        <section className="space-y-6">
-          <h2 className="text-3xl font-bold border-b-2 border-primary pb-2">Componentes de Layout</h2>
-          
-          <LiveCodeEditor
-            title="BizuitTabs - Pesta\u00f1as"
-            description="Organizador de contenido en pesta\u00f1as con variantes de estilo"
-            files={examples.tabsExample}
-          />
-
-          <LiveCodeEditor
-            title="BizuitStepper - Indicador de Pasos"
-            description="Indicador visual de progreso para flujos de m\u00faltiples pasos"
-            files={examples.stepperExample}
-          />
-
-          <LiveCodeEditor
-            title="BizuitCard - Tarjeta"
-            description="Contenedor flexible para agrupar contenido relacionado"
-            files={examples.cardExample}
-          />
-        </section>
-
-        {/* Media Components */}
-        <section className="space-y-6">
-          <h2 className="text-3xl font-bold border-b-2 border-primary pb-2">Componentes de Media</h2>
-          
-          <LiveCodeEditor
-            title="BizuitMedia - Imagen y Audio"
-            description="Reproductor multimedia para im\u00e1genes, video y audio"
-            files={examples.mediaExample}
-          />
-
-          <LiveCodeEditor
-            title="BizuitMedia - C\u00e1mara"
-            description="Captura de fotos usando la c\u00e1mara del dispositivo"
-            files={examples.cameraExample}
-          />
-
-          <LiveCodeEditor
-            title="BizuitMedia - Lector QR"
-            description="Escaneo de c\u00f3digos QR usando la c\u00e1mara"
-            files={examples.qrScannerExample}
-          />
-        </section>
-
-        {/* Data Components */}
-        <section className="space-y-6">
-          <h2 className="text-3xl font-bold border-b-2 border-primary pb-2">Componentes de Datos</h2>
-          
-          <LiveCodeEditor
-            title="BizuitDataGrid - Tabla de Datos"
-            description="Tabla ordenable y personalizable para mostrar datos tabulares"
-            files={examples.dataGridExample}
-          />
-        </section>
-
-        {/* Installation & Usage */}
-        <section className="mt-16 p-8 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 rounded-lg">
-          <h2 className="text-2xl font-bold mb-4">Instalaci\u00f3n y Uso</h2>
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-semibold mb-2">1. Instalar el paquete:</h3>
-              <code className="block bg-gray-900 text-green-400 p-4 rounded-md">
-                npm install @tyconsa/bizuit-ui-components
-              </code>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2">2. Importar componentes:</h3>
-              <code className="block bg-gray-900 text-green-400 p-4 rounded-md">
-                import {'{'} BizuitSlider, BizuitTabs, BizuitMedia {'}'} from '@tyconsa/bizuit-ui-components'
-              </code>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2">3. Documentaci\u00f3n completa:</h3>
-              <p className="text-sm">
-                Cada componente incluye ejemplos editables en esta p\u00e1gina. Haz clic en "Ver/Editar C\u00f3digo" 
-                para ver el c\u00f3digo fuente completo y modificarlo en tiempo real.
-              </p>
-            </div>
+      <main className="flex-1 overflow-y-auto">
+        {/* Header with back link */}
+        <div className="sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800">
+          <div className="max-w-6xl mx-auto px-6 py-4">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors group"
+            >
+              <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+              Volver al inicio
+            </Link>
           </div>
-        </section>
+        </div>
+
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          {selectedComponent ? (
+            <ComponentView component={selectedComponent} />
+          ) : (
+            <WelcomeScreen
+              totalComponents={ALL_COMPONENTS_DOCS.length}
+              categoryCount={categoryCount}
+            />
+          )}
+        </div>
+      </main>
+    </div>
+  )
+}
+
+function WelcomeScreen({
+  totalComponents,
+  categoryCount,
+}: {
+  totalComponents: number
+  categoryCount: number
+}) {
+  return (
+    <div className="space-y-12">
+      {/* Hero Section */}
+      <div className="text-center space-y-6 py-12">
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 text-white mb-4">
+          <Package className="h-10 w-10" />
+        </div>
+
+        <div className="space-y-3">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-slate-100 dark:via-slate-300 dark:to-slate-100 bg-clip-text text-transparent">
+            Bizuit UI Components
+          </h1>
+          <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+            Una biblioteca completa de componentes React profesionales para
+            construir aplicaciones empresariales modernas
+          </p>
+        </div>
+
+        <div className="flex items-center justify-center gap-2 text-sm text-slate-500 dark:text-slate-500">
+          <Sparkles className="h-4 w-4" />
+          <span>v1.3.1 • @tyconsa/bizuit-ui-components</span>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
+          <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+            {totalComponents}
+          </div>
+          <div className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            Componentes totales
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
+            Desde formularios hasta visualización de datos
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
+          <div className="text-4xl font-bold text-purple-600 dark:text-purple-400 mb-2">
+            {categoryCount}
+          </div>
+          <div className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            Categorías
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
+            UI, Formularios, Layout, Media y Datos
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
+          <div className="text-4xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">
+            100%
+          </div>
+          <div className="text-sm font-medium text-slate-600 dark:text-slate-400">
+            TypeScript
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
+            Tipos completos y autocompletado
+          </p>
+        </div>
+      </div>
+
+      {/* Instructions Card */}
+      <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 rounded-2xl border border-blue-200 dark:border-blue-900 p-8">
+        <div className="flex items-start gap-4">
+          <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-blue-600 dark:bg-blue-500 flex items-center justify-center">
+            <ArrowLeft className="h-6 w-6 text-white rotate-180" />
+          </div>
+          <div className="space-y-3">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+              Comienza explorando
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400">
+              Selecciona un componente desde la barra lateral para ver:
+            </p>
+            <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+              <li className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                <span>
+                  <strong>Descripción detallada</strong> y casos de uso
+                </span>
+              </li>
+              <li className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                <span>
+                  <strong>Documentación completa de props</strong> con tipos y
+                  valores por defecto
+                </span>
+              </li>
+              <li className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span>
+                  <strong>Ejemplos de código interactivos</strong> que puedes
+                  editar en tiempo real
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Install */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 space-y-4">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+          Instalación rápida
+        </h3>
+        <div className="bg-slate-900 dark:bg-slate-950 rounded-lg p-4 font-mono text-sm text-emerald-400">
+          npm install @tyconsa/bizuit-ui-components
+        </div>
+        <p className="text-sm text-slate-600 dark:text-slate-400">
+          Luego importa los componentes que necesites:
+        </p>
+        <div className="bg-slate-900 dark:bg-slate-950 rounded-lg p-4 font-mono text-sm text-slate-300">
+          <span className="text-purple-400">import</span>{' '}
+          <span className="text-yellow-400">{'{'}</span> BizuitSlider,
+          BizuitTabs, BizuitMedia{' '}
+          <span className="text-yellow-400">{'}'}</span>{' '}
+          <span className="text-purple-400">from</span>{' '}
+          <span className="text-emerald-400">
+            '@tyconsa/bizuit-ui-components'
+          </span>
+        </div>
       </div>
     </div>
   )
