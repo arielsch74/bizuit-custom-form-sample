@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useBizuitSDK, formDataToParameters } from '@tyconsa/bizuit-form-sdk'
-import { Button, useBizuitAuth } from '@tyconsa/bizuit-ui-components'
+import { Button, useBizuitAuth, BizuitThemeProvider } from '@tyconsa/bizuit-ui-components'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { RequireAuth } from '@/components/require-auth'
 import { LiveCodeEditor } from '@/components/live-code-editor'
@@ -855,8 +855,14 @@ await sdk.process.raiseEvent({
 
 export default function Example2ManualAllPage() {
   return (
-    <RequireAuth returnUrl="/example-2-manual-all">
-      <Example2ManualAllContent />
-    </RequireAuth>
+    <BizuitThemeProvider
+      defaultTheme="light"
+      defaultColorTheme="orange"
+      defaultLanguage="es"
+    >
+      <RequireAuth returnUrl="/example-2-manual-all">
+        <Example2ManualAllContent />
+      </RequireAuth>
+    </BizuitThemeProvider>
   )
 }
