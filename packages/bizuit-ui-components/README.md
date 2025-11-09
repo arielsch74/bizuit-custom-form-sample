@@ -67,6 +67,67 @@ import '@bizuit/ui-components/styles.css'
 
 ## Components
 
+### 📋 DynamicFormField
+
+Auto-generate form fields from Bizuit BPM parameter definitions. Perfect for dynamic forms where fields come from the API.
+
+```tsx
+import { DynamicFormField } from '@bizuit/ui-components'
+import { useBizuitSDK } from '@bizuit/form-sdk'
+
+function DynamicForm() {
+  const sdk = useBizuitSDK()
+  const [parameters, setParameters] = useState([])
+  const [formData, setFormData] = useState({})
+
+  // Load parameters from Bizuit API
+  useEffect(() => {
+    const loadParams = async () => {
+      const params = await sdk.process.getProcessParameters('MyProcess', '', token)
+      const inputParams = params.filter(p =>
+        !p.isSystemParameter &&
+        (p.direction === 'In' || p.direction === 'InOut')
+      )
+      setParameters(inputParams)
+    }
+    loadParams()
+  }, [])
+
+  return (
+    <form>
+      {parameters.map(param => (
+        <DynamicFormField
+          key={param.name}
+          parameter={param}
+          value={formData[param.name]}
+          onChange={(value) => setFormData({...formData, [param.name]: value})}
+        />
+      ))}
+      <button type="submit">Submit</button>
+    </form>
+  )
+}
+```
+
+**Props:**
+- `parameter` - Bizuit parameter definition (`IParameter`)
+- `value` - Current field value
+- `onChange` - Change handler `(value: any) => void`
+- `className` - Custom CSS class
+- `disabled` - Disable input
+- `required` - Mark as required
+
+**Supported Parameter Types:**
+- `SingleValue` (string/number) → Text input
+- `Boolean` → Checkbox
+- `Date` → Date picker
+- `Xml` → Textarea (for XML/JSON)
+- `ComplexObject` → Textarea (JSON)
+
+[See live example →](https://github.com/bizuit/form-template/tree/main/example/app/example-1-dynamic)
+
+---
+
 ### 📊 BizuitDataGrid
 
 Advanced data grid with sorting, filtering, pagination, and row selection.

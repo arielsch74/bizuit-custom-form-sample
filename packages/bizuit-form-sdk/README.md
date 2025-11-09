@@ -120,6 +120,207 @@ await sdk.process.raiseEvent({ eventName, parameters }, undefined, token)
 
 ---
 
+## Hidden/Calculated Parameters Pattern 🔒
+
+In real-world applications, you often need to send **additional parameters** that users don't see or edit. These can be:
+
+- **System metadata** (timestamps, user IDs, session info)
+- **Calculated values** (totals, derived fields, business logic results)
+- **Security tokens** (auth tokens, CSRF tokens)
+- **Audit trail** (IP address, browser info)
+
+### Pattern: Visible + Hidden Parameters
+
+```typescript
+// User fills visible fields
+const [formData, setFormData] = useState({
+  pEmpleado: '',
+  pMonto: '',
+  pCategoria: '',
+})
+
+// Calculate hidden parameters on submit
+const handleSubmit = async (e) => {
+  e.preventDefault()
+
+  // Visible parameters (from form)
+  const visibleParams = formDataToParameters(formData)
+
+  // Hidden/calculated parameters (not in form)
+  const hiddenParams = [
+    { name: 'submittedBy', value: currentUser.id, direction: 'In', type: 'SingleValue' },
+    { name: 'submittedAt', value: new Date().toISOString(), direction: 'In', type: 'SingleValue' },
+    { name: 'montoConIVA', value: (parseFloat(formData.pMonto) * 1.21).toFixed(2), direction: 'In', type: 'SingleValue' },
+    { name: 'esMontoAlto', value: parseFloat(formData.pMonto) > 10000, direction: 'In', type: 'SingleValue' },
+    { name: 'clientIP', value: await getClientIP(), direction: 'In', type: 'SingleValue' },
+  ]
+
+  // Combine visible + hidden
+  const allParameters = [...visibleParams, ...hiddenParams]
+
+  // Send to Bizuit
+  await sdk.process.raiseEvent({ eventName: 'SolicitudGasto', parameters: allParameters }, undefined, token)
+
+  console.log(`Total: ${allParameters.length} parameters`)
+  console.log(`- Visible: ${visibleParams.length}`)
+  console.log(`- Hidden: ${hiddenParams.length}`)
+}
+```
+
+### With Selective Mapping (Recommended)
+
+Combine selective mapping with hidden parameters for maximum control:
+
+```typescript
+// Define visible field mapping
+const mapping = {
+  'empleado': { parameterName: 'pEmpleado', transform: (v) => v.toUpperCase() },
+  'monto': { parameterName: 'pMonto', transform: (v) => parseFloat(v).toFixed(2) },
+  'categoria': { parameterName: 'pCategoria' },
+}
+
+const handleSubmit = async () => {
+  // Build visible parameters (selective)
+  const visibleParams = buildParameters(mapping, formData)
+
+  // Add hidden/calculated parameters
+  const hiddenParams = [
+    { name: 'vSubmittedBy', value: user.id, direction: 'In', type: 'SingleValue', isVariable: true },
+    { name: 'vTimestamp', value: Date.now(), direction: 'In', type: 'SingleValue', isVariable: true },
+    { name: 'pMontoTotal', value: calculateTotal(formData.monto), direction: 'In', type: 'SingleValue' },
+  ]
+
+  // Send both
+  await sdk.process.raiseEvent({
+    eventName: 'Proceso',
+    parameters: [...visibleParams, ...hiddenParams]
+  }, undefined, token)
+}
+```
+
+### Using Variables vs Parameters
+
+Bizuit BPM distinguishes between **Parameters** and **Variables**:
+
+```typescript
+// Parameter (starts with 'p')
+{
+  name: 'pEmpleado',
+  value: 'John Doe',
+  direction: 'In',
+  type: 'SingleValue',
+  isSystemParameter: false
+}
+
+// Variable (starts with 'v')
+{
+  name: 'vUserId',
+  value: '12345',
+  direction: 'In',
+  type: 'SingleValue',
+  isSystemParameter: true  // Variables are system parameters
+}
+```
+
+**When to use Variables:**
+- Audit trail data (user IDs, timestamps)
+- Internal system state
+- Security/auth tokens
+- Process metadata
+
+**When to use Parameters:**
+- Business data from user input
+- Calculated business values
+- Data that flows through process activities
+
+### Complete Example with Modal Preview
+
+Show users what will be sent (visible + hidden):
+
+```typescript
+const [showModal, setShowModal] = useState(false)
+const [paramsToSend, setParamsToSend] = useState({ visible: [], hidden: [], all: [] })
+
+const handleSubmit = async (e) => {
+  e.preventDefault()
+
+  // Build visible parameters
+  const visibleParams = buildParameters(mapping, formData)
+
+  // Build hidden parameters
+  const hiddenParams = [
+    { name: 'submittedBy', value: user.email },
+    { name: 'submittedAt', value: new Date().toISOString() },
+    { name: 'montoConIVA', value: (parseFloat(formData.pMonto) * 1.21).toFixed(2) },
+  ]
+
+  // Combine
+  const allParams = [...visibleParams, ...hiddenParams]
+
+  // Show modal with preview
+  setParamsToSend({
+    visible: visibleParams,
+    hidden: hiddenParams,
+    all: allParams
+  })
+  setShowModal(true)
+}
+
+const confirmSubmit = async () => {
+  try {
+    const result = await sdk.process.raiseEvent({
+      eventName: 'SolicitudGasto',
+      parameters: paramsToSend.all
+    }, undefined, token)
+
+    alert(`Process started! Instance ID: ${result.instanceId}`)
+  } catch (error) {
+    console.error('Error:', error)
+  } finally {
+    setShowModal(false)
+  }
+}
+
+return (
+  <>
+    <form onSubmit={handleSubmit}>
+      {/* Form fields */}
+      <button type="submit">Submit</button>
+    </form>
+
+    {/* Modal showing visible + hidden parameters */}
+    {showModal && (
+      <div className="modal">
+        <h3>Parameters to be sent to Bizuit</h3>
+
+        <div>
+          <h4>👁️ Visible Parameters ({paramsToSend.visible.length}):</h4>
+          {paramsToSend.visible.map(p => (
+            <div key={p.name}>{p.name}: {JSON.stringify(p.value)}</div>
+          ))}
+        </div>
+
+        <div>
+          <h4>🔒 Hidden/Calculated Parameters ({paramsToSend.hidden.length}):</h4>
+          {paramsToSend.hidden.map(p => (
+            <div key={p.name}>{p.name}: {JSON.stringify(p.value)}</div>
+          ))}
+        </div>
+
+        <p>Total: {paramsToSend.all.length} parameters</p>
+
+        <button onClick={confirmSubmit}>Confirm & Send</button>
+        <button onClick={() => setShowModal(false)}>Cancel</button>
+      </div>
+    )}
+  </>
+)
+```
+
+[See live example →](https://github.com/bizuit/form-template/tree/main/example/app/example-2-manual-all)
+
+---
+
 ## Quick Start
 
 ### 1. Setup SDK Provider (React)
@@ -473,6 +674,63 @@ interface IParameterMapping {
   direction?: 'In' | 'Out' | 'InOut'  // Parameter direction (default: In)
 }
 ```
+
+### formDataToParameters() - Convert All Fields
+
+The `formDataToParameters()` utility converts **all** form fields to Bizuit parameters. Use this when you want to send everything from your form state.
+
+```typescript
+import { formDataToParameters } from '@tyconsa/bizuit-form-sdk'
+
+const formData = {
+  pEmpleado: 'Juan Pérez',
+  pLegajo: '12345',
+  pMonto: '1500.50',
+  pCategoria: 'Viajes',
+  pAprobado: true,
+  pFechaSolicitud: '2025-01-15',
+}
+
+// Convert all fields to parameters
+const parameters = formDataToParameters(formData)
+
+// Result: Array of IParameter objects
+[
+  { name: 'pEmpleado', value: 'Juan Pérez', direction: 'In', type: 'SingleValue' },
+  { name: 'pLegajo', value: '12345', direction: 'In', type: 'SingleValue' },
+  { name: 'pMonto', value: '1500.50', direction: 'In', type: 'SingleValue' },
+  { name: 'pCategoria', value: 'Viajes', direction: 'In', type: 'SingleValue' },
+  { name: 'pAprobado', value: true, direction: 'In', type: 'SingleValue' },
+  { name: 'pFechaSolicitud', value: '2025-01-15', direction: 'In', type: 'SingleValue' },
+]
+
+// Send to Bizuit
+await sdk.process.raiseEvent({
+  eventName: 'SolicitudGasto',
+  parameters
+}, undefined, token)
+```
+
+**Key differences:**
+
+| Feature | `formDataToParameters()` | `buildParameters()` |
+|---------|-------------------------|---------------------|
+| **Selectivity** | Sends ALL fields | Sends ONLY mapped fields |
+| **Transformation** | No transformations | Supports transform functions |
+| **Use Case** | Simple forms, all data needed | Complex forms, selective fields |
+| **Setup** | Quick, no configuration | Requires mapping definition |
+
+**When to use `formDataToParameters()`:**
+- All form fields should be sent to Bizuit
+- No value transformations needed
+- Simple, straightforward forms
+- Quick prototyping
+
+**When to use `buildParameters()`:**
+- Only specific fields should be sent
+- Need value transformations
+- Multiple form fields map to single parameter
+- Production applications with complex business logic
 
 ## React Hooks
 
