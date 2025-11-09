@@ -90,7 +90,7 @@ export const ComponentDemos: Record<string, React.ComponentType> = {
         <BizuitCombo
           options={options}
           value={value}
-          onChange={setValue}
+          onChange={(val) => setValue(Array.isArray(val) ? val[0] : val)}
           placeholder="Select a framework..."
         />
       </div>
