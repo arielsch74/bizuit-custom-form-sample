@@ -180,22 +180,50 @@ stages:
                     targetType: 'inline'
                     script: |
                       Write-Host "Verifying deployment..."
-                      Start-Sleep -Seconds 5
 
                       # Refresh PATH to include npm global binaries
                       $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+                      $npmGlobalPath = npm config get prefix
+                      if ($npmGlobalPath) {
+                          $env:Path = "$npmGlobalPath;$env:Path"
+                      }
 
-                      try {
-                          $response = Invoke-WebRequest -Uri "http://localhost:$(appPort)" -UseBasicParsing -TimeoutSec 10
-                          if ($response.StatusCode -eq 200) {
-                              Write-Host "✅ Application is running successfully!"
-                              Write-Host "Status Code: $($response.StatusCode)"
-                          } else {
-                              Write-Warning "⚠️ Application returned status code: $($response.StatusCode)"
+                      # Check PM2 process status
+                      Write-Host "`n=== PM2 Status ===" -ForegroundColor Cyan
+                      & pm2 list
+
+                      # Wait for Next.js to compile and start (can take 15-30 seconds)
+                      Write-Host "`nWaiting for Next.js to start..." -ForegroundColor Yellow
+                      $maxAttempts = 12
+                      $attemptDelay = 5
+                      $success = $false
+
+                      for ($i = 1; $i -le $maxAttempts; $i++) {
+                          Write-Host "Attempt $i of ${maxAttempts}..."
+                          Start-Sleep -Seconds $attemptDelay
+
+                          try {
+                              $response = Invoke-WebRequest -Uri "http://localhost:$(appPort)" -UseBasicParsing -TimeoutSec 5
+                              if ($response.StatusCode -eq 200) {
+                                  Write-Host "`n✅ Application is running successfully!" -ForegroundColor Green
+                                  Write-Host "Status Code: $($response.StatusCode)"
+                                  Write-Host "Startup time: ~$($i * $attemptDelay) seconds"
+                                  $success = $true
+                                  break
+                              }
+                          } catch {
+                              Write-Host "Not ready yet: $_" -ForegroundColor DarkGray
                           }
-                      } catch {
-                          Write-Error "❌ Application health check failed: $_"
-                          & pm2 logs $(appName) --lines 50
+                      }
+
+                      if (-not $success) {
+                          Write-Host "`n=== PM2 Logs (Last 100 lines) ===" -ForegroundColor Red
+                          & pm2 logs $(appName) --lines 100 --nostream
+
+                          Write-Host "`n=== PM2 Process Info ===" -ForegroundColor Red
+                          & pm2 show $(appName)
+
+                          Write-Error "❌ Application failed to start after $($maxAttempts * $attemptDelay) seconds"
                           exit 1
                       }
                   displayName: 'Health Check'
