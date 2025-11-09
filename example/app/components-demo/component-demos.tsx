@@ -97,110 +97,13 @@ export const ComponentDemos: Record<string, React.ComponentType> = {
     )
   },
 
-  'bizuit-date-time-picker': () => {
-    const [date, setDate] = useState<Date | undefined>(new Date())
+  // NOTE: These components have TypeScript errors due to missing/incorrect prop definitions
+  // Commenting them out until the component types are fixed in @bizuit/ui-components
 
-    return (
-      <div className="p-8 space-y-6 max-w-md bg-white dark:bg-slate-900 rounded-lg">
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Date Picker</h3>
-          <p className="text-sm text-muted-foreground">
-            {date ? date.toLocaleDateString() : 'No date selected'}
-          </p>
-          <BizuitDateTimePicker value={date} onChange={setDate} />
-        </div>
-
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">DateTime Picker</h3>
-          <BizuitDateTimePicker
-            value={date}
-            onChange={setDate}
-            showTime={true}
-            timeFormat="24h"
-          />
-        </div>
-      </div>
-    )
-  },
-
-  'bizuit-file-upload': () => {
-    const [files, setFiles] = useState<File[]>([])
-
-    return (
-      <div className="p-8 space-y-4 max-w-2xl bg-white dark:bg-slate-900 rounded-lg">
-        <h3 className="text-lg font-semibold">Files: {files.length}</h3>
-        <BizuitFileUpload
-          value={files}
-          onChange={setFiles}
-          accept="image/*,.pdf"
-          maxSize={5 * 1024 * 1024}
-          maxFiles={5}
-        />
-      </div>
-    )
-  },
-
-  'bizuit-radio-button': () => {
-    const [value, setValue] = useState('option1')
-
-    return (
-      <div className="p-8 space-y-4 max-w-md bg-white dark:bg-slate-900 rounded-lg">
-        <h3 className="text-lg font-semibold">Selected: {value}</h3>
-        <div className="space-y-3">
-          <BizuitRadioButton
-            label="Option 1"
-            value="option1"
-            checked={value === 'option1'}
-            onChange={() => setValue('option1')}
-          />
-          <BizuitRadioButton
-            label="Option 2"
-            value="option2"
-            checked={value === 'option2'}
-            onChange={() => setValue('option2')}
-          />
-          <BizuitRadioButton
-            label="Option 3"
-            value="option3"
-            checked={value === 'option3'}
-            onChange={() => setValue('option3')}
-          />
-        </div>
-      </div>
-    )
-  },
-
-  'bizuit-sub-form': () => {
-    const [items, setItems] = useState<SubFormRow[]>([])
-
-    const fields = [
-      { name: 'description', label: 'Description', type: 'text' as const, required: true },
-      { name: 'quantity', label: 'Qty', type: 'number' as const, required: true },
-      { name: 'price', label: 'Price', type: 'number' as const, required: true },
-    ]
-
-    const total = items.reduce((sum, item) => {
-      const qty = parseFloat(item.quantity) || 0
-      const price = parseFloat(item.price) || 0
-      return sum + qty * price
-    }, 0)
-
-    return (
-      <div className="p-8 space-y-4 max-w-4xl bg-white dark:bg-slate-900 rounded-lg">
-        <h3 className="text-lg font-semibold">Invoice Items</h3>
-        <BizuitSubForm
-          label="Items"
-          fields={fields}
-          value={items}
-          onChange={setItems}
-          maxRows={10}
-        />
-        <div className="text-right text-lg font-bold">
-          Total: ${total.toFixed(2)}
-        </div>
-      </div>
-    )
-  },
+  // 'bizuit-date-time-picker': () => { ... },
+  // 'bizuit-file-upload': () => { ... },
+  // 'bizuit-radio-button': () => { ... },
+  // 'bizuit-sub-form': () => { ... },
 
   'bizuit-tabs': () => {
     const tabItems: TabItem[] = [
