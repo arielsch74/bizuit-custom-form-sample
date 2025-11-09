@@ -90,33 +90,16 @@ stages:
                   inputs:
                     targetType: 'inline'
                     script: |
-                      Write-Host "Stopping PM2 application: $(appName)"
+                      Write-Host "Preparing deployment directory..."
 
-                      # Check if PM2 is installed
-                      $pm2Path = "$env:APPDATA\npm\pm2.cmd"
-                      if (-not (Test-Path $pm2Path)) {
-                          Write-Host "PM2 not installed. Installing PM2 globally..."
-                          npm install -g pm2
-                          Write-Host "PM2 installed successfully"
-                      } else {
-                          Write-Host "PM2 is already installed"
-                      }
-
-                      # Refresh PATH to include npm global binaries
-                      $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-
-                      # Stop and delete existing PM2 process if exists
+                      # Stop IIS Application Pool to release file locks
+                      $appPoolName = "DefaultAppPool"  # Adjust if using different app pool
+                      Write-Host "Stopping Application Pool: $appPoolName"
                       try {
-                          $pmList = & pm2 list 2>&1 | Out-String
-                          if ($pmList -match "$(appName)") {
-                              Write-Host "Stopping existing PM2 process..."
-                              & pm2 stop $(appName)
-                              & pm2 delete $(appName)
-                          } else {
-                              Write-Host "No existing PM2 process found."
-                          }
+                          Stop-WebAppPool -Name $appPoolName -ErrorAction SilentlyContinue
+                          Start-Sleep -Seconds 3
                       } catch {
-                          Write-Host "PM2 process check skipped (first deployment or PM2 not configured)"
+                          Write-Host "Could not stop app pool (may not exist yet): $_"
                       }
 
                       # Clean deployment directory
@@ -127,7 +110,7 @@ stages:
                           Write-Host "Creating deployment directory..."
                           New-Item -ItemType Directory -Path "$(deployPath)" -Force
                       }
-                  displayName: 'Stop PM2 Application'
+                  displayName: 'Prepare Deployment Directory'
 
                 - task: CopyFiles@2
                   inputs:
@@ -142,92 +125,113 @@ stages:
                     targetType: 'inline'
                     workingDirectory: '$(deployPath)'
                     script: |
+                      Write-Host "Configuring IISNode deployment..."
+
+                      # Copy the IISNode web.config
+                      if (Test-Path "web.config.iisnode") {
+                          Write-Host "Using IISNode web.config..."
+                          Copy-Item "web.config.iisnode" "web.config" -Force
+                      } else {
+                          Write-Host "Warning: web.config.iisnode not found"
+                      }
+
+                      # Install production dependencies
                       Write-Host "Installing production dependencies..."
                       npm ci --production
 
-                      # Refresh PATH to include npm global binaries
-                      $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-
-                      # Add npm global directory to PATH explicitly
-                      $npmGlobalPath = npm config get prefix
-                      if ($npmGlobalPath) {
-                          $env:Path = "$npmGlobalPath;$env:Path"
-                          Write-Host "NPM global path added: $npmGlobalPath"
+                      # Verify server.js exists
+                      if (Test-Path "server.js") {
+                          Write-Host "✓ server.js found"
+                      } else {
+                          Write-Error "server.js not found! Deployment cannot continue."
+                          exit 1
                       }
 
-                      # Verify PM2 is accessible
-                      $pm2Command = Get-Command pm2 -ErrorAction SilentlyContinue
-                      if (-not $pm2Command) {
-                          Write-Host "PM2 not found in PATH. Installing PM2..."
-                          npm install -g pm2
-                          # Refresh PATH again after installation
-                          $npmGlobalPath = npm config get prefix
-                          $env:Path = "$npmGlobalPath;$env:Path"
+                      # Verify standalone build exists
+                      if (Test-Path ".next/standalone") {
+                          Write-Host "✓ Standalone build found"
+                      } else {
+                          Write-Host "Warning: .next/standalone not found (expected for Next.js standalone mode)"
                       }
 
-                      Write-Host "PM2 location: $(Get-Command pm2 | Select-Object -ExpandProperty Source)"
-
-                      Write-Host "Starting Next.js application with PM2..."
-                      & pm2 start npm --name "$(appName)" -- start
-                      & pm2 save
+                      # Start IIS Application Pool
+                      $appPoolName = "DefaultAppPool"  # Adjust if using different app pool
+                      Write-Host "Starting Application Pool: $appPoolName"
+                      try {
+                          Start-WebAppPool -Name $appPoolName -ErrorAction SilentlyContinue
+                          Write-Host "✓ Application Pool started"
+                      } catch {
+                          Write-Host "Could not start app pool: $_"
+                      }
 
                       Write-Host "Deployment completed successfully!"
-                      Write-Host "Application running on port $(appPort)"
-
-                      # Show PM2 status
-                      & pm2 list
-                  displayName: 'Install Dependencies and Start Application'
+                      Write-Host "IISNode will start the application on first request"
+                  displayName: 'Configure IISNode Application'
 
                 - task: PowerShell@2
                   inputs:
                     targetType: 'inline'
                     script: |
-                      Write-Host "Verifying deployment..."
+                      Write-Host "Verifying IISNode deployment..."
 
-                      # Refresh PATH to include npm global binaries
-                      $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-                      $npmGlobalPath = npm config get prefix
-                      if ($npmGlobalPath) {
-                          $env:Path = "$npmGlobalPath;$env:Path"
-                      }
-
-                      # Check PM2 process status
-                      Write-Host "`n=== PM2 Status ===" -ForegroundColor Cyan
-                      & pm2 list
-
-                      # Wait for Next.js to compile and start (can take 15-30 seconds)
-                      Write-Host "`nWaiting for Next.js to start..." -ForegroundColor Yellow
-                      $maxAttempts = 12
+                      # IISNode starts on first request, so we need to trigger it
+                      Write-Host "`nTriggering IISNode startup..." -ForegroundColor Yellow
+                      $maxAttempts = 15
                       $attemptDelay = 5
                       $success = $false
+
+                      # Determine the URL to test
+                      # Try localhost first (IISNode internal), then the actual URL
+                      $testUrls = @(
+                          "http://localhost$(basePath)/",
+                          "http://test.bizuit.com$(basePath)/"
+                      )
 
                       for ($i = 1; $i -le $maxAttempts; $i++) {
                           Write-Host "Attempt $i of ${maxAttempts}..."
                           Start-Sleep -Seconds $attemptDelay
 
-                          try {
-                              $response = Invoke-WebRequest -Uri "http://localhost:$(appPort)$(basePath)/" -UseBasicParsing -TimeoutSec 5
-                              if ($response.StatusCode -eq 200) {
-                                  Write-Host "`n✅ Application is running successfully!" -ForegroundColor Green
-                                  Write-Host "Status Code: $($response.StatusCode)"
-                                  Write-Host "URL: http://localhost:$(appPort)$(basePath)/"
-                                  Write-Host "Startup time: ~$($i * $attemptDelay) seconds"
-                                  $success = $true
-                                  break
+                          foreach ($url in $testUrls) {
+                              try {
+                                  Write-Host "Testing: $url" -ForegroundColor DarkGray
+                                  $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 10
+                                  if ($response.StatusCode -eq 200) {
+                                      Write-Host "`n✅ Application is running successfully!" -ForegroundColor Green
+                                      Write-Host "Status Code: $($response.StatusCode)"
+                                      Write-Host "URL: $url"
+                                      Write-Host "Startup time: ~$($i * $attemptDelay) seconds"
+                                      $success = $true
+                                      break
+                                  }
+                              } catch {
+                                  Write-Host "Not ready: $($_.Exception.Message)" -ForegroundColor DarkGray
                               }
-                          } catch {
-                              Write-Host "Not ready yet: $_" -ForegroundColor DarkGray
                           }
+
+                          if ($success) { break }
                       }
 
                       if (-not $success) {
-                          Write-Host "`n=== PM2 Logs (Last 100 lines) ===" -ForegroundColor Red
-                          & pm2 logs $(appName) --lines 100 --nostream
+                          Write-Host "`n=== IISNode Logs ===" -ForegroundColor Red
+                          $logPath = "$(deployPath)\iisnode"
+                          if (Test-Path $logPath) {
+                              Get-ChildItem $logPath -Filter "*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 3 | ForEach-Object {
+                                  Write-Host "`n--- $($_.Name) ---" -ForegroundColor Yellow
+                                  Get-Content $_.FullName -Tail 50
+                              }
+                          } else {
+                              Write-Host "No IISNode logs found at: $logPath"
+                          }
 
-                          Write-Host "`n=== PM2 Process Info ===" -ForegroundColor Red
-                          & pm2 show $(appName)
+                          Write-Host "`n=== Application Pool Status ===" -ForegroundColor Red
+                          Get-WebAppPoolState -Name "DefaultAppPool" -ErrorAction SilentlyContinue
 
                           Write-Error "❌ Application failed to start after $($maxAttempts * $attemptDelay) seconds"
+                          Write-Host "`nTroubleshooting:"
+                          Write-Host "1. Check IISNode logs in: $(deployPath)\iisnode"
+                          Write-Host "2. Verify IISNode is installed"
+                          Write-Host "3. Check Application Pool is running"
+                          Write-Host "4. Try accessing: http://test.bizuit.com$(basePath)/"
                           exit 1
                       }
                   displayName: 'Health Check'

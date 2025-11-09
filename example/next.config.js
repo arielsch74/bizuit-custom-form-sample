@@ -15,6 +15,9 @@ const nextConfig = {
   // Trailing slash for consistent routing
   trailingSlash: true,
 
+  // Output standalone server for IISNode deployment
+  output: 'standalone',
+
   // Fix workspace root for file tracing
   outputFileTracingRoot: path.join(__dirname, '../'),
 }
