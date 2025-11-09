@@ -1,330 +1,148 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
-import {
-  BizuitDataGrid,
-  BizuitCombo,
-  BizuitDateTimePicker,
-  BizuitSlider,
-  BizuitFileUpload,
-  BizuitRadioButton,
-  BizuitSignature,
-  Button
-} from '@tyconsa/bizuit-ui-components'
-import { AppToolbar } from '@/components/app-toolbar'
+import { ArrowLeft } from 'lucide-react'
+import { LiveCodeEditor } from '@/components/live-code-editor'
+import * as examples from './component-examples'
 
 export default function ComponentsDemo() {
-  // Estados para cada componente
-  const [comboValue, setComboValue] = useState('')
-  const [date, setDate] = useState<Date>()
-  const [sliderValue, setSliderValue] = useState(50)
-  const [files, setFiles] = useState<File[]>([])
-  const [radioValue, setRadioValue] = useState('1')
-  const [signature, setSignature] = useState<string>()
-
-  // Datos para el combo
-  const options = [
-    { value: '1', label: 'Opción 1', group: 'Grupo A' },
-    { value: '2', label: 'Opción 2', group: 'Grupo A' },
-    { value: '3', label: 'Opción 3', group: 'Grupo B' },
-    { value: '4', label: 'Opción 4', group: 'Grupo B' },
-  ]
-
-  // Datos para el radio button
-  const radioOptions = [
-    { value: '1', label: 'Opción A', description: 'Primera opción disponible' },
-    { value: '2', label: 'Opción B', description: 'Segunda opción disponible' },
-    { value: '3', label: 'Opción C', description: 'Tercera opción disponible' },
-    { value: '4', label: 'Opción D (Deshabilitada)', description: 'Esta opción no está disponible', disabled: true },
-  ]
-
-  // Datos para el DataGrid
-  const columns = [
-    { accessorKey: 'id', header: 'ID' },
-    { accessorKey: 'nombre', header: 'Nombre' },
-    { accessorKey: 'valor', header: 'Valor' },
-  ]
-
-  const data = [
-    { id: 1, nombre: 'Item 1', valor: 100 },
-    { id: 2, nombre: 'Item 2', valor: 200 },
-    { id: 3, nombre: 'Item 3', valor: 300 },
-    { id: 4, nombre: 'Item 4', valor: 400 },
-    { id: 5, nombre: 'Item 5', valor: 500 },
-  ]
-
   return (
-    <div className="container max-w-6xl mx-auto py-8 px-4">
-      <AppToolbar />
+    <div className="min-h-screen bg-background p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <div className="flex items-center gap-4">
+          <Link href="/" className="text-primary hover:underline flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Volver al inicio
+          </Link>
+        </div>
 
-      <div className="mb-6">
-        <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
-          ← Volver al inicio
-        </Link>
-      </div>
-
-      <h1 className="text-4xl font-bold mb-8">Demostración de Componentes</h1>
-
-      <p className="text-muted-foreground mb-8">
-        Prueba todos los componentes de @tyconsa/bizuit-ui-components de forma interactiva
-      </p>
-
-      <div className="space-y-12">
-        {/* BizuitCombo */}
-        <section className="border rounded-lg p-6 bg-card">
-          <h2 className="text-2xl font-semibold mb-4">BizuitCombo</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Select con búsqueda incremental y agrupación
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold mb-4">Cat\u00e1logo Interactivo de Componentes</h1>
+          <p className="text-xl text-muted-foreground mb-2">
+            Explora, edita y prueba todos los componentes de @tyconsa/bizuit-ui-components v1.3.1
           </p>
-
-          <div className="max-w-md">
-            <BizuitCombo
-              options={options}
-              value={comboValue}
-              onChange={(value) => setComboValue(value as string)}
-              placeholder="Selecciona una opción"
-              searchable
-            />
-          </div>
-
-          {comboValue && (
-            <div className="mt-4 p-3 bg-muted rounded">
-              <p className="text-sm">Valor seleccionado: <code className="font-mono">{comboValue}</code></p>
-            </div>
-          )}
-        </section>
-
-        {/* BizuitDateTimePicker */}
-        <section className="border rounded-lg p-6 bg-card">
-          <h2 className="text-2xl font-semibold mb-4">BizuitDateTimePicker</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Selector de fecha y hora con soporte de idiomas
+          <p className="text-sm text-muted-foreground">
+            \u00a1Haz clic en "Ver/Editar C\u00f3digo" para jugar con los ejemplos en tiempo real!
           </p>
+        </div>
 
-          <div className="max-w-md">
-            <BizuitDateTimePicker
-              value={date}
-              onChange={setDate}
-              mode="datetime"
-              locale="es"
-            />
-          </div>
-
-          {date && (
-            <div className="mt-4 p-3 bg-muted rounded">
-              <p className="text-sm">Fecha seleccionada: <code className="font-mono">{date.toLocaleString('es-ES')}</code></p>
-            </div>
-          )}
-        </section>
-
-        {/* BizuitSlider */}
-        <section className="border rounded-lg p-6 bg-card">
-          <h2 className="text-2xl font-semibold mb-4">BizuitSlider</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Control deslizante con marcas y tooltip
-          </p>
-
-          <div className="max-w-md">
-            <BizuitSlider
-              value={sliderValue}
-              onChange={(value) => setSliderValue(value as number)}
-              min={0}
-              max={100}
-              step={5}
-              showTooltip
-              marks={[
-                { value: 0, label: '0' },
-                { value: 50, label: '50' },
-                { value: 100, label: '100' },
-              ]}
-            />
-          </div>
-
-          <div className="mt-4 p-3 bg-muted rounded">
-            <p className="text-sm">Valor actual: <code className="font-mono text-lg font-bold">{sliderValue}</code></p>
-          </div>
-        </section>
-
-        {/* BizuitRadioButton */}
-        <section className="border rounded-lg p-6 bg-card">
-          <h2 className="text-2xl font-semibold mb-4">BizuitRadioButton</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Grupo de opciones excluyentes con descripciones
-          </p>
-
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-sm font-semibold mb-3">Vertical (por defecto)</h3>
-              <BizuitRadioButton
-                options={radioOptions}
-                value={radioValue}
-                onChange={setRadioValue}
-                label="Seleccione una opción"
-                required
-                orientation="vertical"
-              />
-            </div>
-
-            <div>
-              <h3 className="text-sm font-semibold mb-3">Horizontal</h3>
-              <BizuitRadioButton
-                options={radioOptions.filter(opt => !opt.disabled)}
-                value={radioValue}
-                onChange={setRadioValue}
-                orientation="horizontal"
-              />
-            </div>
-          </div>
-
-          {radioValue && (
-            <div className="mt-4 p-3 bg-muted rounded">
-              <p className="text-sm">Opción seleccionada: <code className="font-mono">{radioValue}</code></p>
-            </div>
-          )}
-        </section>
-
-        {/* BizuitSignature */}
-        <section className="border rounded-lg p-6 bg-card">
-          <h2 className="text-2xl font-semibold mb-4">BizuitSignature</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Captura de firma con soporte táctil para móviles
-          </p>
-
-          <BizuitSignature
-            value={signature}
-            onChange={setSignature}
-            label="Firma del cliente"
-            required
-            width={600}
-            height={200}
-            penColor="#000000"
-            penWidth={2}
-            showDownload
+        {/* Form Components */}
+        <section className="space-y-6">
+          <h2 className="text-3xl font-bold border-b-2 border-primary pb-2">Componentes de Formulario</h2>
+          
+          <LiveCodeEditor
+            title="BizuitSlider - Control Deslizante"
+            description="Control deslizante para seleccionar valores num\u00e9ricos dentro de un rango"
+            files={examples.sliderExample}
           />
 
-          {signature && (
-            <div className="mt-4 p-3 bg-muted rounded">
-              <p className="text-sm mb-2 font-semibold">Firma capturada (preview):</p>
-              <img src={signature} alt="Firma" className="border rounded max-w-md" />
-              <p className="text-xs text-muted-foreground mt-2">
-                Tamaño del base64: {(signature.length / 1024).toFixed(2)} KB
+          <LiveCodeEditor
+            title="BizuitCombo - Selector Desplegable"
+            description="Selector de opciones con b\u00fasqueda y autocompletado"
+            files={examples.comboExample}
+          />
+
+          <LiveCodeEditor
+            title="BizuitRadioButton - Bot\u00f3n de Radio"
+            description="Grupo de opciones mutuamente excluyentes"
+            files={examples.radioExample}
+          />
+
+          <LiveCodeEditor
+            title="BizuitSignature - Firma Digital"
+            description="Captura de firmas manuscritas en canvas"
+            files={examples.signatureExample}
+          />
+
+          <LiveCodeEditor
+            title="BizuitSubForm - Tabla Din\u00e1mica"
+            description="Tabla editable con filas din\u00e1micas para datos tabulares"
+            files={examples.subFormExample}
+          />
+        </section>
+
+        {/* Layout Components */}
+        <section className="space-y-6">
+          <h2 className="text-3xl font-bold border-b-2 border-primary pb-2">Componentes de Layout</h2>
+          
+          <LiveCodeEditor
+            title="BizuitTabs - Pesta\u00f1as"
+            description="Organizador de contenido en pesta\u00f1as con variantes de estilo"
+            files={examples.tabsExample}
+          />
+
+          <LiveCodeEditor
+            title="BizuitStepper - Indicador de Pasos"
+            description="Indicador visual de progreso para flujos de m\u00faltiples pasos"
+            files={examples.stepperExample}
+          />
+
+          <LiveCodeEditor
+            title="BizuitCard - Tarjeta"
+            description="Contenedor flexible para agrupar contenido relacionado"
+            files={examples.cardExample}
+          />
+        </section>
+
+        {/* Media Components */}
+        <section className="space-y-6">
+          <h2 className="text-3xl font-bold border-b-2 border-primary pb-2">Componentes de Media</h2>
+          
+          <LiveCodeEditor
+            title="BizuitMedia - Imagen y Audio"
+            description="Reproductor multimedia para im\u00e1genes, video y audio"
+            files={examples.mediaExample}
+          />
+
+          <LiveCodeEditor
+            title="BizuitMedia - C\u00e1mara"
+            description="Captura de fotos usando la c\u00e1mara del dispositivo"
+            files={examples.cameraExample}
+          />
+
+          <LiveCodeEditor
+            title="BizuitMedia - Lector QR"
+            description="Escaneo de c\u00f3digos QR usando la c\u00e1mara"
+            files={examples.qrScannerExample}
+          />
+        </section>
+
+        {/* Data Components */}
+        <section className="space-y-6">
+          <h2 className="text-3xl font-bold border-b-2 border-primary pb-2">Componentes de Datos</h2>
+          
+          <LiveCodeEditor
+            title="BizuitDataGrid - Tabla de Datos"
+            description="Tabla ordenable y personalizable para mostrar datos tabulares"
+            files={examples.dataGridExample}
+          />
+        </section>
+
+        {/* Installation & Usage */}
+        <section className="mt-16 p-8 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 rounded-lg">
+          <h2 className="text-2xl font-bold mb-4">Instalaci\u00f3n y Uso</h2>
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-semibold mb-2">1. Instalar el paquete:</h3>
+              <code className="block bg-gray-900 text-green-400 p-4 rounded-md">
+                npm install @tyconsa/bizuit-ui-components
+              </code>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">2. Importar componentes:</h3>
+              <code className="block bg-gray-900 text-green-400 p-4 rounded-md">
+                import {'{'} BizuitSlider, BizuitTabs, BizuitMedia {'}'} from '@tyconsa/bizuit-ui-components'
+              </code>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">3. Documentaci\u00f3n completa:</h3>
+              <p className="text-sm">
+                Cada componente incluye ejemplos editables en esta p\u00e1gina. Haz clic en "Ver/Editar C\u00f3digo" 
+                para ver el c\u00f3digo fuente completo y modificarlo en tiempo real.
               </p>
             </div>
-          )}
-        </section>
-
-        {/* BizuitFileUpload */}
-        <section className="border rounded-lg p-6 bg-card">
-          <h2 className="text-2xl font-semibold mb-4">BizuitFileUpload</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Carga de archivos con drag & drop y preview
-          </p>
-
-          <BizuitFileUpload
-            value={files}
-            onChange={setFiles}
-            multiple
-            maxSize={5 * 1024 * 1024}
-            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-          />
-
-          {files.length > 0 && (
-            <div className="mt-4 p-3 bg-muted rounded">
-              <p className="text-sm font-semibold mb-2">Archivos seleccionados: {files.length}</p>
-              <ul className="text-sm space-y-1">
-                {files.map((file, idx) => (
-                  <li key={idx}>
-                    <code className="font-mono">{file.name}</code> ({(file.size / 1024).toFixed(2)} KB)
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </section>
-
-        {/* BizuitDataGrid */}
-        <section className="border rounded-lg p-6 bg-card">
-          <h2 className="text-2xl font-semibold mb-4">BizuitDataGrid</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Tabla con ordenamiento, filtrado y paginación
-          </p>
-
-          <BizuitDataGrid
-            columns={columns}
-            data={data}
-            selectable="multiple"
-            sortable
-            filterable
-            paginated
-            onSelectionChange={(selected) => {
-              console.log('Seleccionados:', selected)
-            }}
-          />
-        </section>
-
-        {/* Botones */}
-        <section className="border rounded-lg p-6 bg-card">
-          <h2 className="text-2xl font-semibold mb-4">Button</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Botones con diferentes variantes y tamaños
-          </p>
-
-          <div className="space-y-4">
-            <div className="flex flex-wrap gap-4">
-              <Button variant="default">Default</Button>
-              <Button variant="secondary">Secondary</Button>
-              <Button variant="destructive">Destructive</Button>
-              <Button variant="outline">Outline</Button>
-              <Button variant="ghost">Ghost</Button>
-              <Button variant="link">Link</Button>
-            </div>
-
-            <div className="flex flex-wrap gap-4 items-center">
-              <Button size="sm">Small</Button>
-              <Button size="default">Default</Button>
-              <Button size="lg">Large</Button>
-            </div>
-
-            <div className="flex gap-4">
-              <Button disabled>Disabled</Button>
-              <Button onClick={() => alert('¡Botón clickeado!')}>
-                Click Me
-              </Button>
-            </div>
           </div>
         </section>
-
-        {/* Reset */}
-        <section className="border rounded-lg p-6 bg-card">
-          <h2 className="text-2xl font-semibold mb-4">Resetear Demos</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Limpia todos los valores seleccionados
-          </p>
-
-          <Button
-            variant="outline"
-            onClick={() => {
-              setComboValue('')
-              setDate(undefined)
-              setSliderValue(50)
-              setFiles([])
-              setRadioValue('1')
-              setSignature(undefined)
-            }}
-          >
-            Resetear Todo
-          </Button>
-        </section>
-      </div>
-
-      <div className="mt-12 p-6 border rounded-lg bg-muted">
-        <h3 className="font-semibold mb-2">💡 Tip</h3>
-        <p className="text-sm text-muted-foreground">
-          Todos estos componentes son completamente personalizables con Tailwind CSS y
-          soportan dark mode automáticamente. Puedes ver el código fuente en{' '}
-          <code className="bg-background px-1 py-0.5 rounded">packages/bizuit-ui-components/src/components/</code>
-        </p>
       </div>
     </div>
   )

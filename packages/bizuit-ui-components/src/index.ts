@@ -36,6 +36,32 @@ export type { BizuitRadioButtonProps, RadioOption } from './components/forms/biz
 export { BizuitSignature } from './components/forms/bizuit-signature'
 export type { BizuitSignatureProps } from './components/forms/bizuit-signature'
 
+export { BizuitDocumentInput } from './components/forms/bizuit-document-input'
+export type { BizuitDocumentInputProps, DocumentFile } from './components/forms/bizuit-document-input'
+
+export { BizuitGeolocation } from './components/forms/bizuit-geolocation'
+export type { BizuitGeolocationProps, GeolocationData } from './components/forms/bizuit-geolocation'
+
+export { BizuitSubForm } from './components/forms/bizuit-subform'
+export type { BizuitSubFormProps, SubFormRow, SubFormField } from './components/forms/bizuit-subform'
+
+// Layout Components
+export { BizuitTabs } from './components/layout/bizuit-tabs'
+export type { BizuitTabsProps, TabItem } from './components/layout/bizuit-tabs'
+
+export { BizuitCard } from './components/layout/bizuit-card'
+export type { BizuitCardProps } from './components/layout/bizuit-card'
+
+export { BizuitStepper } from './components/layout/bizuit-stepper'
+export type { BizuitStepperProps, StepItem } from './components/layout/bizuit-stepper'
+
+// Media Components
+export { BizuitMedia } from './components/media/bizuit-media'
+export type { BizuitMediaProps } from './components/media/bizuit-media'
+
+export { BizuitIFrame } from './components/media/bizuit-iframe'
+export type { BizuitIFrameProps } from './components/media/bizuit-iframe'
+
 // Theme and Internationalization
 export { BizuitThemeProvider, useBizuitTheme } from './providers/theme-provider'
 export type { Theme, ColorTheme, Language } from './providers/theme-provider'
@@ -59,4 +85,4 @@ export { ProcessSuccessScreen } from './components/process-success-screen'
 export type { ProcessSuccessScreenProps } from './components/process-success-screen'
 
 // Version
-export const VERSION = '1.2.0'
+export const VERSION = '1.3.1'
