@@ -28,7 +28,7 @@ stages:
         displayName: 'Build Next.js App'
         steps:
           - checkout: self
-            clean: true
+            clean: 'true'
             displayName: 'Checkout Repository'
 
           - task: NodeTool@0
@@ -144,6 +144,25 @@ stages:
 
                       # Refresh PATH to include npm global binaries
                       $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
+                      # Add npm global directory to PATH explicitly
+                      $npmGlobalPath = npm config get prefix
+                      if ($npmGlobalPath) {
+                          $env:Path = "$npmGlobalPath;$env:Path"
+                          Write-Host "NPM global path added: $npmGlobalPath"
+                      }
+
+                      # Verify PM2 is accessible
+                      $pm2Command = Get-Command pm2 -ErrorAction SilentlyContinue
+                      if (-not $pm2Command) {
+                          Write-Host "PM2 not found in PATH. Installing PM2..."
+                          npm install -g pm2
+                          # Refresh PATH again after installation
+                          $npmGlobalPath = npm config get prefix
+                          $env:Path = "$npmGlobalPath;$env:Path"
+                      }
+
+                      Write-Host "PM2 location: $(Get-Command pm2 | Select-Object -ExpandProperty Source)"
 
                       Write-Host "Starting Next.js application with PM2..."
                       & pm2 start npm --name "$(appName)" -- start
