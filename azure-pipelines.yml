@@ -1,0 +1,167 @@
+# Azure DevOps Pipeline for BIZUIT Custom Forms Sample
+# Deploys Next.js application to E:\DevSites\BIZUITCustomForms
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - example/**
+      - packages/**
+      - azure-pipelines.yml
+
+pool:
+  name: DARPrestamosAgentPool
+
+variables:
+  nodeVersion: '22.x'
+  deployPath: 'E:\DevSites\BIZUITCustomForms'
+  appName: 'bizuit-custom-forms'
+  appPort: 3000
+
+stages:
+  - stage: Build
+    displayName: 'Build Application'
+    jobs:
+      - job: BuildJob
+        displayName: 'Build Next.js App'
+        steps:
+          - checkout: self
+            clean: true
+            displayName: 'Checkout Repository'
+
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '$(nodeVersion)'
+            displayName: 'Install Node.js $(nodeVersion)'
+
+          - script: |
+              cd example
+              npm ci
+            displayName: 'Install Dependencies'
+
+          - script: |
+              cd example
+              npm run build
+            displayName: 'Build Next.js Application'
+
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: '$(Build.SourcesDirectory)/example'
+              Contents: |
+                **/*
+                !node_modules/**
+                !.next/cache/**
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/example'
+            displayName: 'Copy Build Files'
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'drop'
+              publishLocation: 'Container'
+            displayName: 'Publish Build Artifacts'
+
+  - stage: Deploy
+    displayName: 'Deploy to Server'
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - deployment: DeployJob
+        displayName: 'Deploy Next.js App'
+        environment: 'Production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadBuildArtifacts@0
+                  inputs:
+                    buildType: 'current'
+                    downloadType: 'single'
+                    artifactName: 'drop'
+                    downloadPath: '$(System.ArtifactsDirectory)'
+                  displayName: 'Download Build Artifacts'
+
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      Write-Host "Stopping PM2 application: $(appName)"
+
+                      # Check if PM2 is installed
+                      $pm2Installed = Get-Command pm2 -ErrorAction SilentlyContinue
+                      if (-not $pm2Installed) {
+                          Write-Host "PM2 not installed. Installing PM2 globally..."
+                          npm install -g pm2
+                          pm2 startup
+                      }
+
+                      # Stop and delete existing PM2 process if exists
+                      $processExists = pm2 list | Select-String "$(appName)"
+                      if ($processExists) {
+                          Write-Host "Stopping existing PM2 process..."
+                          pm2 stop $(appName)
+                          pm2 delete $(appName)
+                      } else {
+                          Write-Host "No existing PM2 process found."
+                      }
+
+                      # Clean deployment directory
+                      if (Test-Path "$(deployPath)") {
+                          Write-Host "Cleaning deployment directory..."
+                          Remove-Item "$(deployPath)\*" -Recurse -Force -ErrorAction SilentlyContinue
+                      } else {
+                          Write-Host "Creating deployment directory..."
+                          New-Item -ItemType Directory -Path "$(deployPath)" -Force
+                      }
+                  displayName: 'Stop PM2 Application'
+
+                - task: CopyFiles@2
+                  inputs:
+                    SourceFolder: '$(System.ArtifactsDirectory)/drop/example'
+                    Contents: '**'
+                    TargetFolder: '$(deployPath)'
+                    OverWrite: true
+                  displayName: 'Copy Files to Deployment Directory'
+
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    workingDirectory: '$(deployPath)'
+                    script: |
+                      Write-Host "Installing production dependencies..."
+                      npm ci --production
+
+                      Write-Host "Starting Next.js application with PM2..."
+                      pm2 start npm --name "$(appName)" -- start
+                      pm2 save
+
+                      Write-Host "Deployment completed successfully!"
+                      Write-Host "Application running on port $(appPort)"
+
+                      # Show PM2 status
+                      pm2 list
+                  displayName: 'Install Dependencies and Start Application'
+
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      Write-Host "Verifying deployment..."
+                      Start-Sleep -Seconds 5
+
+                      try {
+                          $response = Invoke-WebRequest -Uri "http://localhost:$(appPort)" -UseBasicParsing -TimeoutSec 10
+                          if ($response.StatusCode -eq 200) {
+                              Write-Host "✅ Application is running successfully!"
+                              Write-Host "Status Code: $($response.StatusCode)"
+                          } else {
+                              Write-Warning "⚠️ Application returned status code: $($response.StatusCode)"
+                          }
+                      } catch {
+                          Write-Error "❌ Application health check failed: $_"
+                          pm2 logs $(appName) --lines 50
+                          exit 1
+                      }
+                  displayName: 'Health Check'
