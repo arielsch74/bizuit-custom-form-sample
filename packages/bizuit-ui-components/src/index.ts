@@ -30,6 +30,12 @@ export type { BizuitFileUploadProps } from './components/forms/bizuit-file-uploa
 export { DynamicFormField } from './components/forms/dynamic-form-field'
 export type { DynamicFormFieldProps } from './components/forms/dynamic-form-field'
 
+export { BizuitRadioButton } from './components/forms/bizuit-radio-button'
+export type { BizuitRadioButtonProps, RadioOption } from './components/forms/bizuit-radio-button'
+
+export { BizuitSignature } from './components/forms/bizuit-signature'
+export type { BizuitSignatureProps } from './components/forms/bizuit-signature'
+
 // Theme and Internationalization
 export { BizuitThemeProvider, useBizuitTheme } from './providers/theme-provider'
 export type { Theme, ColorTheme, Language } from './providers/theme-provider'
@@ -53,4 +59,4 @@ export { ProcessSuccessScreen } from './components/process-success-screen'
 export type { ProcessSuccessScreenProps } from './components/process-success-screen'
 
 // Version
-export const VERSION = '1.0.0'
+export const VERSION = '1.2.0'

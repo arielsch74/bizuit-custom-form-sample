@@ -46,6 +46,8 @@ stages:
               cd example
               npm run build
             displayName: 'Build Next.js Application'
+            env:
+              DEPLOY_ENV: 'production'
 
           - task: CopyFiles@2
             inputs:

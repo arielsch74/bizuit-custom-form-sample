@@ -373,6 +373,208 @@ function MyFileUpload() {
 
 ---
 
+### 🔘 BizuitRadioButton
+
+Radio button group for single-selection form inputs with horizontal/vertical layouts.
+
+```tsx
+import { BizuitRadioButton, type RadioOption } from '@bizuit/ui-components'
+
+const options: RadioOption[] = [
+  {
+    label: 'Opción 1',
+    value: '1',
+    description: 'Esta es la primera opción'
+  },
+  {
+    label: 'Opción 2',
+    value: '2',
+    description: 'Esta es la segunda opción'
+  },
+  {
+    label: 'Opción 3 (Deshabilitada)',
+    value: '3',
+    disabled: true
+  },
+]
+
+function MyRadioGroup() {
+  const [selected, setSelected] = useState('1')
+
+  return (
+    <BizuitRadioButton
+      options={options}
+      value={selected}
+      onChange={setSelected}
+      label="Seleccione una opción"
+      required
+      orientation="vertical"
+    />
+  )
+}
+```
+
+**Horizontal Layout:**
+
+```tsx
+<BizuitRadioButton
+  options={options}
+  value={selected}
+  onChange={setSelected}
+  orientation="horizontal"
+/>
+```
+
+**Props:**
+- `options` - Array of radio options with label, value, disabled, description
+- `value` - Currently selected value
+- `onChange` - Change handler `(value: string) => void`
+- `orientation` - 'horizontal' | 'vertical' (default: 'vertical')
+- `label` - Group label
+- `required` - Mark as required field
+- `error` - Error message to display
+- `disabled` - Disable all options
+- `className` - Custom CSS class
+- `name` - Form field name
+
+**Features:**
+- Accessible with Radix UI (ARIA compliant)
+- Keyboard navigation support
+- Optional descriptions per option
+- Individual option disable
+- Dark mode compatible
+
+---
+
+### ✍️ BizuitSignature
+
+Canvas-based signature capture with undo, clear, and download functionality.
+
+```tsx
+import { BizuitSignature } from '@bizuit/ui-components'
+
+function MySignature() {
+  const [signature, setSignature] = useState<string>()
+
+  const handleSubmit = () => {
+    // signature is a base64 data URL
+    console.log('Signature:', signature)
+    // Send to API or save to state
+  }
+
+  return (
+    <BizuitSignature
+      value={signature}
+      onChange={setSignature}
+      label="Firma del cliente"
+      required
+      width={500}
+      height={200}
+      penColor="#000000"
+      penWidth={2}
+      backgroundColor="#ffffff"
+      showDownload
+    />
+  )
+}
+```
+
+**Mobile-Optimized Signature:**
+
+```tsx
+<BizuitSignature
+  value={signature}
+  onChange={setSignature}
+  width={window.innerWidth - 40} // Responsive width
+  height={150}
+  penWidth={3} // Thicker for touch
+  label="Firma aquí con tu dedo"
+/>
+```
+
+**Props:**
+- `value` - Signature as base64 data URL
+- `onChange` - Change handler `(dataURL: string) => void`
+- `width` - Canvas width in pixels (default: 500)
+- `height` - Canvas height in pixels (default: 200)
+- `penColor` - Drawing color (default: '#000000')
+- `penWidth` - Line width (default: 2)
+- `backgroundColor` - Canvas background (default: '#ffffff')
+- `label` - Input label
+- `required` - Mark as required field
+- `error` - Error message to display
+- `disabled` - Disable drawing
+- `showDownload` - Show download button (default: true)
+- `className` - Custom CSS class
+
+**Features:**
+- Touch support for mobile/tablet devices
+- Mouse support for desktop
+- Undo functionality with history management
+- Clear canvas button
+- Download signature as PNG
+- No external dependencies (pure Canvas API)
+- Dark mode compatible border
+
+**Usage in Bizuit BPM Approval Workflows:**
+
+```tsx
+import { BizuitSignature } from '@bizuit/ui-components'
+import { useBizuitSDK } from '@bizuit/form-sdk'
+
+function ApprovalForm() {
+  const sdk = useBizuitSDK()
+  const [signature, setSignature] = useState<string>()
+  const [formData, setFormData] = useState({
+    approved: false,
+    comments: '',
+  })
+
+  const handleSubmit = async () => {
+    const params = sdk.buildParameters([
+      { name: 'Approved', value: formData.approved },
+      { name: 'Comments', value: formData.comments },
+      { name: 'Signature', value: signature }, // Base64 image
+      { name: 'SignedDate', value: new Date().toISOString() },
+    ])
+
+    await sdk.process.completeTask(taskId, params, token)
+  }
+
+  return (
+    <form>
+      <label>
+        <input
+          type="checkbox"
+          checked={formData.approved}
+          onChange={(e) => setFormData({...formData, approved: e.target.checked})}
+        />
+        Aprobar solicitud
+      </label>
+
+      <textarea
+        value={formData.comments}
+        onChange={(e) => setFormData({...formData, comments: e.target.value})}
+        placeholder="Comentarios"
+      />
+
+      <BizuitSignature
+        value={signature}
+        onChange={setSignature}
+        label="Firma de aprobación"
+        required
+      />
+
+      <button onClick={handleSubmit} disabled={!signature}>
+        Enviar Aprobación
+      </button>
+    </form>
+  )
+}
+```
+
+---
+
 ## Customization
 
 ### With Tailwind Classes

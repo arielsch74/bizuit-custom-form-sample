@@ -8,6 +8,8 @@ import {
   BizuitDateTimePicker,
   BizuitSlider,
   BizuitFileUpload,
+  BizuitRadioButton,
+  BizuitSignature,
   Button
 } from '@tyconsa/bizuit-ui-components'
 import { AppToolbar } from '@/components/app-toolbar'
@@ -18,6 +20,8 @@ export default function ComponentsDemo() {
   const [date, setDate] = useState<Date>()
   const [sliderValue, setSliderValue] = useState(50)
   const [files, setFiles] = useState<File[]>([])
+  const [radioValue, setRadioValue] = useState('1')
+  const [signature, setSignature] = useState<string>()
 
   // Datos para el combo
   const options = [
@@ -25,6 +29,14 @@ export default function ComponentsDemo() {
     { value: '2', label: 'Opción 2', group: 'Grupo A' },
     { value: '3', label: 'Opción 3', group: 'Grupo B' },
     { value: '4', label: 'Opción 4', group: 'Grupo B' },
+  ]
+
+  // Datos para el radio button
+  const radioOptions = [
+    { value: '1', label: 'Opción A', description: 'Primera opción disponible' },
+    { value: '2', label: 'Opción B', description: 'Segunda opción disponible' },
+    { value: '3', label: 'Opción C', description: 'Tercera opción disponible' },
+    { value: '4', label: 'Opción D (Deshabilitada)', description: 'Esta opción no está disponible', disabled: true },
   ]
 
   // Datos para el DataGrid
@@ -134,6 +146,74 @@ export default function ComponentsDemo() {
           </div>
         </section>
 
+        {/* BizuitRadioButton */}
+        <section className="border rounded-lg p-6 bg-card">
+          <h2 className="text-2xl font-semibold mb-4">BizuitRadioButton</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Grupo de opciones excluyentes con descripciones
+          </p>
+
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-sm font-semibold mb-3">Vertical (por defecto)</h3>
+              <BizuitRadioButton
+                options={radioOptions}
+                value={radioValue}
+                onChange={setRadioValue}
+                label="Seleccione una opción"
+                required
+                orientation="vertical"
+              />
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold mb-3">Horizontal</h3>
+              <BizuitRadioButton
+                options={radioOptions.filter(opt => !opt.disabled)}
+                value={radioValue}
+                onChange={setRadioValue}
+                orientation="horizontal"
+              />
+            </div>
+          </div>
+
+          {radioValue && (
+            <div className="mt-4 p-3 bg-muted rounded">
+              <p className="text-sm">Opción seleccionada: <code className="font-mono">{radioValue}</code></p>
+            </div>
+          )}
+        </section>
+
+        {/* BizuitSignature */}
+        <section className="border rounded-lg p-6 bg-card">
+          <h2 className="text-2xl font-semibold mb-4">BizuitSignature</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Captura de firma con soporte táctil para móviles
+          </p>
+
+          <BizuitSignature
+            value={signature}
+            onChange={setSignature}
+            label="Firma del cliente"
+            required
+            width={600}
+            height={200}
+            penColor="#000000"
+            penWidth={2}
+            showDownload
+          />
+
+          {signature && (
+            <div className="mt-4 p-3 bg-muted rounded">
+              <p className="text-sm mb-2 font-semibold">Firma capturada (preview):</p>
+              <img src={signature} alt="Firma" className="border rounded max-w-md" />
+              <p className="text-xs text-muted-foreground mt-2">
+                Tamaño del base64: {(signature.length / 1024).toFixed(2)} KB
+              </p>
+            </div>
+          )}
+        </section>
+
         {/* BizuitFileUpload */}
         <section className="border rounded-lg p-6 bg-card">
           <h2 className="text-2xl font-semibold mb-4">BizuitFileUpload</h2>
@@ -229,6 +309,8 @@ export default function ComponentsDemo() {
               setDate(undefined)
               setSliderValue(50)
               setFiles([])
+              setRadioValue('1')
+              setSignature(undefined)
             }}
           >
             Resetear Todo
