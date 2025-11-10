@@ -339,14 +339,7 @@ function App() {
     <div className="container">
       <div className="card">
         {/* Panel de controles: Idioma, Tema y Color */}
-        <div style={{
-          display: 'flex',
-          gap: '12px',
-          marginBottom: '16px',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'flex-end'
-        }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           {/* Selector de idioma */}
           <button
             type="button"
@@ -365,43 +358,45 @@ function App() {
             {language === 'es' ? '🇬🇧 EN' : '🇪🇸 ES'}
           </button>
 
-          {/* Selector de tema */}
-          <div style={{ display: 'flex', gap: '4px' }}>
-            {['light', 'dark', 'system'].map(themeMode => (
-              <button
-                key={themeMode}
-                type="button"
-                onClick={() => setMode(themeMode)}
-                style={{
-                  padding: '6px 12px',
-                  background: mode === themeMode ? primaryColor : (isDark ? '#374151' : '#f3f4f6'),
-                  color: mode === themeMode ? 'white' : (isDark ? '#f9fafb' : '#111827'),
-                  border: \`1px solid \${mode === themeMode ? primaryColor : (isDark ? '#4b5563' : '#d1d5db')}\`,
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '12px',
-                  fontWeight: '500'
-                }}
-              >
-                {themeMode === 'light' ? '☀️' : themeMode === 'dark' ? '🌙' : '💻'}
-              </button>
-            ))}
-          </div>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {/* Selector de tema */}
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {['light', 'dark', 'system'].map(themeMode => (
+                <button
+                  key={themeMode}
+                  type="button"
+                  onClick={() => setMode(themeMode)}
+                  style={{
+                    padding: '6px 12px',
+                    background: mode === themeMode ? primaryColor : (isDark ? '#374151' : '#f3f4f6'),
+                    color: mode === themeMode ? 'white' : (isDark ? '#f9fafb' : '#111827'),
+                    border: \`1px solid \${mode === themeMode ? primaryColor : (isDark ? '#4b5563' : '#d1d5db')}\`,
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '500'
+                  }}
+                >
+                  {themeMode === 'light' ? '☀️' : themeMode === 'dark' ? '🌙' : '💻'}
+                </button>
+              ))}
+            </div>
 
-          {/* Selector de color primario */}
-          <input
-            type="color"
-            value={primaryColor}
-            onChange={(e) => setPrimaryColor(e.target.value)}
-            style={{
-              width: '40px',
-              height: '32px',
-              border: \`1px solid \${isDark ? '#4b5563' : '#d1d5db'}\`,
-              borderRadius: '6px',
-              cursor: 'pointer'
-            }}
-            title="Color primario"
-          />
+            {/* Selector de color primario */}
+            <input
+              type="color"
+              value={primaryColor}
+              onChange={(e) => setPrimaryColor(e.target.value)}
+              style={{
+                width: '40px',
+                height: '32px',
+                border: \`1px solid \${isDark ? '#4b5563' : '#d1d5db'}\`,
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+              title="Color primario"
+            />
+          </div>
         </div>
 
         <h2 className="card-title">{t('form.title')}</h2>

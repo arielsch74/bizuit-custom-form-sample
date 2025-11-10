@@ -398,14 +398,7 @@ function SelectiveMappingForm() {
     <div className="container">
       <div className="card">
         {/* Panel de controles: Idioma y Tema */}
-        <div style={{
-          display: 'flex',
-          gap: '12px',
-          marginBottom: '16px',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'flex-end'
-        }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           {/* Selector de idioma */}
           <button
             type="button"
@@ -455,14 +448,13 @@ function SelectiveMappingForm() {
               value={primaryColor}
               onChange={(e) => setPrimaryColor(e.target.value)}
               style={{
-                width: '32px',
+                width: '40px',
                 height: '32px',
                 border: \`1px solid \${isDark ? '#4b5563' : '#d1d5db'}\`,
                 borderRadius: '6px',
-                cursor: 'pointer',
-                background: 'transparent'
+                cursor: 'pointer'
               }}
-              title="🎨 Color primario"
+              title="Color primario"
             />
           </div>
         </div>
