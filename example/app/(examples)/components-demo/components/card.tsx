@@ -233,33 +233,35 @@ function App() {
 
         <h2 className="card-title">{t('title')}</h2>
 
-        <Card
-          title={t('defaultTitle')}
-          description={t('defaultDesc')}
-          primaryColor={primaryColor}
-        >
-          <p className="hint">{t('defaultContent')}</p>
-        </Card>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <Card
+            title={t('defaultTitle')}
+            description={t('defaultDesc')}
+            primaryColor={primaryColor}
+          >
+            <p className="hint">{t('defaultContent')}</p>
+          </Card>
 
-        <Card
-          variant="outline"
-          title={t('outlineTitle')}
-          description={t('outlineDesc')}
-          hoverable
-          primaryColor={primaryColor}
-        >
-          <p className="hint">{t('outlineContent')}</p>
-        </Card>
+          <Card
+            variant="outline"
+            title={t('outlineTitle')}
+            description={t('outlineDesc')}
+            hoverable
+            primaryColor={primaryColor}
+          >
+            <p className="hint">{t('outlineContent')}</p>
+          </Card>
 
-        <Card
-          variant="filled"
-          title={t('filledTitle')}
-          description={t('filledDesc')}
-          clickable
-          primaryColor={primaryColor}
-        >
-          <p className="hint">{t('filledContent')}</p>
-        </Card>
+          <Card
+            variant="filled"
+            title={t('filledTitle')}
+            description={t('filledDesc')}
+            clickable
+            primaryColor={primaryColor}
+          >
+            <p className="hint">{t('filledContent')}</p>
+          </Card>
+        </div>
       </div>
     </div>
   );

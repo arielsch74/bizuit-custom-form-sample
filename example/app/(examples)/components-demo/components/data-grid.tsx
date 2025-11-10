@@ -103,7 +103,9 @@ const I18nProvider = ({ children }) => {
     "jane": "Juana",
     "jane_email": "juana@ejemplo.com",
     "active": "Activo",
-    "inactive": "Inactivo"
+    "inactive": "Inactivo",
+    "showing": "Mostrando",
+    "records": "registros"
   },
   "en": {
     "title": "Data Grid",
@@ -121,7 +123,9 @@ const I18nProvider = ({ children }) => {
     "jane": "Jane Smith",
     "jane_email": "jane@example.com",
     "active": "Active",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "showing": "Showing",
+    "records": "records"
   }
 };
 
@@ -256,7 +260,7 @@ function App() {
 
         <h2 className="card-title">Data Grid</h2>
         <DataGrid data={data} columns={columns} primaryColor={primaryColor} />
-        <p className="hint">Showing {data.length} records</p>
+        <p className="hint">{t('showing')} {data.length} {t('records')}</p>
       </div>
     </div>
   );
