@@ -39,7 +39,7 @@ stages:
 
           - script: |
               cd example
-              npm ci
+              npm install
             displayName: 'Install Dependencies'
 
           - script: |
