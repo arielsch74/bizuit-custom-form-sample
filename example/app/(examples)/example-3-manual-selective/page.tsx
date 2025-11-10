@@ -596,10 +596,11 @@ function SelectiveMappingForm() {
 
         <div style={{ marginBottom: '16px' }}>
           <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#2563eb', marginBottom: '8px' }}>
-            🔒 Parámetros Ocultos/Calculados (5):
+            🔒 Parámetros Ocultos/Calculados (6):
           </h4>
           <pre className="preview-code">{JSON.stringify({
             submittedBy: 'user123',
+            submittedAt: new Date().toISOString(), // Updates on every render
             submittedFrom: 'web-form',
             montoConIVA: (parseFloat(formData.monto || '0') * 1.21).toFixed(2),
             requiereAprobacionGerente: parseFloat(formData.monto || '0') > 5000,
@@ -609,8 +610,8 @@ function SelectiveMappingForm() {
 
         <div className="preview-total">
           <p className="preview-total-text">
-            💡 Total: {Object.keys(formData).filter(k => !k.startsWith('_')).length + 5} parámetros
-            ({Object.keys(formData).filter(k => !k.startsWith('_')).length} visibles + 5 ocultos)
+            💡 Total: {Object.keys(formData).filter(k => !k.startsWith('_')).length + 6} parámetros
+            ({Object.keys(formData).filter(k => !k.startsWith('_')).length} visibles + 6 ocultos)
           </p>
         </div>
       </div>
@@ -1070,6 +1071,72 @@ body.dark .modal-footer {
 .btn-modal-close:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+}
+
+/* Preview Styles */
+.preview {
+  margin-top: 24px;
+  padding: 16px;
+  background: #f9fafb !important;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb !important;
+}
+
+.preview h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #374151 !important;
+}
+
+.preview-code {
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 12px;
+  overflow-x: auto;
+  background: white !important;
+  padding: 12px;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb !important;
+  color: #1f2937 !important;
+}
+
+body.dark .preview {
+  background: #111827 !important;
+  border-color: #374151 !important;
+}
+
+body.dark .preview h3 {
+  color: #e5e7eb !important;
+}
+
+body.dark .preview-code {
+  background: #0f172a !important;
+  border-color: #374151 !important;
+  color: #e5e7eb !important;
+}
+
+.preview-total {
+  padding: 12px;
+  background: #f3f4f6 !important;
+  border-radius: 6px;
+  border: 1px solid #d1d5db !important;
+  margin-top: 16px;
+}
+
+.preview-total-text {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  color: #1f2937 !important;
+}
+
+body.dark .preview-total {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+}
+
+body.dark .preview-total-text {
+  color: #e5e7eb !important;
 }`
   };
 

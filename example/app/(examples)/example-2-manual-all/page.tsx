@@ -626,7 +626,7 @@ function App() {
             </h4>
             <pre className="preview-code">{JSON.stringify({
               submittedBy: 'user123',
-              submittedAt: new Date().toISOString(),
+              submittedAt: new Date().toISOString(), // Updates on every render
               montoConIVA: (parseFloat(formData.pMonto || '0') * 1.21).toFixed(2),
               esMontoAlto: parseFloat(formData.pMonto || '0') > 10000
             }, null, 2)}</pre>

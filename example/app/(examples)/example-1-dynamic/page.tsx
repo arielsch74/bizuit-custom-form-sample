@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useBizuitSDK, formDataToParameters, type IBizuitProcessParameter } from '@tyconsa/bizuit-form-sdk'
 import { DynamicFormField, Button, useBizuitAuth, useTranslation } from '@tyconsa/bizuit-ui-components'
 import { Card } from '@/components/ui/card'
@@ -441,7 +441,7 @@ function DynamicFormDemo() {
               🔒 Parámetros Ocultos/Calculados (2):
             </h4>
             <pre className="preview-code">{JSON.stringify({
-              submittedAt: new Date().toISOString(),
+              submittedAt: new Date().toISOString(), // Updates on every render
               formVersion: '1.0.0'
             }, null, 2)}</pre>
           </div>
@@ -875,6 +875,72 @@ body.dark .params-total strong {
 body.dark .modal-footer {
   border-top: 2px solid #374151 !important;
   background: #1f2937 !important;
+}
+
+/* Preview Styles */
+.preview {
+  margin-top: 24px;
+  padding: 16px;
+  background: #f9fafb !important;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb !important;
+}
+
+.preview h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #374151 !important;
+}
+
+.preview-code {
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 12px;
+  overflow-x: auto;
+  background: white !important;
+  padding: 12px;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb !important;
+  color: #1f2937 !important;
+}
+
+body.dark .preview {
+  background: #111827 !important;
+  border-color: #374151 !important;
+}
+
+body.dark .preview h3 {
+  color: #e5e7eb !important;
+}
+
+body.dark .preview-code {
+  background: #0f172a !important;
+  border-color: #374151 !important;
+  color: #e5e7eb !important;
+}
+
+.preview-total {
+  padding: 12px;
+  background: #f3f4f6 !important;
+  border-radius: 6px;
+  border: 1px solid #d1d5db !important;
+  margin-top: 16px;
+}
+
+.preview-total-text {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  color: #1f2937 !important;
+}
+
+body.dark .preview-total {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+}
+
+body.dark .preview-total-text {
+  color: #e5e7eb !important;
 }`
           }}
         />
