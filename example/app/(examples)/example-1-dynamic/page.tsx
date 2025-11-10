@@ -425,6 +425,34 @@ function DynamicFormDemo() {
             {t('submit')}
           </button>
         </form>
+
+        {/* Preview - Datos completos con parámetros ocultos */}
+        <div className="preview">
+          <h3>Vista Previa de Datos:</h3>
+          <div style={{ marginBottom: '16px' }}>
+            <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#16a34a', marginBottom: '8px' }}>
+              ✅ Parámetros Visibles ({Object.keys(formData).length}):
+            </h4>
+            <pre className="preview-code">{JSON.stringify(formData, null, 2)}</pre>
+          </div>
+
+          <div style={{ marginBottom: '16px' }}>
+            <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#2563eb', marginBottom: '8px' }}>
+              🔒 Parámetros Ocultos/Calculados (2):
+            </h4>
+            <pre className="preview-code">{JSON.stringify({
+              submittedAt: new Date().toISOString(),
+              formVersion: '1.0.0'
+            }, null, 2)}</pre>
+          </div>
+
+          <div className="preview-total">
+            <p className="preview-total-text">
+              💡 Total: {Object.keys(formData).length + 2} parámetros
+              ({Object.keys(formData).length} visibles + 2 ocultos)
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Modal */}

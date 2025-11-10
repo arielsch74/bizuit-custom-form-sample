@@ -584,6 +584,37 @@ function SelectiveMappingForm() {
         </button>
       </form>
 
+      {/* Preview - Datos completos con parámetros ocultos */}
+      <div className="preview">
+        <h3>Vista Previa de Datos:</h3>
+        <div style={{ marginBottom: '16px' }}>
+          <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#16a34a', marginBottom: '8px' }}>
+            ✅ Parámetros Visibles ({Object.keys(formData).filter(k => !k.startsWith('_')).length}):
+          </h4>
+          <pre className="preview-code">{JSON.stringify(formData, null, 2)}</pre>
+        </div>
+
+        <div style={{ marginBottom: '16px' }}>
+          <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#2563eb', marginBottom: '8px' }}>
+            🔒 Parámetros Ocultos/Calculados (5):
+          </h4>
+          <pre className="preview-code">{JSON.stringify({
+            submittedBy: 'user123',
+            submittedFrom: 'web-form',
+            montoConIVA: (parseFloat(formData.monto || '0') * 1.21).toFixed(2),
+            requiereAprobacionGerente: parseFloat(formData.monto || '0') > 5000,
+            formVersion: '3.0.0'
+          }, null, 2)}</pre>
+        </div>
+
+        <div className="preview-total">
+          <p className="preview-total-text">
+            💡 Total: {Object.keys(formData).filter(k => !k.startsWith('_')).length + 5} parámetros
+            ({Object.keys(formData).filter(k => !k.startsWith('_')).length} visibles + 5 ocultos)
+          </p>
+        </div>
+      </div>
+
       {/* Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={closeModal}>
