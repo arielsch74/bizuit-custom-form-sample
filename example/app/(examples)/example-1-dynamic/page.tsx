@@ -964,7 +964,7 @@ body.dark .preview-total-text {
       <div className="grid gap-6">
         {/* {t('ui.configuration')} Inicial */}
         {status === 'idle' && (
-          <Card className="p-6">
+          <BizuitCard className="p-6">
             <h2 className="text-xl font-semibold mb-4">{t('ui.configuration')}</h2>
 
             <div className="space-y-4">
@@ -985,21 +985,21 @@ body.dark .preview-total-text {
                 {t('ui.loadProcessParameters')}
               </Button>
             </div>
-          </Card>
+          </BizuitCard>
         )}
 
         {/* Loading */}
         {status === 'loading' && (
-          <Card className="p-6 text-center">
+          <BizuitCard className="p-6 text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <p>{t('ui.loadingParameters')}</p>
-          </Card>
+          </BizuitCard>
         )}
 
         {/* Formulario Dinámico */}
         {status === 'ready' && (
           <form onSubmit={handleSubmit} className="space-y-6">
-            <Card className="p-6">
+            <BizuitCard className="p-6">
               <h2 className="text-xl font-semibold mb-4">
                 Formulario: {processName}
               </h2>
@@ -1032,10 +1032,10 @@ body.dark .preview-total-text {
                   {t('ui.cancel')}
                 </Button>
               </div>
-            </Card>
+            </BizuitCard>
 
             {/* Preview de Parámetros */}
-            <Card className="p-6">
+            <BizuitCard className="p-6">
               <h3 className="font-semibold mb-2">Vista Previa: Parámetros a {t('ui.send')}</h3>
 
               <div className="space-y-4">
@@ -1074,13 +1074,13 @@ body.dark .preview-total-text {
                   </p>
                 </div>
               </div>
-            </Card>
+            </BizuitCard>
           </form>
         )}
 
         {/* Success */}
         {status === 'success' && result && (
-          <Card className="p-6">
+          <BizuitCard className="p-6">
             <div className="text-center mb-6">
               <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1105,12 +1105,12 @@ body.dark .preview-total-text {
                 Iniciar Otro Proceso
               </Button>
             </div>
-          </Card>
+          </BizuitCard>
         )}
 
         {/* Error */}
         {status === 'error' && (
-          <Card className="p-6">
+          <BizuitCard className="p-6">
             <div className="text-center mb-6">
               <div className="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1124,11 +1124,11 @@ body.dark .preview-total-text {
             <Button onClick={handleReset} className="w-full">
               Volver a Intentar
             </Button>
-          </Card>
+          </BizuitCard>
         )}
 
         {/* Documentación */}
-        <Card className="p-6 bg-muted/50">
+        <BizuitCard className="p-6 bg-muted/50">
           <h3 className="font-semibold mb-3">💡 {t('example1.howItWorks')}</h3>
 
           <div className="space-y-4 text-sm">
@@ -1189,7 +1189,7 @@ await sdk.process.raiseEvent({
               <strong>❌ {t('example1.notIdealFor')}</strong> {t('example1.notIdealForText')}
             </p>
           </div>
-        </Card>
+        </BizuitCard>
       </div>
     </div>
   )
