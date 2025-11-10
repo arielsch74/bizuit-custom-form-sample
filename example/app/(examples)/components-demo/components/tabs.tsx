@@ -138,6 +138,13 @@ function App() {
   const { t, language, setLanguage } = useTranslation();
   const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
 
+  const [activeTab, setActiveTab] = useState('tab1');
+  const [tabs] = useState([
+    { id: 'tab1', label: 'Profile', content: 'Profile content here...' },
+    { id: 'tab2', label: 'Settings', content: 'Settings content here...' },
+    { id: 'tab3', label: 'Notifications', content: 'Notifications content here...' },
+  ]);
+
   return (
 <div className="container">
       <div className="card">

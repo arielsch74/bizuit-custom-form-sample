@@ -152,6 +152,8 @@ function App() {
   const { t, language, setLanguage } = useTranslation();
   const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
 
+  const [signature, setSignature] = useState('');
+
   return (
 <div className="container">
       <div className="card">

@@ -143,6 +143,8 @@ function App() {
   const { t, language, setLanguage } = useTranslation();
   const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
 
+  const [files, setFiles] = useState([]);
+
   return (
 <div className="container">
       <div className="card">

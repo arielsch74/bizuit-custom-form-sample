@@ -144,6 +144,8 @@ function App() {
   const { t, language, setLanguage } = useTranslation();
   const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
 
+  const [isLoaded, setIsLoaded] = useState(false);
+
   return (
 <div className="container">
       <div className="card">

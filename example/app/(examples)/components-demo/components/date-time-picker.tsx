@@ -151,6 +151,9 @@ function App() {
   const { t, language, setLanguage } = useTranslation();
   const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
 
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
+
   return (
 <div className="container">
       <div className="card">

@@ -148,6 +148,14 @@ function App() {
   const { t, language, setLanguage } = useTranslation();
   const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
 
+  const [fields] = useState([
+    { name: 'name', label: 'Name', type: 'text', placeholder: 'Enter your name' },
+    { name: 'email', label: 'Email', type: 'email', placeholder: 'Enter your email' },
+    { name: 'country', label: 'Country', type: 'select', options: ['USA', 'Canada', 'UK', 'Australia'] },
+  ]);
+
+  const [values, setValues] = useState({});
+
   return (
 <div className="container">
       <div className="card">

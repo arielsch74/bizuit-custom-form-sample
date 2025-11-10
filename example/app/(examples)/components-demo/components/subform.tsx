@@ -143,6 +143,29 @@ function App() {
   const { t, language, setLanguage } = useTranslation();
   const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
 
+  const [items, setItems] = useState([
+    { id: 1, name: 'Product A', quantity: 1, price: 29.99 },
+  ]);
+
+  const handleAddItem = () => {
+    setItems([
+      ...items,
+      { id: Date.now(), name: '', quantity: 1, price: 0 },
+    ]);
+  };
+
+  const handleRemoveItem = (index) => {
+    setItems(items.filter((_, i) => i !== index));
+  };
+
+  const handleChangeItem = (index, field, value) => {
+    const newItems = [...items];
+    newItems[index] = { ...newItems[index], [field]: value };
+    setItems(newItems);
+  };
+
+  const total = items.reduce((sum, item) => sum + item.quantity * item.price, 0);
+
   return (
 <div className="container">
       <div className="card">

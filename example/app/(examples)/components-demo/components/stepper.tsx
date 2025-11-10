@@ -146,6 +146,13 @@ function App() {
   const { t, language, setLanguage } = useTranslation();
   const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
 
+  const [currentStep, setCurrentStep] = useState(0);
+  const [steps] = useState([
+    { label: 'Personal Info', description: 'Enter your details' },
+    { label: 'Address', description: 'Provide your address' },
+    { label: 'Confirmation', description: 'Review and submit' },
+  ]);
+
   return (
 <div className="container">
       <div className="card">

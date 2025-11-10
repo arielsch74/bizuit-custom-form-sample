@@ -137,6 +137,28 @@ function App() {
   const { t, language, setLanguage } = useTranslation();
   const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
 
+  const [location, setLocation] = useState(null);
+  const [error, setError] = useState('');
+
+  const handleGetLocation = () => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+          setError('');
+        },
+        (err) => {
+          setError('Unable to retrieve location: ' + err.message);
+        }
+      );
+    } else {
+      setError('Geolocation is not supported by your browser');
+    }
+  };
+
   return (
 <div className="container">
       <div className="card">

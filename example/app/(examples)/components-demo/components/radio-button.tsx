@@ -146,6 +146,8 @@ function App() {
   const { t, language, setLanguage } = useTranslation();
   const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
 
+  const [selected, setSelected] = useState('option1');
+
   return (
 <div className="container">
       <div className="card">

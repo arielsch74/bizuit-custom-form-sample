@@ -154,6 +154,8 @@ function App() {
   const { t, language, setLanguage } = useTranslation();
   const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
 
+  const [capturedPhoto, setCapturedPhoto] = useState('');
+
   return (
 <div className="container">
       <div className="card">

@@ -154,6 +154,8 @@ const ThemeProvider = ({ children }) => {
 function App() {
   const { t, language, setLanguage } = useTranslation();
   const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
+  const [singleValue, setSingleValue] = useState(50);
+  const [rangeValue, setRangeValue] = useState([25, 75]);
 
   return (
 <div className="container">

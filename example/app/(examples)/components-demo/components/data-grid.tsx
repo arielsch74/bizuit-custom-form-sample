@@ -147,6 +147,19 @@ function App() {
   const { t, language, setLanguage } = useTranslation();
   const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
 
+  const [data] = useState([
+    { id: 1, name: 'John Doe', age: 32, email: 'john@example.com', status: 'Active' },
+    { id: 2, name: 'Jane Smith', age: 28, email: 'jane@example.com', status: 'Active' },
+    { id: 3, name: 'Bob Johnson', age: 45, email: 'bob@example.com', status: 'Inactive' },
+  ]);
+
+  const [columns] = useState([
+    { key: 'name', label: 'Name', width: '200px' },
+    { key: 'age', label: 'Age', width: '80px' },
+    { key: 'email', label: 'Email', width: '250px' },
+    { key: 'status', label: 'Status', width: '100px' },
+  ]);
+
   return (
 <div className="container">
       <div className="card">

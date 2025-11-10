@@ -143,6 +143,9 @@ function App() {
   const { t, language, setLanguage } = useTranslation();
   const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
 
+  const [docType, setDocType] = useState('dni');
+  const [docNumber, setDocNumber] = useState('');
+
   return (
 <div className="container">
       <div className="card">
