@@ -98,10 +98,11 @@ function StartProcessForm() {
     return () => clearTimeout(timer)
   }, [mounted, isAuthenticated, urlToken, router, urlEventName, activeToken])
 
-  // Auto-set status to ready if we have eventName from URL
+  // Auto-load parameters if we have eventName from URL
   useEffect(() => {
     if (mounted && activeToken && urlEventName && status === 'idle') {
-      setStatus('ready')
+      // Automatically fetch parameters when coming from URL
+      handleStartProcess()
     }
   }, [mounted, activeToken, urlEventName, status])
 

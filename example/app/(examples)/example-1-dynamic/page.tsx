@@ -2,8 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import { useBizuitSDK, formDataToParameters, type IBizuitProcessParameter } from '@tyconsa/bizuit-form-sdk'
-import { DynamicFormField, Button, useBizuitAuth, useTranslation } from '@tyconsa/bizuit-ui-components'
-import { Card } from '@/components/ui/card'
+import { DynamicFormField, Button, useBizuitAuth, useTranslation, BizuitCard } from '@tyconsa/bizuit-ui-components'
 import { RequireAuth } from '@/components/require-auth'
 import { LiveCodeEditor } from '@/components/live-code-editor'
 import Link from 'next/link'
