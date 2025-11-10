@@ -174,7 +174,7 @@ function App() {
               padding: '6px 12px',
               background: isDark ? '#374151' : '#f3f4f6',
               color: isDark ? '#f9fafb' : '#111827',
-              border: `1px solid ${isDark ? '#4b5563' : '#d1d5db'}`,
+              border: '1px solid ' + (isDark ? '#4b5563' : '#d1d5db'),
               borderRadius: '6px',
               cursor: 'pointer',
               fontSize: '14px',
@@ -195,7 +195,7 @@ function App() {
                     padding: '6px 12px',
                     background: mode === themeMode ? primaryColor : (isDark ? '#374151' : '#f3f4f6'),
                     color: mode === themeMode ? 'white' : (isDark ? '#f9fafb' : '#111827'),
-                    border: `1px solid ${mode === themeMode ? primaryColor : (isDark ? '#4b5563' : '#d1d5db')}`,
+                    border: '1px solid ' + (mode === themeMode ? primaryColor : (isDark ? '#4b5563' : '#d1d5db')),
                     borderRadius: '6px',
                     cursor: 'pointer',
                     fontSize: '12px',
@@ -214,7 +214,7 @@ function App() {
               style={{
                 width: '40px',
                 height: '32px',
-                border: `1px solid ${isDark ? '#4b5563' : '#d1d5db'}`,
+                border: '1px solid ' + (isDark ? '#4b5563' : '#d1d5db'),
                 borderRadius: '6px',
                 cursor: 'pointer'
               }}
