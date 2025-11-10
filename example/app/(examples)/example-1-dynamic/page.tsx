@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useBizuitSDK, formDataToParameters, type IBizuitProcessParameter } from '@tyconsa/bizuit-form-sdk'
 import { DynamicFormField, Button, useBizuitAuth, useTranslation } from '@tyconsa/bizuit-ui-components'
 import { Card } from '@/components/ui/card'
@@ -268,6 +268,15 @@ function DynamicFormDemo() {
   const [showModal, setShowModal] = useState(false);
   const [paramsToSend, setParamsToSend] = useState({ visible: [], hidden: [], all: [] });
   const [refreshKey, setRefreshKey] = useState(0);
+  const [, forceUpdate] = useState(0);
+
+  // Force update every second to refresh calculated values (timestamps)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      forceUpdate(n => n + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleChange = (paramName, value) => {
     setFormData(prev => ({ ...prev, [paramName]: value }));
@@ -429,7 +438,7 @@ function DynamicFormDemo() {
         </form>
 
         {/* Preview - Datos completos con parámetros ocultos */}
-        <div className="preview" key={refreshKey}>
+        <div className="preview">
           <h3>Vista Previa de Datos:</h3>
           <div style={{ marginBottom: '16px' }}>
             <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#16a34a', marginBottom: '8px' }}>
