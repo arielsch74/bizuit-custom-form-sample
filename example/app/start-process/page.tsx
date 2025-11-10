@@ -34,9 +34,27 @@ function StartProcessForm() {
   const { isAuthenticated, token: authToken, user, login: setAuthData } = useBizuitAuth()
   const handleAuthError = useAuthErrorHandler()
 
-  // Get URL parameters
-  const urlToken = searchParams.get('token')
-  const urlEventName = searchParams.get('eventName')
+  // Get URL parameters - handle &amp; encoded URLs from Bizuit BPM
+  // When Bizuit generates URLs in HTML, it uses &amp; instead of &
+  // We need to parse the raw URL and clean it
+  const getRawUrlParam = (paramName: string): string | null => {
+    // Try standard parsing first
+    const standardValue = searchParams.get(paramName)
+    if (standardValue) return standardValue
+
+    // If standard parsing fails, try parsing raw URL (handles &amp; case)
+    if (typeof window !== 'undefined') {
+      const rawUrl = window.location.href
+      // Replace &amp; with & to normalize the URL
+      const normalizedUrl = rawUrl.replace(/&amp;/g, '&')
+      const url = new URL(normalizedUrl)
+      return url.searchParams.get(paramName)
+    }
+    return null
+  }
+
+  const urlToken = getRawUrlParam('token')
+  const urlEventName = getRawUrlParam('eventName')
 
   const [eventName, setEventName] = useState(urlEventName || '')
   const [formData, setFormData] = useState<any>({})
