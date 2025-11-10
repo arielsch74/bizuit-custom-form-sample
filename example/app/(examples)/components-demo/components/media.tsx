@@ -1,0 +1,301 @@
+import { ComponentDoc } from '../all-components-docs';
+
+export const bizuit_mediaDoc: ComponentDoc = {
+  id: 'bizuit-media',
+  name: 'Media',
+  category: 'media',
+  icon: 'Component',
+  description: 'Comprehensive media component for images, video, audio, camera, and QR scanning',
+  detailedDescription: 'A versatile media component that handles images, videos, audio playback, camera capture, and QR code scanning with built-in controls and responsive design.',
+  useCases: [
+    'Image galleries and displays',
+    'Video playback with custom controls',
+    'Audio player integration',
+    'Photo capture from device camera',
+    'QR code scanning functionality',
+  ],
+  props: [
+    { name: 'type', type: "'image' | 'video' | 'audio' | 'camera' | 'qr-scanner'", required: true, description: 'Type of media to display' },
+    { name: 'src', type: 'string', required: false, description: 'Media source URL (required for image/video/audio)' },
+    { name: 'alt', type: 'string', required: false, default: "'Media content'", description: 'Alternative text for accessibility' },
+    { name: 'width', type: 'string | number', required: false, description: 'Width of the media element' },
+    { name: 'height', type: 'string | number', required: false, description: 'Height of the media element' },
+    { name: 'controls', type: 'boolean', required: false, default: 'true', description: 'Show media controls (video/audio)' },
+    { name: 'autoPlay', type: 'boolean', required: false, default: 'false', description: 'Auto-play media on load' },
+    { name: 'onCapture', type: '(dataUrl: string) => void', required: false, description: 'Callback when photo is captured (camera mode)' },
+    { name: 'onQRCodeDetected', type: '(data: string) => void', required: false, description: 'Callback when QR code is detected' },
+  ],
+  codeExample: {
+    '/App.js': `import { useState } from 'react';
+import Media from './Media.js';
+import './styles.css';
+
+export default function App() {
+  const [capturedPhoto, setCapturedPhoto] = useState(null);
+  const [qrData, setQrData] = useState(null);
+
+  return (
+    <div className="container">
+      <div className="card">
+        <h2 className="card-title">Image Display</h2>
+        <Media
+          type="image"
+          src="https://picsum.photos/600/400"
+          alt="Sample image"
+        />
+      </div>
+
+      <div className="card" style={{ marginTop: '24px' }}>
+        <h2 className="card-title">Video Player</h2>
+        <Media
+          type="video"
+          src="https://www.w3schools.com/html/mov_bbb.mp4"
+          controls
+        />
+      </div>
+
+      <div className="card" style={{ marginTop: '24px' }}>
+        <h2 className="card-title">Camera Capture</h2>
+        <Media
+          type="camera"
+          onCapture={(dataUrl) => {
+            setCapturedPhoto(dataUrl);
+            console.log('Photo captured:', dataUrl);
+          }}
+        />
+        {capturedPhoto && (
+          <p className="hint" style={{ marginTop: '12px' }}>Photo captured successfully!</p>
+        )}
+      </div>
+    </div>
+  );
+}`,
+    '/Media.js': `export default function Media({
+  type,
+  src,
+  alt = 'Media content',
+  width,
+  height,
+  controls = true,
+  autoPlay = false,
+  onCapture,
+  onQRCodeDetected
+}) {
+  if (type === 'image') {
+    return (
+      <div className="form-field">
+        <img
+          src={src}
+          alt={alt}
+          width={width}
+          height={height}
+          className="w-full rounded-lg"
+        />
+      </div>
+    );
+  }
+
+  if (type === 'video') {
+    return (
+      <div className="form-field">
+        <video
+          src={src}
+          controls={controls}
+          autoPlay={autoPlay}
+          width={width}
+          height={height}
+          className="w-full rounded-lg"
+        />
+      </div>
+    );
+  }
+
+  if (type === 'audio') {
+    return (
+      <div className="form-field">
+        <audio
+          src={src}
+          controls={controls}
+          autoPlay={autoPlay}
+          className="w-full"
+        />
+      </div>
+    );
+  }
+
+  if (type === 'camera') {
+    return (
+      <div className="form-field">
+        <div className="bg-muted rounded-lg p-8 text-center" style={{ height: height || 300 }}>
+          <p>Camera interface would appear here</p>
+          <button
+            className="btn-primary mt-4"
+            onClick={() => onCapture?.('data:image/png;base64,...')}
+          >
+            Capture Photo
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (type === 'qr-scanner') {
+    return (
+      <div className="form-field">
+        <div className="bg-muted rounded-lg p-8 text-center" style={{ height: height || 300 }}>
+          <p>QR Scanner interface would appear here</p>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}`,
+    '/styles.css': `* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #f9fafb;
+  padding: 20px;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #111827;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmin(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-field {
+  margin-top: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #374151;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: white;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Asegurar que los inputs especiales usen la misma fuente */
+input[type="date"].form-input,
+input[type="time"].form-input,
+input[type="datetime-local"].form-input,
+select.form-input {
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.form-checkbox input[type="checkbox"],
+.form-checkbox input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.form-checkbox label {
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn-primary {
+  flex: 1;
+  padding: 12px 24px;
+  background: #f97316;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: #ea580c;
+}
+
+.btn-primary:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  padding: 12px 24px;
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.hint {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
+}`,
+  },
+};

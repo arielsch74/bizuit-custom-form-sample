@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   BizuitSDKProvider,
-  useBizuitSDK,
   type ILoginResponse,
   formDataToParameters,
   parametersToFormData,
@@ -14,6 +13,7 @@ import {
   type IBizuitProcessParameter
 } from '@tyconsa/bizuit-form-sdk'
 import { useBizuitAuth, useTranslation } from '@tyconsa/bizuit-ui-components'
+import { useBizuitSDKWithAuth } from '@/hooks/use-bizuit-sdk-with-auth'
 import {
   BizuitCombo,
   BizuitDateTimePicker,
@@ -24,12 +24,101 @@ import {
 import { Button } from '@tyconsa/bizuit-ui-components'
 import Link from 'next/link'
 import { bizuitConfig } from '@/lib/config'
-import { AppToolbar } from '@/components/app-toolbar'
+
+/**
+ * Helper function to convert API errors to user-friendly messages
+ */
+function getErrorMessage(error: any, context: 'load' | 'submit' | 'lock'): string {
+  // Check status code
+  const statusCode = error?.statusCode || error?.status || error?.response?.status
+
+  // 401 errors are handled automatically by useBizuitSDKWithAuth
+  // This should not be reached, but just in case:
+  if (statusCode === 401) {
+    return 'Su sesión ha expirado. Redirigiendo a login...'
+  }
+
+  // 404 errors - Not Found
+  if (statusCode === 404) {
+    if (context === 'load') {
+      return 'No se encontró la instancia del proceso. Verifique que el ID sea correcto.'
+    }
+    return 'No se encontró el recurso solicitado. Verifique los datos ingresados.'
+  }
+
+  // 400 errors - Bad Request (usually validation errors)
+  if (statusCode === 400) {
+    // Check for specific validation messages in error
+    const message = error?.message || error?.errorMessage || ''
+
+    if (message.toLowerCase().includes('format') || message.toLowerCase().includes('formato')) {
+      return 'El formato del ID de instancia es incorrecto. Debe ser un GUID válido (ejemplo: 550e8400-e29b-41d4-a716-446655440000).'
+    }
+
+    if (message.toLowerCase().includes('required') || message.toLowerCase().includes('requerido')) {
+      return 'Faltan datos requeridos. Verifique que todos los campos obligatorios estén completos.'
+    }
+
+    return 'Los datos enviados no son válidos. Verifique la información e intente nuevamente.'
+  }
+
+  // 403 errors - Forbidden
+  if (statusCode === 403) {
+    return 'No tiene permisos para realizar esta operación.'
+  }
+
+  // 409 errors - Conflict (instance locked by another user)
+  if (statusCode === 409) {
+    return 'La instancia está bloqueada por otro usuario. Intente nuevamente más tarde.'
+  }
+
+  // 500 errors - Server Error
+  if (statusCode === 500 || statusCode >= 500) {
+    return 'Error en el servidor. Por favor intente nuevamente o contacte al administrador.'
+  }
+
+  // Network errors
+  if (error?.code === 'ECONNREFUSED' || error?.code === 'ERR_NETWORK' ||
+      error?.message?.includes('fetch failed') || error?.message?.includes('Network')) {
+    return 'No se pudo conectar al servidor. Verifique su conexión a internet.'
+  }
+
+  // Timeout errors
+  if (error?.code === 'ETIMEDOUT' || error?.message?.includes('timeout')) {
+    return 'La operación tardó demasiado tiempo. Verifique su conexión e intente nuevamente.'
+  }
+
+  // If we have a user-friendly message from the API, use it
+  if (error?.errorMessage && typeof error.errorMessage === 'string' && error.errorMessage.length < 200) {
+    return error.errorMessage
+  }
+
+  if (error?.message && typeof error.message === 'string' && error.message.length < 200) {
+    // Don't show very technical messages
+    if (!error.message.includes('undefined') && !error.message.includes('null') &&
+        !error.message.includes('Cannot read') && !error.message.includes('is not')) {
+      return error.message
+    }
+  }
+
+  // Default messages by context
+  if (context === 'load') {
+    return 'Error al cargar los datos de la instancia. Por favor intente nuevamente.'
+  }
+  if (context === 'submit') {
+    return 'Error al guardar los cambios. Por favor intente nuevamente.'
+  }
+  if (context === 'lock') {
+    return 'Error al bloquear la instancia. Por favor intente nuevamente.'
+  }
+
+  return 'Ocurrió un error inesperado. Por favor intente nuevamente.'
+}
 
 function ContinueProcessForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const sdk = useBizuitSDK()
+  const sdk = useBizuitSDKWithAuth() // ✅ Ahora con manejo automático de 401
   const { t } = useTranslation()
   const { isAuthenticated, token: authToken, user, login: setAuthData } = useBizuitAuth()
 
@@ -265,13 +354,17 @@ function ContinueProcessForm() {
       setStatus('loading')
       setError(null)
 
-      console.log('[ContinueProcess] Loading instance data for:', { instanceId, eventName })
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[ContinueProcess] Loading instance data for:', { instanceId, eventName })
+      }
 
       // Use SDK helper to load all data
       // The helper will get instance data and extract parameters automatically
       const result = await loadInstanceDataForContinue(sdk, instanceId, activeToken)
 
-      console.log('[ContinueProcess] Result:', result)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[ContinueProcess] Result:', result)
+      }
 
       // Update all state from helper result
       setProcessData(result.instanceData)
@@ -283,8 +376,16 @@ function ContinueProcessForm() {
 
       setStatus('ready')
     } catch (err: any) {
-      console.error('[ContinueProcess] Error loading instance data:', err)
-      setError(err.message || 'Error al cargar los datos de la instancia')
+      // Note: 401 errors are handled automatically by useBizuitSDKWithAuth()
+      // which will logout and redirect to login
+
+      // Only log detailed errors in development for debugging
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[ContinueProcess] Error loading instance data:', err)
+      }
+
+      const friendlyMessage = getErrorMessage(err, 'load')
+      setError(friendlyMessage)
       setStatus('error')
     }
   }
@@ -316,7 +417,12 @@ function ContinueProcessForm() {
       setLockStatus('locked-by-me')
       setStatus('ready')
     } catch (err: any) {
-      setError(err.message || 'Error al bloquear la instancia')
+      // Note: 401 errors are handled automatically by useBizuitSDKWithAuth()
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[ContinueProcess] Error acquiring lock:', err)
+      }
+      const friendlyMessage = getErrorMessage(err, 'lock')
+      setError(friendlyMessage)
       setStatus('error')
     }
   }
@@ -340,11 +446,13 @@ function ContinueProcessForm() {
       setStatus('submitting')
       setError(null)
 
-      console.log('[ContinueProcess] Submitting with:', {
-        instanceId,
-        eventName,
-        parametersCount: formDataToParameters(formData).length
-      })
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[ContinueProcess] Submitting with:', {
+          instanceId,
+          eventName,
+          parametersCount: formDataToParameters(formData).length
+        })
+      }
 
       // Submit changes using the event name from instance data
       const result = await sdk.process.continueInstance(
@@ -357,15 +465,24 @@ function ContinueProcessForm() {
         activeToken // Pass the authentication token
       )
 
-      console.log('[ContinueProcess] Result:', result)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[ContinueProcess] Result:', result)
+      }
 
       // Store the result
       setProcessData(result)
       setLockStatus('unlocked')
       setStatus('success')
     } catch (err: any) {
-      console.error('[ContinueProcess] Error:', err)
-      setError(err.message || 'Error al actualizar la instancia')
+      // Note: 401 errors are handled automatically by useBizuitSDKWithAuth()
+      // which will logout and redirect to login
+
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[ContinueProcess] Error submitting:', err)
+      }
+
+      const friendlyMessage = getErrorMessage(err, 'submit')
+      setError(friendlyMessage)
       setStatus('error')
     }
   }
@@ -382,7 +499,10 @@ function ContinueProcessForm() {
         setSessionToken(null)
         setStatus('idle')
       } catch (err: any) {
-        console.error('Error al liberar bloqueo:', err)
+        // Silently fail - lock will expire eventually
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('[ContinueProcess] Error releasing lock:', err)
+        }
       }
     } else {
       setStatus('idle')
@@ -400,14 +520,12 @@ function ContinueProcessForm() {
     )
   }
 
-  if (status === 'idle' || status === 'loading' || status === 'initializing') {
+  if (status === 'idle' || status === 'loading' || status === 'initializing' || status === 'error') {
     return (
       <div className="container max-w-2xl mx-auto py-8 px-4">
-        <AppToolbar />
-
         <div className="mb-6">
-          <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
-            {t('nav.backToHome')}
+          <Link href="/" className="text-sm text-primary hover:underline">
+            ← Volver al inicio
           </Link>
         </div>
 
@@ -481,13 +599,13 @@ function ContinueProcessForm() {
               </div>
             )}
 
-            {status === 'idle' && (
+            {(status === 'idle' || status === 'error') && (
               <Button
                 onClick={loadInstanceData}
-                disabled={!instanceId}
+                disabled={!instanceId || !eventName}
                 className="w-full"
               >
-                Cargar Datos de Instancia
+                {status === 'error' ? 'Reintentar' : 'Cargar Datos de Instancia'}
               </Button>
             )}
 
@@ -522,11 +640,9 @@ function ContinueProcessForm() {
   if (status === 'ready') {
     return (
       <div className="container max-w-4xl mx-auto py-8 px-4">
-        <AppToolbar />
-
         <div className="mb-6">
-          <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
-            {t('nav.backToHome')}
+          <Link href="/" className="text-sm text-primary hover:underline">
+            ← Volver al inicio
           </Link>
         </div>
 
@@ -646,8 +762,6 @@ function ContinueProcessForm() {
   if (status === 'success') {
     return (
       <div className="container max-w-2xl mx-auto py-8 px-4">
-        <AppToolbar />
-
         <div className="border rounded-lg p-6 bg-card text-center">
           <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

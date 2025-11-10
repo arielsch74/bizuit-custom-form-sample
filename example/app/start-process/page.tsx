@@ -13,6 +13,8 @@ import {
   type IBizuitProcessParameter
 } from '@tyconsa/bizuit-form-sdk'
 import { useBizuitAuth, useTranslation } from '@tyconsa/bizuit-ui-components'
+import { useAuthErrorHandler } from '@/hooks/use-auth-error-handler'
+import { useBizuitSDKWithAuth } from '@/hooks/use-bizuit-sdk-with-auth'
 import {
   BizuitCombo,
   BizuitDateTimePicker,
@@ -23,14 +25,14 @@ import {
 import { Button } from '@tyconsa/bizuit-ui-components'
 import Link from 'next/link'
 import { bizuitConfig } from '@/lib/config'
-import { AppToolbar } from '@/components/app-toolbar'
 
 function StartProcessForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const sdk = useBizuitSDK()
+  const sdk = useBizuitSDKWithAuth() // Ahora con manejo automático de 401
   const { t } = useTranslation()
   const { isAuthenticated, token: authToken, user, login: setAuthData } = useBizuitAuth()
+  const handleAuthError = useAuthErrorHandler()
 
   // Get URL parameters
   const urlToken = searchParams.get('token')
@@ -178,6 +180,9 @@ function StartProcessForm() {
     } catch (err: any) {
       console.error('[StartProcess] Error fetching parameters:', err)
 
+      // Note: 401 errors are handled automatically by useBizuitSDKWithAuth()
+      // which will logout and redirect to login
+
       let errorMessage = 'Error al obtener los parámetros del proceso'
 
       if (err.message) {
@@ -263,11 +268,9 @@ function StartProcessForm() {
   if (status === 'idle' || status === 'initializing') {
     return (
       <div className="container max-w-2xl mx-auto py-8 px-4">
-        <AppToolbar />
-
         <div className="mb-6">
-          <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
-            {t('nav.backToHome')}
+          <Link href="/" className="text-sm text-primary hover:underline">
+            ← Volver al inicio
           </Link>
         </div>
 
@@ -445,11 +448,9 @@ function StartProcessForm() {
   if (status === 'ready') {
     return (
       <div className="container max-w-4xl mx-auto py-8 px-4">
-        <AppToolbar />
-
         <div className="mb-6">
-          <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
-            {t('nav.backToHome')}
+          <Link href="/" className="text-sm text-primary hover:underline">
+            ← Volver al inicio
           </Link>
         </div>
 
@@ -528,8 +529,6 @@ function StartProcessForm() {
   if (status === 'success') {
     return (
       <div className="container max-w-2xl mx-auto py-8 px-4">
-        <AppToolbar />
-
         <div className="border rounded-lg p-6 bg-card text-center">
           <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

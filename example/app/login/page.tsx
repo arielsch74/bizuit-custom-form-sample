@@ -15,7 +15,7 @@ export default function LoginPage() {
   const [mounted, setMounted] = useState(false)
 
   const redirectTo = searchParams.get('redirect') || '/'
-  const authService = new BizuitAuthService(bizuitConfig)
+  const authService = new BizuitAuthService(bizuitConfig) as any
 
   useEffect(() => {
     setMounted(true)
@@ -48,9 +48,9 @@ export default function LoginPage() {
         <div className="mb-6 text-center">
           <Link
             href="/"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
+            className="text-sm text-primary hover:underline"
           >
-            {t('nav.backToHome')}
+            ← Volver al inicio
           </Link>
         </div>
 

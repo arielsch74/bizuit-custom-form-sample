@@ -31,10 +31,9 @@ export default function ComponentsDemo() {
           <div className="max-w-6xl mx-auto px-6 py-4">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors group"
+              className="text-sm text-primary hover:underline"
             >
-              <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-              Volver al inicio
+              ← Volver al inicio
             </Link>
           </div>
         </div>
