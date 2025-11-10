@@ -188,7 +188,7 @@ function Example3ManualSelectiveContent() {
 
   // Código para el LiveCodeEditor
   const liveCodeFiles = {
-    'App.js': `import React, { useState, createContext, useContext } from 'react';
+    'App.js': `import React, { useState, useEffect, createContext, useContext } from 'react';
 import './styles.css';
 
 // 🌐 Contexto de Internacionalización (i18n)
@@ -260,8 +260,34 @@ const I18nProvider = ({ children }) => {
   );
 };
 
+// 🎨 Contexto de Tema (Dark/Light)
+const ThemeContext = createContext();
+
+const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) throw new Error('useTheme debe usarse dentro de ThemeProvider');
+  return context;
+};
+
+const ThemeProvider = ({ children }) => {
+  const [isDark, setIsDark] = useState(false);
+
+  // Aplicar clase al body para que el CSS funcione
+  // NOTA: Este código corre dentro del iframe del Sandpack
+  useEffect(() => {
+    document.body.className = isDark ? 'dark' : 'light';
+  }, [isDark]);
+
+  return (
+    <ThemeContext.Provider value={{ isDark, setIsDark }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
 function SelectiveMappingForm() {
   const { t, language, setLanguage } = useTranslation();
+  const { isDark, setIsDark } = useTheme();
   const [formData, setFormData] = useState({
     empleado: '',
     legajo: '',
@@ -361,23 +387,68 @@ function SelectiveMappingForm() {
   return (
     <div className="container">
       <div className="card">
-        {/* Selector de idioma */}
-        <div style={{ textAlign: 'right', marginBottom: '16px' }}>
+        {/* Panel de controles: Idioma y Tema */}
+        <div style={{
+          display: 'flex',
+          gap: '12px',
+          marginBottom: '16px',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'flex-end'
+        }}>
+          {/* Selector de idioma */}
           <button
             type="button"
             onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
             style={{
               padding: '6px 12px',
-              background: '#f3f4f6',
-              border: '1px solid #d1d5db',
+              background: isDark ? '#374151' : '#f3f4f6',
+              color: isDark ? '#f9fafb' : '#111827',
+              border: \`1px solid \${isDark ? '#4b5563' : '#d1d5db'}\`,
               borderRadius: '6px',
               cursor: 'pointer',
               fontSize: '14px',
               fontWeight: '500'
             }}
           >
-            {language === 'es' ? '🇬🇧 English' : '🇪🇸 Español'}
+            {language === 'es' ? '🇬🇧 EN' : '🇪🇸 ES'}
           </button>
+
+          {/* Selector de tema */}
+          <div style={{ display: 'flex', gap: '4px' }}>
+            <button
+              type="button"
+              onClick={() => setIsDark(false)}
+              style={{
+                padding: '6px 12px',
+                background: !isDark ? '#3b82f6' : (isDark ? '#374151' : '#f3f4f6'),
+                color: !isDark ? 'white' : (isDark ? '#f9fafb' : '#111827'),
+                border: \`1px solid \${!isDark ? '#3b82f6' : (isDark ? '#4b5563' : '#d1d5db')}\`,
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontWeight: '500'
+              }}
+            >
+              ☀️
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsDark(true)}
+              style={{
+                padding: '6px 12px',
+                background: isDark ? '#3b82f6' : (isDark ? '#374151' : '#f3f4f6'),
+                color: isDark ? 'white' : (isDark ? '#f9fafb' : '#111827'),
+                border: \`1px solid \${isDark ? '#3b82f6' : (isDark ? '#4b5563' : '#d1d5db')}\`,
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontWeight: '500'
+              }}
+            >
+              🌙
+            </button>
+          </div>
         </div>
 
         <h2>{t('title')}</h2>
@@ -562,11 +633,13 @@ function SelectiveMappingForm() {
   );
 }
 
-// 🎯 Exportar el componente envuelto en el provider de i18n
-export default function AppWithProvider() {
+// 🎯 Exportar el componente envuelto en los providers de i18n y tema
+export default function AppWithProviders() {
   return (
     <I18nProvider>
-      <SelectiveMappingForm />
+      <ThemeProvider>
+        <SelectiveMappingForm />
+      </ThemeProvider>
     </I18nProvider>
   );
 }`,
@@ -578,8 +651,16 @@ export default function AppWithProvider() {
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f9fafb;
+  background: #f9fafb !important;
+  color: #1f2937 !important;
   padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* 🌙 Dark Mode */
+body.dark {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 
 .container {
@@ -588,17 +669,28 @@ body {
 }
 
 .card {
-  background: white;
+  background: white !important;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+body.dark .card {
+  background: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 h2 {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #1f2937;
+  color: #1f2937 !important;
+  transition: color 0.3s;
+}
+
+body.dark h2 {
+  color: #f1f5f9 !important;
 }
 
 .form-grid {
@@ -617,30 +709,52 @@ label {
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 8px;
-  color: #374151;
+  color: #374151 !important;
+  transition: color 0.3s;
+}
+
+body.dark label {
+  color: #cbd5e1 !important;
 }
 
 .form-input {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #d1d5db !important;
   border-radius: 6px;
   font-size: 14px;
   font-family: system-ui, -apple-system, sans-serif;
-  background: white;
-  transition: border-color 0.2s;
+  background: white !important;
+  color: #1f2937 !important;
+  transition: border-color 0.2s, background 0.3s, color 0.3s;
+}
+
+body.dark .form-input {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #f1f5f9 !important;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+body.dark .form-input:focus {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2) !important;
 }
 
 .hint {
   font-size: 12px;
-  color: #6b7280;
+  color: #6b7280 !important;
   margin-top: 4px;
+  transition: color 0.3s;
+}
+
+body.dark .hint {
+  color: #94a3b8 !important;
 }
 
 .checkbox-label {
@@ -658,21 +772,35 @@ label {
 }
 
 .no-send-section {
-  border-top: 2px solid #e5e7eb;
+  border-top: 2px solid #e5e7eb !important;
   padding-top: 16px;
   margin-top: 16px;
+  transition: border-color 0.3s;
+}
+
+body.dark .no-send-section {
+  border-top-color: #475569 !important;
 }
 
 .warning {
   font-size: 14px;
   font-weight: 500;
-  color: #d97706;
+  color: #d97706 !important;
   margin-bottom: 12px;
+  transition: color 0.3s;
+}
+
+body.dark .warning {
+  color: #fbbf24 !important;
 }
 
 .form-input.no-send {
   opacity: 0.7;
-  background: #f9fafb;
+  background: #f9fafb !important;
+}
+
+body.dark .form-input.no-send {
+  background: #1e293b !important;
 }
 
 .btn-submit {
@@ -701,7 +829,7 @@ label {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.7) !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -710,36 +838,48 @@ label {
 }
 
 .modal-content {
-  background: white;
+  background: white !important;
   border-radius: 12px;
   max-width: 600px;
   width: 100%;
   max-height: 80vh;
   overflow: auto;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3) !important;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+body.dark .modal-content {
+  background: #1e293b !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
 }
 
 .modal-header {
   padding: 20px;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid #e5e7eb !important;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  color: white !important;
   border-radius: 12px 12px 0 0;
+  transition: border-color 0.3s;
+}
+
+body.dark .modal-header {
+  border-bottom-color: #475569 !important;
 }
 
 .modal-header h3 {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
+  color: white !important;
 }
 
 .modal-close {
-  background: transparent;
+  background: transparent !important;
   border: none;
-  color: white;
+  color: white !important;
   font-size: 32px;
   line-height: 1;
   cursor: pointer;
@@ -754,7 +894,7 @@ label {
 }
 
 .modal-close:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.2) !important;
 }
 
 .modal-body {
@@ -764,11 +904,16 @@ label {
 .params-section {
   margin-bottom: 20px;
   padding-bottom: 20px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb !important;
+  transition: border-color 0.3s;
+}
+
+body.dark .params-section {
+  border-bottom-color: #475569 !important;
 }
 
 .params-section:last-of-type {
-  border-bottom: none;
+  border-bottom: none !important;
 }
 
 .params-title {
@@ -780,13 +925,23 @@ label {
 }
 
 .params-title.visible {
-  background: #dcfce7;
-  color: #15803d;
+  background: #dcfce7 !important;
+  color: #15803d !important;
+}
+
+body.dark .params-title.visible {
+  background: #064e3b !important;
+  color: #86efac !important;
 }
 
 .params-title.hidden {
-  background: #dbeafe;
-  color: #1e40af;
+  background: #dbeafe !important;
+  color: #1e40af !important;
+}
+
+body.dark .params-title.hidden {
+  background: #1e3a8a !important;
+  color: #93c5fd !important;
 }
 
 .params-list {
@@ -799,30 +954,51 @@ label {
   display: flex;
   gap: 8px;
   padding: 8px 12px;
-  background: #f9fafb;
+  background: #f9fafb !important;
   border-radius: 4px;
   font-size: 13px;
+  transition: background 0.3s;
+}
+
+body.dark .param-item {
+  background: #0f172a !important;
 }
 
 .param-name {
   font-weight: 600;
-  color: #374151;
+  color: #374151 !important;
   min-width: 180px;
+  transition: color 0.3s;
+}
+
+body.dark .param-name {
+  color: #cbd5e1 !important;
 }
 
 .param-value {
-  color: #6b7280;
+  color: #6b7280 !important;
   word-break: break-all;
+  transition: color 0.3s;
+}
+
+body.dark .param-value {
+  color: #94a3b8 !important;
 }
 
 .params-total {
   margin-top: 16px;
   padding: 12px;
-  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%) !important;
   border-radius: 8px;
   text-align: center;
-  color: #5b21b6;
+  color: #5b21b6 !important;
   font-size: 14px;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark .params-total {
+  background: linear-gradient(135deg, #4c1d95 0%, #5b21b6 100%) !important;
+  color: #e9d5ff !important;
 }
 
 .params-total strong {
@@ -831,14 +1007,19 @@ label {
 
 .modal-footer {
   padding: 16px 20px;
-  border-top: 2px solid #e5e7eb;
+  border-top: 2px solid #e5e7eb !important;
   text-align: center;
+  transition: border-color 0.3s;
+}
+
+body.dark .modal-footer {
+  border-top-color: #475569 !important;
 }
 
 .btn-modal-close {
   padding: 10px 32px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  color: white !important;
   border: none;
   border-radius: 8px;
   font-size: 14px;
@@ -849,7 +1030,7 @@ label {
 
 .btn-modal-close:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
 }`
   };
 

@@ -154,8 +154,27 @@ function Example1DynamicContent() {
           title={`⚡ ${t('example1.liveCodeTitle')}`}
           description={t('example1.liveCodeDescription')}
           files={{
-            '/App.js': `import { useState, createContext, useContext } from 'react';
+            '/App.js': `import { useState, createContext, useContext, useEffect } from 'react';
 import './styles.css';
+
+// 🎨 Theme Context
+const ThemeContext = createContext();
+
+const ThemeProvider = ({ children }) => {
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    document.body.className = isDark ? 'dark' : 'light';
+  }, [isDark]);
+
+  return (
+    <ThemeContext.Provider value={{ isDark, setIsDark }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+const useTheme = () => useContext(ThemeContext);
 
 // 🌐 Contexto de Internacionalización (i18n)
 const I18nContext = createContext();
@@ -208,6 +227,8 @@ const I18nProvider = ({ children }) => {
 
 function DynamicFormDemo() {
   const { t, language, setLanguage } = useTranslation();
+  const { isDark, setIsDark } = useTheme();
+
   // 🔹 CÓDIGO REAL (comentado porque no funciona en Sandpack):
   // const sdk = useBizuitSDK();
   // const { token } = useBizuitAuth();
@@ -304,8 +325,45 @@ function DynamicFormDemo() {
   return (
     <div className="container">
       <div className="card">
-        {/* Selector de idioma */}
-        <div style={{ textAlign: 'right', marginBottom: '16px' }}>
+        {/* Theme and Language Controls */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          {/* Theme Toggle */}
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              type="button"
+              onClick={() => setIsDark(false)}
+              style={{
+                padding: '6px 12px',
+                background: !isDark ? '#3b82f6' : '#f3f4f6',
+                color: !isDark ? 'white' : '#374151',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
+            >
+              ☀️ Light
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsDark(true)}
+              style={{
+                padding: '6px 12px',
+                background: isDark ? '#3b82f6' : '#f3f4f6',
+                color: isDark ? 'white' : '#374151',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
+            >
+              🌙 Dark
+            </button>
+          </div>
+
+          {/* Language Toggle */}
           <button
             type="button"
             onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
@@ -396,12 +454,14 @@ function DynamicFormDemo() {
   );
 }
 
-// 🎯 Exportar el componente envuelto en el provider de i18n
+// 🎯 Exportar el componente envuelto en los providers
 export default function AppWithProvider() {
   return (
-    <I18nProvider>
-      <DynamicFormDemo />
-    </I18nProvider>
+    <ThemeProvider>
+      <I18nProvider>
+        <DynamicFormDemo />
+      </I18nProvider>
+    </ThemeProvider>
   );
 }`,
             '/styles.css': `* {
@@ -410,10 +470,12 @@ export default function AppWithProvider() {
   padding: 0;
 }
 
+/* Light Mode (Default) */
 body {
-  font-family: system-ui, -apple-system, sans-serif;
-  background: #f9fafb;
-  padding: 20px;
+  font-family: system-ui, -apple-system, sans-serif !important;
+  background: #f9fafb !important;
+  color: #111827 !important;
+  padding: 20px !important;
 }
 
 .container {
@@ -422,22 +484,22 @@ body {
 }
 
 .card {
-  background: white;
+  background: white !important;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
 }
 
 .card-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #111827;
+  color: #111827 !important;
 }
 
 .card-description {
   font-size: 14px;
-  color: #6b7280;
+  color: #6b7280 !important;
   margin-bottom: 24px;
 }
 
@@ -460,7 +522,7 @@ body {
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 8px;
-  color: #374151;
+  color: #374151 !important;
   position: relative;
   z-index: 2;
 }
@@ -468,11 +530,12 @@ body {
 .form-input {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #d1d5db !important;
   border-radius: 6px;
   font-size: 14px;
   font-family: system-ui, -apple-system, sans-serif;
-  background: white;
+  background: white !important;
+  color: #111827 !important;
   transition: border-color 0.2s;
   position: relative;
   z-index: 2;
@@ -480,8 +543,8 @@ body {
 
 .form-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
 }
 
 .btn-submit {
@@ -511,7 +574,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.7) !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -520,23 +583,23 @@ body {
 }
 
 .modal-content {
-  background: white;
+  background: white !important;
   border-radius: 12px;
   max-width: 600px;
   width: 100%;
   max-height: 80vh;
   overflow: auto;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3) !important;
 }
 
 .modal-header {
   padding: 20px;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid #e5e7eb !important;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  color: white !important;
   border-radius: 12px 12px 0 0;
 }
 
@@ -544,12 +607,13 @@ body {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
+  color: white !important;
 }
 
 .modal-close {
   background: transparent;
   border: none;
-  color: white;
+  color: white !important;
   font-size: 32px;
   line-height: 1;
   cursor: pointer;
@@ -564,17 +628,18 @@ body {
 }
 
 .modal-close:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.2) !important;
 }
 
 .modal-body {
   padding: 20px;
+  background: white !important;
 }
 
 .params-section {
   margin-bottom: 20px;
   padding-bottom: 20px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb !important;
 }
 
 .params-section:last-of-type {
@@ -590,13 +655,13 @@ body {
 }
 
 .params-title.visible {
-  background: #dcfce7;
-  color: #15803d;
+  background: #dcfce7 !important;
+  color: #15803d !important;
 }
 
 .params-title.hidden {
-  background: #dbeafe;
-  color: #1e40af;
+  background: #dbeafe !important;
+  color: #1e40af !important;
 }
 
 .params-list {
@@ -609,40 +674,42 @@ body {
   display: flex;
   gap: 8px;
   padding: 8px 12px;
-  background: #f9fafb;
+  background: #f9fafb !important;
   border-radius: 4px;
   font-size: 13px;
 }
 
 .param-name {
   font-weight: 600;
-  color: #374151;
+  color: #374151 !important;
   min-width: 180px;
 }
 
 .param-value {
-  color: #6b7280;
+  color: #6b7280 !important;
   word-break: break-all;
 }
 
 .params-total {
   margin-top: 16px;
   padding: 12px;
-  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%) !important;
   border-radius: 8px;
   text-align: center;
-  color: #5b21b6;
+  color: #5b21b6 !important;
   font-size: 14px;
 }
 
 .params-total strong {
   font-weight: 700;
+  color: #5b21b6 !important;
 }
 
 .modal-footer {
   padding: 16px 20px;
-  border-top: 2px solid #e5e7eb;
+  border-top: 2px solid #e5e7eb !important;
   text-align: center;
+  background: white !important;
 }
 
 .btn-modal-close {
@@ -660,6 +727,97 @@ body {
 .btn-modal-close:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Dark Mode */
+body.dark {
+  background: #111827 !important;
+  color: #f9fafb !important;
+}
+
+body.dark .card {
+  background: #1f2937 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark .card-title {
+  color: #f9fafb !important;
+}
+
+body.dark .card-description {
+  color: #9ca3af !important;
+}
+
+body.dark .form-label {
+  color: #d1d5db !important;
+}
+
+body.dark .form-input {
+  background: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+
+body.dark .form-input:focus {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
+}
+
+body.dark .modal-overlay {
+  background: rgba(0, 0, 0, 0.85) !important;
+}
+
+body.dark .modal-content {
+  background: #1f2937 !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.dark .modal-header {
+  border-bottom: 2px solid #374151 !important;
+}
+
+body.dark .modal-body {
+  background: #1f2937 !important;
+}
+
+body.dark .params-section {
+  border-bottom: 1px solid #374151 !important;
+}
+
+body.dark .params-title.visible {
+  background: #065f46 !important;
+  color: #d1fae5 !important;
+}
+
+body.dark .params-title.hidden {
+  background: #1e3a8a !important;
+  color: #dbeafe !important;
+}
+
+body.dark .param-item {
+  background: #374151 !important;
+}
+
+body.dark .param-name {
+  color: #d1d5db !important;
+}
+
+body.dark .param-value {
+  color: #9ca3af !important;
+}
+
+body.dark .params-total {
+  background: linear-gradient(135deg, #5b21b6 0%, #6d28d9 100%) !important;
+  color: #ede9fe !important;
+}
+
+body.dark .params-total strong {
+  color: #ede9fe !important;
+}
+
+body.dark .modal-footer {
+  border-top: 2px solid #374151 !important;
+  background: #1f2937 !important;
 }`
           }}
         />
