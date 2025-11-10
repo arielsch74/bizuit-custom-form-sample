@@ -60,6 +60,14 @@ export const bizuit_document_inputDoc: ComponentDoc = {
       description: 'Required field',
       description_es: 'Marcar el campo como requerido',
     },
+    {
+      name: 'primaryColor',
+      type: 'string',
+      required: false,
+      default: '"#3b82f6"',
+      description: 'Primary color for focus state and highlights',
+      description_es: 'Color primario para el estado de foco y resaltados',
+    },
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
@@ -67,7 +75,7 @@ import DocumentInput from './DocumentInput.js';
 import './styles.css';
 
 // 🌐 Contexto de Internacionalización (i18n)
-const I18nContext = createContext();
+export const I18nContext = createContext();
 
 const useTranslation = () => {
   const context = useContext(I18nContext);
@@ -81,13 +89,55 @@ const I18nProvider = ({ children }) => {
   const translations = {
   "es": {
     "title": "Entrada de Documento",
-    "uploadDocument": "Subir documento",
-    "selectFile": "Seleccionar archivo"
+    "documentType": "Tipo de Documento",
+    "documentTypes": {
+      "dni": "DNI",
+      "passport": "Pasaporte",
+      "cuil": "CUIL",
+      "cuit": "CUIT"
+    },
+    "documentLabels": {
+      "dni": "Número de DNI",
+      "passport": "Número de Pasaporte",
+      "cuil": "Número de CUIL",
+      "cuit": "Número de CUIT",
+      "default": "Número de Documento"
+    },
+    "placeholders": {
+      "dni": "12345678",
+      "passport": "ABC123456",
+      "cuil": "20-12345678-9",
+      "cuit": "20-12345678-9",
+      "default": "Ingrese número de documento"
+    },
+    "selected": "Seleccionado",
+    "none": "Ninguno"
   },
   "en": {
     "title": "Document Input",
-    "uploadDocument": "Upload document",
-    "selectFile": "Select file"
+    "documentType": "Document Type",
+    "documentTypes": {
+      "dni": "DNI",
+      "passport": "Passport",
+      "cuil": "CUIL",
+      "cuit": "CUIT"
+    },
+    "documentLabels": {
+      "dni": "DNI Number",
+      "passport": "Passport Number",
+      "cuil": "CUIL Number",
+      "cuit": "CUIT Number",
+      "default": "Document Number"
+    },
+    "placeholders": {
+      "dni": "12345678",
+      "passport": "ABC123456",
+      "cuil": "20-12345678-9",
+      "cuit": "20-12345678-9",
+      "default": "Enter document number"
+    },
+    "selected": "Selected",
+    "none": "None"
   }
 };
 
@@ -208,28 +258,29 @@ function App() {
         </div>
       </div>
 
-        <h2 className="card-title">Document Input</h2>
+        <h2 className="card-title">{t('title')}</h2>
 
-        <label className="form-label">Document Type</label>
+        <label className="form-label">{t('documentType')}</label>
         <select
           value={docType}
           onChange={(e) => setDocType(e.target.value)}
           className="form-input"
         >
-          <option value="dni">DNI</option>
-          <option value="passport">Passport</option>
-          <option value="cuil">CUIL</option>
-          <option value="cuit">CUIT</option>
+          <option value="dni">{t('documentTypes.dni')}</option>
+          <option value="passport">{t('documentTypes.passport')}</option>
+          <option value="cuil">{t('documentTypes.cuil')}</option>
+          <option value="cuit">{t('documentTypes.cuit')}</option>
         </select>
 
         <DocumentInput
           type={docType}
           value={docNumber}
           onChange={setDocNumber}
+          primaryColor={primaryColor}
         />
 
         <p className="hint">
-          Selected: {docType.toUpperCase()} - {docNumber || 'None'}
+          {t('selected')}: {docType.toUpperCase()} - {docNumber || t('none')}
         </p>
       </div>
     </div>
@@ -245,25 +296,26 @@ export default function AppWithProviders() {
     </I18nProvider>
   );
 }`,
-    '/DocumentInput.js': `export default function DocumentInput({ type = 'dni', value, onChange }) {
+    '/DocumentInput.js': `import { useContext } from 'react';
+import { I18nContext } from './App.js';
+
+export default function DocumentInput({ type = 'dni', value, onChange, primaryColor = '#3b82f6' }) {
+  const { t } = useContext(I18nContext);
+
   const getPlaceholder = () => {
-    switch (type) {
-      case 'dni': return '12345678';
-      case 'passport': return 'ABC123456';
-      case 'cuil': return '20-12345678-9';
-      case 'cuit': return '20-12345678-9';
-      default: return 'Enter document number';
-    }
+    return t(\`placeholders.\${type}\`) || t('placeholders.default');
   };
 
   const getLabel = () => {
-    switch (type) {
-      case 'dni': return 'DNI Number';
-      case 'passport': return 'Passport Number';
-      case 'cuil': return 'CUIL Number';
-      case 'cuit': return 'CUIT Number';
-      default: return 'Document Number';
-    }
+    return t(\`documentLabels.\${type}\`) || t('documentLabels.default');
+  };
+
+  // Convert hex to rgba for shadow effect
+  const hexToRgba = (hex, alpha) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return \`rgba(\${r}, \${g}, \${b}, \${alpha})\`;
   };
 
   return (
@@ -275,6 +327,18 @@ export default function AppWithProviders() {
         onChange={(e) => onChange(e.target.value)}
         placeholder={getPlaceholder()}
         className="form-input"
+        style={{
+          borderColor: '#d1d5db',
+          transition: 'border-color 0.2s, box-shadow 0.2s'
+        }}
+        onFocus={(e) => {
+          e.target.style.borderColor = primaryColor;
+          e.target.style.boxShadow = \`0 0 0 3px \${hexToRgba(primaryColor, 0.1)}\`;
+        }}
+        onBlur={(e) => {
+          e.target.style.borderColor = '#d1d5db';
+          e.target.style.boxShadow = 'none';
+        }}
       />
     </div>
   );
@@ -287,8 +351,15 @@ export default function AppWithProviders() {
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f9fafb;
+  background: #f9fafb !important;
+  color: #1f2937 !important;
   padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 
 .container {
@@ -297,17 +368,28 @@ body {
 }
 
 .card {
-  background: white;
+  background: white !important;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+body.dark .card {
+  background: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 .card-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #111827;
+  color: #111827 !important;
+  transition: color 0.3s;
+}
+
+body.dark .card-title {
+  color: #f1f5f9 !important;
 }
 
 .form-grid {

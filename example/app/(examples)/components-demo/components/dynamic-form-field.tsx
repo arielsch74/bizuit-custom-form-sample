@@ -74,7 +74,7 @@ import './styles.css';
 // 🌐 Contexto de Internacionalización (i18n)
 const I18nContext = createContext();
 
-const useTranslation = () => {
+export const useTranslation = () => {
   const context = useContext(I18nContext);
   if (!context) throw new Error('useTranslation debe usarse dentro de I18nProvider');
   return context;
@@ -85,24 +85,69 @@ const I18nProvider = ({ children }) => {
 
   const translations = {
   "es": {
-    "title": "Campo de Formulario Dinámico",
-    "fieldName": "Nombre del campo",
-    "fieldValue": "Valor del campo"
+    "title": "Campos de Formulario Dinámicos",
+    "values": "Valores",
+    "fields": {
+      "name": {
+        "label": "Nombre",
+        "placeholder": "Ingrese su nombre"
+      },
+      "email": {
+        "label": "Correo Electrónico",
+        "placeholder": "Ingrese su correo"
+      },
+      "country": {
+        "label": "País",
+        "placeholder": "Seleccione {label}"
+      }
+    },
+    "countries": {
+      "usa": "Estados Unidos",
+      "canada": "Canadá",
+      "uk": "Reino Unido",
+      "australia": "Australia"
+    },
+    "selectPlaceholder": "Seleccione {label}"
   },
   "en": {
-    "title": "Dynamic Form Field",
-    "fieldName": "Field name",
-    "fieldValue": "Field value"
+    "title": "Dynamic Form Fields",
+    "values": "Values",
+    "fields": {
+      "name": {
+        "label": "Name",
+        "placeholder": "Enter your name"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "Enter your email"
+      },
+      "country": {
+        "label": "Country",
+        "placeholder": "Select {label}"
+      }
+    },
+    "countries": {
+      "usa": "USA",
+      "canada": "Canada",
+      "uk": "UK",
+      "australia": "Australia"
+    },
+    "selectPlaceholder": "Select {label}"
   }
 };
 
-  const t = (key) => {
+  const t = (key, replacements = {}) => {
     const keys = key.split('.');
     let value = translations[language];
     for (const k of keys) {
       value = value?.[k];
     }
-    return value || key;
+    let result = value || key;
+    // Replace placeholders like {label} with actual values
+    Object.keys(replacements).forEach(placeholder => {
+      result = result.replace(\`{\${placeholder}}\`, replacements[placeholder]);
+    });
+    return result;
   };
 
   return (
@@ -150,9 +195,14 @@ function App() {
   const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
 
   const [fields] = useState([
-    { name: 'name', label: 'Name', type: 'text', placeholder: 'Enter your name' },
-    { name: 'email', label: 'Email', type: 'email', placeholder: 'Enter your email' },
-    { name: 'country', label: 'Country', type: 'select', options: ['USA', 'Canada', 'UK', 'Australia'] },
+    { name: 'name', label: t('fields.name.label'), type: 'text', placeholder: t('fields.name.placeholder') },
+    { name: 'email', label: t('fields.email.label'), type: 'email', placeholder: t('fields.email.placeholder') },
+    { name: 'country', label: t('fields.country.label'), type: 'select', options: [
+      { value: 'usa', label: t('countries.usa') },
+      { value: 'canada', label: t('countries.canada') },
+      { value: 'uk', label: t('countries.uk') },
+      { value: 'australia', label: t('countries.australia') }
+    ] },
   ]);
 
   const [values, setValues] = useState({});
@@ -218,17 +268,18 @@ function App() {
         </div>
       </div>
 
-        <h2 className="card-title">Dynamic Form Fields</h2>
+        <h2 className="card-title">{t('title')}</h2>
         {fields.map((field) => (
           <DynamicFormField
             key={field.name}
             field={field}
             value={values[field.name]}
             onChange={(value) => setValues({ ...values, [field.name]: value })}
+            primaryColor={primaryColor}
           />
         ))}
         <p className="hint">
-          Values: {JSON.stringify(values, null, 2)}
+          {t('values')}: {JSON.stringify(values, null, 2)}
         </p>
       </div>
     </div>
@@ -244,7 +295,11 @@ export default function AppWithProviders() {
     </I18nProvider>
   );
 }`,
-    '/DynamicFormField.js': `export default function DynamicFormField({ field, value, onChange }) {
+    '/DynamicFormField.js': `import { useTranslation } from './App.js';
+
+export default function DynamicFormField({ field, value, onChange, primaryColor = '#3b82f6' }) {
+  const { t } = useTranslation();
+
   const renderInput = () => {
     if (field.type === 'select') {
       return (
@@ -252,11 +307,15 @@ export default function AppWithProviders() {
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className="form-input"
+          style={{
+            '--focus-color': primaryColor,
+            '--focus-shadow': primaryColor + '1a'
+          }}
         >
-          <option value="">Select {field.label}</option>
+          <option value="">{t('selectPlaceholder', { label: field.label })}</option>
           {field.options.map((option) => (
-            <option key={option} value={option}>
-              {option}
+            <option key={option.value} value={option.value}>
+              {option.label}
             </option>
           ))}
         </select>
@@ -270,6 +329,10 @@ export default function AppWithProviders() {
         onChange={(e) => onChange(e.target.value)}
         placeholder={field.placeholder}
         className="form-input"
+        style={{
+          '--focus-color': primaryColor,
+          '--focus-shadow': primaryColor + '1a'
+        }}
       />
     );
   };
@@ -289,8 +352,15 @@ export default function AppWithProviders() {
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f9fafb;
+  background: #f9fafb !important;
+  color: #1f2937 !important;
   padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 
 .container {
@@ -299,17 +369,28 @@ body {
 }
 
 .card {
-  background: white;
+  background: white !important;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+body.dark .card {
+  background: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 .card-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #111827;
+  color: #111827 !important;
+  transition: color 0.3s;
+}
+
+body.dark .card-title {
+  color: #f1f5f9 !important;
 }
 
 .form-grid {
@@ -344,8 +425,8 @@ body {
 
 .form-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--focus-color, #3b82f6);
+  box-shadow: 0 0 0 3px var(--focus-shadow, rgba(59, 130, 246, 0.1));
 }
 
 /* Asegurar que los inputs especiales usen la misma fuente */

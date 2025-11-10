@@ -59,6 +59,14 @@ export const bizuit_stepperDoc: ComponentDoc = {
       default: 'false',
       description: 'Allow clicking steps to navigate',
     },
+    {
+      name: 'primaryColor',
+      type: 'string',
+      required: false,
+      default: '"#a855f7"',
+      description: 'Primary color for active and completed steps',
+      description_es: 'Color primario para pasos activos y completados',
+    },
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
@@ -83,14 +91,28 @@ const I18nProvider = ({ children }) => {
     "step": "Paso",
     "next": "Siguiente",
     "previous": "Anterior",
-    "finish": "Finalizar"
+    "finish": "Finalizar",
+    "stepperExample": "Ejemplo de Stepper",
+    "personalInfo": "Información Personal",
+    "personalInfoDesc": "Ingresa tus datos",
+    "address": "Dirección",
+    "addressDesc": "Proporciona tu dirección",
+    "confirmation": "Confirmación",
+    "confirmationDesc": "Revisa y envía"
   },
   "en": {
     "title": "Stepper",
     "step": "Step",
     "next": "Next",
     "previous": "Previous",
-    "finish": "Finish"
+    "finish": "Finish",
+    "stepperExample": "Stepper Example",
+    "personalInfo": "Personal Info",
+    "personalInfoDesc": "Enter your details",
+    "address": "Address",
+    "addressDesc": "Provide your address",
+    "confirmation": "Confirmation",
+    "confirmationDesc": "Review and submit"
   }
 };
 
@@ -149,9 +171,9 @@ function App() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [steps] = useState([
-    { label: 'Personal Info', description: 'Enter your details' },
-    { label: 'Address', description: 'Provide your address' },
-    { label: 'Confirmation', description: 'Review and submit' },
+    { label: t('personalInfo'), description: t('personalInfoDesc') },
+    { label: t('address'), description: t('addressDesc') },
+    { label: t('confirmation'), description: t('confirmationDesc') },
   ]);
 
   return (
@@ -215,13 +237,14 @@ function App() {
         </div>
       </div>
 
-        <h2 className="card-title">Stepper Example</h2>
+        <h2 className="card-title">{t('stepperExample')}</h2>
 
         <Stepper
           steps={steps}
           currentStep={currentStep}
           clickable
           onChange={setCurrentStep}
+          primaryColor={primaryColor}
         />
 
         <div className="form-actions" style={{ marginTop: '24px' }}>
@@ -230,14 +253,14 @@ function App() {
             onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
             disabled={currentStep === 0}
           >
-            Previous
+            {t('previous')}
           </button>
           <button
             className="btn-primary"
             onClick={() => setCurrentStep(Math.min(steps.length - 1, currentStep + 1))}
             disabled={currentStep === steps.length - 1}
           >
-            Next
+            {t('next')}
           </button>
         </div>
       </div>
@@ -259,7 +282,8 @@ export default function AppWithProviders() {
   currentStep,
   onChange,
   orientation = 'horizontal',
-  clickable = false
+  clickable = false,
+  primaryColor = '#a855f7'
 }) {
   let orientationClass = 'flex';
   if (orientation === 'horizontal') {
@@ -275,18 +299,39 @@ export default function AppWithProviders() {
         const isCurrent = index === currentStep;
 
         let circleClasses = 'flex items-center justify-center rounded-full border-2 w-10 h-10';
-        if (isCompleted) circleClasses += ' bg-primary border-primary text-white';
-        else if (isCurrent) circleClasses += ' border-primary text-primary';
-        else circleClasses += ' border-gray-300 text-gray-400';
+        let circleStyles = {};
+
+        if (isCompleted) {
+          circleClasses += ' text-white';
+          circleStyles = {
+            backgroundColor: primaryColor,
+            borderColor: primaryColor
+          };
+        } else if (isCurrent) {
+          circleStyles = {
+            borderColor: primaryColor,
+            color: primaryColor
+          };
+        } else {
+          circleClasses += ' border-gray-300 text-gray-400';
+        }
+
         if (clickable) circleClasses += ' cursor-pointer';
 
         let lineClasses = orientation === 'horizontal' ? 'h-[2px] flex-1 mx-4' : 'w-[2px] h-12';
-        lineClasses += isCompleted ? ' bg-primary' : ' bg-gray-300';
+        let lineStyles = {};
+
+        if (isCompleted) {
+          lineStyles = { backgroundColor: primaryColor };
+        } else {
+          lineClasses += ' bg-gray-300';
+        }
 
         return (
           <div key={index} className="flex items-center">
             <div
               className={circleClasses}
+              style={circleStyles}
               onClick={() => clickable && onChange?.(index)}
             >
               {isCompleted ? '✓' : index + 1}
@@ -298,7 +343,7 @@ export default function AppWithProviders() {
               )}
             </div>
             {index < steps.length - 1 && (
-              <div className={lineClasses} />
+              <div className={lineClasses} style={lineStyles} />
             )}
           </div>
         );
@@ -314,8 +359,15 @@ export default function AppWithProviders() {
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f9fafb;
+  background: #f9fafb !important;
+  color: #1f2937 !important;
   padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 
 .container {
@@ -324,22 +376,33 @@ body {
 }
 
 .card {
-  background: white;
+  background: white !important;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+body.dark .card {
+  background: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 .card-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #111827;
+  color: #111827 !important;
+  transition: color 0.3s;
+}
+
+body.dark .card-title {
+  color: #f1f5f9 !important;
 }
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmin(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 16px;
   margin-bottom: 16px;
 }

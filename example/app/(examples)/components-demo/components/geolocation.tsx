@@ -52,6 +52,14 @@ export const bizuit_geolocationDoc: ComponentDoc = {
       default: 'true',
       description: 'Display map preview',
     },
+    {
+      name: 'primaryColor',
+      type: 'string',
+      required: false,
+      default: '#f97316',
+      description: 'Primary color for button and interactive elements',
+      description_es: 'Color primario para el botón y elementos interactivos',
+    },
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
@@ -74,14 +82,24 @@ const I18nProvider = ({ children }) => {
   "es": {
     "title": "Geolocalización",
     "getLocation": "Obtener ubicación",
+    "getCurrentLocation": "Obtener ubicación actual",
     "latitude": "Latitud",
-    "longitude": "Longitud"
+    "longitude": "Longitud",
+    "errors": {
+      "unableToRetrieve": "No se pudo obtener la ubicación: ",
+      "notSupported": "La geolocalización no es compatible con tu navegador"
+    }
   },
   "en": {
     "title": "Geolocation",
     "getLocation": "Get location",
+    "getCurrentLocation": "Get Current Location",
     "latitude": "Latitude",
-    "longitude": "Longitude"
+    "longitude": "Longitude",
+    "errors": {
+      "unableToRetrieve": "Unable to retrieve location: ",
+      "notSupported": "Geolocation is not supported by your browser"
+    }
   }
 };
 
@@ -152,11 +170,11 @@ function App() {
           setError('');
         },
         (err) => {
-          setError('Unable to retrieve location: ' + err.message);
+          setError(t('errors.unableToRetrieve') + err.message);
         }
       );
     } else {
-      setError('Geolocation is not supported by your browser');
+      setError(t('errors.notSupported'));
     }
   };
 
@@ -221,15 +239,17 @@ function App() {
         </div>
       </div>
 
-        <h2 className="card-title">Geolocation</h2>
+        <h2 className="card-title">{t('title')}</h2>
         <Geolocation
           location={location}
           onGetLocation={handleGetLocation}
           error={error}
+          t={t}
+          primaryColor={primaryColor}
         />
         {location && (
           <p className="hint">
-            Latitude: {location.lat.toFixed(6)}, Longitude: {location.lng.toFixed(6)}
+            {t('latitude')}: {location.lat.toFixed(6)}, {t('longitude')}: {location.lng.toFixed(6)}
           </p>
         )}
       </div>
@@ -246,24 +266,42 @@ export default function AppWithProviders() {
     </I18nProvider>
   );
 }`,
-    '/Geolocation.js': `export default function Geolocation({ location, onGetLocation, error }) {
+    '/Geolocation.js': `export default function Geolocation({ location, onGetLocation, error, t, primaryColor = '#f97316' }) {
+  const adjustBrightness = (color, percent) => {
+    const num = parseInt(color.replace('#', ''), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = (num >> 16) + amt;
+    const G = ((num >> 8) & 0x00FF) + amt;
+    const B = (num & 0x0000FF) + amt;
+    return '#' + (
+      0x1000000 +
+      (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+      (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+      (B < 255 ? (B < 1 ? 0 : B) : 255)
+    ).toString(16).slice(1);
+  };
+
+  const hoverColor = adjustBrightness(primaryColor, -10);
+
   return (
     <div className="form-field">
       <button
         onClick={onGetLocation}
         className="btn-primary"
-        style={{ width: '100%' }}
+        style={{ width: '100%', background: primaryColor }}
+        onMouseEnter={(e) => e.currentTarget.style.background = hoverColor}
+        onMouseLeave={(e) => e.currentTarget.style.background = primaryColor}
       >
-        📍 Get Current Location
+        📍 {t('getCurrentLocation')}
       </button>
 
       {location && (
         <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#f3f4f6', borderRadius: '6px' }}>
           <div style={{ marginBottom: '8px' }}>
-            <strong>Latitude:</strong> {location.lat.toFixed(6)}
+            <strong>{t('latitude')}:</strong> {location.lat.toFixed(6)}
           </div>
           <div>
-            <strong>Longitude:</strong> {location.lng.toFixed(6)}
+            <strong>{t('longitude')}:</strong> {location.lng.toFixed(6)}
           </div>
         </div>
       )}
@@ -284,8 +322,15 @@ export default function AppWithProviders() {
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f9fafb;
+  background: #f9fafb !important;
+  color: #1f2937 !important;
   padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 
 .container {
@@ -294,17 +339,28 @@ body {
 }
 
 .card {
-  background: white;
+  background: white !important;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+body.dark .card {
+  background: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 .card-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #111827;
+  color: #111827 !important;
+  transition: color 0.3s;
+}
+
+body.dark .card-title {
+  color: #f1f5f9 !important;
 }
 
 .form-grid {

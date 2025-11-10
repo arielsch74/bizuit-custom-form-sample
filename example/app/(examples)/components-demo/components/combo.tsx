@@ -61,6 +61,14 @@ export const bizuit_comboDoc: ComponentDoc = {
       description: 'Enable search filtering',
       description_es: 'Habilitar funcionalidad de búsqueda',
     },
+    {
+      name: 'primaryColor',
+      type: 'string',
+      required: false,
+      default: '"#a855f7"',
+      description: 'Primary color for focus states and highlights',
+      description_es: 'Color primario para estados de foco y elementos destacados',
+    },
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
@@ -237,6 +245,7 @@ function App() {
           value={selected}
           onChange={setSelected}
           placeholder={t('placeholder')}
+          primaryColor={primaryColor}
         />
         <p className="hint">{t('selected')}: {selected || t('none')}</p>
       </div>
@@ -253,14 +262,34 @@ export default function AppWithProviders() {
     </I18nProvider>
   );
 }`,
-    '/Combo.js': `export default function Combo({ options, value, onChange, placeholder = 'Select...' }) {
+    '/Combo.js': `export default function Combo({ options, value, onChange, placeholder = 'Select...', primaryColor = '#a855f7' }) {
+  // Convert hex to rgba for focus shadow
+  const hexToRgba = (hex, alpha) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return \`rgba(\${r}, \${g}, \${b}, \${alpha})\`;
+  };
+
   return (
     <div style={{ position: 'relative', width: '100%' }}>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="form-input"
-        style={{ cursor: 'pointer' }}
+        style={{
+          cursor: 'pointer',
+          borderColor: value ? primaryColor : undefined,
+          transition: 'border-color 0.2s, box-shadow 0.2s'
+        }}
+        onFocus={(e) => {
+          e.target.style.borderColor = primaryColor;
+          e.target.style.boxShadow = \`0 0 0 3px \${hexToRgba(primaryColor, 0.1)}\`;
+        }}
+        onBlur={(e) => {
+          e.target.style.borderColor = '';
+          e.target.style.boxShadow = '';
+        }}
       >
         <option value="">{placeholder}</option>
         {options.map((option) => (

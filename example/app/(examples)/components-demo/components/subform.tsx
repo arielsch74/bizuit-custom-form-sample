@@ -60,6 +60,14 @@ export const bizuit_subformDoc: ComponentDoc = {
       description: 'Maximum rows allowed',
       description_es: 'Número máximo de instancias permitidas',
     },
+    {
+      name: 'primaryColor',
+      type: 'string',
+      required: false,
+      default: '#a855f7',
+      description: 'Primary color for UI elements (borders, buttons)',
+      description_es: 'Color primario para elementos de UI (bordes, botones)',
+    },
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
@@ -80,14 +88,30 @@ const I18nProvider = ({ children }) => {
 
   const translations = {
   "es": {
-    "title": "Subformulario",
+    "title": "Subformulario - Ítems de Factura",
     "addItem": "Agregar ítem",
-    "removeItem": "Eliminar ítem"
+    "removeItem": "Eliminar",
+    "itemLabel": "Ítem #",
+    "nameLabel": "Nombre",
+    "namePlaceholder": "Nombre del ítem",
+    "qtyLabel": "Cant.",
+    "priceLabel": "Precio",
+    "subtotalLabel": "Subtotal",
+    "totalLabel": "Total",
+    "itemsCount": "ítems"
   },
   "en": {
-    "title": "Subform",
-    "addItem": "Add item",
-    "removeItem": "Remove item"
+    "title": "Subform - Invoice Items",
+    "addItem": "Add Item",
+    "removeItem": "Remove",
+    "itemLabel": "Item #",
+    "nameLabel": "Name",
+    "namePlaceholder": "Item name",
+    "qtyLabel": "Qty",
+    "priceLabel": "Price",
+    "subtotalLabel": "Subtotal",
+    "totalLabel": "Total",
+    "itemsCount": "items"
   }
 };
 
@@ -228,15 +252,17 @@ function App() {
         </div>
       </div>
 
-        <h2 className="card-title">Subform - Invoice Items</h2>
+        <h2 className="card-title">{t('title')}</h2>
         <Subform
           items={items}
           onAddItem={handleAddItem}
           onRemoveItem={handleRemoveItem}
           onChangeItem={handleChangeItem}
+          t={t}
+          primaryColor={primaryColor}
         />
         <p className="hint">
-          Total: $\{total.toFixed(2)\} (\{items.length\} items)
+          {t('totalLabel')}: $\{total.toFixed(2)} ({items.length} {t('itemsCount')})
         </p>
       </div>
     </div>
@@ -252,7 +278,7 @@ export default function AppWithProviders() {
     </I18nProvider>
   );
 }`,
-    '/Subform.js': `export default function Subform({ items, onAddItem, onRemoveItem, onChangeItem }) {
+    '/Subform.js': `export default function Subform({ items, onAddItem, onRemoveItem, onChangeItem, t, primaryColor = '#a855f7' }) {
   return (
     <div className="form-field">
       {items.map((item, index) => (
@@ -260,18 +286,18 @@ export default function AppWithProviders() {
           key={item.id}
           style={{
             padding: '16px',
-            border: '1px solid #e5e7eb',
+            border: \`1px solid \${primaryColor}33\`,
             borderRadius: '6px',
             marginBottom: '12px',
-            backgroundColor: '#f9fafb',
+            backgroundColor: \`\${primaryColor}08\`,
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <strong>Item #{index + 1}</strong>
+            <strong>{t('itemLabel')}{index + 1}</strong>
             <button
               onClick={() => onRemoveItem(index)}
               style={{
-                background: '#ef4444',
+                background: primaryColor,
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
@@ -280,27 +306,27 @@ export default function AppWithProviders() {
                 fontSize: '12px',
               }}
             >
-              Remove
+              {t('removeItem')}
             </button>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '12px' }}>
             <div>
               <label style={{ fontSize: '12px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>
-                Name
+                {t('nameLabel')}
               </label>
               <input
                 type="text"
                 value={item.name}
                 onChange={(e) => onChangeItem(index, 'name', e.target.value)}
                 className="form-input"
-                placeholder="Item name"
+                placeholder={t('namePlaceholder')}
               />
             </div>
 
             <div>
               <label style={{ fontSize: '12px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>
-                Qty
+                {t('qtyLabel')}
               </label>
               <input
                 type="number"
@@ -313,7 +339,7 @@ export default function AppWithProviders() {
 
             <div>
               <label style={{ fontSize: '12px', color: '#6b7280', display: 'block', marginBottom: '4px' }}>
-                Price
+                {t('priceLabel')}
               </label>
               <input
                 type="number"
@@ -326,7 +352,7 @@ export default function AppWithProviders() {
           </div>
 
           <div style={{ marginTop: '8px', textAlign: 'right', color: '#6b7280', fontSize: '14px' }}>
-            Subtotal: $\{(item.quantity * item.price).toFixed(2)\}
+            {t('subtotalLabel')}: $\{(item.quantity * item.price).toFixed(2)\}
           </div>
         </div>
       ))}
@@ -336,7 +362,7 @@ export default function AppWithProviders() {
         className="btn-secondary"
         style={{ width: '100%' }}
       >
-        + Add Item
+        + {t('addItem')}
       </button>
     </div>
   );
@@ -349,8 +375,15 @@ export default function AppWithProviders() {
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f9fafb;
+  background: #f9fafb !important;
+  color: #1f2937 !important;
   padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 
 .container {
@@ -359,17 +392,28 @@ body {
 }
 
 .card {
-  background: white;
+  background: white !important;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+body.dark .card {
+  background: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 .card-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #111827;
+  color: #111827 !important;
+  transition: color 0.3s;
+}
+
+body.dark .card-title {
+  color: #f1f5f9 !important;
 }
 
 .form-grid {

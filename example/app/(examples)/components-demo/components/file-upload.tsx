@@ -60,6 +60,14 @@ export const bizuit_file_uploadDoc: ComponentDoc = {
       default: 'false',
       description: 'Disable upload',
     },
+    {
+      name: 'primaryColor',
+      type: 'string',
+      required: false,
+      default: '#a855f7',
+      description: 'Primary color for the file input accent',
+      description_es: 'Color primario para el acento del input de archivos',
+    },
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
@@ -82,12 +90,14 @@ const I18nProvider = ({ children }) => {
   "es": {
     "title": "Carga de Archivos",
     "dragDrop": "Arrastra y suelta archivos aquí",
-    "selectFiles": "Seleccionar archivos"
+    "selectFiles": "Seleccionar archivos",
+    "filesSelected": "Archivos seleccionados"
   },
   "en": {
     "title": "File Upload",
     "dragDrop": "Drag and drop files here",
-    "selectFiles": "Select files"
+    "selectFiles": "Select files",
+    "filesSelected": "Files selected"
   }
 };
 
@@ -207,14 +217,15 @@ function App() {
         </div>
       </div>
 
-        <h2 className="card-title">File Upload</h2>
+        <h2 className="card-title">{t('title')}</h2>
         <FileUpload
           files={files}
           onChange={setFiles}
           accept="image/*,.pdf,.doc"
+          primaryColor={primaryColor}
         />
         <div className="form-field">
-          <strong>Files selected: {files.length}</strong>
+          <strong>{t('filesSelected')}: {files.length}</strong>
           {files.length > 0 && (
             <ul style={{ paddingLeft: '20px', marginTop: '8px' }}>
               {files.map((file, i) => (
@@ -237,7 +248,7 @@ export default function AppWithProviders() {
     </I18nProvider>
   );
 }`,
-    '/FileUpload.js': `export default function FileUpload({ files, onChange, accept = '*' }) {
+    '/FileUpload.js': `export default function FileUpload({ files, onChange, accept = '*', primaryColor = '#a855f7' }) {
   const handleChange = (e) => {
     const newFiles = Array.from(e.target.files);
     onChange([...files, ...newFiles]);
@@ -250,6 +261,9 @@ export default function AppWithProviders() {
       accept={accept}
       onChange={handleChange}
       className="form-input"
+      style={{
+        accentColor: primaryColor
+      }}
     />
   );
 }`,
@@ -261,8 +275,15 @@ export default function AppWithProviders() {
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f9fafb;
+  background: #f9fafb !important;
+  color: #1f2937 !important;
   padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 
 .container {
@@ -271,17 +292,28 @@ body {
 }
 
 .card {
-  background: white;
+  background: white !important;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+body.dark .card {
+  background: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 .card-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #111827;
+  color: #111827 !important;
+  transition: color 0.3s;
+}
+
+body.dark .card-title {
+  color: #f1f5f9 !important;
 }
 
 .form-grid {

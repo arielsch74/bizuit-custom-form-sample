@@ -68,6 +68,14 @@ export const bizuit_date_time_pickerDoc: ComponentDoc = {
       description: 'Display format',
       description_es: 'Formato de visualización de fecha',
     },
+    {
+      name: 'primaryColor',
+      type: 'string',
+      required: false,
+      default: '"#3b82f6"',
+      description: 'Primary color for focus states and accents',
+      description_es: 'Color primario para estados de foco y acentos',
+    },
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
@@ -90,12 +98,20 @@ const I18nProvider = ({ children }) => {
   "es": {
     "title": "Selector de Fecha y Hora",
     "selectDate": "Seleccionar fecha",
-    "selectTime": "Seleccionar hora"
+    "selectTime": "Seleccionar hora",
+    "datePicker": "Selector de Fecha",
+    "timePicker": "Selector de Hora",
+    "selected": "Seleccionado",
+    "none": "Ninguno"
   },
   "en": {
     "title": "Date Time Picker",
     "selectDate": "Select date",
-    "selectTime": "Select time"
+    "selectTime": "Select time",
+    "datePicker": "Date Picker",
+    "timePicker": "Time Picker",
+    "selected": "Selected",
+    "none": "None"
   }
 };
 
@@ -216,21 +232,23 @@ function App() {
         </div>
       </div>
 
-        <h2 className="card-title">Date Picker</h2>
+        <h2 className="card-title">{t('datePicker')}</h2>
         <DateTimePicker
           type="date"
           value={date}
           onChange={setDate}
+          primaryColor={primaryColor}
         />
-        <p className="hint">Selected: {date || 'None'}</p>
+        <p className="hint">{t('selected')}: {date || t('none')}</p>
 
-        <h2 className="card-title" style={{ marginTop: '24px' }}>Time Picker</h2>
+        <h2 className="card-title" style={{ marginTop: '24px' }}>{t('timePicker')}</h2>
         <DateTimePicker
           type="time"
           value={time}
           onChange={setTime}
+          primaryColor={primaryColor}
         />
-        <p className="hint">Selected: {time || 'None'}</p>
+        <p className="hint">{t('selected')}: {time || t('none')}</p>
       </div>
     </div>
   );
@@ -245,13 +263,17 @@ export default function AppWithProviders() {
     </I18nProvider>
   );
 }`,
-    '/DateTimePicker.js': `export default function DateTimePicker({ type = 'date', value, onChange }) {
+    '/DateTimePicker.js': `export default function DateTimePicker({ type = 'date', value, onChange, primaryColor = '#3b82f6' }) {
   return (
     <input
       type={type}
       value={value}
       onChange={(e) => onChange(e.target.value)}
       className="form-input"
+      style={{
+        '--primary-color': primaryColor,
+        '--primary-color-rgb': primaryColor.replace('#', '').match(/.{2}/g).map(x => parseInt(x, 16)).join(', ')
+      }}
     />
   );
 }`,
@@ -263,8 +285,15 @@ export default function AppWithProviders() {
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f9fafb;
+  background: #f9fafb !important;
+  color: #1f2937 !important;
   padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 
 .container {
@@ -273,17 +302,28 @@ body {
 }
 
 .card {
-  background: white;
+  background: white !important;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+body.dark .card {
+  background: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 .card-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #111827;
+  color: #111827 !important;
+  transition: color 0.3s;
+}
+
+body.dark .card-title {
+  color: #f1f5f9 !important;
 }
 
 .form-grid {
@@ -318,8 +358,8 @@ body {
 
 .form-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--primary-color, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb, 59, 130, 246), 0.1);
 }
 
 /* Asegurar que los inputs especiales usen la misma fuente */

@@ -69,6 +69,14 @@ export const bizuit_mediaDoc: ComponentDoc = {
       required: false,
       description: 'Video poster image URL',
     },
+    {
+      name: 'primaryColor',
+      type: 'string',
+      required: false,
+      default: '"#a855f7"',
+      description: 'Primary color for buttons and controls',
+      description_es: 'Color primario para botones y controles',
+    },
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
@@ -77,6 +85,9 @@ import './styles.css';
 
 // 🌐 Contexto de Internacionalización (i18n)
 const I18nContext = createContext();
+
+// Exportar el contexto para que Media.js pueda usarlo
+export { I18nContext };
 
 const useTranslation = () => {
   const context = useContext(I18nContext);
@@ -92,13 +103,29 @@ const I18nProvider = ({ children }) => {
     "title": "Reproductor de Media",
     "play": "Reproducir",
     "pause": "Pausar",
-    "stop": "Detener"
+    "stop": "Detener",
+    "imageDisplay": "Visualización de Imagen",
+    "videoPlayer": "Reproductor de Video",
+    "cameraCapture": "Captura de Cámara",
+    "photoCaptured": "¡Foto capturada exitosamente!",
+    "mediaContent": "Contenido multimedia",
+    "cameraInterface": "La interfaz de la cámara aparecería aquí",
+    "capturePhoto": "Capturar Foto",
+    "qrScannerInterface": "La interfaz del escáner QR aparecería aquí"
   },
   "en": {
     "title": "Media Player",
     "play": "Play",
     "pause": "Pause",
-    "stop": "Stop"
+    "stop": "Stop",
+    "imageDisplay": "Image Display",
+    "videoPlayer": "Video Player",
+    "cameraCapture": "Camera Capture",
+    "photoCaptured": "Photo captured successfully!",
+    "mediaContent": "Media content",
+    "cameraInterface": "Camera interface would appear here",
+    "capturePhoto": "Capture Photo",
+    "qrScannerInterface": "QR Scanner interface would appear here"
   }
 };
 
@@ -218,34 +245,37 @@ function App() {
         </div>
       </div>
 
-        <h2 className="card-title">Image Display</h2>
+        <h2 className="card-title">{t('imageDisplay')}</h2>
         <Media
           type="image"
           src="https://picsum.photos/600/400"
           alt="Sample image"
+          primaryColor={primaryColor}
         />
       </div>
 
       <div className="card" style={{ marginTop: '24px' }}>
-        <h2 className="card-title">Video Player</h2>
+        <h2 className="card-title">{t('videoPlayer')}</h2>
         <Media
           type="video"
           src="https://www.w3schools.com/html/mov_bbb.mp4"
           controls
+          primaryColor={primaryColor}
         />
       </div>
 
       <div className="card" style={{ marginTop: '24px' }}>
-        <h2 className="card-title">Camera Capture</h2>
+        <h2 className="card-title">{t('cameraCapture')}</h2>
         <Media
           type="camera"
           onCapture={(dataUrl) => {
             setCapturedPhoto(dataUrl);
             console.log('Photo captured:', dataUrl);
           }}
+          primaryColor={primaryColor}
         />
         {capturedPhoto && (
-          <p className="hint" style={{ marginTop: '12px' }}>Photo captured successfully!</p>
+          <p className="hint" style={{ marginTop: '12px' }}>{t('photoCaptured')}</p>
         )}
       </div>
     </div>
@@ -261,23 +291,31 @@ export default function AppWithProviders() {
     </I18nProvider>
   );
 }`,
-    '/Media.js': `export default function Media({
+    '/Media.js': `import { useContext } from 'react';
+
+// Asumiendo que I18nContext está disponible desde App.js
+const I18nContext = require('./App.js').I18nContext;
+
+export default function Media({
   type,
   src,
-  alt = 'Media content',
+  alt,
   width,
   height,
   controls = true,
   autoPlay = false,
   onCapture,
-  onQRCodeDetected
+  onQRCodeDetected,
+  primaryColor = '#a855f7'
 }) {
+  const { t } = useContext(I18nContext) || { t: (key) => key };
+  const defaultAlt = alt || t('mediaContent');
   if (type === 'image') {
     return (
       <div className="form-field">
         <img
           src={src}
-          alt={alt}
+          alt={defaultAlt}
           width={width}
           height={height}
           className="w-full rounded-lg"
@@ -318,12 +356,15 @@ export default function AppWithProviders() {
     return (
       <div className="form-field">
         <div className="bg-muted rounded-lg p-8 text-center" style={{ height: height || 300 }}>
-          <p>Camera interface would appear here</p>
+          <p>{t('cameraInterface')}</p>
           <button
             className="btn-primary mt-4"
             onClick={() => onCapture?.('data:image/png;base64,...')}
+            style={{ background: primaryColor }}
+            onMouseOver={(e) => e.currentTarget.style.opacity = '0.9'}
+            onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
           >
-            Capture Photo
+            {t('capturePhoto')}
           </button>
         </div>
       </div>
@@ -334,7 +375,7 @@ export default function AppWithProviders() {
     return (
       <div className="form-field">
         <div className="bg-muted rounded-lg p-8 text-center" style={{ height: height || 300 }}>
-          <p>QR Scanner interface would appear here</p>
+          <p>{t('qrScannerInterface')}</p>
         </div>
       </div>
     );
@@ -350,8 +391,15 @@ export default function AppWithProviders() {
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f9fafb;
+  background: #f9fafb !important;
+  color: #1f2937 !important;
   padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 
 .container {
@@ -360,22 +408,33 @@ body {
 }
 
 .card {
-  background: white;
+  background: white !important;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+body.dark .card {
+  background: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 .card-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #111827;
+  color: #111827 !important;
+  transition: color 0.3s;
+}
+
+body.dark .card-title {
+  color: #f1f5f9 !important;
 }
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmin(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 16px;
   margin-bottom: 16px;
 }

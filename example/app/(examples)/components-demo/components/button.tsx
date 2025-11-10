@@ -283,6 +283,7 @@ export default function AppWithProviders() {
   className = '',
   children,
   onClick,
+  primaryColor,
   ...props
 }) {
   const baseStyles = {
@@ -298,7 +299,7 @@ export default function AppWithProviders() {
   };
 
   const variants = {
-    default: { background: '#f97316', color: 'white' },
+    default: { background: primaryColor || '#f97316', color: 'white' },
     destructive: { background: '#dc2626', color: 'white' },
     outline: { border: '1px solid #d1d5db', background: 'white', color: '#374151' },
     secondary: { background: 'white', color: '#374151', border: '1px solid #d1d5db' },

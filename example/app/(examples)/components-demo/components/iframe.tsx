@@ -61,6 +61,14 @@ export const bizuit_iframeDoc: ComponentDoc = {
       description: 'Sandbox restrictions',
       description_es: 'Permisos de sandbox del iframe',
     },
+    {
+      name: 'primaryColor',
+      type: 'string',
+      required: false,
+      default: '"#a855f7"',
+      description: 'Primary color for iframe border',
+      description_es: 'Color primario para el borde del iframe',
+    },
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
@@ -83,12 +91,22 @@ const I18nProvider = ({ children }) => {
   "es": {
     "title": "IFrame",
     "loadUrl": "Cargar URL",
-    "enterUrl": "Ingrese URL"
+    "enterUrl": "Ingrese URL",
+    "embeddedWebsite": "Sitio Web Embebido",
+    "exampleWebsite": "Sitio de Ejemplo",
+    "contentLoadedSuccess": "Contenido cargado exitosamente",
+    "googleMapsEmbed": "Mapa de Google Embebido",
+    "googleMaps": "Google Maps"
   },
   "en": {
     "title": "IFrame",
     "loadUrl": "Load URL",
-    "enterUrl": "Enter URL"
+    "enterUrl": "Enter URL",
+    "embeddedWebsite": "Embedded Website",
+    "exampleWebsite": "Example Website",
+    "contentLoadedSuccess": "Content loaded successfully",
+    "googleMapsEmbed": "Google Maps Embed",
+    "googleMaps": "Google Maps"
   }
 };
 
@@ -208,11 +226,12 @@ function App() {
         </div>
       </div>
 
-        <h2 className="card-title">Embedded Website</h2>
+        <h2 className="card-title">{t('embeddedWebsite')}</h2>
         <Iframe
           src="https://www.example.com"
-          title="Example Website"
+          title={t('exampleWebsite')}
           height={400}
+          primaryColor={primaryColor}
           onLoad={() => {
             setIsLoaded(true);
             console.log('Iframe loaded successfully');
@@ -220,17 +239,18 @@ function App() {
           onError={() => console.error('Failed to load iframe')}
         />
         {isLoaded && (
-          <p className="hint" style={{ marginTop: '12px' }}>Content loaded successfully</p>
+          <p className="hint" style={{ marginTop: '12px' }}>{t('contentLoadedSuccess')}</p>
         )}
       </div>
 
       <div className="card" style={{ marginTop: '24px' }}>
-        <h2 className="card-title">Google Maps Embed</h2>
+        <h2 className="card-title">{t('googleMapsEmbed')}</h2>
         <Iframe
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.2412634346395!2d-73.98823492346653!3d40.74844097138558!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259a9b3117469%3A0xd134e199a405a163!2sEmpire%20State%20Building!5e0!3m2!1sen!2sus!4v1699999999999!5m2!1sen!2sus"
-          title="Google Maps"
+          title={t('googleMaps')}
           height={450}
           loading="lazy"
+          primaryColor={primaryColor}
         />
       </div>
     </div>
@@ -253,6 +273,7 @@ export default function AppWithProviders() {
   height = 500,
   loading = 'lazy',
   showLoader = true,
+  primaryColor = '#a855f7',
   onLoad,
   onError,
   ...props
@@ -268,6 +289,7 @@ export default function AppWithProviders() {
         onLoad={onLoad}
         onError={onError}
         className="rounded-lg border"
+        style={{ borderColor: primaryColor }}
         {...props}
       />
     </div>
@@ -281,8 +303,15 @@ export default function AppWithProviders() {
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f9fafb;
+  background: #f9fafb !important;
+  color: #1f2937 !important;
   padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 
 .container {
@@ -291,22 +320,33 @@ body {
 }
 
 .card {
-  background: white;
+  background: white !important;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+body.dark .card {
+  background: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 .card-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #111827;
+  color: #111827 !important;
+  transition: color 0.3s;
+}
+
+body.dark .card-title {
+  color: #f1f5f9 !important;
 }
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmin(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 16px;
   margin-bottom: 16px;
 }

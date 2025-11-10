@@ -61,6 +61,14 @@ export const bizuit_radio_buttonDoc: ComponentDoc = {
       description: 'Disable all options',
       description_es: 'Deshabilitar todas las opciones',
     },
+    {
+      name: 'primaryColor',
+      type: 'string',
+      required: false,
+      default: '"#a855f7"',
+      description: 'Primary color for checked state and focus rings',
+      description_es: 'Color primario para estado seleccionado y anillos de enfoque',
+    },
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
@@ -82,15 +90,19 @@ const I18nProvider = ({ children }) => {
   const translations = {
   "es": {
     "title": "Botones de Radio",
+    "selectOption": "Selecciona una Opción",
     "option1": "Opción 1",
     "option2": "Opción 2",
-    "option3": "Opción 3"
+    "option3": "Opción 3",
+    "selected": "Seleccionado:"
   },
   "en": {
     "title": "Radio Buttons",
+    "selectOption": "Select an Option",
     "option1": "Option 1",
     "option2": "Option 2",
-    "option3": "Option 3"
+    "option3": "Option 3",
+    "selected": "Selected:"
   }
 };
 
@@ -210,29 +222,32 @@ function App() {
         </div>
       </div>
 
-        <h2 className="card-title">Select an Option</h2>
+        <h2 className="card-title">{t('selectOption')}</h2>
         <RadioButton
           name="options"
           value="option1"
           checked={selected === 'option1'}
           onChange={() => setSelected('option1')}
-          label="Option 1"
+          label={t('option1')}
+          primaryColor={primaryColor}
         />
         <RadioButton
           name="options"
           value="option2"
           checked={selected === 'option2'}
           onChange={() => setSelected('option2')}
-          label="Option 2"
+          label={t('option2')}
+          primaryColor={primaryColor}
         />
         <RadioButton
           name="options"
           value="option3"
           checked={selected === 'option3'}
           onChange={() => setSelected('option3')}
-          label="Option 3"
+          label={t('option3')}
+          primaryColor={primaryColor}
         />
-        <p className="hint">Selected: {selected}</p>
+        <p className="hint">{t('selected')} {selected}</p>
       </div>
     </div>
   );
@@ -247,7 +262,7 @@ export default function AppWithProviders() {
     </I18nProvider>
   );
 }`,
-    '/RadioButton.js': `export default function RadioButton({ name, value, checked, onChange, label }) {
+    '/RadioButton.js': `export default function RadioButton({ name, value, checked, onChange, label, primaryColor = '#a855f7' }) {
   return (
     <div className="form-checkbox">
       <input
@@ -256,6 +271,9 @@ export default function AppWithProviders() {
         value={value}
         checked={checked}
         onChange={onChange}
+        style={{
+          accentColor: primaryColor
+        }}
       />
       <label onClick={onChange}>{label}</label>
     </div>
@@ -269,8 +287,15 @@ export default function AppWithProviders() {
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f9fafb;
+  background: #f9fafb !important;
+  color: #1f2937 !important;
   padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 
 .container {
@@ -279,17 +304,28 @@ body {
 }
 
 .card {
-  background: white;
+  background: white !important;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+body.dark .card {
+  background: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 .card-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #111827;
+  color: #111827 !important;
+  transition: color 0.3s;
+}
+
+body.dark .card-title {
+  color: #f1f5f9 !important;
 }
 
 .form-grid {

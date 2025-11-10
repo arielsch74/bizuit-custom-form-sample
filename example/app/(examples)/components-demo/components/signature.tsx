@@ -52,6 +52,14 @@ export const bizuit_signatureDoc: ComponentDoc = {
       description: 'Pen stroke width',
     },
     {
+      name: 'primaryColor',
+      type: 'string',
+      required: false,
+      default: '"#f97316"',
+      description: 'Primary color for buttons',
+      description_es: 'Color primario para botones',
+    },
+    {
       name: 'width',
       type: 'number',
       required: false,
@@ -90,13 +98,21 @@ const I18nProvider = ({ children }) => {
     "title": "Firma Digital",
     "sign": "Firmar",
     "clear": "Limpiar",
-    "save": "Guardar"
+    "save": "Guardar",
+    "signatureCaptured": "Firma capturada",
+    "drawSignature": "Dibuja tu firma arriba",
+    "signatureSuccess": "✓ Firma Capturada",
+    "clickToSign": 'Haz clic en el botón "Firmar" para simular la firma'
   },
   "en": {
     "title": "Digital Signature",
     "sign": "Sign",
     "clear": "Clear",
-    "save": "Save"
+    "save": "Save",
+    "signatureCaptured": "Signature captured",
+    "drawSignature": "Draw your signature above",
+    "signatureSuccess": "✓ Signature Captured",
+    "clickToSign": 'Click "Sign" button to simulate signature'
   }
 };
 
@@ -216,13 +232,15 @@ function App() {
         </div>
       </div>
 
-        <h2 className="card-title">Digital Signature</h2>
+        <h2 className="card-title">{t('title')}</h2>
         <Signature
           value={signature}
           onChange={setSignature}
+          t={t}
+          primaryColor={primaryColor}
         />
         <p className="hint">
-          {signature ? 'Signature captured' : 'Draw your signature above'}
+          {signature ? t('signatureCaptured') : t('drawSignature')}
         </p>
       </div>
     </div>
@@ -238,13 +256,21 @@ export default function AppWithProviders() {
     </I18nProvider>
   );
 }`,
-    '/Signature.js': `export default function Signature({ value, onChange }) {
+    '/Signature.js': `export default function Signature({ value, onChange, t, primaryColor = '#f97316' }) {
   const handleClear = () => {
     onChange('');
   };
 
   const handleSign = () => {
     onChange('SIGNED_' + Date.now());
+  };
+
+  const getPrimaryColorDark = (hexColor) => {
+    const hex = hexColor.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    return '#' + [r * 0.85 | 0, g * 0.85 | 0, b * 0.85 | 0].map(x => x.toString(16).padStart(2, '0')).join('');
   };
 
   return (
@@ -264,21 +290,27 @@ export default function AppWithProviders() {
       >
         {value ? (
           <div style={{ fontSize: '24px', fontFamily: 'cursive', color: '#374151' }}>
-            ✓ Signature Captured
+            {t('signatureSuccess')}
           </div>
         ) : (
           <div style={{ color: '#9ca3af' }}>
-            Click "Sign" button to simulate signature
+            {t('clickToSign')}
           </div>
         )}
       </div>
 
       <div className="form-actions">
-        <button onClick={handleSign} className="btn-primary">
-          ✍️ Sign
+        <button
+          onClick={handleSign}
+          className="btn-primary"
+          style={{ background: primaryColor }}
+          onMouseEnter={(e) => e.target.style.background = getPrimaryColorDark(primaryColor)}
+          onMouseLeave={(e) => e.target.style.background = primaryColor}
+        >
+          ✍️ {t('sign')}
         </button>
         <button onClick={handleClear} className="btn-secondary">
-          Clear
+          {t('clear')}
         </button>
       </div>
     </div>
@@ -292,8 +324,15 @@ export default function AppWithProviders() {
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f9fafb;
+  background: #f9fafb !important;
+  color: #1f2937 !important;
   padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 
 .container {
@@ -302,17 +341,28 @@ body {
 }
 
 .card {
-  background: white;
+  background: white !important;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+body.dark .card {
+  background: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 .card-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #111827;
+  color: #111827 !important;
+  transition: color 0.3s;
+}
+
+body.dark .card-title {
+  color: #f1f5f9 !important;
 }
 
 .form-grid {

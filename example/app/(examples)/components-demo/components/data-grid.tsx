@@ -39,6 +39,14 @@ export const bizuit_data_gridDoc: ComponentDoc = {
       description_es: 'Array de datos a mostrar',
     },
     {
+      name: 'primaryColor',
+      type: 'string',
+      required: false,
+      default: '#a855f7',
+      description: 'Primary color for headers and borders',
+      description_es: 'Color primario para encabezados y bordes',
+    },
+    {
       name: 'onSort',
       type: '(column: string, direction: "asc" | "desc") => void',
       required: false,
@@ -84,14 +92,36 @@ const I18nProvider = ({ children }) => {
     "name": "Nombre",
     "age": "Edad",
     "email": "Email",
-    "status": "Estado"
+    "status": "Estado",
+    "row": "Fila",
+    "alice": "Alicia",
+    "bob": "Roberto",
+    "alice_email": "alicia@ejemplo.com",
+    "bob_email": "roberto@ejemplo.com",
+    "john": "Juan",
+    "john_email": "juan@ejemplo.com",
+    "jane": "Juana",
+    "jane_email": "juana@ejemplo.com",
+    "active": "Activo",
+    "inactive": "Inactivo"
   },
   "en": {
     "title": "Data Grid",
     "name": "Name",
     "age": "Age",
     "email": "Email",
-    "status": "Status"
+    "status": "Status",
+    "row": "Row",
+    "alice": "Alice",
+    "bob": "Bob",
+    "alice_email": "alice@example.com",
+    "bob_email": "bob@example.com",
+    "john": "John Doe",
+    "john_email": "john@example.com",
+    "jane": "Jane Smith",
+    "jane_email": "jane@example.com",
+    "active": "Active",
+    "inactive": "Inactive"
   }
 };
 
@@ -149,16 +179,16 @@ function App() {
   const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
 
   const [data] = useState([
-    { id: 1, name: 'John Doe', age: 32, email: 'john@example.com', status: 'Active' },
-    { id: 2, name: 'Jane Smith', age: 28, email: 'jane@example.com', status: 'Active' },
-    { id: 3, name: 'Bob Johnson', age: 45, email: 'bob@example.com', status: 'Inactive' },
+    { id: 1, name: t('john'), age: 32, email: t('john_email'), status: t('active') },
+    { id: 2, name: t('jane'), age: 28, email: t('jane_email'), status: t('active') },
+    { id: 3, name: t('bob'), age: 45, email: t('bob_email'), status: t('inactive') },
   ]);
 
   const [columns] = useState([
-    { key: 'name', label: 'Name', width: '200px' },
-    { key: 'age', label: 'Age', width: '80px' },
-    { key: 'email', label: 'Email', width: '250px' },
-    { key: 'status', label: 'Status', width: '100px' },
+    { key: 'name', label: t('name'), width: '200px' },
+    { key: 'age', label: t('age'), width: '80px' },
+    { key: 'email', label: t('email'), width: '250px' },
+    { key: 'status', label: t('status'), width: '100px' },
   ]);
 
   return (
@@ -223,7 +253,7 @@ function App() {
       </div>
 
         <h2 className="card-title">Data Grid</h2>
-        <DataGrid data={data} columns={columns} />
+        <DataGrid data={data} columns={columns} primaryColor={primaryColor} />
         <p className="hint">Showing {data.length} records</p>
       </div>
     </div>
@@ -239,12 +269,12 @@ export default function AppWithProviders() {
     </I18nProvider>
   );
 }`,
-    '/DataGrid.js': `export default function DataGrid({ data, columns }) {
+    '/DataGrid.js': `export default function DataGrid({ data, columns, primaryColor = '#a855f7' }) {
   return (
     <div style={{ overflowX: 'auto' }}>
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
-          <tr style={{ backgroundColor: '#f3f4f6', borderBottom: '2px solid #e5e7eb' }}>
+          <tr style={{ backgroundColor: primaryColor + '20', borderBottom: \`2px solid \${primaryColor}\` }}>
             {columns.map((col) => (
               <th
                 key={col.key}
@@ -253,7 +283,7 @@ export default function AppWithProviders() {
                   textAlign: 'left',
                   fontWeight: 600,
                   fontSize: '14px',
-                  color: '#374151',
+                  color: primaryColor,
                   width: col.width || 'auto',
                 }}
               >
@@ -298,8 +328,15 @@ export default function AppWithProviders() {
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f9fafb;
+  background: #f9fafb !important;
+  color: #1f2937 !important;
   padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 
 .container {
@@ -308,17 +345,28 @@ body {
 }
 
 .card {
-  background: white;
+  background: white !important;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+body.dark .card {
+  background: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 .card-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #111827;
+  color: #111827 !important;
+  transition: color 0.3s;
+}
+
+body.dark .card-title {
+  color: #f1f5f9 !important;
 }
 
 .form-grid {

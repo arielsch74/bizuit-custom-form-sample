@@ -64,6 +64,14 @@ export const bizuit_cardDoc: ComponentDoc = {
       default: 'false',
       description: 'Enable hover effect',
     },
+    {
+      name: 'primaryColor',
+      type: 'string',
+      required: false,
+      default: '#a855f7',
+      description: 'Primary color for accents and borders',
+      description_es: 'Color primario para acentos y bordes',
+    },
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
@@ -228,6 +236,7 @@ function App() {
         <Card
           title={t('defaultTitle')}
           description={t('defaultDesc')}
+          primaryColor={primaryColor}
         >
           <p className="hint">{t('defaultContent')}</p>
         </Card>
@@ -237,6 +246,7 @@ function App() {
           title={t('outlineTitle')}
           description={t('outlineDesc')}
           hoverable
+          primaryColor={primaryColor}
         >
           <p className="hint">{t('outlineContent')}</p>
         </Card>
@@ -246,6 +256,7 @@ function App() {
           title={t('filledTitle')}
           description={t('filledDesc')}
           clickable
+          primaryColor={primaryColor}
         >
           <p className="hint">{t('filledContent')}</p>
         </Card>
@@ -273,6 +284,7 @@ export default function AppWithProviders() {
   hoverable = false,
   clickable = false,
   className = '',
+  primaryColor = '#a855f7',
   ...props
 }) {
   const variantClasses = {

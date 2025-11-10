@@ -93,13 +93,17 @@ const I18nProvider = ({ children }) => {
     "title": "Control Deslizante",
     "value": "Valor",
     "min": "Mínimo",
-    "max": "Máximo"
+    "max": "Máximo",
+    "singleValue": "Valor Único",
+    "range": "Rango"
   },
   "en": {
     "title": "Slider",
     "value": "Value",
     "min": "Minimum",
-    "max": "Maximum"
+    "max": "Maximum",
+    "singleValue": "Single Value",
+    "range": "Range"
   }
 };
 
@@ -219,21 +223,23 @@ function App() {
         </div>
       </div>
 
-        <h2 className="card-title">Single Value: {singleValue}</h2>
+        <h2 className="card-title">{t('singleValue')}: {singleValue}</h2>
         <Slider
           value={singleValue}
           onChange={setSingleValue}
           min={0}
           max={100}
+          primaryColor={primaryColor}
         />
 
-        <h2 className="card-title" style={{ marginTop: '24px' }}>Range: {rangeValue[0]} - {rangeValue[1]}</h2>
+        <h2 className="card-title" style={{ marginTop: '24px' }}>{t('range')}: {rangeValue[0]} - {rangeValue[1]}</h2>
         <Slider
           value={rangeValue}
           onChange={setRangeValue}
           min={0}
           max={100}
           range
+          primaryColor={primaryColor}
         />
       </div>
     </div>
@@ -249,7 +255,7 @@ export default function AppWithProviders() {
     </I18nProvider>
   );
 }`,
-    '/Slider.js': `export default function Slider({ value, onChange, min = 0, max = 100, range = false }) {
+    '/Slider.js': `export default function Slider({ value, onChange, min = 0, max = 100, range = false, primaryColor = '#ea580c' }) {
   const handleChange = (e, index) => {
     const newValue = Number(e.target.value);
     if (range) {
@@ -271,7 +277,7 @@ export default function AppWithProviders() {
             max={max}
             value={value[0]}
             onChange={(e) => handleChange(e, 0)}
-            style={{ width: '100%', accentColor: '#ea580c' }}
+            style={{ width: '100%', accentColor: primaryColor }}
           />
           <input
             type="range"
@@ -279,7 +285,7 @@ export default function AppWithProviders() {
             max={max}
             value={value[1]}
             onChange={(e) => handleChange(e, 1)}
-            style={{ width: '100%', accentColor: '#ea580c' }}
+            style={{ width: '100%', accentColor: primaryColor }}
           />
         </div>
       ) : (
@@ -303,8 +309,15 @@ export default function AppWithProviders() {
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f9fafb;
+  background: #f9fafb !important;
+  color: #1f2937 !important;
   padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 
 .container {
@@ -313,17 +326,28 @@ body {
 }
 
 .card {
-  background: white;
+  background: white !important;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+body.dark .card {
+  background: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 .card-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #111827;
+  color: #111827 !important;
+  transition: color 0.3s;
+}
+
+body.dark .card-title {
+  color: #f1f5f9 !important;
 }
 
 .form-grid {

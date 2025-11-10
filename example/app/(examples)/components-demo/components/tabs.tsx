@@ -76,13 +76,33 @@ const I18nProvider = ({ children }) => {
     "title": "Pestañas",
     "tab1": "Pestaña 1",
     "tab2": "Pestaña 2",
-    "tab3": "Pestaña 3"
+    "tab3": "Pestaña 3",
+    "tab1Content": "Contenido de la pestaña 1",
+    "tab2Content": "Contenido de la pestaña 2",
+    "tab3Content": "Contenido de la pestaña 3",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "notifications": "Notificaciones",
+    "profileContent": "Contenido del perfil aquí...",
+    "settingsContent": "Contenido de configuración aquí...",
+    "notificationsContent": "Contenido de notificaciones aquí...",
+    "exampleTitle": "Ejemplo de Pestañas"
   },
   "en": {
     "title": "Tabs",
     "tab1": "Tab 1",
     "tab2": "Tab 2",
-    "tab3": "Tab 3"
+    "tab3": "Tab 3",
+    "tab1Content": "Content for tab 1",
+    "tab2Content": "Content for tab 2",
+    "tab3Content": "Content for tab 3",
+    "profile": "Profile",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "profileContent": "Profile content here...",
+    "settingsContent": "Settings content here...",
+    "notificationsContent": "Notifications content here...",
+    "exampleTitle": "Tabs Example"
   }
 };
 
@@ -141,9 +161,9 @@ function App() {
 
   const [activeTab, setActiveTab] = useState('tab1');
   const [tabs] = useState([
-    { id: 'tab1', label: 'Profile', content: 'Profile content here...' },
-    { id: 'tab2', label: 'Settings', content: 'Settings content here...' },
-    { id: 'tab3', label: 'Notifications', content: 'Notifications content here...' },
+    { id: 'tab1', label: t('profile'), content: t('profileContent') },
+    { id: 'tab2', label: t('settings'), content: t('settingsContent') },
+    { id: 'tab3', label: t('notifications'), content: t('notificationsContent') },
   ]);
 
   return (
@@ -207,8 +227,8 @@ function App() {
         </div>
       </div>
 
-        <h2 className="card-title">Tabs Example</h2>
-        <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+        <h2 className="card-title">{t('exampleTitle')}</h2>
+        <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} primaryColor={primaryColor} />
       </div>
     </div>
   );
@@ -223,7 +243,7 @@ export default function AppWithProviders() {
     </I18nProvider>
   );
 }`,
-    '/Tabs.js': `export default function Tabs({ tabs, activeTab, onTabChange }) {
+    '/Tabs.js': `export default function Tabs({ tabs, activeTab, onTabChange, primaryColor = '#6366f1' }) {
   return (
     <div>
       <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid #d1d5db' }}>
@@ -234,7 +254,7 @@ export default function AppWithProviders() {
             style={{
               padding: '8px 16px',
               border: 'none',
-              borderBottom: activeTab === tab.id ? '2px solid #f97316' : '2px solid transparent',
+              borderBottom: activeTab === tab.id ? \`2px solid \${primaryColor}\` : '2px solid transparent',
               background: 'transparent',
               cursor: 'pointer',
               fontWeight: activeTab === tab.id ? '600' : '400',
@@ -258,8 +278,15 @@ export default function AppWithProviders() {
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f9fafb;
+  background: #f9fafb !important;
+  color: #1f2937 !important;
   padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 
 .container {
@@ -268,17 +295,28 @@ body {
 }
 
 .card {
-  background: white;
+  background: white !important;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+body.dark .card {
+  background: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 .card-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #111827;
+  color: #111827 !important;
+  transition: color 0.3s;
+}
+
+body.dark .card-title {
+  color: #f1f5f9 !important;
 }
 
 .form-grid {
