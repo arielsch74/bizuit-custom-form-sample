@@ -62,33 +62,167 @@ export const bizuit_data_gridDoc: ComponentDoc = {
     },
   ],
   codeExample: {
-    '/App.js': `import { useState } from 'react';
-import DataGrid from './DataGrid.js';
+    '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
 import './styles.css';
 
-export default function App() {
-  const [data] = useState([
-    { id: 1, name: 'Juan Pérez', email: 'juan@example.com', role: 'Admin' },
-    { id: 2, name: 'María García', email: 'maria@example.com', role: 'User' },
-    { id: 3, name: 'Carlos López', email: 'carlos@example.com', role: 'User' },
-    { id: 4, name: 'Ana Martínez', email: 'ana@example.com', role: 'Editor' },
-  ]);
+// 🌐 Contexto de Internacionalización (i18n)
+const I18nContext = createContext();
 
-  const columns = [
-    { key: 'id', label: 'ID', width: '60px' },
-    { key: 'name', label: 'Name' },
-    { key: 'email', label: 'Email' },
-    { key: 'role', label: 'Role', width: '100px' },
-  ];
+const useTranslation = () => {
+  const context = useContext(I18nContext);
+  if (!context) throw new Error('useTranslation debe usarse dentro de I18nProvider');
+  return context;
+};
+
+const I18nProvider = ({ children }) => {
+  const [language, setLanguage] = useState('es');
+
+  const translations = {
+  "es": {
+    "title": "Tabla de Datos",
+    "name": "Nombre",
+    "age": "Edad",
+    "email": "Email",
+    "status": "Estado"
+  },
+  "en": {
+    "title": "Data Grid",
+    "name": "Name",
+    "age": "Age",
+    "email": "Email",
+    "status": "Status"
+  }
+};
+
+  const t = (key) => {
+    const keys = key.split('.');
+    let value = translations[language];
+    for (const k of keys) {
+      value = value?.[k];
+    }
+    return value || key;
+  };
 
   return (
-    <div className="container">
+    <I18nContext.Provider value={{ t, language, setLanguage }}>
+      {children}
+    </I18nContext.Provider>
+  );
+};
+
+// 🎨 Contexto de Tema (Dark/Light/System)
+const ThemeContext = createContext();
+
+const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) throw new Error('useTheme debe usarse dentro de ThemeProvider');
+  return context;
+};
+
+const ThemeProvider = ({ children }) => {
+  const [mode, setMode] = useState('system');
+  const [primaryColor, setPrimaryColor] = useState('#a855f7');
+
+  const getSystemTheme = () => {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  };
+
+  const effectiveTheme = mode === 'system' ? getSystemTheme() : mode;
+  const isDark = effectiveTheme === 'dark';
+
+  useEffect(() => {
+    document.body.className = isDark ? 'dark' : 'light';
+  }, [isDark]);
+
+  return (
+    <ThemeContext.Provider value={{ mode, setMode, isDark, primaryColor, setPrimaryColor }}>
+      <div className={isDark ? 'dark' : 'light'}>
+        {children}
+      </div>
+    </ThemeContext.Provider>
+  );
+};
+
+function App() {
+  const { t, language, setLanguage } = useTranslation();
+  const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
+
+  return (
+<div className="container">
       <div className="card">
+      {/* Theme and Language Controls */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <button
+          type="button"
+          onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+          style={{
+            padding: '6px 12px',
+            background: isDark ? '#374151' : '#f3f4f6',
+            color: isDark ? '#f9fafb' : '#111827',
+            border: \`1px solid ${isDark ? '#4b5563' : '#d1d5db'}\`,
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500'
+          }}
+        >
+          {language === 'es' ? '🇬🇧 EN' : '🇪🇸 ES'}
+        </button>
+
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '4px' }}>
+            {['light', 'dark', 'system'].map(themeMode => (
+              <button
+                key={themeMode}
+                type="button"
+                onClick={() => setMode(themeMode)}
+                style={{
+                  padding: '6px 12px',
+                  background: mode === themeMode ? primaryColor : (isDark ? '#374151' : '#f3f4f6'),
+                  color: mode === themeMode ? 'white' : (isDark ? '#f9fafb' : '#111827'),
+                  border: \`1px solid ${mode === themeMode ? primaryColor : (isDark ? '#4b5563' : '#d1d5db')}\`,
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: '500'
+                }}
+              >
+                {themeMode === 'light' ? '☀️' : themeMode === 'dark' ? '🌙' : '💻'}
+              </button>
+            ))}
+          </div>
+
+          <input
+            type="color"
+            value={primaryColor}
+            onChange={(e) => setPrimaryColor(e.target.value)}
+            style={{
+              width: '40px',
+              height: '32px',
+              border: \`1px solid ${isDark ? '#4b5563' : '#d1d5db'}\`,
+              borderRadius: '6px',
+              cursor: 'pointer'
+            }}
+            title="Color primario"
+          />
+        </div>
+      </div>
+
         <h2 className="card-title">Data Grid</h2>
         <DataGrid data={data} columns={columns} />
         <p className="hint">Showing {data.length} records</p>
       </div>
     </div>
+  );
+}
+
+export default function AppWithProviders() {
+  return (
+    <I18nProvider>
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
+    </I18nProvider>
   );
 }`,
     '/DataGrid.js': `export default function DataGrid({ data, columns }) {

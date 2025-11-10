@@ -61,23 +61,152 @@ export const bizuit_stepperDoc: ComponentDoc = {
     },
   ],
   codeExample: {
-    '/App.js': `import { useState } from 'react';
-import Stepper from './Stepper.js';
+    '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
 import './styles.css';
 
-export default function App() {
-  const [currentStep, setCurrentStep] = useState(1);
+// 🌐 Contexto de Internacionalización (i18n)
+const I18nContext = createContext();
 
-  const steps = [
-    { label: 'Account', description: 'Create your account' },
-    { label: 'Profile', description: 'Set up your profile' },
-    { label: 'Preferences', description: 'Configure settings' },
-    { label: 'Complete', description: 'All done!' },
-  ];
+const useTranslation = () => {
+  const context = useContext(I18nContext);
+  if (!context) throw new Error('useTranslation debe usarse dentro de I18nProvider');
+  return context;
+};
+
+const I18nProvider = ({ children }) => {
+  const [language, setLanguage] = useState('es');
+
+  const translations = {
+  "es": {
+    "title": "Stepper",
+    "step": "Paso",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "finish": "Finalizar"
+  },
+  "en": {
+    "title": "Stepper",
+    "step": "Step",
+    "next": "Next",
+    "previous": "Previous",
+    "finish": "Finish"
+  }
+};
+
+  const t = (key) => {
+    const keys = key.split('.');
+    let value = translations[language];
+    for (const k of keys) {
+      value = value?.[k];
+    }
+    return value || key;
+  };
 
   return (
-    <div className="container">
+    <I18nContext.Provider value={{ t, language, setLanguage }}>
+      {children}
+    </I18nContext.Provider>
+  );
+};
+
+// 🎨 Contexto de Tema (Dark/Light/System)
+const ThemeContext = createContext();
+
+const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) throw new Error('useTheme debe usarse dentro de ThemeProvider');
+  return context;
+};
+
+const ThemeProvider = ({ children }) => {
+  const [mode, setMode] = useState('system');
+  const [primaryColor, setPrimaryColor] = useState('#a855f7');
+
+  const getSystemTheme = () => {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  };
+
+  const effectiveTheme = mode === 'system' ? getSystemTheme() : mode;
+  const isDark = effectiveTheme === 'dark';
+
+  useEffect(() => {
+    document.body.className = isDark ? 'dark' : 'light';
+  }, [isDark]);
+
+  return (
+    <ThemeContext.Provider value={{ mode, setMode, isDark, primaryColor, setPrimaryColor }}>
+      <div className={isDark ? 'dark' : 'light'}>
+        {children}
+      </div>
+    </ThemeContext.Provider>
+  );
+};
+
+function App() {
+  const { t, language, setLanguage } = useTranslation();
+  const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
+
+  return (
+<div className="container">
       <div className="card">
+      {/* Theme and Language Controls */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <button
+          type="button"
+          onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+          style={{
+            padding: '6px 12px',
+            background: isDark ? '#374151' : '#f3f4f6',
+            color: isDark ? '#f9fafb' : '#111827',
+            border: \`1px solid ${isDark ? '#4b5563' : '#d1d5db'}\`,
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500'
+          }}
+        >
+          {language === 'es' ? '🇬🇧 EN' : '🇪🇸 ES'}
+        </button>
+
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '4px' }}>
+            {['light', 'dark', 'system'].map(themeMode => (
+              <button
+                key={themeMode}
+                type="button"
+                onClick={() => setMode(themeMode)}
+                style={{
+                  padding: '6px 12px',
+                  background: mode === themeMode ? primaryColor : (isDark ? '#374151' : '#f3f4f6'),
+                  color: mode === themeMode ? 'white' : (isDark ? '#f9fafb' : '#111827'),
+                  border: \`1px solid ${mode === themeMode ? primaryColor : (isDark ? '#4b5563' : '#d1d5db')}\`,
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: '500'
+                }}
+              >
+                {themeMode === 'light' ? '☀️' : themeMode === 'dark' ? '🌙' : '💻'}
+              </button>
+            ))}
+          </div>
+
+          <input
+            type="color"
+            value={primaryColor}
+            onChange={(e) => setPrimaryColor(e.target.value)}
+            style={{
+              width: '40px',
+              height: '32px',
+              border: \`1px solid ${isDark ? '#4b5563' : '#d1d5db'}\`,
+              borderRadius: '6px',
+              cursor: 'pointer'
+            }}
+            title="Color primario"
+          />
+        </div>
+      </div>
+
         <h2 className="card-title">Stepper Example</h2>
 
         <Stepper
@@ -105,6 +234,16 @@ export default function App() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AppWithProviders() {
+  return (
+    <I18nProvider>
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
+    </I18nProvider>
   );
 }`,
     '/Stepper.js': `export default function Stepper({
