@@ -75,6 +75,7 @@ export const translations = {
     'startProcess.authenticating': 'Authenticating...',
     'startProcess.note': 'Note:',
     'startProcess.note.description': 'In a real environment, the token would come as a URL parameter from the Bizuit BPMS. This screen is for demonstration purposes only.',
+    'startProcess.eventNameFromUrl': 'Event name received from URL',
 
     // Continue Process
     'continueProcess.title': 'Continue Process',
@@ -348,6 +349,7 @@ export const translations = {
     'startProcess.authenticating': 'Autenticando...',
     'startProcess.note': 'Nota:',
     'startProcess.note.description': 'En un entorno real, el token vendría como parámetro de la URL desde el BPMS Bizuit. Esta pantalla es solo para propósitos de demostración.',
+    'startProcess.eventNameFromUrl': 'Nombre del evento recibido desde la URL',
 
     // Continue Process
     'continueProcess.title': 'Continuar Proceso',

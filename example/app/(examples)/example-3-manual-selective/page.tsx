@@ -119,8 +119,9 @@ function Example3ManualSelectiveContent() {
       const hiddenParamsObj = getHiddenParams()
       const hiddenParameters = Object.entries(hiddenParamsObj).map(([key, value]) => ({
         name: key,
-        value: value,
-        direction: 'Input'
+        value: String(value),
+        type: 'SingleValue' as const,
+        direction: 'In' as const
       }))
 
       // Combinar parámetros visibles + ocultos
