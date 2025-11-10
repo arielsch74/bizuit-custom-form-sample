@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { ALL_COMPONENTS_DOCS } from './all-components-docs'
 import { useTranslation, useBizuitTheme } from '@tyconsa/bizuit-ui-components'
 import {
@@ -75,6 +75,8 @@ export default function ComponentsSidebar({
   const [expandedCategories, setExpandedCategories] = useState<Set<Category>>(
     new Set(['ui', 'forms', 'layout', 'media', 'data'])
   )
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const scrollPositionRef = useRef<number>(0)
 
   // Category configuration with translations
   const categoryConfig = {
@@ -145,8 +147,21 @@ export default function ComponentsSidebar({
     })
   }
 
+  // Restore scroll position after re-render
+  useEffect(() => {
+    if (scrollContainerRef.current && scrollPositionRef.current > 0) {
+      scrollContainerRef.current.scrollTop = scrollPositionRef.current
+    }
+  }, [selectedComponentId])
+
   const handleComponentClick = (id: string) => {
+    // Save current scroll position BEFORE changing component
+    if (scrollContainerRef.current) {
+      scrollPositionRef.current = scrollContainerRef.current.scrollTop
+    }
+
     onComponentSelect(id)
+
     // Close mobile sidebar after selection
     if (window.innerWidth < 1024) {
       setIsOpen(false)
@@ -202,7 +217,7 @@ export default function ComponentsSidebar({
       </div>
 
       {/* Component List */}
-      <div className="flex-1 overflow-y-auto">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
         {Object.keys(filteredComponents).length === 0 ? (
           <div className="p-8 text-center text-gray-500 dark:text-gray-400">
             <Search className="h-12 w-12 mx-auto mb-3 opacity-50" />

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Sparkles, Package, Languages } from 'lucide-react'
 import ComponentsSidebar from './ComponentsSidebar'
@@ -13,20 +13,33 @@ function ComponentsDemoContent() {
   const { t } = useTranslation()
   const { language, setLanguage } = useBizuitTheme()
   const mainRef = useRef<HTMLElement>(null)
+  const scrollPositionRef = useRef<number>(0)
+
+  // Restore scroll position after component change
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (mainRef.current && scrollPositionRef.current > 0) {
+        mainRef.current.scrollTop = scrollPositionRef.current
+      }
+    }, 0)
+    return () => clearTimeout(timer)
+  }, [selectedComponentId])
 
   const handleComponentSelect = (id: string) => {
-    // Store current scroll position
-    const currentScrollTop = mainRef.current?.scrollTop || 0
+    // Store current scroll position before changing component
+    if (mainRef.current) {
+      scrollPositionRef.current = mainRef.current.scrollTop
+    }
 
     // Update selected component
     setSelectedComponentId(id)
 
-    // Restore scroll position after state update
-    requestAnimationFrame(() => {
-      if (mainRef.current) {
-        mainRef.current.scrollTop = currentScrollTop
+    // Also try immediate restoration
+    setTimeout(() => {
+      if (mainRef.current && scrollPositionRef.current > 0) {
+        mainRef.current.scrollTop = scrollPositionRef.current
       }
-    })
+    }, 10)
   }
 
   const selectedComponent = ALL_COMPONENTS_DOCS.find(
