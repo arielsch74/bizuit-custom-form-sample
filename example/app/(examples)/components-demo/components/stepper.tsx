@@ -62,6 +62,7 @@ export const bizuit_stepperDoc: ComponentDoc = {
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
+import Stepper from './Stepper.js';
 import './styles.css';
 
 // 🌐 Contexto de Internacionalización (i18n)

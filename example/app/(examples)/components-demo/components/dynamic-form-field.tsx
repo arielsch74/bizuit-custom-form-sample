@@ -68,6 +68,7 @@ export const dynamic_form_fieldDoc: ComponentDoc = {
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
+import DynamicFormField from './DynamicFormField.js';
 import './styles.css';
 
 // 🌐 Contexto de Internacionalización (i18n)

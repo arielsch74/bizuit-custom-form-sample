@@ -73,6 +73,7 @@ export const bizuit_sliderDoc: ComponentDoc = {
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
+import Slider from './Slider.js';
 import './styles.css';
 
 // 🌐 Contexto de Internacionalización (i18n)

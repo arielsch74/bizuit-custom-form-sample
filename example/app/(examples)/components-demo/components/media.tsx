@@ -72,6 +72,7 @@ export const bizuit_mediaDoc: ComponentDoc = {
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
+import Media from './Media.js';
 import './styles.css';
 
 // 🌐 Contexto de Internacionalización (i18n)

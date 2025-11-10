@@ -63,6 +63,7 @@ export const bizuit_document_inputDoc: ComponentDoc = {
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
+import DocumentInput from './DocumentInput.js';
 import './styles.css';
 
 // 🌐 Contexto de Internacionalización (i18n)

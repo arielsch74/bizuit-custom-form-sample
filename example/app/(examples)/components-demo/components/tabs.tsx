@@ -56,6 +56,7 @@ export const bizuit_tabsDoc: ComponentDoc = {
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
+import Tabs from './Tabs.js';
 import './styles.css';
 
 // 🌐 Contexto de Internacionalización (i18n)

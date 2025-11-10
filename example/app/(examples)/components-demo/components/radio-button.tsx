@@ -64,6 +64,7 @@ export const bizuit_radio_buttonDoc: ComponentDoc = {
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
+import RadioButton from './RadioButton.js';
 import './styles.css';
 
 // 🌐 Contexto de Internacionalización (i18n)

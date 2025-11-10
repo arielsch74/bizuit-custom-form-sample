@@ -55,6 +55,7 @@ export const bizuit_geolocationDoc: ComponentDoc = {
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
+import Geolocation from './Geolocation.js';
 import './styles.css';
 
 // 🌐 Contexto de Internacionalización (i18n)

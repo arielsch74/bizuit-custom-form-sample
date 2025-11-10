@@ -71,6 +71,7 @@ export const bizuit_date_time_pickerDoc: ComponentDoc = {
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
+import DateTimePicker from './DateTimePicker.js';
 import './styles.css';
 
 // 🌐 Contexto de Internacionalización (i18n)

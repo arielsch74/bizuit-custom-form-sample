@@ -63,6 +63,7 @@ export const bizuit_subformDoc: ComponentDoc = {
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
+import Subform from './Subform.js';
 import './styles.css';
 
 // 🌐 Contexto de Internacionalización (i18n)

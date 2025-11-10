@@ -63,6 +63,7 @@ export const bizuit_file_uploadDoc: ComponentDoc = {
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
+import FileUpload from './FileUpload.js';
 import './styles.css';
 
 // 🌐 Contexto de Internacionalización (i18n)

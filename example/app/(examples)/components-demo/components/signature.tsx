@@ -70,6 +70,7 @@ export const bizuit_signatureDoc: ComponentDoc = {
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
+import Signature from './Signature.js';
 import './styles.css';
 
 // 🌐 Contexto de Internacionalización (i18n)

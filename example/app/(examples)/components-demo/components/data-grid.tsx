@@ -63,6 +63,7 @@ export const bizuit_data_gridDoc: ComponentDoc = {
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
+import DataGrid from './DataGrid.js';
 import './styles.css';
 
 // 🌐 Contexto de Internacionalización (i18n)

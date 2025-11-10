@@ -64,6 +64,7 @@ export const bizuit_iframeDoc: ComponentDoc = {
   ],
   codeExample: {
     '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
+import Iframe from './Iframe.js';
 import './styles.css';
 
 // 🌐 Contexto de Internacionalización (i18n)
