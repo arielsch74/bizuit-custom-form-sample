@@ -64,7 +64,7 @@ export function LiveCodeEditor({
   const { t } = useTranslation()
   const [mounted, setMounted] = useState(false)
 
-  // Resolver el tema actual
+  // Resolver el tema actual (para el EDITOR del Sandpack)
   const getResolvedTheme = (): 'light' | 'dark' => {
     if (theme === 'system') {
       if (typeof window === 'undefined') return 'light'
@@ -89,7 +89,6 @@ export function LiveCodeEditor({
   // Generar CSS dinámico con variables del color actual
   const generateDynamicCSS = (baseCSS: string): string => {
     const colors = colorMap[colorTheme]
-    const isDark = resolvedTheme === 'dark'
 
     // CSS base con colores reemplazados
     let processedCSS = baseCSS
@@ -119,125 +118,9 @@ export function LiveCodeEditor({
         return `rgba(${r}, ${g}, ${b}, ${alpha})`
       })
 
-    // En dark mode, reemplazar backgrounds y borders claros por oscuros en CSS también
-    if (isDark) {
-      processedCSS = processedCSS
-        // Backgrounds
-        .replace(/#ffffff/g, '#1e293b')
-        .replace(/#f9fafb/g, '#0f172a')
-        .replace(/#f3f4f6/g, '#1e293b')
-        .replace(/background:\s*white/g, 'background: #1e293b')
-        .replace(/background:\s*#fff(?![0-9a-f])/gi, 'background: #1e293b')
-        // Borders
-        .replace(/#e5e7eb/g, '#334155')
-        .replace(/#d1d5db/g, '#475569')
-        // Text colors
-        .replace(/#111827/g, '#f1f5f9')
-        .replace(/#1f2937/g, '#e2e8f0')
-        .replace(/#374151/g, '#cbd5e1')
-        .replace(/#6b7280/g, '#94a3b8')
-        .replace(/#9ca3af/g, '#64748b')
-    }
-
-    // Agregar reglas para modo dark si está activo
-    if (isDark) {
-      processedCSS += `
-
-/* Dark Mode Styles */
-body {
-  background-color: #0f172a !important;
-  color: #e2e8f0 !important;
-}
-
-h1, h2, h3, h4, h5, h6, p, span, div {
-  color: #f1f5f9 !important;
-}
-
-.container {
-  background-color: #0f172a !important;
-  color: #e2e8f0 !important;
-}
-
-.card {
-  background-color: #1e293b !important;
-  color: #e2e8f0 !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
-}
-
-.card-title {
-  color: #f1f5f9 !important;
-}
-
-label, .form-label {
-  color: #cbd5e1 !important;
-}
-
-.form-input, input[type="text"], input[type="email"], input[type="number"], input[type="date"], input[type="time"], textarea, select {
-  background-color: #1e293b !important;
-  border-color: #334155 !important;
-  color: #f1f5f9 !important;
-}
-
-.form-input:focus, input:focus, textarea:focus, select:focus {
-  border-color: ${colors.primary} !important;
-  background-color: #1e293b !important;
-}
-
-.form-input.no-send {
-  background-color: #1e293b !important;
-  opacity: 0.7;
-}
-
-.hint {
-  color: #94a3b8 !important;
-}
-
-.warning {
-  color: #fbbf24 !important;
-}
-
-.modal-content {
-  background-color: #1e293b !important;
-  color: #e2e8f0 !important;
-}
-
-.modal-body {
-  background-color: #1e293b !important;
-}
-
-.param-item {
-  background-color: #0f172a !important;
-  border: 1px solid #334155;
-}
-
-.param-name {
-  color: #cbd5e1 !important;
-}
-
-.param-value {
-  color: #94a3b8 !important;
-}
-
-.params-title.visible {
-  background-color: #064e3b !important;
-  color: #6ee7b7 !important;
-}
-
-.params-title.hidden {
-  background-color: #1e3a8a !important;
-  color: #93c5fd !important;
-}
-
-.params-total {
-  background: linear-gradient(135deg, #581c87 0%, #6b21a8 100%) !important;
-  color: #e9d5ff !important;
-}
-
-.no-send-section {
-  border-top-color: #334155 !important;
-}
-`
-    }
+    // NOTA: Ya NO forzamos dark mode aquí porque el código dentro del Sandpack
+    // tiene su propio ThemeProvider que maneja el tema independientemente.
+    // El LiveCodeEditor solo reemplaza colores primarios, no controla el tema del Sandpack.
 
     return processedCSS
   }
@@ -245,7 +128,6 @@ label, .form-label {
   // Generar JavaScript dinámico para reemplazar colores en inline styles
   const generateDynamicJS = (baseJS: string): string => {
     const colors = colorMap[colorTheme]
-    const isDark = resolvedTheme === 'dark'
 
     // Reemplazar colores primarios (siempre)
     let processedJS = baseJS
@@ -260,48 +142,9 @@ label, .form-label {
       .replace(/#dbeafe/g, colors.primaryLight)
       .replace(/#1e40af/g, colors.primaryDark)
 
-    // En dark mode, reemplazar backgrounds y borders claros por oscuros, Y agregar color a inline styles
-    if (isDark) {
-      processedJS = processedJS
-        // Backgrounds claros → oscuros (en inline styles JavaScript)
-        .replace(/background:\s*'#f9fafb'/g, "background: '#0f172a'")
-        .replace(/background:\s*"#f9fafb"/g, 'background: "#0f172a"')
-        .replace(/background:\s*'#f3f4f6'/g, "background: '#1e293b'")
-        .replace(/background:\s*"#f3f4f6"/g, 'background: "#1e293b"')
-        .replace(/background:\s*'white'/g, "background: '#1e293b'")
-        .replace(/background:\s*"white"/g, 'background: "#1e293b"')
-
-        // Borders claros → oscuros
-        .replace(/border:\s*'1px solid #e5e7eb'/g, "border: '1px solid #334155'")
-        .replace(/border:\s*"1px solid #e5e7eb"/g, 'border: "1px solid #334155"')
-        .replace(/border:\s*'1px solid #d1d5db'/g, "border: '1px solid #475569'")
-        .replace(/border:\s*"1px solid #d1d5db"/g, 'border: "1px solid #475569"')
-        .replace(/border:\s*'2px solid #d1d5db'/g, "border: '2px solid #475569'")
-        .replace(/border:\s*"2px solid #d1d5db"/g, 'border: "2px solid #475569"')
-        .replace(/border:\s*'2px dashed #d1d5db'/g, "border: '2px dashed #475569'")
-        .replace(/border:\s*"2px dashed #d1d5db"/g, 'border: "2px dashed #475569"')
-
-        // Text colors oscuros → claros
-        .replace(/color:\s*'#111827'/g, "color: '#f1f5f9'")
-        .replace(/color:\s*"#111827"/g, 'color: "#f1f5f9"')
-        .replace(/color:\s*'#1f2937'/g, "color: '#e2e8f0'")
-        .replace(/color:\s*"#1f2937"/g, 'color: "#e2e8f0"')
-        .replace(/color:\s*'#374151'/g, "color: '#cbd5e1'")
-        .replace(/color:\s*"#374151"/g, 'color: "#cbd5e1"')
-        .replace(/color:\s*'#6b7280'/g, "color: '#94a3b8'")
-        .replace(/color:\s*"#6b7280"/g, 'color: "#94a3b8"')
-
-        // CRÍTICO: Agregar color a inline styles que NO tienen color pero tienen fontSize
-        // Esto captura h2, h3, p, etc que tienen inline styles sin color
-        .replace(/style=\{\{([^}]*fontSize[^}]*)\}\}/g, (match, innerStyle) => {
-          // Si ya tiene color, no modificar
-          if (innerStyle.includes('color:')) {
-            return match
-          }
-          // Agregar color al final del style object
-          return `style={{${innerStyle}, color: '#f1f5f9'}}`
-        })
-    }
+    // NOTA: Ya NO forzamos dark mode aquí porque el código dentro del Sandpack
+    // tiene su propio ThemeProvider que maneja el tema independientemente.
+    // El LiveCodeEditor solo reemplaza colores primarios, no controla el tema del Sandpack.
 
     return processedJS
   }
@@ -359,8 +202,8 @@ label, .form-label {
         <Sandpack
           key={`${resolvedTheme}-${colorTheme}`}
           template="react"
-          files={processedFiles}
           theme={resolvedTheme}
+          files={processedFiles}
           options={{
             showNavigator: false,
             showTabs: true,

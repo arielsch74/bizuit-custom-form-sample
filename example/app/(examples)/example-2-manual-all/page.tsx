@@ -139,7 +139,7 @@ function Example2ManualAllContent() {
           title={`⚡ ${t('example2.liveCodeTitle')}`}
           description={t('example2.liveCodeDescription')}
           files={{
-            '/App.js': `import { useState, createContext, useContext } from 'react';
+            '/App.js': `import { useState, useEffect, createContext, useContext } from 'react';
 import './styles.css';
 
 // 🌐 Contexto de Internacionalización (i18n)
@@ -221,8 +221,46 @@ const I18nProvider = ({ children }) => {
   );
 };
 
+// 🎨 Contexto de Tema (Dark/Light/System)
+const ThemeContext = createContext();
+
+const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) throw new Error('useTheme debe usarse dentro de ThemeProvider');
+  return context;
+};
+
+const ThemeProvider = ({ children }) => {
+  const [mode, setMode] = useState('system'); // 'light', 'dark', 'system'
+  const [primaryColor, setPrimaryColor] = useState('#f97316'); // Orange por defecto
+
+  // Detectar preferencia del sistema
+  const getSystemTheme = () => {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  };
+
+  // Calcular tema efectivo
+  const effectiveTheme = mode === 'system' ? getSystemTheme() : mode;
+  const isDark = effectiveTheme === 'dark';
+
+  // Aplicar clase al body para que el CSS funcione
+  // NOTA: Este código corre dentro del iframe del Sandpack
+  useEffect(() => {
+    document.body.className = isDark ? 'dark' : 'light';
+  }, [isDark]);
+
+  return (
+    <ThemeContext.Provider value={{ mode, setMode, isDark, primaryColor, setPrimaryColor }}>
+      <div className={isDark ? 'dark' : 'light'}>
+        {children}
+      </div>
+    </ThemeContext.Provider>
+  );
+};
+
 function App() {
   const { t, language, setLanguage } = useTranslation();
+  const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
   const [formData, setFormData] = useState({
     pEmpleado: '',
     pLegajo: '',
@@ -300,23 +338,69 @@ function App() {
   return (
     <div className="container">
       <div className="card">
-        {/* Selector de idioma */}
-        <div style={{ textAlign: 'right', marginBottom: '16px' }}>
+        {/* Panel de controles: Idioma, Tema y Color */}
+        <div style={{
+          display: 'flex',
+          gap: '12px',
+          marginBottom: '16px',
+          flexWrap: 'wrap',
+          alignItems: 'center'
+        }}>
+          {/* Selector de idioma */}
           <button
             type="button"
             onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
             style={{
               padding: '6px 12px',
-              background: '#f3f4f6',
-              border: '1px solid #d1d5db',
+              background: isDark ? '#374151' : '#f3f4f6',
+              color: isDark ? '#f9fafb' : '#111827',
+              border: \`1px solid \${isDark ? '#4b5563' : '#d1d5db'}\`,
               borderRadius: '6px',
               cursor: 'pointer',
               fontSize: '14px',
               fontWeight: '500'
             }}
           >
-            {language === 'es' ? '🇬🇧 English' : '🇪🇸 Español'}
+            {language === 'es' ? '🇬🇧 EN' : '🇪🇸 ES'}
           </button>
+
+          {/* Selector de tema */}
+          <div style={{ display: 'flex', gap: '4px' }}>
+            {['light', 'dark', 'system'].map(themeMode => (
+              <button
+                key={themeMode}
+                type="button"
+                onClick={() => setMode(themeMode)}
+                style={{
+                  padding: '6px 12px',
+                  background: mode === themeMode ? primaryColor : (isDark ? '#374151' : '#f3f4f6'),
+                  color: mode === themeMode ? 'white' : (isDark ? '#f9fafb' : '#111827'),
+                  border: \`1px solid \${mode === themeMode ? primaryColor : (isDark ? '#4b5563' : '#d1d5db')}\`,
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  fontWeight: '500'
+                }}
+              >
+                {themeMode === 'light' ? '☀️' : themeMode === 'dark' ? '🌙' : '💻'}
+              </button>
+            ))}
+          </div>
+
+          {/* Selector de color primario */}
+          <input
+            type="color"
+            value={primaryColor}
+            onChange={(e) => setPrimaryColor(e.target.value)}
+            style={{
+              width: '40px',
+              height: '32px',
+              border: \`1px solid \${isDark ? '#4b5563' : '#d1d5db'}\`,
+              borderRadius: '6px',
+              cursor: 'pointer'
+            }}
+            title="Color primario"
+          />
         </div>
 
         <h2 className="card-title">{t('form.title')}</h2>
@@ -444,7 +528,23 @@ function App() {
           </div>
 
           <div className="form-actions">
-            <button type="submit" className="btn-primary">
+            <button
+              type="submit"
+              style={{
+                flex: 1,
+                padding: '12px 24px',
+                background: primaryColor,
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'opacity 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.opacity = '0.9'}
+              onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
+            >
               {t('form.submit')}
             </button>
             <button
@@ -536,8 +636,8 @@ function App() {
             }, null, 2)}</pre>
           </div>
 
-          <div style={{ padding: '12px', background: '#f3f4f6', borderRadius: '6px', border: '1px solid #d1d5db' }}>
-            <p style={{ fontSize: '14px', fontWeight: '600', margin: 0 }}>
+          <div className="preview-total">
+            <p className="preview-total-text">
               💡 Total: {Object.keys(formData).length + 4} parámetros
               ({Object.keys(formData).length} visibles + 4 ocultos)
             </p>
@@ -548,11 +648,13 @@ function App() {
   );
 }
 
-// 🎯 Exportar el componente envuelto en el provider de i18n
-export default function AppWithProvider() {
+// 🎯 Exportar el componente envuelto en los providers de i18n y tema
+export default function AppWithProviders() {
   return (
     <I18nProvider>
-      <App />
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
     </I18nProvider>
   );
 }`,
@@ -564,8 +666,16 @@ export default function AppWithProvider() {
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f9fafb;
+  background: #f9fafb !important;
+  color: #1f2937 !important;
   padding: 20px;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* 🌙 Dark Mode */
+body.dark {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 
 .container {
@@ -574,17 +684,28 @@ body {
 }
 
 .card {
-  background: white;
+  background: white !important;
   border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+body.dark .card {
+  background: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
 }
 
 .card-title {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #111827;
+  color: #111827 !important;
+  transition: color 0.3s;
+}
+
+body.dark .card-title {
+  color: #f1f5f9 !important;
 }
 
 .form-grid {
@@ -603,24 +724,41 @@ body {
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 8px;
-  color: #374151;
+  color: #374151 !important;
+  transition: color 0.3s;
+}
+
+body.dark .form-label {
+  color: #cbd5e1 !important;
 }
 
 .form-input {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #d1d5db !important;
   border-radius: 6px;
   font-size: 14px;
   font-family: system-ui, -apple-system, sans-serif;
-  background: white;
-  transition: border-color 0.2s;
+  background: white !important;
+  color: #1f2937 !important;
+  transition: border-color 0.2s, background 0.3s, color 0.3s;
+}
+
+body.dark .form-input {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #f1f5f9 !important;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+body.dark .form-input:focus {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2) !important;
 }
 
 /* Asegurar que el datepicker use la misma fuente */
@@ -695,58 +833,66 @@ input[type="date"].form-input {
 .preview {
   margin-top: 24px;
   padding: 16px;
-  background: #f9fafb;
+  background: #f9fafb !important;
   border-radius: 6px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e5e7eb !important;
 }
 
 .preview h3 {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 12px;
-  color: #374151;
+  color: #374151 !important;
 }
 
 .preview-code {
   font-family: 'Monaco', 'Courier New', monospace;
   font-size: 12px;
   overflow-x: auto;
-  background: white;
+  background: white !important;
   padding: 12px;
   border-radius: 4px;
-  border: 1px solid #e5e7eb;
-  color: #1f2937;
+  border: 1px solid #e5e7eb !important;
+  color: #1f2937 !important;
 }
 
-@media (prefers-color-scheme: dark) {
-  body { background: #111827; }
-  .card { background: #1f2937; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); }
-  .card-title { color: #f9fafb; }
-  .form-label { color: #e5e7eb; }
-  .form-input {
-    background: #374151;
-    border-color: #4b5563;
-    color: #f9fafb;
-  }
-  .form-checkbox label { color: #e5e7eb; }
-  .btn-secondary {
-    background: #374151;
-    color: #f9fafb;
-    border-color: #4b5563;
-  }
-  .btn-secondary:hover {
-    background: #4b5563;
-  }
-  .preview {
-    background: #111827;
-    border-color: #374151;
-  }
-  .preview h3 { color: #e5e7eb; }
-  .preview-code {
-    background: #0f172a;
-    border-color: #374151;
-    color: #e5e7eb;
-  }
+body.dark .preview {
+  background: #111827 !important;
+  border-color: #374151 !important;
+}
+
+body.dark .preview h3 {
+  color: #e5e7eb !important;
+}
+
+body.dark .preview-code {
+  background: #0f172a !important;
+  border-color: #374151 !important;
+  color: #e5e7eb !important;
+}
+
+.preview-total {
+  padding: 12px;
+  background: #f3f4f6 !important;
+  border-radius: 6px;
+  border: 1px solid #d1d5db !important;
+  margin-top: 16px;
+}
+
+.preview-total-text {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  color: #1f2937 !important;
+}
+
+body.dark .preview-total {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+}
+
+body.dark .preview-total-text {
+  color: #e5e7eb !important;
 }
 
 /* Modal Styles */
