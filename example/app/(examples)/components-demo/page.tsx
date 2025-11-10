@@ -88,7 +88,7 @@ function WelcomeScreen({
   totalComponents: number
   categoryCount: number
 }) {
-  const { t } = useI18n()
+  const { t } = useTranslation()
 
   return (
     <div className="space-y-12">

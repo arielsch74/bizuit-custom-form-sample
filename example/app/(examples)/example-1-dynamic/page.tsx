@@ -267,9 +267,11 @@ function DynamicFormDemo() {
   const [formData, setFormData] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [paramsToSend, setParamsToSend] = useState({ visible: [], hidden: [], all: [] });
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const handleChange = (paramName, value) => {
     setFormData(prev => ({ ...prev, [paramName]: value }));
+    setRefreshKey(prev => prev + 1);
   };
 
   const handleSubmit = async (e) => {
@@ -427,7 +429,7 @@ function DynamicFormDemo() {
         </form>
 
         {/* Preview - Datos completos con parámetros ocultos */}
-        <div className="preview">
+        <div className="preview" key={refreshKey}>
           <h3>Vista Previa de Datos:</h3>
           <div style={{ marginBottom: '16px' }}>
             <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#16a34a', marginBottom: '8px' }}>

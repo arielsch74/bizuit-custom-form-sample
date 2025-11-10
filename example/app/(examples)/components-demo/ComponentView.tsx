@@ -138,7 +138,7 @@ export default function ComponentView({ component }: ComponentViewProps) {
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(code)
-                    alert(t('ui.codeCopied'))
+                    console.log('Code copied to clipboard')
                   }}
                   className="px-3 py-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 rounded transition-colors"
                 >
