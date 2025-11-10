@@ -2,15 +2,24 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useTranslation } from '@tyconsa/bizuit-ui-components'
 
 export default function Home() {
   const { t } = useTranslation()
+  const router = useRouter()
   const [mounted, setMounted] = useState(false)
+  const [isNavigating, setIsNavigating] = useState(false)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  const handleComponentsDemo = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsNavigating(true)
+    router.push('/components-demo')
+  }
 
   // Show loading state until mounted to avoid hydration mismatch
   if (!mounted) {
@@ -135,17 +144,30 @@ export default function Home() {
             {t('home.components.description')}
           </p>
 
-          <Link
-            href="/components-demo"
-            className="inline-block group rounded-lg border border-transparent px-8 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30 mb-6 mx-auto block text-center"
+          <button
+            onClick={handleComponentsDemo}
+            disabled={isNavigating}
+            className="inline-block group rounded-lg border border-transparent px-8 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30 mb-6 mx-auto block text-center disabled:opacity-50 disabled:cursor-wait"
           >
-            <span className="text-lg font-semibold">
-              {t('home.components.demo')}{' '}
-              <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-                →
-              </span>
+            <span className="text-lg font-semibold flex items-center justify-center gap-2">
+              {isNavigating ? (
+                <>
+                  <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Cargando...
+                </>
+              ) : (
+                <>
+                  {t('home.components.demo')}{' '}
+                  <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+                    →
+                  </span>
+                </>
+              )}
             </span>
-          </Link>
+          </button>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
             <div className="p-4 rounded-lg bg-muted">

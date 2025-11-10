@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Sparkles, Package, Languages } from 'lucide-react'
 import ComponentsSidebar from './ComponentsSidebar'
@@ -12,6 +12,22 @@ function ComponentsDemoContent() {
   const [selectedComponentId, setSelectedComponentId] = useState('button')
   const { t } = useTranslation()
   const { language, setLanguage } = useBizuitTheme()
+  const mainRef = useRef<HTMLElement>(null)
+
+  const handleComponentSelect = (id: string) => {
+    // Store current scroll position
+    const currentScrollTop = mainRef.current?.scrollTop || 0
+
+    // Update selected component
+    setSelectedComponentId(id)
+
+    // Restore scroll position after state update
+    requestAnimationFrame(() => {
+      if (mainRef.current) {
+        mainRef.current.scrollTop = currentScrollTop
+      }
+    })
+  }
 
   const selectedComponent = ALL_COMPONENTS_DOCS.find(
     (comp) => comp.id === selectedComponentId
@@ -25,10 +41,10 @@ function ComponentsDemoContent() {
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <ComponentsSidebar
         selectedComponentId={selectedComponentId}
-        onComponentSelect={setSelectedComponentId}
+        onComponentSelect={handleComponentSelect}
       />
 
-      <main className="flex-1 overflow-y-auto">
+      <main ref={mainRef} className="flex-1 overflow-y-auto">
         {/* Header with back link and language selector */}
         <div className="sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800">
           <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
