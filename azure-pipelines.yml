@@ -37,54 +37,10 @@ stages:
               versionSpec: '$(nodeVersion)'
             displayName: 'Install Node.js $(nodeVersion)'
 
-          - task: PowerShell@2
-            inputs:
-              targetType: 'inline'
-              workingDirectory: '$(Build.SourcesDirectory)'
-              script: |
-                Write-Host "=== CLEANUP BUILD ARTIFACTS ==="
-
-                # Clean example directory
-                Write-Host "Cleaning example directory..."
-                if (Test-Path "example/node_modules") {
-                  Remove-Item -Recurse -Force "example/node_modules"
-                }
-                if (Test-Path "example/.next") {
-                  Remove-Item -Recurse -Force "example/.next"
-                }
-                if (Test-Path "example/.swc") {
-                  Remove-Item -Recurse -Force "example/.swc"
-                }
-
-                # Clean packages directory
-                Write-Host "Cleaning packages directory..."
-                if (Test-Path "packages/bizuit-ui-components/node_modules") {
-                  Remove-Item -Recurse -Force "packages/bizuit-ui-components/node_modules"
-                }
-                if (Test-Path "packages/bizuit-ui-components/dist") {
-                  Remove-Item -Recurse -Force "packages/bizuit-ui-components/dist"
-                }
-
-                Write-Host "Cleanup completed!"
-            displayName: 'Clean Build Environment'
-
-          - script: |
-              cd packages/bizuit-ui-components
-              echo "Installing dependencies for @tyconsa/bizuit-ui-components..."
-              npm install
-            displayName: 'Install Package Dependencies'
-
-          - script: |
-              cd packages/bizuit-ui-components
-              echo "Building @tyconsa/bizuit-ui-components..."
-              npm run build
-            displayName: 'Build UI Components Package'
-
           - script: |
               cd example
-              echo "Installing dependencies for example app..."
-              npm install
-            displayName: 'Install Example Dependencies'
+              npm ci
+            displayName: 'Install Dependencies'
 
           - script: |
               cd example
