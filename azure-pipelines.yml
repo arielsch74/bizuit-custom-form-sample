@@ -37,12 +37,18 @@ stages:
               versionSpec: '$(nodeVersion)'
             displayName: 'Install Node.js $(nodeVersion)'
 
-          - script: |
-              cd example
-              echo "Cleaning old build artifacts..."
-              rm -rf node_modules .next .swc
-              echo "Cleaning npm cache..."
-              npm cache clean --force
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(Build.SourcesDirectory)/example'
+              script: |
+                Write-Host "Cleaning old build artifacts..."
+                if (Test-Path "node_modules") { Remove-Item -Recurse -Force "node_modules" }
+                if (Test-Path ".next") { Remove-Item -Recurse -Force ".next" }
+                if (Test-Path ".swc") { Remove-Item -Recurse -Force ".swc" }
+                Write-Host "Cleaning npm cache..."
+                npm cache clean --force
+                Write-Host "Cleanup completed"
             displayName: 'Clean Build Environment'
 
           - script: |
