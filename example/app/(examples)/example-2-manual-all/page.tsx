@@ -344,7 +344,8 @@ function App() {
           gap: '12px',
           marginBottom: '16px',
           flexWrap: 'wrap',
-          alignItems: 'center'
+          alignItems: 'center',
+          justifyContent: 'flex-end'
         }}>
           {/* Selector de idioma */}
           <button
