@@ -139,10 +139,90 @@ function Example2ManualAllContent() {
           title={`⚡ ${t('example2.liveCodeTitle')}`}
           description={t('example2.liveCodeDescription')}
           files={{
-            '/App.js': `import { useState } from 'react';
+            '/App.js': `import { useState, createContext, useContext } from 'react';
 import './styles.css';
 
-export default function App() {
+// 🌐 Contexto de Internacionalización (i18n)
+const I18nContext = createContext();
+
+// Hook personalizado para acceder a las traducciones
+const useTranslation = () => {
+  const context = useContext(I18nContext);
+  if (!context) throw new Error('useTranslation debe usarse dentro de I18nProvider');
+  return context;
+};
+
+// Proveedor de traducciones
+const I18nProvider = ({ children }) => {
+  const [language, setLanguage] = useState('es'); // 'es' o 'en'
+
+  const translations = {
+    es: {
+      form: {
+        title: 'Solicitud de Reembolso de Gastos',
+        employee: 'Nombre del Empleado',
+        employeeNumber: 'Número de Legajo',
+        amount: 'Monto Solicitado (AR$)',
+        category: 'Categoría de Gasto',
+        date: 'Fecha de Solicitud',
+        priority: 'Prioridad',
+        description: 'Descripción del Gasto',
+        comments: 'Comentarios Adicionales',
+        approved: 'Pre-aprobado por supervisor inmediato',
+        submit: 'Enviar Solicitud',
+        clear: 'Limpiar',
+        categories: { trips: 'Viajes', meals: 'Comidas', accommodation: 'Alojamiento', transport: 'Transporte', other: 'Otros' },
+        priorities: { low: 'Baja', medium: 'Media', high: 'Alta', urgent: 'Urgente' },
+        placeholders: {
+          employee: 'Juan Pérez',
+          description: 'Describa el motivo del gasto...',
+          comments: 'Comentarios opcionales...'
+        }
+      }
+    },
+    en: {
+      form: {
+        title: 'Expense Reimbursement Request',
+        employee: 'Employee Name',
+        employeeNumber: 'Employee Number',
+        amount: 'Requested Amount (AR$)',
+        category: 'Expense Category',
+        date: 'Request Date',
+        priority: 'Priority',
+        description: 'Expense Description',
+        comments: 'Additional Comments',
+        approved: 'Pre-approved by immediate supervisor',
+        submit: 'Submit Request',
+        clear: 'Clear',
+        categories: { trips: 'Trips', meals: 'Meals', accommodation: 'Accommodation', transport: 'Transport', other: 'Other' },
+        priorities: { low: 'Low', medium: 'Medium', high: 'High', urgent: 'Urgent' },
+        placeholders: {
+          employee: 'John Doe',
+          description: 'Describe the reason for the expense...',
+          comments: 'Optional comments...'
+        }
+      }
+    }
+  };
+
+  const t = (key) => {
+    const keys = key.split('.');
+    let value = translations[language];
+    for (const k of keys) {
+      value = value?.[k];
+    }
+    return value || key;
+  };
+
+  return (
+    <I18nContext.Provider value={{ t, language, setLanguage }}>
+      {children}
+    </I18nContext.Provider>
+  );
+};
+
+function App() {
+  const { t, language, setLanguage } = useTranslation();
   const [formData, setFormData] = useState({
     pEmpleado: '',
     pLegajo: '',
@@ -220,18 +300,37 @@ export default function App() {
   return (
     <div className="container">
       <div className="card">
-        <h2 className="card-title">Solicitud de Reembolso de Gastos</h2>
+        {/* Selector de idioma */}
+        <div style={{ textAlign: 'right', marginBottom: '16px' }}>
+          <button
+            type="button"
+            onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+            style={{
+              padding: '6px 12px',
+              background: '#f3f4f6',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            {language === 'es' ? '🇬🇧 English' : '🇪🇸 Español'}
+          </button>
+        </div>
+
+        <h2 className="card-title">{t('form.title')}</h2>
 
         <form onSubmit={handleSubmit}>
           <div className="form-grid">
             {/* Empleado */}
             <div>
-              <label className="form-label">Nombre del Empleado *</label>
+              <label className="form-label">{t('form.employee')} *</label>
               <input
                 type="text"
                 value={formData.pEmpleado}
                 onChange={(e) => handleChange('pEmpleado', e.target.value)}
-                placeholder="Juan Pérez"
+                placeholder={t('form.placeholders.employee')}
                 required
                 className="form-input"
               />
@@ -239,7 +338,7 @@ export default function App() {
 
             {/* Legajo */}
             <div>
-              <label className="form-label">Número de Legajo *</label>
+              <label className="form-label">{t('form.employeeNumber')} *</label>
               <input
                 type="text"
                 value={formData.pLegajo}
@@ -252,7 +351,7 @@ export default function App() {
 
             {/* Monto */}
             <div>
-              <label className="form-label">Monto Solicitado * (AR$)</label>
+              <label className="form-label">{t('form.amount')} *</label>
               <input
                 type="number"
                 step="0.01"
@@ -266,23 +365,23 @@ export default function App() {
 
             {/* Categoría */}
             <div>
-              <label className="form-label">Categoría de Gasto *</label>
+              <label className="form-label">{t('form.category')} *</label>
               <select
                 value={formData.pCategoria}
                 onChange={(e) => handleChange('pCategoria', e.target.value)}
                 className="form-input"
               >
-                <option value="Viajes">Viajes</option>
-                <option value="Comidas">Comidas</option>
-                <option value="Alojamiento">Alojamiento</option>
-                <option value="Transporte">Transporte</option>
-                <option value="Otros">Otros</option>
+                <option value="Viajes">{t('form.categories.trips')}</option>
+                <option value="Comidas">{t('form.categories.meals')}</option>
+                <option value="Alojamiento">{t('form.categories.accommodation')}</option>
+                <option value="Transporte">{t('form.categories.transport')}</option>
+                <option value="Otros">{t('form.categories.other')}</option>
               </select>
             </div>
 
             {/* Fecha */}
             <div>
-              <label className="form-label">Fecha de Solicitud *</label>
+              <label className="form-label">{t('form.date')} *</label>
               <input
                 type="date"
                 value={formData.pFechaSolicitud}
@@ -294,27 +393,27 @@ export default function App() {
 
             {/* Prioridad */}
             <div>
-              <label className="form-label">Prioridad</label>
+              <label className="form-label">{t('form.priority')}</label>
               <select
                 value={formData.pPrioridad}
                 onChange={(e) => handleChange('pPrioridad', e.target.value)}
                 className="form-input"
               >
-                <option value="Baja">Baja</option>
-                <option value="Media">Media</option>
-                <option value="Alta">Alta</option>
-                <option value="Urgente">Urgente</option>
+                <option value="Baja">{t('form.priorities.low')}</option>
+                <option value="Media">{t('form.priorities.medium')}</option>
+                <option value="Alta">{t('form.priorities.high')}</option>
+                <option value="Urgente">{t('form.priorities.urgent')}</option>
               </select>
             </div>
           </div>
 
           {/* Descripción */}
           <div className="form-field">
-            <label className="form-label">Descripción del Gasto *</label>
+            <label className="form-label">{t('form.description')} *</label>
             <textarea
               value={formData.pDescripcion}
               onChange={(e) => handleChange('pDescripcion', e.target.value)}
-              placeholder="Describa el motivo del gasto..."
+              placeholder={t('form.placeholders.description')}
               required
               rows={3}
               className="form-input"
@@ -323,11 +422,11 @@ export default function App() {
 
           {/* Comentarios */}
           <div className="form-field">
-            <label className="form-label">Comentarios Adicionales</label>
+            <label className="form-label">{t('form.comments')}</label>
             <textarea
               value={formData.pComentarios}
               onChange={(e) => handleChange('pComentarios', e.target.value)}
-              placeholder="Comentarios opcionales..."
+              placeholder={t('form.placeholders.comments')}
               rows={2}
               className="form-input"
             />
@@ -341,12 +440,12 @@ export default function App() {
               checked={formData.pAprobado}
               onChange={(e) => handleChange('pAprobado', e.target.checked)}
             />
-            <label htmlFor="aprobado">Pre-aprobado por supervisor inmediato</label>
+            <label htmlFor="aprobado">{t('form.approved')}</label>
           </div>
 
           <div className="form-actions">
             <button type="submit" className="btn-primary">
-              Enviar Solicitud
+              {t('form.submit')}
             </button>
             <button
               type="button"
@@ -357,7 +456,7 @@ export default function App() {
                 pAprobado: false, pComentarios: '', pPrioridad: 'Media'
               })}
             >
-              Limpiar
+              {t('form.clear')}
             </button>
           </div>
         </form>
@@ -446,6 +545,15 @@ export default function App() {
         </div>
       </div>
     </div>
+  );
+}
+
+// 🎯 Exportar el componente envuelto en el provider de i18n
+export default function AppWithProvider() {
+  return (
+    <I18nProvider>
+      <App />
+    </I18nProvider>
   );
 }`,
             '/styles.css': `* {

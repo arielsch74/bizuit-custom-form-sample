@@ -154,10 +154,60 @@ function Example1DynamicContent() {
           title={`⚡ ${t('example1.liveCodeTitle')}`}
           description={t('example1.liveCodeDescription')}
           files={{
-            '/App.js': `import { useState } from 'react';
+            '/App.js': `import { useState, createContext, useContext } from 'react';
 import './styles.css';
 
-export default function DynamicFormDemo() {
+// 🌐 Contexto de Internacionalización (i18n)
+const I18nContext = createContext();
+
+const useTranslation = () => useContext(I18nContext);
+
+const I18nProvider = ({ children }) => {
+  const [language, setLanguage] = useState('es');
+
+  const translations = {
+    es: {
+      title: 'Formulario Generado Dinámicamente',
+      description: 'Los campos se crean automáticamente desde los parámetros de la API',
+      submit: 'Enviar Solicitud',
+      fields: {
+        pEmpleado: 'Empleado',
+        pLegajo: 'Legajo',
+        pMonto: 'Monto',
+        pCategoria: 'Categoría',
+        pFechaSolicitud: 'FechaSolicitud'
+      }
+    },
+    en: {
+      title: 'Dynamically Generated Form',
+      description: 'Fields are automatically created from API parameters',
+      submit: 'Submit Request',
+      fields: {
+        pEmpleado: 'Employee',
+        pLegajo: 'EmployeeNumber',
+        pMonto: 'Amount',
+        pCategoria: 'Category',
+        pFechaSolicitud: 'RequestDate'
+      }
+    }
+  };
+
+  const t = (key) => {
+    const keys = key.split('.');
+    let value = translations[language];
+    for (const k of keys) value = value?.[k];
+    return value || key;
+  };
+
+  return (
+    <I18nContext.Provider value={{ t, language, setLanguage }}>
+      {children}
+    </I18nContext.Provider>
+  );
+};
+
+function DynamicFormDemo() {
+  const { t, language, setLanguage } = useTranslation();
   // 🔹 CÓDIGO REAL (comentado porque no funciona en Sandpack):
   // const sdk = useBizuitSDK();
   // const { token } = useBizuitAuth();
@@ -232,12 +282,12 @@ export default function DynamicFormDemo() {
 
   // 🔹 Función para renderizar campo según tipo de parámetro
   const renderField = (param) => {
-    const fieldName = param.name.replace('p', ''); // Quitar 'p' del nombre
+    const translatedLabel = t(\`fields.\${param.name}\`) || param.name.replace('p', '');
 
     return (
       <div key={param.name} className="form-group">
         <label className="form-label">
-          {fieldName} *
+          {translatedLabel} *
         </label>
         <input
           type={param.name.includes('Fecha') ? 'date' :
@@ -254,9 +304,28 @@ export default function DynamicFormDemo() {
   return (
     <div className="container">
       <div className="card">
-        <h2 className="card-title">Formulario Generado Dinámicamente</h2>
+        {/* Selector de idioma */}
+        <div style={{ textAlign: 'right', marginBottom: '16px' }}>
+          <button
+            type="button"
+            onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+            style={{
+              padding: '6px 12px',
+              background: '#f3f4f6',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            {language === 'es' ? '🇬🇧 English' : '🇪🇸 Español'}
+          </button>
+        </div>
+
+        <h2 className="card-title">{t('title')}</h2>
         <p className="card-description">
-          Los campos se crean automáticamente desde los par\u00e1metros de la API
+          {t('description')}
         </p>
 
         <form onSubmit={handleSubmit}>
@@ -266,7 +335,7 @@ export default function DynamicFormDemo() {
           </div>
 
           <button type="submit" className="btn-submit">
-            Enviar Solicitud
+            {t('submit')}
           </button>
         </form>
       </div>
@@ -324,6 +393,15 @@ export default function DynamicFormDemo() {
         </div>
       )}
     </div>
+  );
+}
+
+// 🎯 Exportar el componente envuelto en el provider de i18n
+export default function AppWithProvider() {
+  return (
+    <I18nProvider>
+      <DynamicFormDemo />
+    </I18nProvider>
   );
 }`,
             '/styles.css': `* {

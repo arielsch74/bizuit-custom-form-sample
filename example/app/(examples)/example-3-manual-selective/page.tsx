@@ -188,10 +188,80 @@ function Example3ManualSelectiveContent() {
 
   // Código para el LiveCodeEditor
   const liveCodeFiles = {
-    'App.js': `import React, { useState } from 'react';
+    'App.js': `import React, { useState, createContext, useContext } from 'react';
 import './styles.css';
 
-export default function SelectiveMappingForm() {
+// 🌐 Contexto de Internacionalización (i18n)
+const I18nContext = createContext();
+
+const useTranslation = () => useContext(I18nContext);
+
+const I18nProvider = ({ children }) => {
+  const [language, setLanguage] = useState('es');
+
+  const translations = {
+    es: {
+      title: 'Solicitud de Reembolso',
+      employee: 'Nombre del Empleado',
+      employeeNumber: 'Número de Legajo',
+      amount: 'Monto Solicitado',
+      category: 'Categoría',
+      description: 'Descripción',
+      approved: 'Pre-aprobado por supervisor',
+      submit: 'Enviar Solicitud',
+      commentsInternal: 'Comentarios Internos',
+      priority: 'Prioridad',
+      sends: 'Se envía',
+      noSends: 'NO se envía',
+      sendAs: 'Se enviará como',
+      categories: { trips: 'Viajes', meals: 'Comidas', accommodation: 'Alojamiento', transport: 'Transporte' },
+      priorities: { low: 'Baja', medium: 'Media', high: 'Alta' },
+      placeholders: {
+        employee: 'juan pérez',
+        description: 'Describa el motivo del gasto...',
+        comments: 'Solo para uso interno...'
+      }
+    },
+    en: {
+      title: 'Reimbursement Request',
+      employee: 'Employee Name',
+      employeeNumber: 'Employee Number',
+      amount: 'Requested Amount',
+      category: 'Category',
+      description: 'Description',
+      approved: 'Pre-approved by supervisor',
+      submit: 'Submit Request',
+      commentsInternal: 'Internal Comments',
+      priority: 'Priority',
+      sends: 'Sends',
+      noSends: 'Does NOT send',
+      sendAs: 'Will be sent as',
+      categories: { trips: 'Trips', meals: 'Meals', accommodation: 'Accommodation', transport: 'Transport' },
+      priorities: { low: 'Low', medium: 'Medium', high: 'High' },
+      placeholders: {
+        employee: 'john doe',
+        description: 'Describe the reason for the expense...',
+        comments: 'For internal use only...'
+      }
+    }
+  };
+
+  const t = (key) => {
+    const keys = key.split('.');
+    let value = translations[language];
+    for (const k of keys) value = value?.[k];
+    return value || key;
+  };
+
+  return (
+    <I18nContext.Provider value={{ t, language, setLanguage }}>
+      {children}
+    </I18nContext.Provider>
+  );
+};
+
+function SelectiveMappingForm() {
+  const { t, language, setLanguage } = useTranslation();
   const [formData, setFormData] = useState({
     empleado: '',
     legajo: '',
@@ -291,29 +361,48 @@ export default function SelectiveMappingForm() {
   return (
     <div className="container">
       <div className="card">
-        <h2>Solicitud de Reembolso</h2>
+        {/* Selector de idioma */}
+        <div style={{ textAlign: 'right', marginBottom: '16px' }}>
+          <button
+            type="button"
+            onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+            style={{
+              padding: '6px 12px',
+              background: '#f3f4f6',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            {language === 'es' ? '🇬🇧 English' : '🇪🇸 Español'}
+          </button>
+        </div>
+
+        <h2>{t('title')}</h2>
 
         <form onSubmit={handleSubmit}>
         <div className="form-grid">
           {/* Empleado */}
           <div className="form-group">
-            <label>Nombre del Empleado * ✅ Se envía</label>
+            <label>{t('employee')} * ✅ {t('sends')}</label>
             <input
               type="text"
               value={formData.empleado}
               onChange={(e) => handleChange('empleado', e.target.value)}
-              placeholder="juan pérez"
+              placeholder={t('placeholders.employee')}
               required
               className="form-input"
             />
             <p className="hint">
-              Se enviará como: pEmpleado = "{formData.empleado.toUpperCase() || 'JUAN PÉREZ'}"
+              {t('sendAs')}: pEmpleado = "{formData.empleado.toUpperCase() || 'JUAN PÉREZ'}"
             </p>
           </div>
 
           {/* Legajo */}
           <div className="form-group">
-            <label>Número de Legajo * ✅ Se envía</label>
+            <label>{t('employeeNumber')} * ✅ {t('sends')}</label>
             <input
               type="text"
               value={formData.legajo}
@@ -326,7 +415,7 @@ export default function SelectiveMappingForm() {
 
           {/* Monto */}
           <div className="form-group">
-            <label>Monto Solicitado * ✅ Se envía</label>
+            <label>{t('amount')} * ✅ {t('sends')}</label>
             <input
               type="number"
               step="0.01"
@@ -337,33 +426,33 @@ export default function SelectiveMappingForm() {
               className="form-input"
             />
             <p className="hint">
-              Se enviará como: pMonto = "{formData.monto ? parseFloat(formData.monto).toFixed(2) : '1500.00'}"
+              {t('sendAs')}: pMonto = "{formData.monto ? parseFloat(formData.monto).toFixed(2) : '1500.00'}"
             </p>
           </div>
 
           {/* Categoría */}
           <div className="form-group">
-            <label>Categoría * ✅ Se envía</label>
+            <label>{t('category')} * ✅ {t('sends')}</label>
             <select
               value={formData.categoria}
               onChange={(e) => handleChange('categoria', e.target.value)}
               className="form-input"
             >
-              <option value="Viajes">Viajes</option>
-              <option value="Comidas">Comidas</option>
-              <option value="Alojamiento">Alojamiento</option>
-              <option value="Transporte">Transporte</option>
+              <option value="Viajes">{t('categories.trips')}</option>
+              <option value="Comidas">{t('categories.meals')}</option>
+              <option value="Alojamiento">{t('categories.accommodation')}</option>
+              <option value="Transporte">{t('categories.transport')}</option>
             </select>
           </div>
         </div>
 
         {/* Descripción */}
         <div className="form-group">
-          <label>Descripción * ✅ Se envía</label>
+          <label>{t('description')} * ✅ {t('sends')}</label>
           <textarea
             value={formData.descripcion}
             onChange={(e) => handleChange('descripcion', e.target.value)}
-            placeholder="Describa el motivo del gasto..."
+            placeholder={t('placeholders.description')}
             required
             rows={3}
             className="form-input"
@@ -378,41 +467,41 @@ export default function SelectiveMappingForm() {
               checked={formData.aprobadoSupervisor}
               onChange={(e) => handleChange('aprobadoSupervisor', e.target.checked)}
             />
-            ✅ Pre-aprobado por supervisor (se envía como variable)
+            ✅ {t('approved')}
           </label>
         </div>
 
         {/* Campos que NO se envían */}
         <div className="no-send-section">
-          <p className="warning">⚠️ Campos siguientes NO se envían a Bizuit:</p>
+          <p className="warning">⚠️ {t('noSends')}:</p>
 
           <div className="form-group">
-            <label>❌ Comentarios Internos (NO se envía)</label>
+            <label>❌ {t('commentsInternal')} ({t('noSends')})</label>
             <textarea
               value={formData.comentariosInternos}
               onChange={(e) => handleChange('comentariosInternos', e.target.value)}
-              placeholder="Solo para uso interno..."
+              placeholder={t('placeholders.comments')}
               rows={2}
               className="form-input no-send"
             />
           </div>
 
           <div className="form-group">
-            <label>❌ Prioridad (NO se envía)</label>
+            <label>❌ {t('priority')} ({t('noSends')})</label>
             <select
               value={formData.prioridad}
               onChange={(e) => handleChange('prioridad', e.target.value)}
               className="form-input no-send"
             >
-              <option value="Baja">Baja</option>
-              <option value="Media">Media</option>
-              <option value="Alta">Alta</option>
+              <option value="Baja">{t('priorities.low')}</option>
+              <option value="Media">{t('priorities.medium')}</option>
+              <option value="Alta">{t('priorities.high')}</option>
             </select>
           </div>
         </div>
 
         <button type="submit" className="btn-submit">
-          Enviar Solicitud
+          {t('submit')}
         </button>
       </form>
 
@@ -470,6 +559,15 @@ export default function SelectiveMappingForm() {
       )}
       </div>
     </div>
+  );
+}
+
+// 🎯 Exportar el componente envuelto en el provider de i18n
+export default function AppWithProvider() {
+  return (
+    <I18nProvider>
+      <SelectiveMappingForm />
+    </I18nProvider>
   );
 }`,
     'styles.css': `* {
