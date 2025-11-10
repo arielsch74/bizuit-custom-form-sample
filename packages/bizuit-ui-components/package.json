@@ -1,6 +1,6 @@
 {
   "name": "@tyconsa/bizuit-ui-components",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "description": "Production-ready, fully customizable UI components for Bizuit BPM forms - Built with Radix UI, Tailwind CSS, and React",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
