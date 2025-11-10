@@ -39,6 +39,14 @@ stages:
 
           - script: |
               cd example
+              echo "Cleaning old build artifacts..."
+              rm -rf node_modules .next .swc
+              echo "Cleaning npm cache..."
+              npm cache clean --force
+            displayName: 'Clean Build Environment'
+
+          - script: |
+              cd example
               npm ci
             displayName: 'Install Dependencies'
 
