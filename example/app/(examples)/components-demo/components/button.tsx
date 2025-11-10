@@ -451,6 +451,7 @@ body.dark .form-checkbox label {
 
 .form-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   margin-top: 24px;
 }

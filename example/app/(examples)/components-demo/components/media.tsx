@@ -106,6 +106,7 @@ const I18nProvider = ({ children }) => {
     "stop": "Detener",
     "imageDisplay": "Visualización de Imagen",
     "videoPlayer": "Reproductor de Video",
+    "audioPlayer": "Reproductor de Audio",
     "cameraCapture": "Captura de Cámara",
     "photoCaptured": "¡Foto capturada exitosamente!",
     "mediaContent": "Contenido multimedia",
@@ -120,6 +121,7 @@ const I18nProvider = ({ children }) => {
     "stop": "Stop",
     "imageDisplay": "Image Display",
     "videoPlayer": "Video Player",
+    "audioPlayer": "Audio Player",
     "cameraCapture": "Camera Capture",
     "photoCaptured": "Photo captured successfully!",
     "mediaContent": "Media content",
@@ -265,6 +267,16 @@ function App() {
       </div>
 
       <div className="card" style={{ marginTop: '24px' }}>
+        <h2 className="card-title">{t('audioPlayer')}</h2>
+        <Media
+          type="audio"
+          src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+          controls
+          primaryColor={primaryColor}
+        />
+      </div>
+
+      <div className="card" style={{ marginTop: '24px' }}>
         <h2 className="card-title">{t('cameraCapture')}</h2>
         <Media
           type="camera"
@@ -309,15 +321,20 @@ export default function Media({
   const context = useContext(I18nContext);
   const t = context ? context.t : (key) => key;
   const defaultAlt = alt || t('mediaContent');
+
   if (type === 'image') {
     return (
       <div className="form-field">
         <img
           src={src}
           alt={defaultAlt}
-          width={width}
-          height={height}
-          className="w-full rounded-lg"
+          style={{
+            width: width || '100%',
+            height: height || 'auto',
+            maxWidth: '100%',
+            borderRadius: '8px',
+            display: 'block'
+          }}
         />
       </div>
     );
@@ -330,9 +347,13 @@ export default function Media({
           src={src}
           controls={controls}
           autoPlay={autoPlay}
-          width={width}
-          height={height}
-          className="w-full rounded-lg"
+          style={{
+            width: width || '100%',
+            height: height || 'auto',
+            maxWidth: '100%',
+            borderRadius: '8px',
+            display: 'block'
+          }}
         />
       </div>
     );
@@ -345,7 +366,10 @@ export default function Media({
           src={src}
           controls={controls}
           autoPlay={autoPlay}
-          className="w-full"
+          style={{
+            width: '100%',
+            maxWidth: '100%'
+          }}
         />
       </div>
     );
@@ -354,12 +378,33 @@ export default function Media({
   if (type === 'camera') {
     return (
       <div className="form-field">
-        <div className="bg-muted rounded-lg p-8 text-center" style={{ height: height || 300 }}>
-          <p>{t('cameraInterface')}</p>
+        <div style={{
+          height: height || 300,
+          background: '#f3f4f6',
+          borderRadius: '8px',
+          padding: '32px',
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '16px'
+        }}>
+          <p style={{ color: '#6b7280', fontSize: '14px' }}>{t('cameraInterface')}</p>
           <button
-            className="btn-primary mt-4"
+            className="btn-primary"
             onClick={() => onCapture?.('data:image/png;base64,...')}
-            style={{ background: primaryColor }}
+            style={{
+              background: primaryColor,
+              padding: '12px 24px',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'opacity 0.2s'
+            }}
             onMouseOver={(e) => e.currentTarget.style.opacity = '0.9'}
             onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
           >
@@ -373,8 +418,17 @@ export default function Media({
   if (type === 'qr-scanner') {
     return (
       <div className="form-field">
-        <div className="bg-muted rounded-lg p-8 text-center" style={{ height: height || 300 }}>
-          <p>{t('qrScannerInterface')}</p>
+        <div style={{
+          height: height || 300,
+          background: '#f3f4f6',
+          borderRadius: '8px',
+          padding: '32px',
+          textAlign: 'center',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}>
+          <p style={{ color: '#6b7280', fontSize: '14px' }}>{t('qrScannerInterface')}</p>
         </div>
       </div>
     );
