@@ -5,42 +5,62 @@ export const bizuit_subformDoc: ComponentDoc = {
   name: 'Subform',
   category: 'forms',
   icon: 'Component',
-  description: 'Nested subform component for complex data structures',
-  detailedDescription: 'A subform component that allows embedding forms within forms, supporting repeatable sections, nested data structures, and array management.',
-  useCases: ['Invoice line items', 'Contact lists', 'Repeatable form sections', 'Dynamic field groups', 'Nested data entry'],
+  description: 'Nested subform component for array data management',
+  description_es: 'Formulario anidado con campos repetibles y gestión de array',
+  detailedDescription: 'A subform component for managing arrays of related data entries. Features add/remove rows, nested field validation, drag-to-reorder, and dynamic field rendering. Perfect for invoice line items, contact lists, and repeatable form sections.',
+  detailedDescription_es: 'Un componente de subformulario que permite a los usuarios agregar múltiples instancias de un grupo de campos. Incluye botones de agregar/eliminar, validación de cada instancia y manejo de arrays de objetos. Ideal para formularios con relaciones uno-a-muchos como contactos, items de pedido o entradas de experiencia.',
+  useCases: [
+    'Invoice and order line items',
+    'Contact and address lists',
+    'Product variant management',
+    'Custom field groups',
+    'Dynamic form sections',
+  ],
+  useCases_es: [
+    'Agregar múltiples contactos de emergencia',
+    'Items de línea de pedido en formularios de compra',
+    'Entradas de experiencia laboral o educación en CVs',
+    'Agregar múltiples direcciones (facturación/envío)',
+    'Gestión de dependientes o miembros de familia',
+  ],
   props: [
     {
-        name: "value",
-        type: "any[]",
-        required: false,
-        description: "Array of subform data"
+      name: 'value',
+      type: 'any[]',
+      required: false,
+      description: 'Array of subform data',
+      description_es: 'Array de valores de subformulario',
     },
     {
-        name: "onChange",
-        type: "(value: any[]) => void",
-        required: false,
-        description: "Callback when subform data changes"
+      name: 'onChange',
+      type: '(value: any[]) => void',
+      required: false,
+      description: 'Change callback',
+      description_es: 'Callback ejecutado cuando los valores de subformulario cambian',
     },
     {
-        name: "fields",
-        type: "Field[]",
-        required: true,
-        description: "Field definitions for subform"
+      name: 'fields',
+      type: 'Field[]',
+      required: true,
+      description: 'Field definitions for each row',
+      description_es: 'Definición de campos para cada instancia de subformulario',
     },
     {
-        name: "minItems",
-        type: "number",
-        required: false,
-        default: "0",
-        description: "Minimum number of items"
+      name: 'minItems',
+      type: 'number',
+      required: false,
+      default: '0',
+      description: 'Minimum rows required',
+      description_es: 'Número mínimo de instancias requeridas',
     },
     {
-        name: "maxItems",
-        type: "number",
-        required: false,
-        description: "Maximum number of items"
-    }
-],
+      name: 'maxItems',
+      type: 'number',
+      required: false,
+      description: 'Maximum rows allowed',
+      description_es: 'Número máximo de instancias permitidas',
+    },
+  ],
   codeExample: {
     '/App.js': `import { useState } from 'react';
 import Subform from './Subform.js';

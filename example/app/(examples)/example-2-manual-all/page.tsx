@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useBizuitSDK, formDataToParameters } from '@tyconsa/bizuit-form-sdk'
-import { Button, useBizuitAuth } from '@tyconsa/bizuit-ui-components'
+import { Button, useBizuitAuth, useTranslation } from '@tyconsa/bizuit-ui-components'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { RequireAuth } from '@/components/require-auth'
 import { LiveCodeEditor } from '@/components/live-code-editor'
@@ -28,6 +28,7 @@ import Link from 'next/link'
  * - Envía todos los campos (no selectivo)
  */
 function Example2ManualAllContent() {
+  const { t } = useTranslation()
   const sdk = useBizuitSDK()
   const { token } = useBizuitAuth()
 
@@ -123,20 +124,20 @@ function Example2ManualAllContent() {
     <div className="container mx-auto py-8 px-4 max-w-7xl">
       <div className="mb-6">
         <Link href="/" className="text-sm text-primary hover:underline">
-          ← Volver al inicio
+          {t('ui.backToHome')}
         </Link>
       </div>
 
-      <h1 className="text-3xl font-bold mb-2">Ejemplo 2: Campos Manuales + Enviar Todos</h1>
+      <h1 className="text-3xl font-bold mb-2">{t('example2.title')}</h1>
       <p className="text-muted-foreground mb-6">
-        Los campos se crean manualmente con control total de la UI, se envían todos los valores
+        {t('example2.description')}
       </p>
 
       <div className="grid gap-6">
         {/* Editor Interactivo en Vivo - ARRIBA */}
         <LiveCodeEditor
-          title="⚡ Editor Interactivo en Vivo"
-          description="Edita el código en el panel izquierdo y ve los cambios EN TIEMPO REAL en el panel derecho. Prueba cambiar los placeholders, agregar campos, modificar estilos, etc."
+          title={`⚡ ${t('example2.liveCodeTitle')}`}
+          description={t('example2.liveCodeDescription')}
           files={{
             '/App.js': `import { useState } from 'react';
 import './styles.css';
@@ -196,6 +197,20 @@ export default function App() {
 
     // Simular envío a Bizuit con TODOS los parámetros
     console.log('📤 Enviando a Bizuit:', allParams);
+
+    // 🔹 CÓDIGO REAL para enviar a Bizuit (comentado porque no funciona en Sandpack):
+    // try {
+    //   const response = await sdk.process.raiseEvent({
+    //     eventName: 'AprobacionGastos',
+    //     parameters: allParams
+    //   }, undefined, token);
+    //
+    //   console.log('✅ Respuesta de Bizuit:', response);
+    //   alert(\`Proceso iniciado exitosamente! Instance ID: \${response.instanceId}\`);
+    // } catch (error) {
+    //   console.error('❌ Error al enviar a Bizuit:', error);
+    //   alert(\`Error: \${error.message}\`);
+    // }
   };
 
   const closeModal = () => {
@@ -770,11 +785,11 @@ input[type="date"].form-input {
 
         {/* Documentación */}
         <Card className="p-6 bg-muted/50">
-          <h3 className="font-semibold mb-3">💡 Cómo funciona este ejemplo</h3>
+          <h3 className="font-semibold mb-3">💡 {t('example2.howItWorks')}</h3>
 
           <div className="space-y-4 text-sm">
             <div>
-              <h4 className="font-medium mb-1">1. Definir campos manualmente:</h4>
+              <h4 className="font-medium mb-1">1. {t('example2.step1')}</h4>
               <pre className="bg-background p-3 rounded text-xs overflow-auto">
 {`const [formData, setFormData] = useState({
   pEmpleado: '',
@@ -785,7 +800,7 @@ input[type="date"].form-input {
             </div>
 
             <div>
-              <h4 className="font-medium mb-1">2. Crear inputs con control total de UI:</h4>
+              <h4 className="font-medium mb-1">2. {t('example2.step2')}</h4>
               <pre className="bg-background p-3 rounded text-xs overflow-auto">
 {`<input
   type="text"
@@ -797,7 +812,7 @@ input[type="date"].form-input {
             </div>
 
             <div>
-              <h4 className="font-medium mb-1">3. Aplicar transformaciones a los valores:</h4>
+              <h4 className="font-medium mb-1">3. {t('example2.step3')}</h4>
               <pre className="bg-background p-3 rounded text-xs overflow-auto">
 {`// ✨ Transformar valores antes de enviar
 const transformedData = {
@@ -811,7 +826,7 @@ const visibleParameters = formDataToParameters(transformedData)`}</pre>
             </div>
 
             <div>
-              <h4 className="font-medium mb-1">4. Agregar parámetros ocultos/calculados:</h4>
+              <h4 className="font-medium mb-1">4. {t('example2.step4')}</h4>
               <pre className="bg-background p-3 rounded text-xs overflow-auto">
 {`// Parámetros que NO están en el formulario
 const hiddenParameters = formDataToParameters({
@@ -824,7 +839,7 @@ const hiddenParameters = formDataToParameters({
             </div>
 
             <div>
-              <h4 className="font-medium mb-1">5. Combinar y enviar TODOS los campos:</h4>
+              <h4 className="font-medium mb-1">5. {t('example2.step5')}</h4>
               <pre className="bg-background p-3 rounded text-xs overflow-auto">
 {`// Combinar parámetros visibles (transformados) + ocultos
 const allParameters = [...visibleParameters, ...hiddenParameters]
@@ -838,13 +853,13 @@ await sdk.process.raiseEvent({
 
           <div className="mt-4 pt-4 border-t">
             <p className="text-sm">
-              <strong>✅ Ideal para:</strong> Formularios con UI personalizada, validaciones específicas, mejor UX
+              <strong>✅ {t('example2.idealFor')}</strong> {t('example2.idealForText')}
             </p>
             <p className="text-sm mt-2">
-              <strong>❌ Limitación:</strong> Envía TODOS los campos incluso si algunos no son necesarios para el proceso
+              <strong>❌ {t('example2.limitation')}</strong> {t('example2.limitationText')}
             </p>
             <p className="text-sm mt-2 text-primary">
-              <strong>💡 Ver Ejemplo 3</strong> para aprender cómo enviar solo campos específicos
+              <strong>💡 {t('example2.seeExample3')}</strong> {t('example2.seeExample3Text')}
             </p>
           </div>
         </Card>

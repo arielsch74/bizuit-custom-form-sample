@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { useBizuitSDK, formDataToParameters, type IBizuitProcessParameter } from '@tyconsa/bizuit-form-sdk'
-import { DynamicFormField, Button, useBizuitAuth } from '@tyconsa/bizuit-ui-components'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { DynamicFormField, Button, useBizuitAuth, useTranslation } from '@tyconsa/bizuit-ui-components'
+import { Card } from '@/components/ui/card'
 import { RequireAuth } from '@/components/require-auth'
 import { LiveCodeEditor } from '@/components/live-code-editor'
 import Link from 'next/link'
@@ -14,7 +14,7 @@ import Link from 'next/link'
  * Este ejemplo demuestra cómo:
  * 1. Obtener parámetros dinámicamente desde la API de Bizuit
  * 2. Generar campos de formulario automáticamente usando DynamicFormField
- * 3. Enviar TODOS los campos al proceso usando formDataToParameters()
+ * 3. {t('ui.send')} TODOS los campos al proceso usando formDataToParameters()
  *
  * Ventajas:
  * - No necesitas conocer los parámetros de antemano
@@ -27,6 +27,7 @@ import Link from 'next/link'
  * - No permite transformaciones personalizadas
  */
 function Example1DynamicContent() {
+  const { t } = useTranslation()
   const sdk = useBizuitSDK()
   const { token } = useBizuitAuth()
 
@@ -68,7 +69,7 @@ function Example1DynamicContent() {
     }
   }
 
-  // Paso 2: Enviar proceso con TODOS los campos + parámetros ocultos
+  // Paso 2: {t('ui.send')} proceso con TODOS los campos + parámetros ocultos
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -79,7 +80,7 @@ function Example1DynamicContent() {
       // formDataToParameters() convierte TODO el formData a parámetros
       const visibleParameters = formDataToParameters(formData)
 
-      // NUEVO: Agregar parámetros ocultos/calculados que NO están en el formulario
+      // NUEVO: {t('ui.add')} parámetros ocultos/calculados que NO están en el formulario
       const hiddenParameters = formDataToParameters({
         // Datos del usuario autenticado
         userId: token ? 'user123' : 'anonymous',
@@ -135,23 +136,23 @@ function Example1DynamicContent() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
+    <div className="container mx-auto py-8 px-4 max-w-7xl">
       <div className="mb-6">
         <Link href="/" className="text-sm text-primary hover:underline">
-          ← Volver al inicio
+          {t('ui.backToHome')}
         </Link>
       </div>
 
-      <h1 className="text-3xl font-bold mb-2">Ejemplo 1: Campos Dinámicos</h1>
+      <h1 className="text-3xl font-bold mb-2">{t('example1.title')}</h1>
       <p className="text-muted-foreground mb-6">
-        Los campos se generan automáticamente desde la API de Bizuit y se envían todos los valores
+        {t('example1.description')}
       </p>
 
       {/* Live Code Editor */}
       <div className="mb-8">
         <LiveCodeEditor
-          title="⚡ Editor Interactivo - Generación Dinámica de Campos"
-          description="Este código simula cómo los campos se generan automáticamente desde parámetros de la API. Los parámetros están hardcodeados para demostración."
+          title={`⚡ ${t('example1.liveCodeTitle')}`}
+          description={t('example1.liveCodeDescription')}
           files={{
             '/App.js': `import { useState } from 'react';
 import './styles.css';
@@ -325,30 +326,35 @@ export default function DynamicFormDemo() {
     </div>
   );
 }`,
-            '/styles.css': `.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+            '/styles.css': `* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
   font-family: system-ui, -apple-system, sans-serif;
+  background: #f9fafb;
+  padding: 20px;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .card {
-  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .card-title {
-  font-size: 26px;
-  font-weight: 700;
-  margin-bottom: 8px;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
   color: #111827;
-  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .card-description {
@@ -359,9 +365,9 @@ export default function DynamicFormDemo() {
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .form-group {
@@ -402,94 +408,22 @@ export default function DynamicFormDemo() {
 
 .btn-submit {
   width: 100%;
-  padding: 14px 24px;
+  padding: 12px 24px;
   background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 6px;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
-  letter-spacing: 0.3px;
 }
 
 .btn-submit:hover {
   transform: translateY(-3px);
   box-shadow: 0 12px 24px rgba(249, 115, 22, 0.4);
   background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
-}
-
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-  body {
-    background: #111827;
-  }
-
-  .card {
-    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-    border-color: #374151;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-  }
-
-  .card-title {
-    color: #f9fafb;
-    background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .card-description {
-    color: #9ca3af;
-  }
-
-  .form-label {
-    color: #e5e7eb;
-  }
-
-  .form-input {
-    background: #374151;
-    border-color: #4b5563;
-    color: #f9fafb;
-  }
-
-  .form-input:focus {
-    border-color: #f97316;
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
-  }
-
-  .preview {
-    background: #0f172a;
-    border-color: #374151;
-  }
-
-  .preview h3 {
-    color: #e5e7eb;
-  }
-
-  .preview-code {
-    background: #1e293b;
-    border-color: #374151;
-    color: #e5e7eb;
-  }
-
-  .modal-content {
-    background: #1f2937;
-  }
-
-  .param-item {
-    background: #374151;
-  }
-
-  .param-name {
-    color: #e5e7eb;
-  }
-
-  .param-value {
-    color: #9ca3af;
-  }
 }
 
 /* Modal Styles */
@@ -654,15 +588,15 @@ export default function DynamicFormDemo() {
       </div>
 
       <div className="grid gap-6">
-        {/* Configuración Inicial */}
+        {/* {t('ui.configuration')} Inicial */}
         {status === 'idle' && (
           <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Configuración</h2>
+            <h2 className="text-xl font-semibold mb-4">{t('ui.configuration')}</h2>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">
-                  Nombre del Proceso
+                  {t('ui.processName')}
                 </label>
                 <input
                   type="text"
@@ -674,7 +608,7 @@ export default function DynamicFormDemo() {
               </div>
 
               <Button onClick={handleLoadParameters} className="w-full">
-                Cargar Parámetros del Proceso
+                {t('ui.loadProcessParameters')}
               </Button>
             </div>
           </Card>
@@ -684,7 +618,7 @@ export default function DynamicFormDemo() {
         {status === 'loading' && (
           <Card className="p-6 text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p>Cargando parámetros...</p>
+            <p>{t('ui.loadingParameters')}</p>
           </Card>
         )}
 
@@ -718,17 +652,17 @@ export default function DynamicFormDemo() {
 
               <div className="mt-6 flex gap-3">
                 <Button type="submit" className="flex-1">
-                  Iniciar Proceso
+                  {t('ui.initiateProcess')}
                 </Button>
                 <Button type="button" variant="outline" onClick={handleReset}>
-                  Cancelar
+                  {t('ui.cancel')}
                 </Button>
               </div>
             </Card>
 
             {/* Preview de Parámetros */}
             <Card className="p-6">
-              <h3 className="font-semibold mb-2">Vista Previa: Parámetros a Enviar</h3>
+              <h3 className="font-semibold mb-2">Vista Previa: Parámetros a {t('ui.send')}</h3>
 
               <div className="space-y-4">
                 <div>
@@ -821,11 +755,11 @@ export default function DynamicFormDemo() {
 
         {/* Documentación */}
         <Card className="p-6 bg-muted/50">
-          <h3 className="font-semibold mb-3">💡 Cómo funciona este ejemplo</h3>
+          <h3 className="font-semibold mb-3">💡 {t('example1.howItWorks')}</h3>
 
           <div className="space-y-4 text-sm">
             <div>
-              <h4 className="font-medium mb-1">1. Obtener parámetros dinámicamente:</h4>
+              <h4 className="font-medium mb-1">1. {t('example1.step1')}</h4>
               <pre className="bg-background p-3 rounded text-xs overflow-auto">
 {`const params = await sdk.process.getProcessParameters(
   'NombreProceso',
@@ -835,7 +769,7 @@ export default function DynamicFormDemo() {
             </div>
 
             <div>
-              <h4 className="font-medium mb-1">2. Generar campos automáticamente:</h4>
+              <h4 className="font-medium mb-1">2. {t('example1.step2')}</h4>
               <pre className="bg-background p-3 rounded text-xs overflow-auto">
 {`{parameters.map((param) => (
   <DynamicFormField
@@ -850,7 +784,7 @@ export default function DynamicFormDemo() {
             </div>
 
             <div>
-              <h4 className="font-medium mb-1">3. Enviar todos los campos + parámetros ocultos:</h4>
+              <h4 className="font-medium mb-1">3. {t('example1.step3')}</h4>
               <pre className="bg-background p-3 rounded text-xs overflow-auto">
 {`// Parámetros del formulario
 const visibleParameters = formDataToParameters(formData)
@@ -875,10 +809,10 @@ await sdk.process.raiseEvent({
 
           <div className="mt-4 pt-4 border-t">
             <p className="text-sm">
-              <strong>✅ Ideal para:</strong> Formularios genéricos, prototipos rápidos, cuando no conoces los parámetros de antemano
+              <strong>✅ {t('example1.idealFor')}</strong> {t('example1.idealForText')}
             </p>
             <p className="text-sm mt-2">
-              <strong>❌ No ideal para:</strong> UI personalizada, validaciones complejas, mapeo selectivo de campos
+              <strong>❌ {t('example1.notIdealFor')}</strong> {t('example1.notIdealForText')}
             </p>
           </div>
         </Card>

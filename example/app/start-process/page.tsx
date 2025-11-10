@@ -212,10 +212,10 @@ function StartProcessForm() {
       setStatus('submitting')
       setError(null)
 
-      // Parámetros del formulario
+      // Visible form parameters
       const visibleParameters = formDataToParameters(formData)
 
-      // Parámetros ocultos/calculados
+      // Hidden/calculated parameters
       const hiddenParameters = formDataToParameters({
         initiatedBy: activeToken ? 'authenticated-user' : 'anonymous',
         initiatedAt: new Date().toISOString(),
@@ -224,10 +224,10 @@ function StartProcessForm() {
         formVersion: '1.0.0',
       })
 
-      // Combinar parámetros
+      // Combine parameters
       const allParameters = [...visibleParameters, ...hiddenParameters]
 
-      console.log('Parámetros a enviar:', {
+      console.log('Parameters to send:', {
         visible: visibleParameters.length,
         hidden: hiddenParameters.length,
         total: allParameters.length
@@ -243,7 +243,7 @@ function StartProcessForm() {
         activeToken // Pass the authentication token
       )
 
-      console.log('Proceso iniciado:', result)
+      console.log('Process started:', result)
 
       // Store the process result (includes instanceId, status, tyconParameters)
       setProcessData(result)
@@ -270,7 +270,7 @@ function StartProcessForm() {
       <div className="container max-w-2xl mx-auto py-8 px-4">
         <div className="mb-6">
           <Link href="/" className="text-sm text-primary hover:underline">
-            ← Volver al inicio
+            {t('ui.backToHome')}
           </Link>
         </div>
 
@@ -296,7 +296,7 @@ function StartProcessForm() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2">
-                {t('startProcess.processId')} / Nombre del Evento
+                {t('startProcess.processId')} / {t('ui.eventName')}
               </label>
               <input
                 type="text"
@@ -308,7 +308,7 @@ function StartProcessForm() {
               />
               {urlEventName && (
                 <p className="text-xs text-muted-foreground mt-1">
-                  Nombre del evento recibido desde URL
+                  {t('startProcess.eventNameFromUrl')}
                 </p>
               )}
             </div>
@@ -450,16 +450,16 @@ function StartProcessForm() {
       <div className="container max-w-4xl mx-auto py-8 px-4">
         <div className="mb-6">
           <Link href="/" className="text-sm text-primary hover:underline">
-            ← Volver al inicio
+            {t('ui.backToHome')}
           </Link>
         </div>
 
         <div className="border rounded-lg p-6 bg-card">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-3xl font-bold">Formulario de Proceso: {eventName}</h1>
+            <h1 className="text-3xl font-bold">{t('ui.processForm')} {eventName}</h1>
             {user && (
               <div className="text-sm text-muted-foreground">
-                Usuario: <span className="font-medium">{user.DisplayName || user.Username}</span>
+                {t('ui.user')} <span className="font-medium">{user.DisplayName || user.Username}</span>
               </div>
             )}
           </div>
@@ -481,7 +481,7 @@ function StartProcessForm() {
                   disabled={status !== 'ready'}
                   className="flex-1"
                 >
-                  {status !== 'ready' ? 'Iniciando Proceso...' : 'Iniciar Proceso'}
+                  {status !== 'ready' ? t('ui.initiatingProcess') : t('ui.initiateProcess')}
                 </Button>
                 <Button
                   type="button"
@@ -492,14 +492,14 @@ function StartProcessForm() {
                     setFormData({})
                   }}
                 >
-                  Cancelar
+                  {t('ui.cancel')}
                 </Button>
               </div>
             </form>
           ) : (
             <div className="text-center py-8">
               <p className="text-muted-foreground">
-                No se encontraron parámetros de entrada para este proceso.
+                {t('ui.noInputParametersFound')}
               </p>
               <Button
                 onClick={() => {
@@ -508,14 +508,14 @@ function StartProcessForm() {
                 }}
                 className="mt-4"
               >
-                Volver
+                {t('ui.back')}
               </Button>
             </div>
           )}
 
           {processData && (
             <div className="mt-6 p-4 bg-muted rounded-md">
-              <p className="text-sm font-medium mb-2">Datos del Proceso Inicializado:</p>
+              <p className="text-sm font-medium mb-2">{t('ui.processDataInitialized')}</p>
               <pre className="text-xs overflow-auto">
                 {JSON.stringify(processData, null, 2)}
               </pre>
@@ -535,14 +535,14 @@ function StartProcessForm() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold mb-2">Proceso Iniciado Exitosamente</h2>
+          <h2 className="text-2xl font-bold mb-2">{t('ui.processStartedSuccessfully')}</h2>
           <p className="text-muted-foreground mb-6">
-            El proceso ha sido creado correctamente en el BPMS Bizuit
+            {t('ui.processCreatedSuccessfully')}
           </p>
 
           {processData && (
             <div className="mb-6 p-4 bg-muted rounded-md text-left">
-              <p className="text-sm font-medium mb-2">Información del Proceso:</p>
+              <p className="text-sm font-medium mb-2">{t('ui.processInformation')}</p>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Instance ID:</span>
@@ -554,7 +554,7 @@ function StartProcessForm() {
                 </div>
                 {processData.tyconParameters && (
                   <div className="mt-3">
-                    <p className="text-muted-foreground mb-1">Parámetros de Retorno:</p>
+                    <p className="text-muted-foreground mb-1">{t('ui.returnParameters')}</p>
                     <pre className="text-xs bg-background p-2 rounded overflow-auto">
                       {JSON.stringify(processData.tyconParameters, null, 2)}
                     </pre>
@@ -571,11 +571,11 @@ function StartProcessForm() {
               setFormData({})
               setProcessParameters([])
             }}>
-              Iniciar Otro Proceso
+              {t('ui.startAnotherProcess')}
             </Button>
             <Link href="/">
               <Button variant="outline">
-                Volver al Inicio
+                {t('ui.backToHome').replace('← ', '')}
               </Button>
             </Link>
           </div>

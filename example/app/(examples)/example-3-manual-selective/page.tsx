@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useBizuitSDK, buildParameters, formDataToParameters } from '@tyconsa/bizuit-form-sdk'
-import { Button, useBizuitAuth } from '@tyconsa/bizuit-ui-components'
+import { Button, useBizuitAuth, useTranslation } from '@tyconsa/bizuit-ui-components'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { RequireAuth } from '@/components/require-auth'
 import { LiveCodeEditor } from '@/components/live-code-editor'
@@ -28,6 +28,7 @@ import Link from 'next/link'
  * Esta es la MEJOR PRÁCTICA para formularios personalizados.
  */
 function Example3ManualSelectiveContent() {
+  const { t } = useTranslation()
   const sdk = useBizuitSDK()
   const { token } = useBizuitAuth()
 
@@ -96,7 +97,7 @@ function Example3ManualSelectiveContent() {
       // buildParameters() convierte SOLO los campos mapeados del formulario
       const visibleParameters = buildParameters(parameterMapping, formData)
 
-      // NUEVO: Agregar parámetros ocultos/calculados usando formDataToParameters()
+      // NUEVO: {t('ui.add')} parámetros ocultos/calculados usando formDataToParameters()
       const hiddenData = {
         // Datos de auditoría (valor directo, NO del formData)
         submittedBy: token ? 'user123' : 'anonymous',
@@ -269,74 +270,91 @@ export default function SelectiveMappingForm() {
     setShowModal(true);
 
     console.log('📤 Enviando a Bizuit:', allParams);
+
+    // 🔹 CÓDIGO REAL para enviar a Bizuit (comentado porque no funciona en Sandpack):
+    // try {
+    //   const response = await sdk.process.raiseEvent({
+    //     eventName: 'AprobacionGastos',
+    //     parameters: allParams
+    //   }, undefined, token);
+    //
+    //   console.log('✅ Respuesta de Bizuit:', response);
+    //   alert(\`Proceso iniciado exitosamente! Instance ID: \${response.instanceId}\`);
+    // } catch (error) {
+    //   console.error('❌ Error al enviar a Bizuit:', error);
+    //   alert(\`Error: \${error.message}\`);
+    // }
   };
 
   const closeModal = () => setShowModal(false);
 
   return (
     <div className="container">
-      <h2>Solicitud de Reembolso</h2>
+      <div className="card">
+        <h2>Solicitud de Reembolso</h2>
 
-      <form onSubmit={handleSubmit}>
-        {/* Empleado */}
-        <div className="form-group">
-          <label>Nombre del Empleado * ✅ Se envía (en MAYÚSCULAS)</label>
-          <input
-            type="text"
-            value={formData.empleado}
-            onChange={(e) => handleChange('empleado', e.target.value)}
-            placeholder="juan pérez"
-            required
-            className="form-input"
-          />
-          <p className="hint">
-            Se enviará como: pEmpleado = "{formData.empleado.toUpperCase() || 'JUAN PÉREZ'}"
-          </p>
-        </div>
+        <form onSubmit={handleSubmit}>
+        <div className="form-grid">
+          {/* Empleado */}
+          <div className="form-group">
+            <label>Nombre del Empleado * ✅ Se envía</label>
+            <input
+              type="text"
+              value={formData.empleado}
+              onChange={(e) => handleChange('empleado', e.target.value)}
+              placeholder="juan pérez"
+              required
+              className="form-input"
+            />
+            <p className="hint">
+              Se enviará como: pEmpleado = "{formData.empleado.toUpperCase() || 'JUAN PÉREZ'}"
+            </p>
+          </div>
 
-        {/* Legajo */}
-        <div className="form-group">
-          <label>Número de Legajo * ✅ Se envía</label>
-          <input
-            type="text"
-            value={formData.legajo}
-            onChange={(e) => handleChange('legajo', e.target.value)}
-            placeholder="12345"
-            required
-            className="form-input"
-          />
-        </div>
+          {/* Legajo */}
+          <div className="form-group">
+            <label>Número de Legajo * ✅ Se envía</label>
+            <input
+              type="text"
+              value={formData.legajo}
+              onChange={(e) => handleChange('legajo', e.target.value)}
+              placeholder="12345"
+              required
+              className="form-input"
+            />
+          </div>
 
-        {/* Monto */}
-        <div className="form-group">
-          <label>Monto Solicitado * ✅ Se envía (formato decimal)</label>
-          <input
-            type="number"
-            step="0.01"
-            value={formData.monto}
-            onChange={(e) => handleChange('monto', e.target.value)}
-            placeholder="1500"
-            required
-            className="form-input"
-          />
-          <p className="hint">
-            Se enviará como: pMonto = "{formData.monto ? parseFloat(formData.monto).toFixed(2) : '1500.00'}"
-          </p>
-        </div>
+          {/* Monto */}
+          <div className="form-group">
+            <label>Monto Solicitado * ✅ Se envía</label>
+            <input
+              type="number"
+              step="0.01"
+              value={formData.monto}
+              onChange={(e) => handleChange('monto', e.target.value)}
+              placeholder="1500"
+              required
+              className="form-input"
+            />
+            <p className="hint">
+              Se enviará como: pMonto = "{formData.monto ? parseFloat(formData.monto).toFixed(2) : '1500.00'}"
+            </p>
+          </div>
 
-        {/* Categoría */}
-        <div className="form-group">
-          <label>Categoría * ✅ Se envía</label>
-          <select
-            value={formData.categoria}
-            onChange={(e) => handleChange('categoria', e.target.value)}
-            className="form-input"
-          >
-            <option value="Viajes">Viajes</option>
-            <option value="Comidas">Comidas</option>
-            <option value="Alojamiento">Alojamiento</option>
-            <option value="Transporte">Transporte</option>
-          </select>
+          {/* Categoría */}
+          <div className="form-group">
+            <label>Categoría * ✅ Se envía</label>
+            <select
+              value={formData.categoria}
+              onChange={(e) => handleChange('categoria', e.target.value)}
+              className="form-input"
+            >
+              <option value="Viajes">Viajes</option>
+              <option value="Comidas">Comidas</option>
+              <option value="Alojamiento">Alojamiento</option>
+              <option value="Transporte">Transporte</option>
+            </select>
+          </div>
         </div>
 
         {/* Descripción */}
@@ -450,21 +468,46 @@ export default function SelectiveMappingForm() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }`,
-    'styles.css': `.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+    'styles.css': `* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
   font-family: system-ui, -apple-system, sans-serif;
+  background: #f9fafb;
+  padding: 20px;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 h2 {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
   color: #1f2937;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .form-group {
@@ -716,31 +759,31 @@ label {
     <div className="container mx-auto py-8 px-4 max-w-7xl">
       <div className="mb-6">
         <Link href="/" className="text-sm text-primary hover:underline">
-          ← Volver al inicio
+          {t('ui.backToHome')}
         </Link>
       </div>
 
-      <h1 className="text-3xl font-bold mb-2">Ejemplo 3: Campos Manuales + Mapeo Selectivo ⭐</h1>
+      <h1 className="text-3xl font-bold mb-2">{t('example3.title')} ⭐</h1>
       <p className="text-muted-foreground mb-6">
-        Los campos se crean manualmente con control total de la UI, se eligen selectivamente cuáles enviar con transformaciones
+        {t('example3.description')}
       </p>
 
       {/* Live Code Editor */}
       <div className="mb-8">
         <LiveCodeEditor
-          title="Código Interactivo - Mapeo Selectivo"
-          description="Edita el código y ve los cambios en tiempo real. Este ejemplo muestra cómo usar buildParameters() para enviar solo los campos necesarios."
+          title={t('example3.liveCodeTitle')}
+          description={t('example3.liveCodeDescription')}
           files={liveCodeFiles}
         />
       </div>
 
       {/* Documentación */}
       <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10 mt-6">
-        <h3 className="font-semibold mb-3 text-lg">💡 Cómo funciona el Mapeo Selectivo</h3>
+        <h3 className="font-semibold mb-3 text-lg">💡 {t('example3.howItWorks')}</h3>
 
         <div className="space-y-4 text-sm">
           <div>
-            <h4 className="font-medium mb-2">1️⃣ Definir el mapeo de campos:</h4>
+            <h4 className="font-medium mb-2">1️⃣ {t('example3.step1')}</h4>
             <pre className="bg-background/80 p-3 rounded text-xs overflow-auto">
 {`const mapping = {
   'empleado': {
@@ -756,21 +799,21 @@ label {
     isVariable: true,
     transform: (val) => val ? 'SI' : 'NO'
   }
-  // comentariosInternos NO está aquí, no se enviará
+  // {t('example3.note')}
 }`}</pre>
           </div>
 
           <div>
-            <h4 className="font-medium mb-2">2️⃣ Construir parámetros selectivamente:</h4>
+            <h4 className="font-medium mb-2">2️⃣ {t('example3.step2')}</h4>
             <pre className="bg-background/80 p-3 rounded text-xs overflow-auto">
 {`const parameters = buildParameters(mapping, formData)
-// Solo genera parámetros para los campos del mapping`}</pre>
+// ${t('example3.onlyGenerates')}`}</pre>
           </div>
 
           <div>
-            <h4 className="font-medium mb-2">3️⃣ Agregar parámetros ocultos/calculados:</h4>
+            <h4 className="font-medium mb-2">3️⃣ {t('example3.step3')}</h4>
             <pre className="bg-background/80 p-3 rounded text-xs overflow-auto">
-{`// Parámetros que NO están en el formulario
+{`// ${t('example3.notInForm')}
 const hiddenData = {
   submittedBy: 'user123',
   submittedAt: new Date().toISOString(),
@@ -783,28 +826,28 @@ const hiddenParameters = formDataToParameters(hiddenData)`}</pre>
           </div>
 
           <div>
-            <h4 className="font-medium mb-2">4️⃣ Combinar y enviar al proceso:</h4>
+            <h4 className="font-medium mb-2">4️⃣ {t('example3.step4')}</h4>
             <pre className="bg-background/80 p-3 rounded text-xs overflow-auto">
-{`// Combinar parámetros visibles + ocultos
+{`// ${t('example3.combine')}
 const allParameters = [...parameters, ...hiddenParameters]
 
 await sdk.process.raiseEvent({
   eventName: 'AprobacionGastos',
-  parameters: allParameters // 6 visibles + 4 ocultos = 10 total
+  parameters: allParameters // 6 ${t('example3.visibleHidden')} 10
 })`}</pre>
           </div>
         </div>
 
         <div className="mt-6 pt-4 border-t border-primary/20">
           <p className="text-sm">
-            <strong className="text-primary">✅ MEJOR PRÁCTICA:</strong> Usar mapeo selectivo con buildParameters()
+            <strong className="text-primary">✅ {t('home.example3.badge')}:</strong> {t('example3.advantages.title')}
           </p>
           <ul className="mt-2 space-y-1 text-sm">
-            <li>✓ Envía solo lo necesario (mejor performance)</li>
-            <li>✓ Transforma valores automáticamente</li>
-            <li>✓ Mapea nombres de campos diferentes</li>
-            <li>✓ Distingue parámetros de variables</li>
-            <li>✓ Código más limpio y mantenible</li>
+            <li>✓ {t('example3.advantages.2')}</li>
+            <li>✓ {t('example3.advantages.3')}</li>
+            <li>✓ {t('example3.advantages.4')}</li>
+            <li>✓ {t('example3.advantages.5')}</li>
+            <li>✓ {t('example3.advantages.1')}</li>
           </ul>
         </div>
       </Card>

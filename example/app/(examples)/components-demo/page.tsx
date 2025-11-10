@@ -2,13 +2,16 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Sparkles, Package } from 'lucide-react'
+import { ArrowLeft, Sparkles, Package, Languages } from 'lucide-react'
 import ComponentsSidebar from './ComponentsSidebar'
 import ComponentView from './ComponentView'
 import { ALL_COMPONENTS_DOCS } from './all-components-docs'
+import { useTranslation, useBizuitTheme } from '@tyconsa/bizuit-ui-components'
 
-export default function ComponentsDemo() {
+function ComponentsDemoContent() {
   const [selectedComponentId, setSelectedComponentId] = useState('button')
+  const { t } = useTranslation()
+  const { language, setLanguage } = useBizuitTheme()
 
   const selectedComponent = ALL_COMPONENTS_DOCS.find(
     (comp) => comp.id === selectedComponentId
@@ -26,15 +29,40 @@ export default function ComponentsDemo() {
       />
 
       <main className="flex-1 overflow-y-auto">
-        {/* Header with back link */}
+        {/* Header with back link and language selector */}
         <div className="sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800">
-          <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
             <Link
               href="/"
               className="text-sm text-primary hover:underline"
             >
-              ← Volver al inicio
+              {t('ui.backToHome')}
             </Link>
+
+            {/* Language Selector */}
+            <div className="flex items-center gap-2">
+              <Languages className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+              <button
+                onClick={() => setLanguage('en')}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                  language === 'en'
+                    ? 'bg-primary text-white'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                English
+              </button>
+              <button
+                onClick={() => setLanguage('es')}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                  language === 'es'
+                    ? 'bg-primary text-white'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+              >
+                Español
+              </button>
+            </div>
           </div>
         </div>
 
@@ -60,6 +88,8 @@ function WelcomeScreen({
   totalComponents: number
   categoryCount: number
 }) {
+  const { t } = useI18n()
+
   return (
     <div className="space-y-12">
       {/* Hero Section */}
@@ -70,17 +100,16 @@ function WelcomeScreen({
 
         <div className="space-y-3">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-slate-100 dark:via-slate-300 dark:to-slate-100 bg-clip-text text-transparent">
-            Bizuit UI Components
+            {t('welcome.title')}
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-            Una biblioteca completa de componentes React profesionales para
-            construir aplicaciones empresariales modernas
+            {t('welcome.subtitle')}
           </p>
         </div>
 
         <div className="flex items-center justify-center gap-2 text-sm text-slate-500 dark:text-slate-500">
           <Sparkles className="h-4 w-4" />
-          <span>v1.3.1 • @tyconsa/bizuit-ui-components</span>
+          <span>{t('welcome.version')}</span>
         </div>
       </div>
 
@@ -91,10 +120,10 @@ function WelcomeScreen({
             {totalComponents}
           </div>
           <div className="text-sm font-medium text-slate-600 dark:text-slate-400">
-            Componentes totales
+            {t('welcome.totalComponents')}
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
-            Desde formularios hasta visualización de datos
+            {t('welcome.totalComponentsDesc')}
           </p>
         </div>
 
@@ -103,10 +132,10 @@ function WelcomeScreen({
             {categoryCount}
           </div>
           <div className="text-sm font-medium text-slate-600 dark:text-slate-400">
-            Categorías
+            {t('welcome.categories')}
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
-            UI, Formularios, Layout, Media y Datos
+            {t('welcome.categoriesDesc')}
           </p>
         </div>
 
@@ -115,10 +144,10 @@ function WelcomeScreen({
             100%
           </div>
           <div className="text-sm font-medium text-slate-600 dark:text-slate-400">
-            TypeScript
+            {t('welcome.typescript')}
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
-            Tipos completos y autocompletado
+            {t('welcome.typescriptDesc')}
           </p>
         </div>
       </div>
@@ -131,30 +160,28 @@ function WelcomeScreen({
           </div>
           <div className="space-y-3">
             <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-              Comienza explorando
+              {t('welcome.startExploring')}
             </h2>
             <p className="text-slate-600 dark:text-slate-400">
-              Selecciona un componente desde la barra lateral para ver:
+              {t('welcome.selectComponent')}
             </p>
             <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
               <li className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                 <span>
-                  <strong>Descripción detallada</strong> y casos de uso
+                  <strong>{t('welcome.detailedDescription')}</strong> {t('welcome.detailedDescriptionText')}
                 </span>
               </li>
               <li className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
                 <span>
-                  <strong>Documentación completa de props</strong> con tipos y
-                  valores por defecto
+                  <strong>{t('welcome.completeProps')}</strong> {t('welcome.completePropsText')}
                 </span>
               </li>
               <li className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 <span>
-                  <strong>Ejemplos de código interactivos</strong> que puedes
-                  editar en tiempo real
+                  <strong>{t('welcome.interactiveExamples')}</strong> {t('welcome.interactiveExamplesText')}
                 </span>
               </li>
             </ul>
@@ -165,13 +192,13 @@ function WelcomeScreen({
       {/* Quick Install */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 space-y-4">
         <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">
-          Instalación rápida
+          {t('welcome.quickInstall')}
         </h3>
         <div className="bg-slate-900 dark:bg-slate-950 rounded-lg p-4 font-mono text-sm text-emerald-400">
           npm install @tyconsa/bizuit-ui-components
         </div>
         <p className="text-sm text-slate-600 dark:text-slate-400">
-          Luego importa los componentes que necesites:
+          {t('welcome.thenImport')}
         </p>
         <div className="bg-slate-900 dark:bg-slate-950 rounded-lg p-4 font-mono text-sm text-slate-300">
           <span className="text-purple-400">import</span>{' '}
@@ -186,4 +213,8 @@ function WelcomeScreen({
       </div>
     </div>
   )
+}
+
+export default function ComponentsDemo() {
+  return <ComponentsDemoContent />
 }

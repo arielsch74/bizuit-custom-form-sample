@@ -5,44 +5,69 @@ export const bizuit_signatureDoc: ComponentDoc = {
   name: 'Signature',
   category: 'forms',
   icon: 'Component',
-  description: 'Digital signature capture component',
-  detailedDescription: 'A canvas-based signature component for capturing handwritten signatures on touch devices and desktops. Supports pen pressure, smoothing, and export to image.',
-  useCases: ['Document signing', 'Contract approval', 'Delivery confirmation', 'Authorization signatures', 'Digital agreements'],
+  description: 'Canvas-based signature capture component',
+  description_es: 'Canvas de firma digital con funcionalidad de dibujo táctil',
+  detailedDescription: 'A digital signature component using HTML5 Canvas for capturing handwritten signatures. Features include clear/redo functionality, signature export as image, pen color and width customization, and touch/mouse support.',
+  detailedDescription_es: 'Un componente de pad de firma que permite a los usuarios dibujar firmas usando mouse, touch o stylus. Incluye botones de borrar/limpiar, exportación de imagen de firma y detección de firma vacía. Optimizado para dispositivos táctiles con suavizado de trazo y renderizado responsive.',
+  useCases: [
+    'Contract and agreement signing',
+    'Delivery confirmations',
+    'Medical consent forms',
+    'Legal document execution',
+    'Authentication workflows',
+  ],
+  useCases_es: [
+    'Campos de firma de documentos legales',
+    'Confirmaciones de entrega y recibo',
+    'Firmas de consentimiento médico',
+    'Procesos de aprobación que requieren firma',
+    'Formularios de acuerdo de contrato',
+  ],
   props: [
     {
-        name: "value",
-        type: "string",
-        required: false,
-        description: "Base64 encoded signature image"
+      name: 'onSave',
+      type: '(signature: string) => void',
+      required: true,
+      description: 'Save callback with base64 image',
+      description_es: 'Callback ejecutado cuando se guarda la firma',
     },
     {
-        name: "onChange",
-        type: "(signatureData: string) => void",
-        required: false,
-        description: "Callback with signature data"
+      name: 'onClear',
+      type: '() => void',
+      required: false,
+      description: 'Clear callback',
     },
     {
-        name: "width",
-        type: "number",
-        required: false,
-        default: "400",
-        description: "Canvas width in pixels"
+      name: 'penColor',
+      type: 'string',
+      required: false,
+      default: '"#000000"',
+      description: 'Pen color',
     },
     {
-        name: "height",
-        type: "number",
-        required: false,
-        default: "200",
-        description: "Canvas height in pixels"
+      name: 'penWidth',
+      type: 'number',
+      required: false,
+      default: '2',
+      description: 'Pen stroke width',
     },
     {
-        name: "penColor",
-        type: "string",
-        required: false,
-        default: "'#000000'",
-        description: "Signature pen color"
-    }
-],
+      name: 'width',
+      type: 'number',
+      required: false,
+      default: '500',
+      description: 'Canvas width',
+      description_es: 'Ancho del canvas de firma',
+    },
+    {
+      name: 'height',
+      type: 'number',
+      required: false,
+      default: '200',
+      description: 'Canvas height',
+      description_es: 'Alto del canvas de firma',
+    },
+  ],
   codeExample: {
     '/App.js': `import { useState } from 'react';
 import Signature from './Signature.js';

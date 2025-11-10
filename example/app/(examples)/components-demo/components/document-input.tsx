@@ -5,37 +5,62 @@ export const bizuit_document_inputDoc: ComponentDoc = {
   name: 'DocumentInput',
   category: 'forms',
   icon: 'Component',
-  description: 'Document input for DNI, passport, and ID numbers',
-  detailedDescription: 'Specialized input component for document numbers with format validation, masks, and type selection (DNI, passport, CUIL, etc.).',
-  useCases: ['Identity document input', 'Passport number entry', 'Tax ID (CUIL/CUIT) input', 'Driver license number', 'Any formatted ID number'],
+  description: 'Document type selector with format validation',
+  description_es: 'Campo de entrada especializado para números de documento e identificación',
+  detailedDescription: 'A specialized input component for document identification numbers (DNI, Passport, CUIL, CUIT, etc.). Features automatic format validation, masked input, document type selection, and regional format support.',
+  detailedDescription_es: 'Un componente de entrada optimizado para números de documento como pasaportes, licencias de conducir o números de identificación nacional. Incluye validación específica por tipo de documento, formateo automático y verificación de dígitos de control. Soporta múltiples formatos de documento internacionales.',
+  useCases: [
+    'User registration and KYC forms',
+    'Identity verification',
+    'Tax and legal document collection',
+    'Employee onboarding',
+    'Customer identification',
+  ],
+  useCases_es: [
+    'Formularios de registro o verificación de identidad',
+    'Formularios de checkout con validación de ID',
+    'Formularios de solicitud de empleo o préstamo',
+    'Sistemas de verificación de documentos',
+    'Formularios de viaje o reserva que requieren información de pasaporte',
+  ],
   props: [
     {
-        name: "type",
-        type: "'dni' | 'passport' | 'cuil' | 'cuit'",
-        required: false,
-        default: "'dni'",
-        description: "Type of document"
+      name: 'documentType',
+      type: '"DNI" | "Passport" | "CUIL" | "CUIT"',
+      required: false,
+      default: '"DNI"',
+      description: 'Document type',
+      description_es: 'Tipo de documento (passport, driverLicense, nationalId)',
     },
     {
-        name: "value",
-        type: "string",
-        required: false,
-        description: "Current document number"
+      name: 'value',
+      type: 'string',
+      required: false,
+      description: 'Document number',
+      description_es: 'Valor del número de documento',
     },
     {
-        name: "onChange",
-        type: "(value: string) => void",
-        required: false,
-        description: "Callback when value changes"
+      name: 'onChange',
+      type: '(value: string) => void',
+      required: false,
+      description: 'Value change callback',
+      description_es: 'Callback ejecutado cuando el valor cambia',
     },
     {
-        name: "validateFormat",
-        type: "boolean",
-        required: false,
-        default: "true",
-        description: "Enable format validation"
-    }
-],
+      name: 'onTypeChange',
+      type: '(type: string) => void',
+      required: false,
+      description: 'Document type change callback',
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      required: false,
+      default: 'false',
+      description: 'Required field',
+      description_es: 'Marcar el campo como requerido',
+    },
+  ],
   codeExample: {
     '/App.js': `import { useState } from 'react';
 import DocumentInput from './DocumentInput.js';

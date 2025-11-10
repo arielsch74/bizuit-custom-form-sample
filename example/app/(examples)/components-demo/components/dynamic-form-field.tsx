@@ -5,35 +5,67 @@ export const dynamic_form_fieldDoc: ComponentDoc = {
   name: 'DynamicFormField',
   category: 'forms',
   icon: 'Component',
-  description: 'Dynamic form field that renders different input types',
-  detailedDescription: 'A versatile form field component that dynamically renders the appropriate input type (text, number, date, select, etc.) based on field configuration.',
-  useCases: ['Dynamic form generation', 'Runtime field configuration', 'CMS-driven forms', 'Workflow-based forms', 'Multi-type data entry'],
+  description: 'Dynamic form field renderer based on field type',
+  description_es: 'Campo de formulario adaptable que cambia tipo según configuración',
+  detailedDescription: 'A flexible form field component that dynamically renders different input types (text, number, email, select, checkbox, etc.) based on configuration. Perfect for building dynamic forms from JSON schemas or API responses.',
+  detailedDescription_es: 'Un componente de campo de formulario altamente flexible que puede renderizar diferentes tipos de entrada (text, number, select, checkbox, etc.) basado en configuración. Incluye validación integrada, manejo de errores y formateo automático. Ideal para formularios generados dinámicamente o sistemas de construcción de formularios.',
+  useCases: [
+    'Form builders and generators',
+    'Survey and questionnaire systems',
+    'Settings and configuration UIs',
+    'Custom field management',
+    'Admin panels with dynamic schemas',
+  ],
+  useCases_es: [
+    'Constructores de formularios de administración',
+    'Sistemas de configuración dinámica',
+    'Formularios generados por esquema o API',
+    'Formularios de metadatos personalizables',
+    'Sistemas multi-tenant con campos variables',
+  ],
   props: [
     {
-        name: "field",
-        type: "FieldConfig",
-        required: true,
-        description: "Field configuration object"
+      name: 'type',
+      type: '"text" | "number" | "email" | "select" | "checkbox" | "textarea"',
+      required: true,
+      description: 'Field type',
     },
     {
-        name: "value",
-        type: "any",
-        required: false,
-        description: "Current field value"
+      name: 'label',
+      type: 'string',
+      required: true,
+      description: 'Field label',
+      description_es: 'Etiqueta del campo',
     },
     {
-        name: "onChange",
-        type: "(value: any) => void",
-        required: false,
-        description: "Callback when value changes"
+      name: 'value',
+      type: 'any',
+      required: false,
+      description: 'Field value',
+      description_es: 'Valor actual del campo',
     },
     {
-        name: "errors",
-        type: "string[]",
-        required: false,
-        description: "Validation error messages"
-    }
-],
+      name: 'onChange',
+      type: '(value: any) => void',
+      required: false,
+      description: 'Value change callback',
+      description_es: 'Callback ejecutado cuando el valor cambia',
+    },
+    {
+      name: 'options',
+      type: 'Array<{value: string, label: string}>',
+      required: false,
+      description: 'Options for select fields',
+      description_es: 'Opciones para campos de tipo select',
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      required: false,
+      default: 'false',
+      description: 'Required field',
+    },
+  ],
   codeExample: {
     '/App.js': `import { useState } from 'react';
 import DynamicFormField from './DynamicFormField.js';

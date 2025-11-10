@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ALL_COMPONENTS_DOCS } from './all-components-docs'
+import { useTranslation, useBizuitTheme } from '@tyconsa/bizuit-ui-components'
 import {
   MousePointerClick,
   SlidersHorizontal,
@@ -52,46 +53,57 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Table2,
 }
 
-// Category configuration
-const categoryConfig = {
-  ui: {
-    label: 'UI Components',
-    icon: MousePointerClick,
-    description: 'Buttons, cards, and visual elements',
-  },
-  forms: {
-    label: 'Form Components',
-    icon: SlidersHorizontal,
-    description: 'Input fields and form controls',
-  },
-  layout: {
-    label: 'Layout Components',
-    icon: LayoutGrid,
-    description: 'Tabs, cards, and containers',
-  },
-  media: {
-    label: 'Media Components',
-    icon: PlayCircle,
-    description: 'Images, videos, and media players',
-  },
-  data: {
-    label: 'Data Components',
-    icon: Table2,
-    description: 'Tables and data displays',
-  },
+// Category icons
+const categoryIcons = {
+  ui: MousePointerClick,
+  forms: SlidersHorizontal,
+  layout: LayoutGrid,
+  media: PlayCircle,
+  data: Table2,
 }
 
-type Category = keyof typeof categoryConfig
+type Category = keyof typeof categoryIcons
 
 export default function ComponentsSidebar({
   selectedComponentId,
   onComponentSelect,
 }: ComponentsSidebarProps) {
+  const { t } = useTranslation()
+  const { language } = useBizuitTheme()
   const [searchQuery, setSearchQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [expandedCategories, setExpandedCategories] = useState<Set<Category>>(
     new Set(['ui', 'forms', 'layout', 'media', 'data'])
   )
+
+  // Category configuration with translations
+  const categoryConfig = {
+    ui: {
+      label: t('category.ui'),
+      icon: categoryIcons.ui,
+      description: t('category.ui.desc'),
+    },
+    forms: {
+      label: t('category.forms'),
+      icon: categoryIcons.forms,
+      description: t('category.forms.desc'),
+    },
+    layout: {
+      label: t('category.layout'),
+      icon: categoryIcons.layout,
+      description: t('category.layout.desc'),
+    },
+    media: {
+      label: t('category.media'),
+      icon: categoryIcons.media,
+      description: t('category.media.desc'),
+    },
+    data: {
+      label: t('category.data'),
+      icon: categoryIcons.data,
+      description: t('category.data.desc'),
+    },
+  }
 
   // Group components by category
   const componentsByCategory = ALL_COMPONENTS_DOCS.reduce(
@@ -151,7 +163,7 @@ export default function ComponentsSidebar({
       <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-            Components
+            {t('sidebar.components')}
           </h2>
           <button
             onClick={() => setIsOpen(false)}
@@ -162,7 +174,7 @@ export default function ComponentsSidebar({
           </button>
         </div>
         <p className="text-xs text-gray-600 dark:text-gray-400">
-          {ALL_COMPONENTS_DOCS.length} components available
+          {ALL_COMPONENTS_DOCS.length} {t('sidebar.componentsAvailable')}
         </p>
       </div>
 
@@ -172,7 +184,7 @@ export default function ComponentsSidebar({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search components..."
+            placeholder={t('sidebar.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-10 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400"
@@ -194,8 +206,8 @@ export default function ComponentsSidebar({
         {Object.keys(filteredComponents).length === 0 ? (
           <div className="p-8 text-center text-gray-500 dark:text-gray-400">
             <Search className="h-12 w-12 mx-auto mb-3 opacity-50" />
-            <p className="text-sm">No components found</p>
-            <p className="text-xs mt-1">Try a different search term</p>
+            <p className="text-sm">{t('sidebar.noComponentsFound')}</p>
+            <p className="text-xs mt-1">{t('sidebar.tryDifferentTerm')}</p>
           </div>
         ) : (
           Object.entries(filteredComponents).map(([category, components]) => {
@@ -218,7 +230,7 @@ export default function ComponentsSidebar({
                         {config.label}
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {components.length} component{components.length !== 1 ? 's' : ''}
+                        {components.length} {components.length === 1 ? t('sidebar.component') : t('sidebar.components_plural')}
                       </div>
                     </div>
                   </div>
@@ -272,7 +284,7 @@ export default function ComponentsSidebar({
                                   : 'text-gray-500 dark:text-gray-400'
                               }`}
                             >
-                              {component.description}
+                              {language === 'es' && component.description_es ? component.description_es : component.description}
                             </div>
                           </div>
                         </button>

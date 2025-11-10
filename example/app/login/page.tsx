@@ -50,7 +50,7 @@ export default function LoginPage() {
             href="/"
             className="text-sm text-primary hover:underline"
           >
-            ← Volver al inicio
+            {t('ui.backToHome')}
           </Link>
         </div>
 

@@ -15,6 +15,7 @@ export interface ComponentProp {
   required: boolean
   default?: string
   description: string
+  description_es?: string
 }
 
 export interface ComponentDoc {
@@ -23,8 +24,11 @@ export interface ComponentDoc {
   category: 'ui' | 'forms' | 'layout' | 'media' | 'data'
   icon: string
   description: string
+  description_es?: string
   detailedDescription: string
+  detailedDescription_es?: string
   useCases: string[]
+  useCases_es?: string[]
   props: ComponentProp[]
   codeExample: { [filename: string]: string }
 }

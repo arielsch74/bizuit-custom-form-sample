@@ -5,49 +5,63 @@ export const bizuit_comboDoc: ComponentDoc = {
   name: 'Combo',
   category: 'forms',
   icon: 'Component',
-  description: 'Advanced combobox with search, multiselect, and async loading',
-  detailedDescription: 'A powerful combobox component with search functionality, multiselect support, async data loading, and virtualization for large datasets. Mobile-optimized with touch support.',
-  useCases: ['Country/city/state selection', 'Multi-selection of options', 'Searchable dropdown lists', 'Async data loading from API', 'Large dataset handling with virtualization'],
+  description: 'Searchable dropdown component with autocomplete functionality',
+  description_es: 'Componente de lista desplegable con búsqueda y funcionalidad de autocompletado',
+  detailedDescription: 'A powerful combo box component that combines a text input with a dropdown menu. Features include real-time search filtering, keyboard navigation, custom option rendering, and support for large datasets. Ideal for form fields requiring selection from a predefined list with search capability.',
+  detailedDescription_es: 'Un componente combobox sofisticado que combina un campo de entrada con una lista desplegable. Incluye búsqueda en tiempo real, filtrado de opciones y navegación por teclado. Ideal para selecciones donde los usuarios necesitan buscar entre muchas opciones o pueden no recordar el valor exacto.',
+  useCases: [
+    'Country, state, or city selectors',
+    'Product or category search',
+    'User or team member selection',
+    'Tag or label assignment',
+    'Command palette interfaces',
+  ],
+  useCases_es: [
+    'Selección de países, estados o ciudades',
+    'Búsqueda y selección de productos',
+    'Selección de categorías o etiquetas con muchas opciones',
+    'Autocompletado de nombres de usuario o direcciones de email',
+    'Selección de códigos o identificadores con búsqueda',
+  ],
   props: [
     {
-        name: "options",
-        type: "ComboOption[]",
-        required: true,
-        description: "Array of available options"
+      name: 'options',
+      type: 'Array<{value: string, label: string}>',
+      required: true,
+      description: 'Array of selectable options',
+      description_es: 'Array de opciones disponibles para selección',
     },
     {
-        name: "value",
-        type: "string | string[]",
-        required: false,
-        description: "Selected value(s)"
+      name: 'value',
+      type: 'string',
+      required: false,
+      description: 'Currently selected value',
+      description_es: 'Valor seleccionado actualmente',
     },
     {
-        name: "onChange",
-        type: "(value: string | string[]) => void",
-        required: false,
-        description: "Callback when selection changes"
+      name: 'onChange',
+      type: '(value: string) => void',
+      required: false,
+      description: 'Callback when selection changes',
+      description_es: 'Callback ejecutado cuando la selección cambia',
     },
     {
-        name: "multiSelect",
-        type: "boolean",
-        required: false,
-        default: "false",
-        description: "Enable multi-selection"
+      name: 'placeholder',
+      type: 'string',
+      required: false,
+      default: '"Select..."',
+      description: 'Placeholder text',
+      description_es: 'Texto de placeholder cuando no hay valor seleccionado',
     },
     {
-        name: "searchable",
-        type: "boolean",
-        required: false,
-        default: "true",
-        description: "Enable search functionality"
+      name: 'searchable',
+      type: 'boolean',
+      required: false,
+      default: 'true',
+      description: 'Enable search filtering',
+      description_es: 'Habilitar funcionalidad de búsqueda',
     },
-    {
-        name: "placeholder",
-        type: "string",
-        required: false,
-        description: "Placeholder text"
-    }
-],
+  ],
   codeExample: {
     '/App.js': `import { useState } from 'react';
 import Combo from './Combo.js';

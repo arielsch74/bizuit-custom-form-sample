@@ -5,43 +5,55 @@ export const bizuit_tabsDoc: ComponentDoc = {
   name: 'Tabs',
   category: 'forms',
   icon: 'Component',
-  description: 'Tab navigation component with multiple variants',
-  detailedDescription: 'A flexible tabs component with support for horizontal/vertical orientation, multiple style variants (default, pills, underline), icons, and disabled states.',
-  useCases: ['Section navigation in forms', 'Content organization', 'Settings panels', 'Multi-step wizards', 'Dashboard views'],
+  description: 'Tabbed navigation component for organizing content',
+  description_es: 'Componente de pestañas para organizar contenido en paneles alternables',
+  detailedDescription: 'A tab component for organizing content into separate views that users can switch between. Supports horizontal and vertical tab layouts, icons, badges, lazy loading, and keyboard navigation. Ideal for settings panels, dashboards, and multi-step processes.',
+  detailedDescription_es: 'Un sistema de navegación por pestañas versátil que permite a los usuarios alternar entre diferentes paneles de contenido. Soporta pestañas horizontales y verticales, lazy loading de contenido de pestañas, y navegación por teclado. Ideal para organizar contenido relacionado sin abrumar al usuario.',
+  useCases: [
+    'Settings and configuration panels',
+    'Product information sections',
+    'User profile sections',
+    'Multi-step forms',
+    'Dashboard views',
+  ],
+  useCases_es: [
+    'Navegación de configuración en páginas de configuración',
+    'Organizar contenido de producto (descripción, specs, reviews)',
+    'Dashboards con múltiples vistas de datos',
+    'Formularios multipaso o wizards',
+    'Perfiles de usuario con diferentes secciones',
+  ],
   props: [
     {
-        name: "items",
-        type: "TabItem[]",
-        required: true,
-        description: "Array of tab items with label and content"
+      name: 'tabs',
+      type: 'Array<{id: string, label: string, content: ReactNode, icon?: ReactNode}>',
+      required: true,
+      description: 'Tab definitions',
+      description_es: 'Array de definiciones de pestañas',
     },
     {
-        name: "value",
-        type: "string",
-        required: false,
-        description: "Currently active tab value"
+      name: 'activeTab',
+      type: 'string',
+      required: false,
+      description: 'Currently active tab ID',
+      description_es: 'ID de la pestaña actualmente activa',
     },
     {
-        name: "onChange",
-        type: "(value: string) => void",
-        required: false,
-        description: "Callback when tab changes"
+      name: 'onTabChange',
+      type: '(tabId: string) => void',
+      required: false,
+      description: 'Tab change callback',
+      description_es: 'Callback ejecutado cuando cambia la pestaña',
     },
     {
-        name: "orientation",
-        type: "'horizontal' | 'vertical'",
-        required: false,
-        default: "'horizontal'",
-        description: "Tab orientation"
+      name: 'orientation',
+      type: '"horizontal" | "vertical"',
+      required: false,
+      default: '"horizontal"',
+      description: 'Tab layout',
+      description_es: 'Orientación horizontal o vertical',
     },
-    {
-        name: "variant",
-        type: "'default' | 'pills' | 'underline'",
-        required: false,
-        default: "'default'",
-        description: "Visual style variant"
-    }
-],
+  ],
   codeExample: {
     '/App.js': `import { useState } from 'react';
 import Tabs from './Tabs.js';

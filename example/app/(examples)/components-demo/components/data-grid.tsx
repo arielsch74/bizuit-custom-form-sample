@@ -5,43 +5,62 @@ export const bizuit_data_gridDoc: ComponentDoc = {
   name: 'DataGrid',
   category: 'forms',
   icon: 'Component',
-  description: 'Data grid component for tabular data display',
-  detailedDescription: 'A professional data grid for displaying tabular data with sorting, filtering, pagination, and row selection. Optimized for large datasets.',
-  useCases: ['Displaying lists and tables', 'Data management interfaces', 'Reports and analytics', 'Master-detail views', 'Editable data grids'],
+  description: 'Advanced data table with sorting, filtering, and pagination',
+  description_es: 'Tabla de datos avanzada con ordenamiento, filtrado y paginación',
+  detailedDescription: 'A feature-rich data grid component for displaying tabular data. Includes column sorting, filtering, pagination, row selection, custom cell rendering, and responsive design. Optimized for large datasets with virtual scrolling support.',
+  detailedDescription_es: 'Un componente de grid de datos con todas las funciones que soporta ordenamiento de columnas, filtrado, paginación y selección de filas. Incluye diseño responsive, columnas redimensionables y exportación de datos. Optimizado para grandes conjuntos de datos con virtualización y renderizado eficiente.',
+  useCases: [
+    'Admin dashboards and data management',
+    'Report and analytics displays',
+    'User and customer lists',
+    'Transaction and order history',
+    'Inventory management',
+  ],
+  useCases_es: [
+    'Dashboards de administración con datos tabulares',
+    'Grids de gestión de productos o inventario',
+    'Tablas de reportes financieros',
+    'Listas de usuarios o clientes',
+    'Visualización de logs o registros de datos',
+  ],
   props: [
     {
-        name: "data",
-        type: "any[]",
-        required: true,
-        description: "Array of data rows"
+      name: 'columns',
+      type: 'Array<{key: string, label: string, sortable?: boolean}>',
+      required: true,
+      description: 'Column definitions',
+      description_es: 'Definiciones de columnas con encabezados y accesorios',
     },
     {
-        name: "columns",
-        type: "Column[]",
-        required: true,
-        description: "Column definitions"
+      name: 'data',
+      type: 'Array<Record<string, any>>',
+      required: true,
+      description: 'Table data rows',
+      description_es: 'Array de datos a mostrar',
     },
     {
-        name: "onRowClick",
-        type: "(row: any) => void",
-        required: false,
-        description: "Callback when row is clicked"
+      name: 'onSort',
+      type: '(column: string, direction: "asc" | "desc") => void',
+      required: false,
+      description: 'Sort callback',
     },
     {
-        name: "sortable",
-        type: "boolean",
-        required: false,
-        default: "true",
-        description: "Enable column sorting"
+      name: 'pagination',
+      type: 'boolean',
+      required: false,
+      default: 'false',
+      description: 'Enable pagination',
+      description_es: 'Habilitar paginación',
     },
     {
-        name: "selectable",
-        type: "boolean",
-        required: false,
-        default: "false",
-        description: "Enable row selection"
-    }
-],
+      name: 'pageSize',
+      type: 'number',
+      required: false,
+      default: '10',
+      description: 'Rows per page',
+      description_es: 'Número de filas por página',
+    },
+  ],
   codeExample: {
     '/App.js': `import { useState } from 'react';
 import DataGrid from './DataGrid.js';

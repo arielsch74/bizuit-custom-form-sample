@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Sandpack } from '@codesandbox/sandpack-react'
 import { Card } from '@/components/ui/card'
-import { useBizuitTheme, type ColorTheme } from '@tyconsa/bizuit-ui-components'
+import { useBizuitTheme, useTranslation, type ColorTheme } from '@tyconsa/bizuit-ui-components'
 
 interface LiveCodeEditorProps {
   title: string
@@ -61,6 +61,7 @@ export function LiveCodeEditor({
   template = 'react-ts'
 }: LiveCodeEditorProps) {
   const { theme, colorTheme } = useBizuitTheme()
+  const { t } = useTranslation()
   const [mounted, setMounted] = useState(false)
 
   // Resolver el tema actual
@@ -122,8 +123,11 @@ export function LiveCodeEditor({
     if (isDark) {
       processedCSS = processedCSS
         // Backgrounds
+        .replace(/#ffffff/g, '#1e293b')
         .replace(/#f9fafb/g, '#0f172a')
         .replace(/#f3f4f6/g, '#1e293b')
+        .replace(/background:\s*white/g, 'background: #1e293b')
+        .replace(/background:\s*#fff(?![0-9a-f])/gi, 'background: #1e293b')
         // Borders
         .replace(/#e5e7eb/g, '#334155')
         .replace(/#d1d5db/g, '#475569')
@@ -380,7 +384,7 @@ label, .form-label {
         <p className="text-sm leading-relaxed">
           <strong className="text-blue-900 dark:text-blue-100">💡 Tip:</strong>{' '}
           <span className="text-blue-800 dark:text-blue-200">
-            Edita el código en el panel izquierdo y verás los cambios EN TIEMPO REAL en el panel derecho.
+            {t('ui.liveEditorTip')}
           </span>
         </p>
       </div>

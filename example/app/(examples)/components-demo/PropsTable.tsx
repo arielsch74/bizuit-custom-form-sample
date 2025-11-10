@@ -1,14 +1,20 @@
+'use client'
+
 import { ComponentProp } from './all-components-docs'
+import { useTranslation, useBizuitTheme } from '@tyconsa/bizuit-ui-components'
 
 interface PropsTableProps {
   props: ComponentProp[]
 }
 
 export function PropsTable({ props }: PropsTableProps) {
+  const { t } = useTranslation()
+  const { language } = useBizuitTheme()
+
   if (!props || props.length === 0) {
     return (
       <div className="rounded-lg border bg-muted/50 p-8 text-center">
-        <p className="text-sm text-muted-foreground">No props documented for this component.</p>
+        <p className="text-sm text-muted-foreground">{t('ui.noPropsDocumented')}</p>
       </div>
     )
   }
@@ -19,11 +25,11 @@ export function PropsTable({ props }: PropsTableProps) {
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b bg-muted/50">
-              <th className="px-4 py-3 text-left text-sm font-semibold">Name</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold">Type</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold">Required</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold">Default</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold">Description</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold">{t('ui.componentName')}</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold">{t('ui.componentType')}</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold">{t('ui.componentRequired')}</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold">{t('ui.componentDefault')}</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold">{t('ui.componentDescription')}</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -53,11 +59,11 @@ export function PropsTable({ props }: PropsTableProps) {
                 <td className="px-4 py-3">
                   {prop.required ? (
                     <span className="inline-flex items-center rounded-full bg-red-50 dark:bg-red-900/30 px-2.5 py-0.5 text-xs font-medium text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800">
-                      Required
+                      {t('ui.yes')}
                     </span>
                   ) : (
                     <span className="inline-flex items-center rounded-full bg-slate-50 dark:bg-slate-800 px-2.5 py-0.5 text-xs font-medium text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
-                      Optional
+                      {t('ui.no')}
                     </span>
                   )}
                 </td>
@@ -76,7 +82,7 @@ export function PropsTable({ props }: PropsTableProps) {
                 {/* Description Column */}
                 <td className="px-4 py-3">
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-md">
-                    {prop.description}
+                    {language === 'es' && prop.description_es ? prop.description_es : prop.description}
                   </p>
                 </td>
               </tr>

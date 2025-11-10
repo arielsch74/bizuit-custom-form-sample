@@ -4,7 +4,7 @@ import React from 'react'
 import { ComponentDoc } from './all-components-docs'
 import { PropsTable } from './PropsTable'
 import { LiveCodeEditor } from '@/components/live-code-editor'
-import { BizuitTabs } from '@tyconsa/bizuit-ui-components'
+import { BizuitTabs, useTranslation, useBizuitTheme } from '@tyconsa/bizuit-ui-components'
 import * as LucideIcons from 'lucide-react'
 
 interface ComponentViewProps {
@@ -12,30 +12,55 @@ interface ComponentViewProps {
 }
 
 export default function ComponentView({ component }: ComponentViewProps) {
+  const { t } = useTranslation()
+  const { language } = useBizuitTheme()
+
+  console.log('ComponentView DEBUG:', {
+    componentId: component.id,
+    language,
+    hasDescriptionEs: !!component.description_es,
+    description: component.description,
+    description_es: component.description_es,
+    propsCount: component.props?.length
+  })
+
   // Get the icon component from lucide-react
   const IconComponent = (LucideIcons as any)[component.icon]
+
+  // Get the translated content based on language
+  const description = language === 'es' && component.description_es
+    ? component.description_es
+    : component.description
+
+  const detailedDescription = language === 'es' && component.detailedDescription_es
+    ? component.detailedDescription_es
+    : component.detailedDescription
+
+  const useCases = language === 'es' && component.useCases_es
+    ? component.useCases_es
+    : component.useCases
 
   // Tab items for BizuitTabs
   const tabItems = [
     {
       value: 'overview',
-      label: 'Overview',
+      label: t('ui.overview'),
       icon: IconComponent ? <IconComponent className="h-4 w-4" /> : null,
       content: (
         <div className="space-y-6 p-6">
           {/* Description Section */}
           <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-foreground">Description</h3>
+            <h3 className="text-lg font-semibold text-foreground">{t('ui.description')}</h3>
             <p className="text-muted-foreground leading-relaxed">
-              {component.detailedDescription}
+              {detailedDescription}
             </p>
           </div>
 
           {/* Use Cases Section */}
           <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-foreground">Use Cases</h3>
+            <h3 className="text-lg font-semibold text-foreground">{t('ui.useCases')}</h3>
             <ul className="space-y-2">
-              {component.useCases.map((useCase, index) => (
+              {useCases.map((useCase, index) => (
                 <li
                   key={index}
                   className="flex items-start gap-3 text-muted-foreground"
@@ -51,7 +76,7 @@ export default function ComponentView({ component }: ComponentViewProps) {
 
           {/* Installation Section */}
           <div className="space-y-3">
-            <h3 className="text-lg font-semibold text-foreground">Installation</h3>
+            <h3 className="text-lg font-semibold text-foreground">{t('ui.installation')}</h3>
             <div className="rounded-lg bg-slate-950 p-4 overflow-x-auto">
               <code className="text-sm text-slate-100 font-mono">
                 npm install @tyconsa/bizuit-ui-components
@@ -73,7 +98,7 @@ export default function ComponentView({ component }: ComponentViewProps) {
     },
     {
       value: 'props',
-      label: 'Props',
+      label: t('ui.props'),
       icon: <LucideIcons.ListTree className="h-4 w-4" />,
       content: (
         <div className="p-6">
@@ -83,13 +108,13 @@ export default function ComponentView({ component }: ComponentViewProps) {
     },
     {
       value: 'example',
-      label: 'Live Example',
+      label: t('ui.liveExample'),
       icon: <LucideIcons.Play className="h-4 w-4" />,
       content: (
         <div className="p-6">
           <LiveCodeEditor
-            title={`${component.name} Example`}
-            description="Edita el código y verás los cambios en tiempo real"
+            title={`${component.name} ${t('ui.example')}`}
+            description={t('ui.editCodeDescription')}
             files={component.codeExample}
           />
         </div>
@@ -97,13 +122,13 @@ export default function ComponentView({ component }: ComponentViewProps) {
     },
     {
       value: 'code',
-      label: 'Source Code',
+      label: t('ui.sourceCode'),
       icon: <LucideIcons.Code className="h-4 w-4" />,
       content: (
         <div className="p-6 space-y-4">
           <div className="rounded-lg border bg-muted/50 p-4">
             <p className="text-sm text-muted-foreground">
-              View the source code for {component.name} in your project files or on GitHub.
+              {t('ui.viewSourceCode')} {component.name} {t('ui.inYourProject')}
             </p>
           </div>
           {Object.entries(component.codeExample).map(([filename, code]) => (
@@ -113,11 +138,11 @@ export default function ComponentView({ component }: ComponentViewProps) {
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(code)
-                    alert('Code copied to clipboard!')
+                    alert(t('ui.codeCopied'))
                   }}
                   className="px-3 py-1 text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 rounded transition-colors"
                 >
-                  Copy
+                  {t('ui.copy')}
                 </button>
               </div>
               <pre className="rounded-b-lg bg-slate-950 p-4 overflow-x-auto">
@@ -171,7 +196,7 @@ export default function ComponentView({ component }: ComponentViewProps) {
               </span>
             </div>
             <p className="mt-2 text-lg text-muted-foreground leading-relaxed">
-              {component.description}
+              {description}
             </p>
           </div>
         </div>

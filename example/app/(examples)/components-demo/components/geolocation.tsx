@@ -5,37 +5,54 @@ export const bizuit_geolocationDoc: ComponentDoc = {
   name: 'Geolocation',
   category: 'forms',
   icon: 'Component',
-  description: 'Geolocation input with map integration',
-  detailedDescription: 'A geolocation component that captures GPS coordinates with map display, address lookup, and manual coordinate entry. Supports multiple coordinate formats.',
-  useCases: ['Location capture for services', 'Address verification', 'Delivery location input', 'Check-in/check-out tracking', 'Field service location logging'],
+  description: 'GPS coordinate capture with map integration',
+  description_es: 'Selector de ubicación con integración de mapa y búsqueda de dirección',
+  detailedDescription: 'A geolocation component for capturing and displaying GPS coordinates. Features automatic location detection, manual coordinate entry, map preview, address geocoding, and location accuracy indicators.',
+  detailedDescription_es: 'Un componente de geolocalización que combina selección de mapa, entrada de búsqueda de dirección y detección de ubicación actual del dispositivo. Incluye integración de API de geocodificación, selección de pin en mapa y formateo de direcciones. Soporta búsqueda por coordenadas o dirección de texto.',
+  useCases: [
+    'Delivery and shipping address capture',
+    'Store locator applications',
+    'Location-based services',
+    'Asset tracking and field service',
+    'Event location registration',
+  ],
+  useCases_es: [
+    'Formularios de dirección de envío',
+    'Selección de ubicación de tienda o sucursal',
+    'Campos de ubicación de evento',
+    'Formularios de listado de propiedades',
+    'Check-in basado en ubicación o formularios de asistencia',
+  ],
   props: [
     {
-        name: "value",
-        type: "{ lat: number, lng: number }",
-        required: false,
-        description: "Current coordinates"
+      name: 'value',
+      type: '{lat: number, lng: number}',
+      required: false,
+      description: 'Coordinates object',
+      description_es: 'Valor de ubicación actual (lat, lng, address)',
     },
     {
-        name: "onChange",
-        type: "(coords: { lat: number, lng: number }) => void",
-        required: false,
-        description: "Callback when location changes"
+      name: 'onChange',
+      type: '(coords: {lat: number, lng: number}) => void',
+      required: false,
+      description: 'Coordinate change callback',
+      description_es: 'Callback ejecutado cuando la ubicación cambia',
     },
     {
-        name: "showMap",
-        type: "boolean",
-        required: false,
-        default: "true",
-        description: "Display map interface"
+      name: 'autoDetect',
+      type: 'boolean',
+      required: false,
+      default: 'false',
+      description: 'Auto-detect location on mount',
     },
     {
-        name: "enableAutoDetect",
-        type: "boolean",
-        required: false,
-        default: "true",
-        description: "Allow automatic location detection"
-    }
-],
+      name: 'showMap',
+      type: 'boolean',
+      required: false,
+      default: 'true',
+      description: 'Display map preview',
+    },
+  ],
   codeExample: {
     '/App.js': `import { useState } from 'react';
 import Geolocation from './Geolocation.js';

@@ -66,9 +66,9 @@ export default function Home() {
         </div>
 
         <div className="mt-16">
-          <h3 className="text-xl font-semibold mb-4 text-center">📚 Form Implementation Examples</h3>
+          <h3 className="text-xl font-semibold mb-4 text-center">📚 {t('home.examples.title')}</h3>
           <p className="text-sm opacity-50 mb-6 text-center">
-            Three different approaches to building forms with Bizuit BPM
+            {t('home.examples.description')}
           </p>
 
           <div className="grid md:grid-cols-3 gap-4 mb-12">
@@ -77,16 +77,16 @@ export default function Home() {
               className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:dark:border-blue-700 hover:dark:bg-blue-900/20"
             >
               <h4 className="mb-2 text-lg font-semibold">
-                1. Dynamic Fields{' '}
+                {t('home.example1.title')}{' '}
                 <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
                   →
                 </span>
               </h4>
               <p className="text-sm opacity-70">
-                Auto-generate fields from API. Best for generic forms.
+                {t('home.example1.description')}
               </p>
               <p className="text-xs mt-2 text-blue-600 dark:text-blue-400">
-                Uses: DynamicFormField + formDataToParameters()
+                {t('home.example1.uses')}
               </p>
             </Link>
 
@@ -95,16 +95,16 @@ export default function Home() {
               className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-amber-300 hover:bg-amber-50 hover:dark:border-amber-700 hover:dark:bg-amber-900/20"
             >
               <h4 className="mb-2 text-lg font-semibold">
-                2. Manual + Send All{' '}
+                {t('home.example2.title')}{' '}
                 <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
                   →
                 </span>
               </h4>
               <p className="text-sm opacity-70">
-                Custom UI, sends all form data. Good for simple forms.
+                {t('home.example2.description')}
               </p>
               <p className="text-xs mt-2 text-amber-600 dark:text-amber-400">
-                Uses: HTML inputs + formDataToParameters()
+                {t('home.example2.uses')}
               </p>
             </Link>
 
@@ -113,19 +113,19 @@ export default function Home() {
               className="group rounded-lg border border-green-500 px-5 py-4 transition-colors hover:border-green-400 hover:bg-green-50 hover:dark:border-green-600 hover:dark:bg-green-900/20 relative"
             >
               <div className="absolute top-2 right-2 text-xs bg-green-600 text-white px-2 py-0.5 rounded-full">
-                BEST PRACTICE ⭐
+                {t('home.example3.badge')} ⭐
               </div>
               <h4 className="mb-2 text-lg font-semibold">
-                3. Manual + Selective{' '}
+                {t('home.example3.title')}{' '}
                 <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
                   →
                 </span>
               </h4>
               <p className="text-sm opacity-70">
-                Custom UI, selective mapping with transformations.
+                {t('home.example3.description')}
               </p>
               <p className="text-xs mt-2 text-green-600 dark:text-green-400">
-                Uses: HTML inputs + buildParameters() 🎯
+                {t('home.example3.uses')} 🎯
               </p>
             </Link>
           </div>

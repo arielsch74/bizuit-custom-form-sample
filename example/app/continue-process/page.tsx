@@ -525,7 +525,7 @@ function ContinueProcessForm() {
       <div className="container max-w-2xl mx-auto py-8 px-4">
         <div className="mb-6">
           <Link href="/" className="text-sm text-primary hover:underline">
-            ← Volver al inicio
+            {t('ui.backToHome')}
           </Link>
         </div>
 
@@ -578,7 +578,7 @@ function ContinueProcessForm() {
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                Nombre del Evento
+                {t('ui.eventName')}
               </label>
               <input
                 type="text"
@@ -589,7 +589,7 @@ function ContinueProcessForm() {
                 disabled={status === 'loading' || status === 'initializing'}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Nombre del evento para continuar el proceso
+                {t('ui.eventNameDescription')}
               </p>
             </div>
 
@@ -605,7 +605,7 @@ function ContinueProcessForm() {
                 disabled={!instanceId || !eventName}
                 className="w-full"
               >
-                {status === 'error' ? 'Reintentar' : 'Cargar Datos de Instancia'}
+                {status === 'error' ? t('ui.retry') : t('ui.loadInstanceData')}
               </Button>
             )}
 
@@ -626,7 +626,7 @@ function ContinueProcessForm() {
             </p>
             {!urlToken && !urlInstanceId && (
               <p className="text-sm text-muted-foreground mt-3">
-                <strong>URL de ejemplo:</strong> <code className="text-xs bg-background px-1 py-0.5 rounded">
+                <strong>{t('ui.exampleUrl')}:</strong> <code className="text-xs bg-background px-1 py-0.5 rounded">
                   /continue-process?token=TU_TOKEN&instanceId=INSTANCE_ID
                 </code>
               </p>
@@ -642,7 +642,7 @@ function ContinueProcessForm() {
       <div className="container max-w-4xl mx-auto py-8 px-4">
         <div className="mb-6">
           <Link href="/" className="text-sm text-primary hover:underline">
-            ← Volver al inicio
+            {t('ui.backToHome')}
           </Link>
         </div>
 
@@ -660,7 +660,7 @@ function ContinueProcessForm() {
               )}
               {user && (
                 <div className="text-sm text-muted-foreground">
-                  Usuario: <span className="font-medium">{user.DisplayName || user.Username}</span>
+                  {t('ui.user')} <span className="font-medium">{user.DisplayName || user.Username}</span>
                 </div>
               )}
             </div>
@@ -705,7 +705,7 @@ function ContinueProcessForm() {
                   disabled={status !== 'ready'}
                   className="flex-1"
                 >
-                  {status !== 'ready' ? 'Guardando Cambios...' : 'Guardar y Continuar'}
+                  {status !== 'ready' ? t('ui.savingChanges') : t('ui.saveAndContinue')}
                 </Button>
                 <Button
                   type="button"
@@ -720,7 +720,7 @@ function ContinueProcessForm() {
                     setProcessData(null)
                   }}
                 >
-                  Cancelar
+                  {t('ui.cancel')}
                 </Button>
               </div>
             </form>
@@ -748,7 +748,7 @@ function ContinueProcessForm() {
 
           {processData && (
             <div className="mt-6 p-4 bg-muted rounded-md">
-              <p className="text-sm font-medium mb-2">Datos de la Instancia:</p>
+              <p className="text-sm font-medium mb-2">{t('ui.instanceData')}:</p>
               <pre className="text-xs overflow-auto">
                 {JSON.stringify(processData, null, 2)}
               </pre>
