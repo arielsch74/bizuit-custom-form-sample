@@ -162,13 +162,14 @@ const ThemeContext = createContext();
 
 const ThemeProvider = ({ children }) => {
   const [isDark, setIsDark] = useState(false);
+  const [primaryColor, setPrimaryColor] = useState('#3b82f6');
 
   useEffect(() => {
     document.body.className = isDark ? 'dark' : 'light';
   }, [isDark]);
 
   return (
-    <ThemeContext.Provider value={{ isDark, setIsDark }}>
+    <ThemeContext.Provider value={{ isDark, setIsDark, primaryColor, setPrimaryColor }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -227,7 +228,7 @@ const I18nProvider = ({ children }) => {
 
 function DynamicFormDemo() {
   const { t, language, setLanguage } = useTranslation();
-  const { isDark, setIsDark } = useTheme();
+  const { isDark, setIsDark, primaryColor, setPrimaryColor } = useTheme();
 
   // 🔹 CÓDIGO REAL (comentado porque no funciona en Sandpack):
   // const sdk = useBizuitSDK();
@@ -327,40 +328,61 @@ function DynamicFormDemo() {
       <div className="card">
         {/* Theme and Language Controls */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          {/* Theme Toggle */}
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              type="button"
-              onClick={() => setIsDark(false)}
-              style={{
-                padding: '6px 12px',
-                background: !isDark ? '#3b82f6' : '#f3f4f6',
-                color: !isDark ? 'white' : '#374151',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500'
-              }}
-            >
-              ☀️ Light
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsDark(true)}
-              style={{
-                padding: '6px 12px',
-                background: isDark ? '#3b82f6' : '#f3f4f6',
-                color: isDark ? 'white' : '#374151',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500'
-              }}
-            >
-              🌙 Dark
-            </button>
+          {/* Theme Toggle and Color Picker */}
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                type="button"
+                onClick={() => setIsDark(false)}
+                style={{
+                  padding: '6px 12px',
+                  background: !isDark ? primaryColor : '#f3f4f6',
+                  color: !isDark ? 'white' : '#374151',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                ☀️ Light
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsDark(true)}
+                style={{
+                  padding: '6px 12px',
+                  background: isDark ? primaryColor : '#f3f4f6',
+                  color: isDark ? 'white' : '#374151',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                🌙 Dark
+              </button>
+            </div>
+
+            {/* Color Picker */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <label style={{ fontSize: '14px', color: isDark ? '#e2e8f0' : '#64748b' }}>
+                🎨 Color:
+              </label>
+              <input
+                type="color"
+                value={primaryColor}
+                onChange={(e) => setPrimaryColor(e.target.value)}
+                style={{
+                  width: '40px',
+                  height: '32px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  cursor: 'pointer'
+                }}
+              />
+            </div>
           </div>
 
           {/* Language Toggle */}
@@ -392,7 +414,20 @@ function DynamicFormDemo() {
             {mockParameters.map(param => renderField(param))}
           </div>
 
-          <button type="submit" className="btn-submit">
+          <button
+            type="submit"
+            style={{
+              padding: '12px 24px',
+              background: primaryColor,
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: '600',
+              width: '100%'
+            }}
+          >
             {t('submit')}
           </button>
         </form>

@@ -271,6 +271,7 @@ const useTheme = () => {
 
 const ThemeProvider = ({ children }) => {
   const [isDark, setIsDark] = useState(false);
+  const [primaryColor, setPrimaryColor] = useState('#3b82f6');
 
   // Aplicar clase al body para que el CSS funcione
   // NOTA: Este código corre dentro del iframe del Sandpack
@@ -279,7 +280,7 @@ const ThemeProvider = ({ children }) => {
   }, [isDark]);
 
   return (
-    <ThemeContext.Provider value={{ isDark, setIsDark }}>
+    <ThemeContext.Provider value={{ isDark, setIsDark, primaryColor, setPrimaryColor }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -287,7 +288,7 @@ const ThemeProvider = ({ children }) => {
 
 function SelectiveMappingForm() {
   const { t, language, setLanguage } = useTranslation();
-  const { isDark, setIsDark } = useTheme();
+  const { isDark, setIsDark, primaryColor, setPrimaryColor } = useTheme();
   const [formData, setFormData] = useState({
     empleado: '',
     legajo: '',
@@ -414,16 +415,17 @@ function SelectiveMappingForm() {
             {language === 'es' ? '🇬🇧 EN' : '🇪🇸 ES'}
           </button>
 
-          {/* Selector de tema */}
-          <div style={{ display: 'flex', gap: '4px' }}>
+          {/* Selector de tema y color */}
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '4px' }}>
             <button
               type="button"
               onClick={() => setIsDark(false)}
               style={{
                 padding: '6px 12px',
-                background: !isDark ? '#3b82f6' : (isDark ? '#374151' : '#f3f4f6'),
+                background: !isDark ? primaryColor : (isDark ? '#374151' : '#f3f4f6'),
                 color: !isDark ? 'white' : (isDark ? '#f9fafb' : '#111827'),
-                border: \`1px solid \${!isDark ? '#3b82f6' : (isDark ? '#4b5563' : '#d1d5db')}\`,
+                border: \`1px solid \${!isDark ? primaryColor : (isDark ? '#4b5563' : '#d1d5db')}\`,
                 borderRadius: '6px',
                 cursor: 'pointer',
                 fontSize: '12px',
@@ -437,9 +439,9 @@ function SelectiveMappingForm() {
               onClick={() => setIsDark(true)}
               style={{
                 padding: '6px 12px',
-                background: isDark ? '#3b82f6' : (isDark ? '#374151' : '#f3f4f6'),
+                background: isDark ? primaryColor : (isDark ? '#374151' : '#f3f4f6'),
                 color: isDark ? 'white' : (isDark ? '#f9fafb' : '#111827'),
-                border: \`1px solid \${isDark ? '#3b82f6' : (isDark ? '#4b5563' : '#d1d5db')}\`,
+                border: \`1px solid \${isDark ? primaryColor : (isDark ? '#4b5563' : '#d1d5db')}\`,
                 borderRadius: '6px',
                 cursor: 'pointer',
                 fontSize: '12px',
@@ -448,6 +450,23 @@ function SelectiveMappingForm() {
             >
               🌙
             </button>
+            </div>
+
+            {/* Color Picker */}
+            <input
+              type="color"
+              value={primaryColor}
+              onChange={(e) => setPrimaryColor(e.target.value)}
+              style={{
+                width: '32px',
+                height: '32px',
+                border: \`1px solid \${isDark ? '#4b5563' : '#d1d5db'}\`,
+                borderRadius: '6px',
+                cursor: 'pointer',
+                background: 'transparent'
+              }}
+              title="🎨 Color primario"
+            />
           </div>
         </div>
 
