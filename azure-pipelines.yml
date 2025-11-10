@@ -40,41 +40,51 @@ stages:
           - task: PowerShell@2
             inputs:
               targetType: 'inline'
-              workingDirectory: '$(Build.SourcesDirectory)/example'
+              workingDirectory: '$(Build.SourcesDirectory)'
               script: |
-                Write-Host "=== AGGRESSIVE CLEANUP FOR DISK SPACE (95.78% FULL) ==="
+                Write-Host "=== CLEANUP BUILD ARTIFACTS ==="
 
-                Write-Host "Step 1: Removing all build artifacts..."
-                if (Test-Path "node_modules") {
-                  Write-Host "Deleting node_modules..."
-                  Remove-Item -Recurse -Force "node_modules"
+                # Clean example directory
+                Write-Host "Cleaning example directory..."
+                if (Test-Path "example/node_modules") {
+                  Remove-Item -Recurse -Force "example/node_modules"
                 }
-                if (Test-Path ".next") {
-                  Write-Host "Deleting .next..."
-                  Remove-Item -Recurse -Force ".next"
+                if (Test-Path "example/.next") {
+                  Remove-Item -Recurse -Force "example/.next"
                 }
-                if (Test-Path ".swc") {
-                  Write-Host "Deleting .swc..."
-                  Remove-Item -Recurse -Force ".swc"
-                }
-                if (Test-Path "package-lock.json") {
-                  Write-Host "Deleting package-lock.json..."
-                  Remove-Item -Force "package-lock.json"
+                if (Test-Path "example/.swc") {
+                  Remove-Item -Recurse -Force "example/.swc"
                 }
 
-                Write-Host "Step 2: Cleaning npm cache globally..."
-                npm cache clean --force
-                npm cache verify
+                # Clean packages directory
+                Write-Host "Cleaning packages directory..."
+                if (Test-Path "packages/bizuit-ui-components/node_modules") {
+                  Remove-Item -Recurse -Force "packages/bizuit-ui-components/node_modules"
+                }
+                if (Test-Path "packages/bizuit-ui-components/dist") {
+                  Remove-Item -Recurse -Force "packages/bizuit-ui-components/dist"
+                }
 
-                Write-Host "Step 3: Cleanup completed!"
-                Write-Host "=== READY FOR FRESH INSTALL ==="
-            displayName: 'Clean Build Environment (Aggressive)'
+                Write-Host "Cleanup completed!"
+            displayName: 'Clean Build Environment'
+
+          - script: |
+              cd packages/bizuit-ui-components
+              echo "Installing dependencies for @tyconsa/bizuit-ui-components..."
+              npm install
+            displayName: 'Install Package Dependencies'
+
+          - script: |
+              cd packages/bizuit-ui-components
+              echo "Building @tyconsa/bizuit-ui-components..."
+              npm run build
+            displayName: 'Build UI Components Package'
 
           - script: |
               cd example
-              echo "Installing dependencies with fresh package-lock.json..."
+              echo "Installing dependencies for example app..."
               npm install
-            displayName: 'Install Dependencies (Fresh)'
+            displayName: 'Install Example Dependencies'
 
           - script: |
               cd example
