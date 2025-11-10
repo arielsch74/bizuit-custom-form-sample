@@ -58,6 +58,24 @@ function Example3ManualSelectiveContent() {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
+  // Función para obtener los parámetros ocultos/calculados (se recalcula en cada render)
+  const getHiddenParams = () => {
+    return {
+      // Datos de auditoría (valor directo, NO del formData)
+      submittedBy: token ? 'user123' : 'anonymous',
+      submittedAt: new Date().toISOString(),
+      submittedFrom: 'web-form',
+
+      // Cálculos basados en formData
+      montoConIVA: parseFloat(formData.monto || '0') * 1.21,
+      requiereAprobacionGerente: parseFloat(formData.monto || '0') > 5000,
+
+      // Metadata y constantes
+      formVersion: '3.0.0',
+      browserInfo: navigator.userAgent.substring(0, 50),
+    }
+  }
+
   // Definir el mapeo selectivo
   const parameterMapping = {
     // Campo del form → Parámetro en Bizuit (con transformación)
@@ -97,23 +115,13 @@ function Example3ManualSelectiveContent() {
       // buildParameters() convierte SOLO los campos mapeados del formulario
       const visibleParameters = buildParameters(parameterMapping, formData)
 
-      // NUEVO: {t('ui.add')} parámetros ocultos/calculados usando formDataToParameters()
-      const hiddenData = {
-        // Datos de auditoría (valor directo, NO del formData)
-        submittedBy: token ? 'user123' : 'anonymous',
-        submittedAt: new Date().toISOString(),
-        submittedFrom: 'web-form',
-
-        // Cálculos basados en formData
-        montoConIVA: parseFloat(formData.monto || '0') * 1.21,
-        requiereAprobacionGerente: parseFloat(formData.monto || '0') > 5000,
-
-        // Metadata y constantes
-        formVersion: '3.0.0',
-        browserInfo: navigator.userAgent.substring(0, 50),
-      }
-
-      const hiddenParameters = formDataToParameters(hiddenData)
+      // Parámetros ocultos/calculados (convertir a formato array)
+      const hiddenParamsObj = getHiddenParams()
+      const hiddenParameters = Object.entries(hiddenParamsObj).map(([key, value]) => ({
+        name: key,
+        value: value,
+        direction: 'Input'
+      }))
 
       // Combinar parámetros visibles + ocultos
       const allParameters = [...visibleParameters, ...hiddenParameters]
@@ -163,17 +171,13 @@ function Example3ManualSelectiveContent() {
     try {
       const visibleParams = buildParameters(parameterMapping, formData)
 
-      // Parámetros ocultos/calculados - usando formDataToParameters() para valores directos
-      const hiddenData = {
-        submittedBy: token ? 'user123' : 'anonymous',
-        submittedAt: new Date().toISOString(),
-        submittedFrom: 'web-form',
-        montoConIVA: parseFloat(formData.monto || '0') * 1.21,
-        requiereAprobacionGerente: parseFloat(formData.monto || '0') > 5000,
-        formVersion: '3.0.0',
-        browserInfo: navigator.userAgent.substring(0, 50),
-      }
-      const hiddenParams = formDataToParameters(hiddenData)
+      // Parámetros ocultos/calculados - usando getHiddenParams()
+      const hiddenParamsObj = getHiddenParams()
+      const hiddenParams = Object.entries(hiddenParamsObj).map(([key, value]) => ({
+        name: key,
+        value: value,
+        direction: 'Input'
+      }))
 
       return {
         visible: visibleParams,
@@ -312,7 +316,6 @@ function SelectiveMappingForm() {
 
   const [showModal, setShowModal] = useState(false);
   const [paramsToSend, setParamsToSend] = useState({ visible: [], hidden: [], all: [] });
-  const [refreshKey, setRefreshKey] = useState(0);
   const [, forceUpdate] = useState(0);
 
   // Force update every second to refresh calculated values (timestamps)
@@ -361,9 +364,21 @@ function SelectiveMappingForm() {
     }));
   };
 
+  // Función para obtener los parámetros ocultos/calculados (se recalcula en cada render)
+  const getHiddenParams = () => {
+    return {
+      submittedBy: 'user123',
+      submittedAt: new Date().toISOString(),
+      submittedFrom: 'web-form',
+      montoConIVA: (parseFloat(formData.monto || '0') * 1.21).toFixed(2),
+      requiereAprobacionGerente: parseFloat(formData.monto || '0') > 5000,
+      formVersion: '3.0.0',
+      browserInfo: navigator.userAgent.substring(0, 50)
+    };
+  };
+
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    setRefreshKey(prev => prev + 1);
   };
 
   const handleSubmit = (e) => {
@@ -372,13 +387,13 @@ function SelectiveMappingForm() {
     // Parámetros visibles (mapeados del formulario)
     const visibleParams = buildParameters(parameterMapping, formData);
 
-    // Parámetros ocultos/calculados
-    const hiddenParams = [
-      { name: 'submittedBy', value: 'user123', direction: 'Input' },
-      { name: 'submittedAt', value: new Date().toISOString(), direction: 'Input' },
-      { name: 'montoConIVA', value: (parseFloat(formData.monto || '0') * 1.21).toFixed(2), direction: 'Input' },
-      { name: 'requiereAprobacionGerente', value: parseFloat(formData.monto || '0') > 5000, direction: 'Input' }
-    ];
+    // Parámetros ocultos/calculados (convertir a formato array)
+    const hiddenParamsObj = getHiddenParams();
+    const hiddenParams = Object.entries(hiddenParamsObj).map(([key, value]) => ({
+      name: key,
+      value: value,
+      direction: 'Input'
+    }));
 
     // Combinar todos
     const allParams = [...visibleParams, ...hiddenParams];
@@ -607,22 +622,15 @@ function SelectiveMappingForm() {
 
         <div style={{ marginBottom: '16px' }}>
           <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#2563eb', marginBottom: '8px' }}>
-            🔒 Parámetros Ocultos/Calculados (6):
+            🔒 Parámetros Ocultos/Calculados ({Object.keys(getHiddenParams()).length}):
           </h4>
-          <pre className="preview-code">{JSON.stringify({
-            submittedBy: 'user123',
-            submittedAt: new Date().toISOString(), // Updates on every render
-            submittedFrom: 'web-form',
-            montoConIVA: (parseFloat(formData.monto || '0') * 1.21).toFixed(2),
-            requiereAprobacionGerente: parseFloat(formData.monto || '0') > 5000,
-            formVersion: '3.0.0'
-          }, null, 2)}</pre>
+          <pre className="preview-code">{JSON.stringify(getHiddenParams(), null, 2)}</pre>
         </div>
 
         <div className="preview-total">
           <p className="preview-total-text">
-            💡 Total: {Object.keys(formData).filter(k => !k.startsWith('_')).length + 6} parámetros
-            ({Object.keys(formData).filter(k => !k.startsWith('_')).length} visibles + 6 ocultos)
+            💡 Total: {Object.keys(formData).filter(k => !k.startsWith('_')).length + Object.keys(getHiddenParams()).length} parámetros
+            ({Object.keys(formData).filter(k => !k.startsWith('_')).length} visibles + {Object.keys(getHiddenParams()).length} ocultos)
           </p>
         </div>
       </div>

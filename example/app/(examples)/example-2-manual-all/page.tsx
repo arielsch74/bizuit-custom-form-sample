@@ -275,7 +275,6 @@ function App() {
 
   const [showModal, setShowModal] = useState(false);
   const [paramsToSend, setParamsToSend] = useState({ visible: [], hidden: [], all: [] });
-  const [refreshKey, setRefreshKey] = useState(0);
   const [, forceUpdate] = useState(0);
 
   // Force update every second to refresh calculated values (timestamps)
@@ -288,7 +287,16 @@ function App() {
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    setRefreshKey(prev => prev + 1);
+  };
+
+  // Función para obtener los parámetros ocultos/calculados (se recalcula en cada render)
+  const getHiddenParams = () => {
+    return {
+      submittedBy: 'user123',
+      submittedAt: new Date().toISOString(),
+      montoConIVA: (parseFloat(formData.pMonto || '0') * 1.21).toFixed(2),
+      esMontoAlto: parseFloat(formData.pMonto || '0') > 10000
+    };
   };
 
   const handleSubmit = (e) => {
@@ -309,13 +317,13 @@ function App() {
       direction: 'Input'
     }));
 
-    // Parámetros ocultos/calculados
-    const hiddenParams = [
-      { name: 'submittedBy', value: 'user123', direction: 'Input' },
-      { name: 'submittedAt', value: new Date().toISOString(), direction: 'Input' },
-      { name: 'montoConIVA', value: (parseFloat(formData.pMonto || '0') * 1.21).toFixed(2), direction: 'Input' },
-      { name: 'esMontoAlto', value: parseFloat(formData.pMonto || '0') > 10000, direction: 'Input' },
-    ];
+    // Parámetros ocultos/calculados (convertir a formato array)
+    const hiddenParamsObj = getHiddenParams();
+    const hiddenParams = Object.entries(hiddenParamsObj).map(([key, value]) => ({
+      name: key,
+      value: value,
+      direction: 'Input'
+    }));
 
     // ¡IMPORTANTE! Combinar TODOS los parámetros (visibles + ocultos)
     const allParams = [...visibleParams, ...hiddenParams];
@@ -633,20 +641,15 @@ function App() {
 
           <div style={{ marginBottom: '16px' }}>
             <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#2563eb', marginBottom: '8px' }}>
-              🔒 Parámetros Ocultos/Calculados (4):
+              🔒 Parámetros Ocultos/Calculados ({Object.keys(getHiddenParams()).length}):
             </h4>
-            <pre className="preview-code">{JSON.stringify({
-              submittedBy: 'user123',
-              submittedAt: new Date().toISOString(), // Updates on every render
-              montoConIVA: (parseFloat(formData.pMonto || '0') * 1.21).toFixed(2),
-              esMontoAlto: parseFloat(formData.pMonto || '0') > 10000
-            }, null, 2)}</pre>
+            <pre className="preview-code">{JSON.stringify(getHiddenParams(), null, 2)}</pre>
           </div>
 
           <div className="preview-total">
             <p className="preview-total-text">
-              💡 Total: {Object.keys(formData).length + 4} parámetros
-              ({Object.keys(formData).length} visibles + 4 ocultos)
+              💡 Total: {Object.keys(formData).length + Object.keys(getHiddenParams()).length} parámetros
+              ({Object.keys(formData).length} visibles + {Object.keys(getHiddenParams()).length} ocultos)
             </p>
           </div>
         </div>
@@ -918,13 +921,19 @@ body.dark .preview-total-text {
 }
 
 .modal-content {
-  background: white;
+  background: white !important;
   border-radius: 12px;
   max-width: 600px;
   width: 100%;
   max-height: 80vh;
   overflow: auto;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  transition: background 0.3s;
+}
+
+body.dark .modal-content {
+  background: #1e293b !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
 }
 
 .modal-header {
@@ -932,30 +941,49 @@ body.dark .preview-total-text {
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb !important;
+  transition: border-color 0.3s;
+}
+
+body.dark .modal-header {
+  border-bottom-color: #374151 !important;
 }
 
 .modal-header h3 {
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  color: #111827 !important;
   margin: 0;
+  transition: color 0.3s;
+}
+
+body.dark .modal-header h3 {
+  color: #f1f5f9 !important;
 }
 
 .modal-close {
   background: none;
   border: none;
   font-size: 32px;
-  color: #6b7280;
+  color: #6b7280 !important;
   cursor: pointer;
   line-height: 1;
   padding: 0;
   width: 32px;
   height: 32px;
+  transition: color 0.2s;
 }
 
 .modal-close:hover {
-  color: #111827;
+  color: #111827 !important;
+}
+
+body.dark .modal-close {
+  color: #94a3b8 !important;
+}
+
+body.dark .modal-close:hover {
+  color: #f1f5f9 !important;
 }
 
 .modal-body {
@@ -981,10 +1009,16 @@ body.dark .preview-total-text {
 }
 
 .params-list {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background: #f9fafb !important;
+  border: 1px solid #e5e7eb !important;
   border-radius: 8px;
   padding: 16px;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+body.dark .params-list {
+  background: #0f172a !important;
+  border-color: #374151 !important;
 }
 
 .param-item {
@@ -1001,29 +1035,50 @@ body.dark .preview-total-text {
 
 .param-name {
   font-weight: 600;
-  color: #4b5563;
+  color: #4b5563 !important;
   min-width: 140px;
+  transition: color 0.3s;
+}
+
+body.dark .param-name {
+  color: #94a3b8 !important;
 }
 
 .param-value {
-  color: #111827;
+  color: #111827 !important;
   word-break: break-all;
+  transition: color 0.3s;
+}
+
+body.dark .param-value {
+  color: #e5e7eb !important;
 }
 
 .params-total {
   padding: 16px;
-  background: #f3f4f6;
+  background: #f3f4f6 !important;
   border-radius: 8px;
   text-align: center;
   font-size: 14px;
-  color: #374151;
+  color: #374151 !important;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark .params-total {
+  background: #1e293b !important;
+  color: #cbd5e1 !important;
 }
 
 .modal-footer {
   padding: 16px 24px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #e5e7eb !important;
   display: flex;
   justify-content: flex-end;
+  transition: border-color 0.3s;
+}
+
+body.dark .modal-footer {
+  border-top-color: #374151 !important;
 }
 
 .btn-modal-close {

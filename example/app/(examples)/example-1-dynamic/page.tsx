@@ -267,7 +267,6 @@ function DynamicFormDemo() {
   const [formData, setFormData] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [paramsToSend, setParamsToSend] = useState({ visible: [], hidden: [], all: [] });
-  const [refreshKey, setRefreshKey] = useState(0);
   const [, forceUpdate] = useState(0);
 
   // Force update every second to refresh calculated values (timestamps)
@@ -280,7 +279,14 @@ function DynamicFormDemo() {
 
   const handleChange = (paramName, value) => {
     setFormData(prev => ({ ...prev, [paramName]: value }));
-    setRefreshKey(prev => prev + 1);
+  };
+
+  // Función para obtener los parámetros ocultos/calculados (se recalcula en cada render)
+  const getHiddenParams = () => {
+    return {
+      submittedAt: new Date().toISOString(),
+      formVersion: '1.0.0'
+    };
   };
 
   const handleSubmit = async (e) => {
@@ -293,11 +299,13 @@ function DynamicFormDemo() {
       direction: 'Input'
     }));
 
-    // Parámetros ocultos/calculados
-    const hiddenParams = [
-      { name: 'submittedAt', value: new Date().toISOString(), direction: 'Input' },
-      { name: 'formVersion', value: '1.0.0', direction: 'Input' },
-    ];
+    // Parámetros ocultos/calculados (convertir a formato array)
+    const hiddenParamsObj = getHiddenParams();
+    const hiddenParams = Object.entries(hiddenParamsObj).map(([key, value]) => ({
+      name: key,
+      value: value,
+      direction: 'Input'
+    }));
 
     const allParams = [...visibleParams, ...hiddenParams];
 
@@ -449,18 +457,15 @@ function DynamicFormDemo() {
 
           <div style={{ marginBottom: '16px' }}>
             <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#2563eb', marginBottom: '8px' }}>
-              🔒 Parámetros Ocultos/Calculados (2):
+              🔒 Parámetros Ocultos/Calculados ({Object.keys(getHiddenParams()).length}):
             </h4>
-            <pre className="preview-code">{JSON.stringify({
-              submittedAt: new Date().toISOString(), // Updates on every render
-              formVersion: '1.0.0'
-            }, null, 2)}</pre>
+            <pre className="preview-code">{JSON.stringify(getHiddenParams(), null, 2)}</pre>
           </div>
 
           <div className="preview-total">
             <p className="preview-total-text">
-              💡 Total: {Object.keys(formData).length + 2} parámetros
-              ({Object.keys(formData).length} visibles + 2 ocultos)
+              💡 Total: {Object.keys(formData).length + Object.keys(getHiddenParams()).length} parámetros
+              ({Object.keys(formData).length} visibles + {Object.keys(getHiddenParams()).length} ocultos)
             </p>
           </div>
         </div>
