@@ -266,6 +266,36 @@ function App() {
           </button>
         </div>
       </div>
+
+      <div className="card" style={{ marginTop: '24px' }}>
+        <h2 className="card-title">{t('stepperExample')} - Vertical</h2>
+
+        <Stepper
+          steps={steps}
+          currentStep={currentStep}
+          clickable
+          onChange={setCurrentStep}
+          primaryColor={primaryColor}
+          orientation="vertical"
+        />
+
+        <div className="form-actions" style={{ marginTop: '24px' }}>
+          <button
+            className="btn-secondary"
+            onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
+            disabled={currentStep === 0}
+          >
+            {t('previous')}
+          </button>
+          <button
+            className="btn-primary"
+            onClick={() => setCurrentStep(Math.min(steps.length - 1, currentStep + 1))}
+            disabled={currentStep === steps.length - 1}
+          >
+            {t('next')}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -287,11 +317,14 @@ export default function AppWithProviders() {
   clickable = false,
   primaryColor = '#a855f7'
 }) {
+  const isHorizontal = orientation === 'horizontal';
+
   const containerStyle = {
     display: 'flex',
-    flexDirection: orientation === 'horizontal' ? 'row' : 'column',
-    alignItems: orientation === 'horizontal' ? 'center' : 'flex-start',
-    width: '100%'
+    flexDirection: isHorizontal ? 'row' : 'column',
+    alignItems: isHorizontal ? 'center' : 'flex-start',
+    width: '100%',
+    gap: isHorizontal ? '0' : '16px'
   };
 
   return (
@@ -304,12 +337,14 @@ export default function AppWithProviders() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          minWidth: '40px',
           width: '40px',
           height: '40px',
           borderRadius: '50%',
           border: '2px solid',
           fontSize: '14px',
           fontWeight: '600',
+          flexShrink: 0,
           transition: 'all 0.3s',
           cursor: clickable ? 'pointer' : 'default',
           ...(isCompleted
@@ -332,36 +367,57 @@ export default function AppWithProviders() {
         };
 
         const lineStyle = {
-          flex: orientation === 'horizontal' ? 1 : 'none',
-          height: orientation === 'horizontal' ? '2px' : '48px',
-          width: orientation === 'horizontal' ? 'auto' : '2px',
-          margin: orientation === 'horizontal' ? '0 16px' : '0',
+          flex: isHorizontal ? 1 : 'none',
+          height: isHorizontal ? '2px' : '24px',
+          width: isHorizontal ? 'auto' : '2px',
+          minHeight: isHorizontal ? '2px' : '24px',
+          minWidth: isHorizontal ? '24px' : '2px',
+          margin: isHorizontal ? '0 16px' : '0 0 0 19px',
           backgroundColor: isCompleted ? primaryColor : '#d1d5db',
           transition: 'background-color 0.3s'
         };
 
-        const stepItemStyle = {
+        const stepItemContainerStyle = {
           display: 'flex',
-          alignItems: 'center',
-          flex: orientation === 'horizontal' ? 1 : 'none',
-          width: orientation === 'horizontal' ? 'auto' : '100%'
+          flexDirection: isHorizontal ? 'row' : 'column',
+          alignItems: isHorizontal ? 'center' : 'flex-start',
+          flex: isHorizontal ? 1 : 'none',
+          width: isHorizontal ? 'auto' : '100%',
+          minWidth: 0
+        };
+
+        const stepContentStyle = {
+          display: 'flex',
+          alignItems: isHorizontal ? 'center' : 'flex-start',
+          flexDirection: isHorizontal ? 'row' : 'column',
+          gap: '12px',
+          minWidth: 0,
+          flex: isHorizontal ? 1 : 'none'
+        };
+
+        const textContainerStyle = {
+          minWidth: 0,
+          flex: isHorizontal ? 1 : 'none'
         };
 
         return (
-          <div key={index} style={stepItemStyle}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div key={index} style={stepItemContainerStyle}>
+            <div style={stepContentStyle}>
               <div
                 style={circleStyle}
                 onClick={() => clickable && onChange?.(index)}
               >
                 {isCompleted ? '✓' : index + 1}
               </div>
-              <div>
+              <div style={textContainerStyle}>
                 <div style={{
                   fontSize: '14px',
                   fontWeight: '500',
                   color: isCurrent ? '#111827' : '#6b7280',
-                  transition: 'color 0.3s'
+                  transition: 'color 0.3s',
+                  whiteSpace: isHorizontal ? 'nowrap' : 'normal',
+                  overflow: isHorizontal ? 'hidden' : 'visible',
+                  textOverflow: isHorizontal ? 'ellipsis' : 'clip'
                 }}>
                   {step.label}
                 </div>

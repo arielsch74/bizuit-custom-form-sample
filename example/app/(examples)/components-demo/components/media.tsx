@@ -292,9 +292,7 @@ export default function AppWithProviders() {
   );
 }`,
     '/Media.js': `import { useContext } from 'react';
-
-// Asumiendo que I18nContext está disponible desde App.js
-const I18nContext = require('./App.js').I18nContext;
+import { I18nContext } from './App.js';
 
 export default function Media({
   type,
@@ -308,7 +306,8 @@ export default function Media({
   onQRCodeDetected,
   primaryColor = '#a855f7'
 }) {
-  const { t } = useContext(I18nContext) || { t: (key) => key };
+  const context = useContext(I18nContext);
+  const t = context ? context.t : (key) => key;
   const defaultAlt = alt || t('mediaContent');
   if (type === 'image') {
     return (
