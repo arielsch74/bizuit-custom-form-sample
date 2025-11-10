@@ -178,18 +178,20 @@ function App() {
   const { t, language, setLanguage } = useTranslation();
   const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
 
-  const [data] = useState([
+  // Datos reactivos que se actualizan cuando cambia el idioma
+  const data = [
     { id: 1, name: t('john'), age: 32, email: t('john_email'), status: t('active') },
     { id: 2, name: t('jane'), age: 28, email: t('jane_email'), status: t('active') },
     { id: 3, name: t('bob'), age: 45, email: t('bob_email'), status: t('inactive') },
-  ]);
+  ];
 
-  const [columns] = useState([
+  // Columnas reactivas que se actualizan cuando cambia el idioma
+  const columns = [
     { key: 'name', label: t('name'), width: '200px' },
     { key: 'age', label: t('age'), width: '80px' },
     { key: 'email', label: t('email'), width: '250px' },
     { key: 'status', label: t('status'), width: '100px' },
-  ]);
+  ];
 
   return (
 <div className="container">

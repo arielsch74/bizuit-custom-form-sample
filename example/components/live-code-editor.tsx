@@ -102,6 +102,11 @@ export function LiveCodeEditor({
       .replace(/#ea580c/g, colors.primaryHover)
       .replace(/#ffedd5/g, colors.primaryLight)
       .replace(/#c2410c/g, colors.primaryDark)
+      // Reemplazar colores purple (components-demo)
+      .replace(/#a855f7/g, colors.primary)
+      .replace(/#9333ea/g, colors.primaryHover)
+      .replace(/#f3e8ff/g, colors.primaryLight)
+      .replace(/#7e22ce/g, colors.primaryDark)
       // Reemplazar variantes RGBA azules
       .replace(/rgba\(59, 130, 246, ([\d.]+)\)/g, (_, alpha) => {
         // Convertir hex a rgba
@@ -112,6 +117,13 @@ export function LiveCodeEditor({
       })
       // Reemplazar variantes RGBA naranjas
       .replace(/rgba\(249, 115, 22, ([\d.]+)\)/g, (_, alpha) => {
+        const r = parseInt(colors.primary.slice(1, 3), 16)
+        const g = parseInt(colors.primary.slice(3, 5), 16)
+        const b = parseInt(colors.primary.slice(5, 7), 16)
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`
+      })
+      // Reemplazar variantes RGBA purple
+      .replace(/rgba\(168, 85, 247, ([\d.]+)\)/g, (_, alpha) => {
         const r = parseInt(colors.primary.slice(1, 3), 16)
         const g = parseInt(colors.primary.slice(3, 5), 16)
         const b = parseInt(colors.primary.slice(5, 7), 16)
@@ -141,6 +153,11 @@ export function LiveCodeEditor({
       .replace(/#2563eb/g, colors.primaryHover)
       .replace(/#dbeafe/g, colors.primaryLight)
       .replace(/#1e40af/g, colors.primaryDark)
+      // Purple primario (components-demo)
+      .replace(/#a855f7/g, colors.primary)
+      .replace(/#9333ea/g, colors.primaryHover)
+      .replace(/#f3e8ff/g, colors.primaryLight)
+      .replace(/#7e22ce/g, colors.primaryDark)
 
     // NOTA: Ya NO forzamos dark mode aquí porque el código dentro del Sandpack
     // tiene su propio ThemeProvider que maneja el tema independientemente.

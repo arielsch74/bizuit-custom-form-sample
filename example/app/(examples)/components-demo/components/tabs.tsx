@@ -228,7 +228,7 @@ function App() {
       </div>
 
         <h2 className="card-title">{t('exampleTitle')}</h2>
-        <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} primaryColor={primaryColor} />
+        <Tabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} primaryColor={primaryColor} isDark={isDark} />
       </div>
     </div>
   );
@@ -243,10 +243,10 @@ export default function AppWithProviders() {
     </I18nProvider>
   );
 }`,
-    '/Tabs.js': `export default function Tabs({ tabs, activeTab, onTabChange, primaryColor = '#6366f1' }) {
+    '/Tabs.js': `export default function Tabs({ tabs, activeTab, onTabChange, primaryColor = '#6366f1', isDark = false }) {
   return (
     <div>
-      <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid #d1d5db' }}>
+      <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid ' + (isDark ? '#4b5563' : '#d1d5db') }}>
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -256,8 +256,10 @@ export default function AppWithProviders() {
               border: 'none',
               borderBottom: activeTab === tab.id ? \`2px solid \${primaryColor}\` : '2px solid transparent',
               background: 'transparent',
+              color: activeTab === tab.id ? primaryColor : (isDark ? '#d1d5db' : '#6b7280'),
               cursor: 'pointer',
               fontWeight: activeTab === tab.id ? '600' : '400',
+              transition: 'all 0.2s',
             }}
           >
             {tab.label}

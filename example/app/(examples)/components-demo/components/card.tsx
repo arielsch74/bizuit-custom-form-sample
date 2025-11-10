@@ -287,34 +287,44 @@ export default function AppWithProviders() {
   primaryColor = '#a855f7',
   ...props
 }) {
-  const variantClasses = {
-    default: 'border bg-card shadow-sm',
-    outline: 'border-2',
-    filled: 'bg-muted border-none',
+  const variantStyles = {
+    default: {
+      border: '1px solid #e5e7eb',
+      background: 'white',
+      boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+    },
+    outline: {
+      border: '2px solid ' + primaryColor,
+      background: 'white',
+    },
+    filled: {
+      border: 'none',
+      background: '#f9fafb',
+    },
   };
 
-  const classes = [
-    'rounded-lg text-card-foreground',
-    variantClasses[variant],
-    hoverable && 'transition-shadow hover:shadow-md',
-    clickable && 'cursor-pointer transition-all hover:scale-[1.02]',
-    className
-  ].filter(Boolean).join(' ');
+  const baseStyle = {
+    borderRadius: '8px',
+    overflow: 'hidden',
+    transition: clickable ? 'all 0.2s' : (hoverable ? 'box-shadow 0.2s' : 'none'),
+    cursor: clickable ? 'pointer' : 'default',
+    ...variantStyles[variant],
+  };
 
   return (
-    <div className={classes} {...props}>
-      {header && <div className="p-6 pb-0">{header}</div>}
+    <div style={baseStyle} className={className} {...props}>
+      {header && <div style={{ padding: '24px', paddingBottom: 0 }}>{header}</div>}
 
       {(title || description) && (
-        <div className="p-6">
-          {title && <h3 className="text-2xl font-semibold">{title}</h3>}
-          {description && <p className="text-sm text-muted-foreground mt-1.5">{description}</p>}
+        <div style={{ padding: '24px' }}>
+          {title && <h3 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '4px' }}>{title}</h3>}
+          {description && <p style={{ fontSize: '14px', color: '#6b7280', marginTop: '6px' }}>{description}</p>}
         </div>
       )}
 
-      {children && <div className="p-6 pt-0">{children}</div>}
+      {children && <div style={{ padding: '24px', paddingTop: 0 }}>{children}</div>}
 
-      {footer && <div className="flex items-center p-6 pt-0">{footer}</div>}
+      {footer && <div style={{ display: 'flex', alignItems: 'center', padding: '24px', paddingTop: 0 }}>{footer}</div>}
     </div>
   );
 }`,
