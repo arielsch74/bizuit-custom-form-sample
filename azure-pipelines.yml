@@ -42,19 +42,39 @@ stages:
               targetType: 'inline'
               workingDirectory: '$(Build.SourcesDirectory)/example'
               script: |
-                Write-Host "Cleaning old build artifacts..."
-                if (Test-Path "node_modules") { Remove-Item -Recurse -Force "node_modules" }
-                if (Test-Path ".next") { Remove-Item -Recurse -Force ".next" }
-                if (Test-Path ".swc") { Remove-Item -Recurse -Force ".swc" }
-                Write-Host "Cleaning npm cache..."
+                Write-Host "=== AGGRESSIVE CLEANUP FOR DISK SPACE (95.78% FULL) ==="
+
+                Write-Host "Step 1: Removing all build artifacts..."
+                if (Test-Path "node_modules") {
+                  Write-Host "Deleting node_modules..."
+                  Remove-Item -Recurse -Force "node_modules"
+                }
+                if (Test-Path ".next") {
+                  Write-Host "Deleting .next..."
+                  Remove-Item -Recurse -Force ".next"
+                }
+                if (Test-Path ".swc") {
+                  Write-Host "Deleting .swc..."
+                  Remove-Item -Recurse -Force ".swc"
+                }
+                if (Test-Path "package-lock.json") {
+                  Write-Host "Deleting package-lock.json..."
+                  Remove-Item -Force "package-lock.json"
+                }
+
+                Write-Host "Step 2: Cleaning npm cache globally..."
                 npm cache clean --force
-                Write-Host "Cleanup completed"
-            displayName: 'Clean Build Environment'
+                npm cache verify
+
+                Write-Host "Step 3: Cleanup completed!"
+                Write-Host "=== READY FOR FRESH INSTALL ==="
+            displayName: 'Clean Build Environment (Aggressive)'
 
           - script: |
               cd example
-              npm ci
-            displayName: 'Install Dependencies'
+              echo "Installing dependencies with fresh package-lock.json..."
+              npm install
+            displayName: 'Install Dependencies (Fresh)'
 
           - script: |
               cd example
