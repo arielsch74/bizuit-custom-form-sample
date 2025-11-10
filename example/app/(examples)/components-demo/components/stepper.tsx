@@ -170,11 +170,13 @@ function App() {
   const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
 
   const [currentStep, setCurrentStep] = useState(0);
-  const [steps] = useState([
+
+  // Reactive steps array that updates when language changes
+  const steps = [
     { label: t('personalInfo'), description: t('personalInfoDesc') },
     { label: t('address'), description: t('addressDesc') },
     { label: t('confirmation'), description: t('confirmationDesc') },
-  ]);
+  ];
 
   return (
 <div className="container">
@@ -285,65 +287,97 @@ export default function AppWithProviders() {
   clickable = false,
   primaryColor = '#a855f7'
 }) {
-  let orientationClass = 'flex';
-  if (orientation === 'horizontal') {
-    orientationClass += ' flex-row items-center';
-  } else {
-    orientationClass += ' flex-col';
-  }
+  const containerStyle = {
+    display: 'flex',
+    flexDirection: orientation === 'horizontal' ? 'row' : 'column',
+    alignItems: orientation === 'horizontal' ? 'center' : 'flex-start',
+    width: '100%'
+  };
 
   return (
-    <div className={orientationClass}>
+    <div style={containerStyle}>
       {steps.map((step, index) => {
         const isCompleted = index < currentStep;
         const isCurrent = index === currentStep;
 
-        let circleClasses = 'flex items-center justify-center rounded-full border-2 w-10 h-10';
-        let circleStyles = {};
+        const circleStyle = {
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '40px',
+          height: '40px',
+          borderRadius: '50%',
+          border: '2px solid',
+          fontSize: '14px',
+          fontWeight: '600',
+          transition: 'all 0.3s',
+          cursor: clickable ? 'pointer' : 'default',
+          ...(isCompleted
+            ? {
+                backgroundColor: primaryColor,
+                borderColor: primaryColor,
+                color: 'white'
+              }
+            : isCurrent
+            ? {
+                borderColor: primaryColor,
+                color: primaryColor,
+                backgroundColor: 'white'
+              }
+            : {
+                borderColor: '#d1d5db',
+                color: '#9ca3af',
+                backgroundColor: 'white'
+              })
+        };
 
-        if (isCompleted) {
-          circleClasses += ' text-white';
-          circleStyles = {
-            backgroundColor: primaryColor,
-            borderColor: primaryColor
-          };
-        } else if (isCurrent) {
-          circleStyles = {
-            borderColor: primaryColor,
-            color: primaryColor
-          };
-        } else {
-          circleClasses += ' border-gray-300 text-gray-400';
-        }
+        const lineStyle = {
+          flex: orientation === 'horizontal' ? 1 : 'none',
+          height: orientation === 'horizontal' ? '2px' : '48px',
+          width: orientation === 'horizontal' ? 'auto' : '2px',
+          margin: orientation === 'horizontal' ? '0 16px' : '0',
+          backgroundColor: isCompleted ? primaryColor : '#d1d5db',
+          transition: 'background-color 0.3s'
+        };
 
-        if (clickable) circleClasses += ' cursor-pointer';
-
-        let lineClasses = orientation === 'horizontal' ? 'h-[2px] flex-1 mx-4' : 'w-[2px] h-12';
-        let lineStyles = {};
-
-        if (isCompleted) {
-          lineStyles = { backgroundColor: primaryColor };
-        } else {
-          lineClasses += ' bg-gray-300';
-        }
+        const stepItemStyle = {
+          display: 'flex',
+          alignItems: 'center',
+          flex: orientation === 'horizontal' ? 1 : 'none',
+          width: orientation === 'horizontal' ? 'auto' : '100%'
+        };
 
         return (
-          <div key={index} className="flex items-center">
-            <div
-              className={circleClasses}
-              style={circleStyles}
-              onClick={() => clickable && onChange?.(index)}
-            >
-              {isCompleted ? '✓' : index + 1}
-            </div>
-            <div className="ml-3">
-              <div className="text-sm font-medium">{step.label}</div>
-              {step.description && (
-                <div className="text-xs text-muted-foreground">{step.description}</div>
-              )}
+          <div key={index} style={stepItemStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div
+                style={circleStyle}
+                onClick={() => clickable && onChange?.(index)}
+              >
+                {isCompleted ? '✓' : index + 1}
+              </div>
+              <div>
+                <div style={{
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: isCurrent ? '#111827' : '#6b7280',
+                  transition: 'color 0.3s'
+                }}>
+                  {step.label}
+                </div>
+                {step.description && (
+                  <div style={{
+                    fontSize: '12px',
+                    color: '#9ca3af',
+                    marginTop: '2px'
+                  }}>
+                    {step.description}
+                  </div>
+                )}
+              </div>
             </div>
             {index < steps.length - 1 && (
-              <div className={lineClasses} style={lineStyles} />
+              <div style={lineStyle} />
             )}
           </div>
         );

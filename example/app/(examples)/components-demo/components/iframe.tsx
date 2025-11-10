@@ -288,8 +288,11 @@ export default function AppWithProviders() {
         loading={loading}
         onLoad={onLoad}
         onError={onError}
-        className="rounded-lg border"
-        style={{ borderColor: primaryColor }}
+        style={{
+          border: '2px solid ' + primaryColor,
+          borderRadius: '8px',
+          display: 'block'
+        }}
         {...props}
       />
     </div>
