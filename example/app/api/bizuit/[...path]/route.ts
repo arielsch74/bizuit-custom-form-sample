@@ -57,7 +57,8 @@ async function handleRequest(
     })
 
     console.log(`[Bizuit Proxy] Headers being sent:`, {
-      authorization: headers['authorization'] ? headers['authorization'].substring(0, 20) + '...' : 'NOT PRESENT',
+      authorization: headers['authorization'] || 'NOT PRESENT',
+      authStartsWith: headers['authorization'] ? `Starts with: "${headers['authorization'].substring(0, 6)}"` : 'N/A',
       contentType: headers['content-type'],
       allHeaders: Object.keys(headers)
     })

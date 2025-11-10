@@ -125,6 +125,31 @@ stages:
                     targetType: 'inline'
                     workingDirectory: '$(deployPath)'
                     script: |
+                      Write-Host "Creating .env.local file..."
+
+                      $envContent = @"
+# Bizuit API Configuration
+# Use Next.js proxy to handle CORS and authentication headers
+NEXT_PUBLIC_BIZUIT_FORMS_API_URL=/api/bizuit
+NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=/api/bizuit
+NEXT_PUBLIC_BIZUIT_TIMEOUT=30000
+
+# Token expiration time in minutes (default: 1440 minutes = 24 hours)
+NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES=1440
+
+# Internal configuration for proxy (server-side only)
+BIZUIT_API_BASE_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api
+"@
+
+                      Set-Content -Path ".env.local" -Value $envContent
+                      Write-Host "✓ .env.local created successfully"
+                  displayName: 'Create Environment Configuration'
+
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    workingDirectory: '$(deployPath)'
+                    script: |
                       Write-Host "Configuring IISNode deployment..."
 
                       # Copy the IISNode web.config

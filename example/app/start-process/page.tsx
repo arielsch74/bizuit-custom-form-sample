@@ -35,26 +35,49 @@ function StartProcessForm() {
   const handleAuthError = useAuthErrorHandler()
 
   // Get URL parameters - handle &amp; encoded URLs from Bizuit BPM
-  // When Bizuit generates URLs in HTML, it uses &amp; instead of &
-  // We need to parse the raw URL and clean it
+  // When Bizuit generates URLs in HTML context, browsers URL-encode &amp; as &amp%3B
+  // This breaks standard query parameter parsing since "amp;" becomes part of param name
+  // We need to manually parse and clean the query string
   const getRawUrlParam = (paramName: string): string | null => {
     // Try standard parsing first
     const standardValue = searchParams.get(paramName)
-    if (standardValue) return standardValue
+    if (standardValue) {
+      return standardValue
+    }
 
-    // If standard parsing fails, try parsing raw URL (handles &amp; case)
+    // If standard parsing fails, manually parse query string
+    // This handles cases where &amp; was URL-encoded to &amp%3B
     if (typeof window !== 'undefined') {
       const rawUrl = window.location.href
-      // Replace &amp; with & to normalize the URL
-      const normalizedUrl = rawUrl.replace(/&amp;/g, '&')
-      const url = new URL(normalizedUrl)
-      return url.searchParams.get(paramName)
+
+      // Extract query string after ?
+      const queryStartIndex = rawUrl.indexOf('?')
+      if (queryStartIndex === -1) {
+        return null
+      }
+
+      let queryString = rawUrl.substring(queryStartIndex + 1)
+
+      // Clean up the query string:
+      // 1. Replace &amp%3B with & (URL-encoded &amp;)
+      // 2. Replace &amp; with & (HTML entity)
+      // 3. Replace %3B with nothing (leftover semicolons)
+      queryString = queryString
+        .replace(/&amp%3B/gi, '&')
+        .replace(/&amp;/gi, '&')
+        .replace(/%3B/gi, '')
+
+      // Parse manually
+      const params = new URLSearchParams(queryString)
+      return params.get(paramName)
     }
+
     return null
   }
 
   const urlToken = getRawUrlParam('token')
   const urlEventName = getRawUrlParam('eventName')
+  const urlUserName = getRawUrlParam('UserName')
 
   const [eventName, setEventName] = useState(urlEventName || '')
   const [formData, setFormData] = useState<any>({})
@@ -66,7 +89,8 @@ function StartProcessForm() {
   const [urlTokenProcessed, setUrlTokenProcessed] = useState(false)
 
   // The actual token to use: URL token takes precedence over auth context
-  const activeToken = urlToken || authToken
+  // URL tokens need "Basic " prefix, while authToken from useBizuitAuth already has it
+  const activeToken = urlToken ? `Basic ${urlToken}` : authToken
 
   useEffect(() => {
     setMounted(true)
@@ -78,17 +102,29 @@ function StartProcessForm() {
       setUrlTokenProcessed(true)
 
       // If we have a URL token, we need to validate it and extract user info
-      // For now, we'll create a mock user object
-      // In production, you might want to call an endpoint to validate the token and get user info
-      const mockUserFromToken: ILoginResponse = {
-        Token: urlToken,
-        User: {
-          Username: 'bizuit-user',
-          UserID: 0,
-          DisplayName: 'Usuario Bizuit',
-        },
-        ExpirationDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+      // Use the UserName from URL if available, otherwise use default
+      // Get expiration minutes from environment variable
+      if (!process.env.NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES) {
+        throw new Error('Missing required environment variable: NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES. Please configure it in .env.local')
       }
+      const expirationMinutes = parseInt(process.env.NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES)
+      const expirationMs = expirationMinutes * 60 * 1000
+
+      const mockUserFromToken: ILoginResponse = {
+        Token: `Basic ${urlToken}`, // Add "Basic " prefix to match API requirements
+        User: {
+          Username: urlUserName || 'bizuit-user',
+          UserID: 0,
+          DisplayName: urlUserName || 'Usuario Bizuit',
+        },
+        ExpirationDate: new Date(Date.now() + expirationMs).toISOString(),
+      }
+
+      console.log('[StartProcess] Setting auth data with token:', {
+        originalToken: urlToken.substring(0, 20) + '...',
+        tokenWithBasic: mockUserFromToken.Token.substring(0, 26) + '...',
+        startsWithBasic: mockUserFromToken.Token.startsWith('Basic ')
+      })
 
       setAuthData(mockUserFromToken)
     }

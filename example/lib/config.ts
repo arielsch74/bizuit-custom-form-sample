@@ -9,11 +9,26 @@ import type { IBizuitConfig } from '@tyconsa/bizuit-form-sdk'
 
 /**
  * Configuración del SDK de Bizuit
+ *
+ * IMPORTANTE: Todas las variables de entorno deben estar configuradas en .env.local
+ * No hay valores por defecto - la aplicación fallará si las variables no están configuradas
  */
+
+// Verificar que las variables requeridas estén configuradas
+if (!process.env.NEXT_PUBLIC_BIZUIT_FORMS_API_URL) {
+  throw new Error('Missing required environment variable: NEXT_PUBLIC_BIZUIT_FORMS_API_URL. Please configure it in .env.local')
+}
+if (!process.env.NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL) {
+  throw new Error('Missing required environment variable: NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL. Please configure it in .env.local')
+}
+if (!process.env.NEXT_PUBLIC_BIZUIT_TIMEOUT) {
+  throw new Error('Missing required environment variable: NEXT_PUBLIC_BIZUIT_TIMEOUT. Please configure it in .env.local')
+}
+
 export const bizuitConfig: IBizuitConfig = {
-  formsApiUrl: process.env.NEXT_PUBLIC_BIZUIT_FORMS_API_URL || 'https://test.bizuit.com/arielschbizuitdashboardapi/api',
-  dashboardApiUrl: process.env.NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL || 'https://test.bizuit.com/arielschbizuitdashboardapi/api',
-  timeout: parseInt(process.env.NEXT_PUBLIC_BIZUIT_TIMEOUT || '30000'),
+  formsApiUrl: process.env.NEXT_PUBLIC_BIZUIT_FORMS_API_URL,
+  dashboardApiUrl: process.env.NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL,
+  timeout: parseInt(process.env.NEXT_PUBLIC_BIZUIT_TIMEOUT),
 }
 
 /**
