@@ -161,15 +161,25 @@ import './styles.css';
 const ThemeContext = createContext();
 
 const ThemeProvider = ({ children }) => {
-  const [isDark, setIsDark] = useState(false);
+  const [mode, setMode] = useState('system'); // 'light', 'dark', 'system'
   const [primaryColor, setPrimaryColor] = useState('#3b82f6');
 
+  // Detectar preferencia del sistema
+  const getSystemTheme = () => {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  };
+
+  // Calcular tema efectivo
+  const effectiveTheme = mode === 'system' ? getSystemTheme() : mode;
+  const isDark = effectiveTheme === 'dark';
+
+  // Aplicar clase al body para que el CSS funcione
   useEffect(() => {
     document.body.className = isDark ? 'dark' : 'light';
   }, [isDark]);
 
   return (
-    <ThemeContext.Provider value={{ isDark, setIsDark, primaryColor, setPrimaryColor }}>
+    <ThemeContext.Provider value={{ mode, setMode, isDark, primaryColor, setPrimaryColor }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -228,7 +238,7 @@ const I18nProvider = ({ children }) => {
 
 function DynamicFormDemo() {
   const { t, language, setLanguage } = useTranslation();
-  const { isDark, setIsDark, primaryColor, setPrimaryColor } = useTheme();
+  const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
 
   // 🔹 CÓDIGO REAL (comentado porque no funciona en Sandpack):
   // const sdk = useBizuitSDK();
@@ -328,79 +338,63 @@ function DynamicFormDemo() {
       <div className="card">
         {/* Theme and Language Controls */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          {/* Theme Toggle and Color Picker */}
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                type="button"
-                onClick={() => setIsDark(false)}
-                style={{
-                  padding: '6px 12px',
-                  background: !isDark ? primaryColor : '#f3f4f6',
-                  color: !isDark ? 'white' : '#374151',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '500'
-                }}
-              >
-                ☀️ Light
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsDark(true)}
-                style={{
-                  padding: '6px 12px',
-                  background: isDark ? primaryColor : '#f3f4f6',
-                  color: isDark ? 'white' : '#374151',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '500'
-                }}
-              >
-                🌙 Dark
-              </button>
-            </div>
-
-            {/* Color Picker */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <label style={{ fontSize: '14px', color: isDark ? '#e2e8f0' : '#64748b' }}>
-                🎨 Color:
-              </label>
-              <input
-                type="color"
-                value={primaryColor}
-                onChange={(e) => setPrimaryColor(e.target.value)}
-                style={{
-                  width: '40px',
-                  height: '32px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  cursor: 'pointer'
-                }}
-              />
-            </div>
-          </div>
-
           {/* Language Toggle */}
           <button
             type="button"
             onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
             style={{
               padding: '6px 12px',
-              background: '#f3f4f6',
-              border: '1px solid #d1d5db',
+              background: isDark ? '#374151' : '#f3f4f6',
+              color: isDark ? '#f9fafb' : '#111827',
+              border: \`1px solid \${isDark ? '#4b5563' : '#d1d5db'}\`,
               borderRadius: '6px',
               cursor: 'pointer',
               fontSize: '14px',
               fontWeight: '500'
             }}
           >
-            {language === 'es' ? '🇬🇧 English' : '🇪🇸 Español'}
+            {language === 'es' ? '🇬🇧 EN' : '🇪🇸 ES'}
           </button>
+
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {/* Selector de tema */}
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {['light', 'dark', 'system'].map(themeMode => (
+                <button
+                  key={themeMode}
+                  type="button"
+                  onClick={() => setMode(themeMode)}
+                  style={{
+                    padding: '6px 12px',
+                    background: mode === themeMode ? primaryColor : (isDark ? '#374151' : '#f3f4f6'),
+                    color: mode === themeMode ? 'white' : (isDark ? '#f9fafb' : '#111827'),
+                    border: \`1px solid \${mode === themeMode ? primaryColor : (isDark ? '#4b5563' : '#d1d5db')}\`,
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '500'
+                  }}
+                >
+                  {themeMode === 'light' ? '☀️' : themeMode === 'dark' ? '🌙' : '💻'}
+                </button>
+              ))}
+            </div>
+
+            {/* Selector de color primario */}
+            <input
+              type="color"
+              value={primaryColor}
+              onChange={(e) => setPrimaryColor(e.target.value)}
+              style={{
+                width: '40px',
+                height: '32px',
+                border: \`1px solid \${isDark ? '#4b5563' : '#d1d5db'}\`,
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+              title="Color primario"
+            />
+          </div>
         </div>
 
         <h2 className="card-title">{t('title')}</h2>

@@ -270,8 +270,17 @@ const useTheme = () => {
 };
 
 const ThemeProvider = ({ children }) => {
-  const [isDark, setIsDark] = useState(false);
+  const [mode, setMode] = useState('system'); // 'light', 'dark', 'system'
   const [primaryColor, setPrimaryColor] = useState('#3b82f6');
+
+  // Detectar preferencia del sistema
+  const getSystemTheme = () => {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  };
+
+  // Calcular tema efectivo
+  const effectiveTheme = mode === 'system' ? getSystemTheme() : mode;
+  const isDark = effectiveTheme === 'dark';
 
   // Aplicar clase al body para que el CSS funcione
   // NOTA: Este código corre dentro del iframe del Sandpack
@@ -280,7 +289,7 @@ const ThemeProvider = ({ children }) => {
   }, [isDark]);
 
   return (
-    <ThemeContext.Provider value={{ isDark, setIsDark, primaryColor, setPrimaryColor }}>
+    <ThemeContext.Provider value={{ mode, setMode, isDark, primaryColor, setPrimaryColor }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -288,7 +297,7 @@ const ThemeProvider = ({ children }) => {
 
 function SelectiveMappingForm() {
   const { t, language, setLanguage } = useTranslation();
-  const { isDark, setIsDark, primaryColor, setPrimaryColor } = useTheme();
+  const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
   const [formData, setFormData] = useState({
     empleado: '',
     legajo: '',
@@ -417,39 +426,27 @@ function SelectiveMappingForm() {
 
           {/* Selector de tema y color */}
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {/* Selector de tema */}
             <div style={{ display: 'flex', gap: '4px' }}>
-            <button
-              type="button"
-              onClick={() => setIsDark(false)}
-              style={{
-                padding: '6px 12px',
-                background: !isDark ? primaryColor : (isDark ? '#374151' : '#f3f4f6'),
-                color: !isDark ? 'white' : (isDark ? '#f9fafb' : '#111827'),
-                border: \`1px solid \${!isDark ? primaryColor : (isDark ? '#4b5563' : '#d1d5db')}\`,
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '12px',
-                fontWeight: '500'
-              }}
-            >
-              ☀️
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsDark(true)}
-              style={{
-                padding: '6px 12px',
-                background: isDark ? primaryColor : (isDark ? '#374151' : '#f3f4f6'),
-                color: isDark ? 'white' : (isDark ? '#f9fafb' : '#111827'),
-                border: \`1px solid \${isDark ? primaryColor : (isDark ? '#4b5563' : '#d1d5db')}\`,
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '12px',
-                fontWeight: '500'
-              }}
-            >
-              🌙
-            </button>
+              {['light', 'dark', 'system'].map(themeMode => (
+                <button
+                  key={themeMode}
+                  type="button"
+                  onClick={() => setMode(themeMode)}
+                  style={{
+                    padding: '6px 12px',
+                    background: mode === themeMode ? primaryColor : (isDark ? '#374151' : '#f3f4f6'),
+                    color: mode === themeMode ? 'white' : (isDark ? '#f9fafb' : '#111827'),
+                    border: \`1px solid \${mode === themeMode ? primaryColor : (isDark ? '#4b5563' : '#d1d5db')}\`,
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '500'
+                  }}
+                >
+                  {themeMode === 'light' ? '☀️' : themeMode === 'dark' ? '🌙' : '💻'}
+                </button>
+              ))}
             </div>
 
             {/* Color Picker */}
