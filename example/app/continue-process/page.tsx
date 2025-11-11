@@ -10,9 +10,14 @@ import {
   isParameterRequired,
   filterContinueParameters,
   loadInstanceDataForContinue,
-  type IBizuitProcessParameter
+  releaseInstanceLock,
+  type IBizuitProcessParameter,
+  parseBizuitUrlParam,
+  createAuthFromUrlToken,
+  buildLoginRedirectUrl,
+  formatBizuitError
 } from '@tyconsa/bizuit-form-sdk'
-import { useBizuitAuth, useTranslation } from '@tyconsa/bizuit-ui-components'
+import { useBizuitAuth, useTranslation, DynamicFormField } from '@tyconsa/bizuit-ui-components'
 import { useBizuitSDKWithAuth } from '@/hooks/use-bizuit-sdk-with-auth'
 import {
   BizuitCombo,
@@ -25,107 +30,19 @@ import { Button } from '@tyconsa/bizuit-ui-components'
 import Link from 'next/link'
 import { bizuitConfig } from '@/lib/config'
 
-/**
- * Helper function to convert API errors to user-friendly messages
- */
-function getErrorMessage(error: any, context: 'load' | 'submit' | 'lock'): string {
-  // Check status code
-  const statusCode = error?.statusCode || error?.status || error?.response?.status
-
-  // 401 errors are handled automatically by useBizuitSDKWithAuth
-  // This should not be reached, but just in case:
-  if (statusCode === 401) {
-    return 'Su sesión ha expirado. Redirigiendo a login...'
-  }
-
-  // 404 errors - Not Found
-  if (statusCode === 404) {
-    if (context === 'load') {
-      return 'No se encontró la instancia del proceso. Verifique que el ID sea correcto.'
-    }
-    return 'No se encontró el recurso solicitado. Verifique los datos ingresados.'
-  }
-
-  // 400 errors - Bad Request (usually validation errors)
-  if (statusCode === 400) {
-    // Check for specific validation messages in error
-    const message = error?.message || error?.errorMessage || ''
-
-    if (message.toLowerCase().includes('format') || message.toLowerCase().includes('formato')) {
-      return 'El formato del ID de instancia es incorrecto. Debe ser un GUID válido (ejemplo: 550e8400-e29b-41d4-a716-446655440000).'
-    }
-
-    if (message.toLowerCase().includes('required') || message.toLowerCase().includes('requerido')) {
-      return 'Faltan datos requeridos. Verifique que todos los campos obligatorios estén completos.'
-    }
-
-    return 'Los datos enviados no son válidos. Verifique la información e intente nuevamente.'
-  }
-
-  // 403 errors - Forbidden
-  if (statusCode === 403) {
-    return 'No tiene permisos para realizar esta operación.'
-  }
-
-  // 409 errors - Conflict (instance locked by another user)
-  if (statusCode === 409) {
-    return 'La instancia está bloqueada por otro usuario. Intente nuevamente más tarde.'
-  }
-
-  // 500 errors - Server Error
-  if (statusCode === 500 || statusCode >= 500) {
-    return 'Error en el servidor. Por favor intente nuevamente o contacte al administrador.'
-  }
-
-  // Network errors
-  if (error?.code === 'ECONNREFUSED' || error?.code === 'ERR_NETWORK' ||
-      error?.message?.includes('fetch failed') || error?.message?.includes('Network')) {
-    return 'No se pudo conectar al servidor. Verifique su conexión a internet.'
-  }
-
-  // Timeout errors
-  if (error?.code === 'ETIMEDOUT' || error?.message?.includes('timeout')) {
-    return 'La operación tardó demasiado tiempo. Verifique su conexión e intente nuevamente.'
-  }
-
-  // If we have a user-friendly message from the API, use it
-  if (error?.errorMessage && typeof error.errorMessage === 'string' && error.errorMessage.length < 200) {
-    return error.errorMessage
-  }
-
-  if (error?.message && typeof error.message === 'string' && error.message.length < 200) {
-    // Don't show very technical messages
-    if (!error.message.includes('undefined') && !error.message.includes('null') &&
-        !error.message.includes('Cannot read') && !error.message.includes('is not')) {
-      return error.message
-    }
-  }
-
-  // Default messages by context
-  if (context === 'load') {
-    return 'Error al cargar los datos de la instancia. Por favor intente nuevamente.'
-  }
-  if (context === 'submit') {
-    return 'Error al guardar los cambios. Por favor intente nuevamente.'
-  }
-  if (context === 'lock') {
-    return 'Error al bloquear la instancia. Por favor intente nuevamente.'
-  }
-
-  return 'Ocurrió un error inesperado. Por favor intente nuevamente.'
-}
-
 function ContinueProcessForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  // Get URL parameters using SDK utility (handles &amp; encoding from Bizuit BPM)
+  const urlToken = parseBizuitUrlParam('token', searchParams)
+  const urlInstanceId = parseBizuitUrlParam('instanceId', searchParams)
+  const urlEventName = parseBizuitUrlParam('eventName', searchParams)
+  const urlProcessName = parseBizuitUrlParam('processName', searchParams)
+  const urlUserName = parseBizuitUrlParam('UserName', searchParams)
   const sdk = useBizuitSDKWithAuth() // ✅ Ahora con manejo automático de 401
   const { t } = useTranslation()
   const { isAuthenticated, token: authToken, user, login: setAuthData } = useBizuitAuth()
-
-  // Get URL parameters
-  const urlToken = searchParams.get('token')
-  const urlInstanceId = searchParams.get('instanceId')
-
   const [instanceId, setInstanceId] = useState(urlInstanceId || '')
   const [eventName, setEventName] = useState('')
   const [processName, setProcessName] = useState('')
@@ -384,7 +301,7 @@ function ContinueProcessForm() {
         console.warn('[ContinueProcess] Error loading instance data:', err)
       }
 
-      const friendlyMessage = getErrorMessage(err, 'load')
+      const friendlyMessage = formatBizuitError(err, 'load')
       setError(friendlyMessage)
       setStatus('error')
     }
@@ -421,7 +338,7 @@ function ContinueProcessForm() {
       if (process.env.NODE_ENV === 'development') {
         console.warn('[ContinueProcess] Error acquiring lock:', err)
       }
-      const friendlyMessage = getErrorMessage(err, 'lock')
+      const friendlyMessage = formatBizuitError(err, 'lock')
       setError(friendlyMessage)
       setStatus('error')
     }
@@ -481,7 +398,7 @@ function ContinueProcessForm() {
         console.warn('[ContinueProcess] Error submitting:', err)
       }
 
-      const friendlyMessage = getErrorMessage(err, 'submit')
+      const friendlyMessage = formatBizuitError(err, 'submit')
       setError(friendlyMessage)
       setStatus('error')
     }
