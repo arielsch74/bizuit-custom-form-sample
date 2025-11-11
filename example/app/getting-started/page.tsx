@@ -12,13 +12,13 @@ export default function GettingStartedPage() {
         {/* Header */}
         <div className="text-center mb-12">
           <Link href="/" className="text-sm text-primary hover:underline mb-4 inline-block">
-            ← {t('ui.backToHome')}
+            {t('ui.backToHome')}
           </Link>
           <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600">
-            Getting Started
+            {t('gettingStarted.title')}
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Learn how to integrate Bizuit BPM processes into your application in minutes
+            {t('gettingStarted.subtitle')}
           </p>
         </div>
 
@@ -32,8 +32,8 @@ export default function GettingStartedPage() {
           >
             <div className="text-3xl">📦</div>
             <div>
-              <div className="font-semibold">NPM Package Documentation</div>
-              <div className="text-sm text-muted-foreground">Complete API reference & examples</div>
+              <div className="font-semibold">{t('gettingStarted.npmDocs')}</div>
+              <div className="text-sm text-muted-foreground">{t('gettingStarted.npmDocs.description')}</div>
             </div>
           </a>
           <a
@@ -44,36 +44,36 @@ export default function GettingStartedPage() {
           >
             <div className="text-3xl">💻</div>
             <div>
-              <div className="font-semibold">GitHub Repository</div>
-              <div className="text-sm text-muted-foreground">Source code & examples</div>
+              <div className="font-semibold">{t('gettingStarted.github')}</div>
+              <div className="text-sm text-muted-foreground">{t('gettingStarted.github.description')}</div>
             </div>
           </a>
         </div>
 
         {/* Process Flow Diagram */}
         <div className="mb-16">
-          <h2 className="text-3xl font-bold mb-6 text-center">Process Lifecycle</h2>
+          <h2 className="text-3xl font-bold mb-6 text-center">{t('gettingStarted.processLifecycle')}</h2>
           <div className="bg-card border border-border rounded-lg p-8">
             <div className="flex flex-col md:flex-row items-center justify-center gap-8">
               {/* Start Process */}
               <div className="flex-1 max-w-xs">
                 <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg p-6 text-center shadow-lg">
                   <div className="text-4xl mb-3">🚀</div>
-                  <h3 className="text-xl font-bold mb-2">Start Process</h3>
-                  <p className="text-sm opacity-90">Initialize a new workflow instance</p>
+                  <h3 className="text-xl font-bold mb-2">{t('gettingStarted.startProcess.title')}</h3>
+                  <p className="text-sm opacity-90">{t('gettingStarted.startProcess.description')}</p>
                 </div>
                 <div className="mt-4 space-y-2 text-sm">
                   <div className="flex items-start gap-2">
                     <span className="text-green-500">✓</span>
-                    <span>Get process parameters</span>
+                    <span>{t('gettingStarted.startProcess.step1')}</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="text-green-500">✓</span>
-                    <span>Fill form with data</span>
+                    <span>{t('gettingStarted.startProcess.step2')}</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="text-green-500">✓</span>
-                    <span>Submit with raiseEvent()</span>
+                    <span>{t('gettingStarted.startProcess.step3')}</span>
                   </div>
                 </div>
               </div>
@@ -86,21 +86,21 @@ export default function GettingStartedPage() {
               <div className="flex-1 max-w-xs">
                 <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg p-6 text-center shadow-lg">
                   <div className="text-4xl mb-3">⏭️</div>
-                  <h3 className="text-xl font-bold mb-2">Continue Process</h3>
-                  <p className="text-sm opacity-90">Update an existing instance</p>
+                  <h3 className="text-xl font-bold mb-2">{t('gettingStarted.continueProcess.title')}</h3>
+                  <p className="text-sm opacity-90">{t('gettingStarted.continueProcess.description')}</p>
                 </div>
                 <div className="mt-4 space-y-2 text-sm">
                   <div className="flex items-start gap-2">
                     <span className="text-blue-500">✓</span>
-                    <span>Load instance data</span>
+                    <span>{t('gettingStarted.continueProcess.step1')}</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="text-blue-500">✓</span>
-                    <span>Update parameters</span>
+                    <span>{t('gettingStarted.continueProcess.step2')}</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="text-blue-500">✓</span>
-                    <span>Submit with continueInstance()</span>
+                    <span>{t('gettingStarted.continueProcess.step3')}</span>
                   </div>
                 </div>
               </div>
@@ -113,21 +113,21 @@ export default function GettingStartedPage() {
               <div className="flex-1 max-w-xs">
                 <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-lg p-6 text-center shadow-lg">
                   <div className="text-4xl mb-3">✅</div>
-                  <h3 className="text-xl font-bold mb-2">Complete</h3>
-                  <p className="text-sm opacity-90">Process finished successfully</p>
+                  <h3 className="text-xl font-bold mb-2">{t('gettingStarted.complete.title')}</h3>
+                  <p className="text-sm opacity-90">{t('gettingStarted.complete.description')}</p>
                 </div>
                 <div className="mt-4 space-y-2 text-sm">
                   <div className="flex items-start gap-2">
                     <span className="text-purple-500">✓</span>
-                    <span>Get results</span>
+                    <span>{t('gettingStarted.complete.step1')}</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="text-purple-500">✓</span>
-                    <span>Handle output parameters</span>
+                    <span>{t('gettingStarted.complete.step2')}</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="text-purple-500">✓</span>
-                    <span>Display success message</span>
+                    <span>{t('gettingStarted.complete.step3')}</span>
                   </div>
                 </div>
               </div>
@@ -137,7 +137,7 @@ export default function GettingStartedPage() {
 
         {/* Quick Start Steps */}
         <div className="mb-16">
-          <h2 className="text-3xl font-bold mb-6 text-center">Quick Start Guide</h2>
+          <h2 className="text-3xl font-bold mb-6 text-center">{t('gettingStarted.quickStart')}</h2>
           <div className="grid md:grid-cols-2 gap-6">
             {/* Start Process Card */}
             <div className="bg-card border border-border rounded-lg p-6">
@@ -145,14 +145,14 @@ export default function GettingStartedPage() {
                 <div className="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-lg">
                   1
                 </div>
-                <h3 className="text-2xl font-bold">Start a Process</h3>
+                <h3 className="text-2xl font-bold">{t('gettingStarted.quickStart.start.title')}</h3>
               </div>
 
               <div className="space-y-4 mb-6">
                 <div>
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
                     <span className="text-green-500">→</span>
-                    Get Process Parameters
+                    {t('gettingStarted.quickStart.start.step1')}
                   </h4>
                   <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
 {`const params = await sdk.process
@@ -162,7 +162,7 @@ export default function GettingStartedPage() {
                 <div>
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
                     <span className="text-green-500">→</span>
-                    Render Dynamic Fields
+                    {t('gettingStarted.quickStart.start.step2')}
                   </h4>
                   <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
 {`{params.map(param => (
@@ -177,7 +177,7 @@ export default function GettingStartedPage() {
                 <div>
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
                     <span className="text-green-500">→</span>
-                    Submit Process
+                    {t('gettingStarted.quickStart.start.step3')}
                   </h4>
                   <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
 {`const result = await sdk.process.raiseEvent({
@@ -191,7 +191,7 @@ export default function GettingStartedPage() {
                 href="/start-process"
                 className="block w-full bg-green-500 hover:bg-green-600 text-white text-center py-3 rounded-lg font-semibold transition-colors"
               >
-                Try Start Process →
+                {t('gettingStarted.quickStart.start.cta')}
               </Link>
             </div>
 
@@ -201,14 +201,14 @@ export default function GettingStartedPage() {
                 <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg">
                   2
                 </div>
-                <h3 className="text-2xl font-bold">Continue a Process</h3>
+                <h3 className="text-2xl font-bold">{t('gettingStarted.quickStart.continue.title')}</h3>
               </div>
 
               <div className="space-y-4 mb-6">
                 <div>
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
                     <span className="text-blue-500">→</span>
-                    Load Instance Data
+                    {t('gettingStarted.quickStart.continue.step1')}
                   </h4>
                   <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
 {`const result = await loadInstanceDataForContinue(
@@ -220,7 +220,7 @@ setFormData(result.formData)`}</pre>
                 <div>
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
                     <span className="text-blue-500">→</span>
-                    Filter Parameters
+                    {t('gettingStarted.quickStart.continue.step2')}
                   </h4>
                   <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
 {`// Only send editable parameters
@@ -235,7 +235,7 @@ processParameters.forEach(param => {
                 <div>
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
                     <span className="text-blue-500">→</span>
-                    Submit Changes
+                    {t('gettingStarted.quickStart.continue.step3')}
                   </h4>
                   <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
 {`const result = await sdk.process.continueInstance({
@@ -250,7 +250,7 @@ processParameters.forEach(param => {
                 href="/continue-process"
                 className="block w-full bg-blue-500 hover:bg-blue-600 text-white text-center py-3 rounded-lg font-semibold transition-colors"
               >
-                Try Continue Process →
+                {t('gettingStarted.quickStart.continue.cta')}
               </Link>
             </div>
           </div>
@@ -258,9 +258,9 @@ processParameters.forEach(param => {
 
         {/* Implementation Strategies */}
         <div className="mb-16">
-          <h2 className="text-3xl font-bold mb-6 text-center">Implementation Strategies</h2>
+          <h2 className="text-3xl font-bold mb-6 text-center">{t('gettingStarted.strategies.title')}</h2>
           <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Choose the approach that best fits your use case. All examples are available in this demo app.
+            {t('gettingStarted.strategies.description')}
           </p>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -271,27 +271,27 @@ processParameters.forEach(param => {
             >
               <div className="text-3xl mb-3">🔄</div>
               <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
-                Strategy 1: Dynamic Fields
+                {t('gettingStarted.strategy1.title')}
               </h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Auto-generate form fields from API parameters. Perfect for prototypes and generic forms.
+                {t('gettingStarted.strategy1.description')}
               </p>
               <div className="text-sm space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="text-green-500">✓</span>
-                  <span>No code changes for new parameters</span>
+                  <span>{t('gettingStarted.strategy1.pro1')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-green-500">✓</span>
-                  <span>Fast development</span>
+                  <span>{t('gettingStarted.strategy1.pro2')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-orange-500">⚠</span>
-                  <span>Less UI control</span>
+                  <span>{t('gettingStarted.strategy1.con1')}</span>
                 </div>
               </div>
               <div className="mt-4 text-sm text-primary font-semibold group-hover:underline">
-                View Example →
+                {t('gettingStarted.strategy1.cta')}
               </div>
             </Link>
 
@@ -302,27 +302,27 @@ processParameters.forEach(param => {
             >
               <div className="text-3xl mb-3">📝</div>
               <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
-                Strategy 2: Manual + Send All
+                {t('gettingStarted.strategy2.title')}
               </h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Custom UI with manual field definitions. Good for simple forms with full control.
+                {t('gettingStarted.strategy2.description')}
               </p>
               <div className="text-sm space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="text-green-500">✓</span>
-                  <span>Full UI control</span>
+                  <span>{t('gettingStarted.strategy2.pro1')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-green-500">✓</span>
-                  <span>Custom validations</span>
+                  <span>{t('gettingStarted.strategy2.pro2')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-orange-500">⚠</span>
-                  <span>Sends all fields</span>
+                  <span>{t('gettingStarted.strategy2.con1')}</span>
                 </div>
               </div>
               <div className="mt-4 text-sm text-primary font-semibold group-hover:underline">
-                View Example →
+                {t('gettingStarted.strategy2.cta')}
               </div>
             </Link>
 
@@ -332,31 +332,31 @@ processParameters.forEach(param => {
               className="group bg-card border-2 border-primary rounded-lg p-6 hover:shadow-lg transition-all relative"
             >
               <div className="absolute -top-3 -right-3 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full">
-                RECOMMENDED
+                {t('gettingStarted.strategy3.badge')}
               </div>
               <div className="text-3xl mb-3">⭐</div>
               <h3 className="text-xl font-bold mb-2 text-primary">
-                Strategy 3: Selective Mapping
+                {t('gettingStarted.strategy3.title')}
               </h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Full control with selective field sending. Best practice for production apps.
+                {t('gettingStarted.strategy3.description')}
               </p>
               <div className="text-sm space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="text-green-500">✓</span>
-                  <span>Complete control</span>
+                  <span>{t('gettingStarted.strategy3.pro1')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-green-500">✓</span>
-                  <span>Value transformations</span>
+                  <span>{t('gettingStarted.strategy3.pro2')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-green-500">✓</span>
-                  <span>Better performance</span>
+                  <span>{t('gettingStarted.strategy3.pro3')}</span>
                 </div>
               </div>
               <div className="mt-4 text-sm text-primary font-semibold group-hover:underline">
-                View Example →
+                {t('gettingStarted.strategy3.cta')}
               </div>
             </Link>
           </div>
@@ -364,9 +364,9 @@ processParameters.forEach(param => {
 
         {/* Additional Resources */}
         <div className="bg-muted/50 rounded-lg p-8 text-center">
-          <h2 className="text-2xl font-bold mb-4">Need More Help?</h2>
+          <h2 className="text-2xl font-bold mb-4">{t('gettingStarted.help.title')}</h2>
           <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Check out the complete documentation on NPM for detailed API reference, advanced patterns, and troubleshooting guides.
+            {t('gettingStarted.help.description')}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
@@ -375,7 +375,7 @@ processParameters.forEach(param => {
               rel="noopener noreferrer"
               className="bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity"
             >
-              📦 View SDK Docs
+              {t('gettingStarted.help.sdkDocs')}
             </a>
             <a
               href="https://www.npmjs.com/package/@tyconsa/bizuit-ui-components"
@@ -383,13 +383,13 @@ processParameters.forEach(param => {
               rel="noopener noreferrer"
               className="bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity"
             >
-              🎨 View UI Components
+              {t('gettingStarted.help.uiDocs')}
             </a>
             <Link
               href="/components-demo"
               className="bg-card border border-border px-6 py-3 rounded-lg font-semibold hover:border-primary transition-colors"
             >
-              🧪 Try Components Demo
+              {t('gettingStarted.help.demo')}
             </Link>
           </div>
         </div>

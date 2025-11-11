@@ -54,11 +54,11 @@ export default function Home() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-2xl font-bold mb-2 flex items-center gap-2">
-                  🚀 Getting Started Guide
+                  🚀 {t('home.gettingStarted')}
                   <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
                 </div>
                 <p className="text-sm opacity-90">
-                  Learn how to integrate Bizuit BPM processes in your app with our interactive guide
+                  {t('home.gettingStarted.description')}
                 </p>
               </div>
             </div>
