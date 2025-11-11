@@ -7,14 +7,14 @@
  */
 
 export interface FormMetadata {
+  /** ID único en BD */
+  id: number
+
   /** Nombre único del form (kebab-case) */
   formName: string
 
-  /** Nombre del package npm */
-  packageName: string
-
   /** Versión actual del form */
-  version: string
+  currentVersion: string
 
   /** Nombre del proceso BPM asociado */
   processName: string
@@ -28,14 +28,17 @@ export interface FormMetadata {
   /** Estado del form (active, inactive, deprecated) */
   status: 'active' | 'inactive' | 'deprecated'
 
-  /** Metadata adicional (opcional) */
-  metadata?: Record<string, any>
+  /** Tamaño del código compilado en bytes */
+  sizeBytes: number
+
+  /** Fecha de publicación */
+  publishedAt: string
 
   /** Fecha de última actualización */
   updatedAt: string
 
-  /** Fecha de creación */
-  createdAt: string
+  /** Metadata adicional (opcional) */
+  metadata?: Record<string, any>
 }
 
 /**
@@ -78,7 +81,7 @@ class FormRegistry {
    */
   setForm(formName: string, metadata: FormMetadata): void {
     this.registry.set(formName, metadata)
-    console.log(`[Form Registry] Registered: ${formName}@${metadata.version}`)
+    console.log(`[Form Registry] Registered: ${formName}@${metadata.currentVersion}`)
   }
 
   /**
@@ -113,8 +116,7 @@ class FormRegistry {
   }
 
   /**
-   * Carga forms desde el backend API
-   * TODO: Implementar cuando el CustomFormsController esté listo
+   * Carga forms desde el backend API (o mock API para testing)
    */
   async loadFromAPI(apiUrl: string): Promise<void> {
     try {

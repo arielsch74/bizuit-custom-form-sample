@@ -4,8 +4,8 @@ import { use, useEffect, useState } from 'react'
 import { FormContainer } from '@/components/FormContainer'
 import { FormLoadingState } from '@/components/FormLoadingState'
 import { FormErrorBoundary } from '@/components/FormErrorBoundary'
-import { loadDynamicFormCached } from '@/lib/form-loader'
-import { formRegistry, initializeFormRegistry } from '@/lib/form-registry'
+import { loadDynamicFormCached, invalidateFormCache } from '@/lib/form-loader'
+import { useFormHotReload } from '@/hooks/useFormHotReload'
 
 interface Props {
   params: Promise<{
@@ -18,56 +18,43 @@ export default function DynamicFormPage({ params }: Props) {
   const [FormComponent, setFormComponent] = useState<React.ComponentType<any> | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [formMetadata, setFormMetadata] = useState<any>(null)
 
   const loadForm = async () => {
     try {
       setLoading(true)
       setError(null)
 
-      // Inicializar registry si es necesario
-      await initializeFormRegistry({
-        // TODO: En producción, usar API real del backend
-        // apiUrl: process.env.NEXT_PUBLIC_CUSTOM_FORMS_API_URL,
-        // Por ahora usamos forms estáticos de ejemplo
-        staticForms: [
-          {
-            formName: 'aprobacion-gastos',
-            packageName: '@tyconsa/bizuit-form-aprobacion-gastos',
-            version: '1.0.0',
-            processName: 'AprobacionGastos',
-            description: 'Formulario de aprobación de gastos',
-            author: 'Bizuit Team',
-            status: 'active',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-          // Agregar más forms aquí cuando estén disponibles
-        ],
+      console.log(`[Dynamic Form Page] Loading form: ${formName}`)
+
+      // 1. Fetch metadata from API (simula consulta a BD)
+      const metadataResponse = await fetch(`/api/custom-forms/${formName}/metadata`)
+
+      if (!metadataResponse.ok) {
+        throw new Error(`Form "${formName}" not found`)
+      }
+
+      const metadata = await metadataResponse.json()
+      setFormMetadata(metadata)
+
+      console.log(`[Dynamic Form Page] ✅ Metadata loaded:`, metadata)
+
+      // 2. Verificar que el form esté activo
+      if (metadata.status !== 'active') {
+        throw new Error(`Form "${formName}" is ${metadata.status}`)
+      }
+
+      // 3. Cargar form dinámicamente desde mock API (simula BD)
+      const component = await loadDynamicFormCached(formName, {
+        version: metadata.currentVersion
       })
-
-      // Buscar metadata del form
-      const formMetadata = formRegistry.getForm(formName)
-
-      if (!formMetadata) {
-        throw new Error(`Form "${formName}" not found in registry`)
-      }
-
-      if (formMetadata.status !== 'active') {
-        throw new Error(`Form "${formName}" is ${formMetadata.status}`)
-      }
-
-      console.log(`[Dynamic Form] Loading ${formName}`, formMetadata)
-
-      // Cargar form dinámicamente desde CDN
-      const component = await loadDynamicFormCached(
-        formMetadata.packageName,
-        formMetadata.version
-      )
 
       setFormComponent(() => component)
 
+      console.log(`[Dynamic Form Page] ✅ Form component loaded and ready to render`)
+
     } catch (err: any) {
-      console.error(`[Dynamic Form] Error loading ${formName}:`, err)
+      console.error(`[Dynamic Form Page] ❌ Error loading ${formName}:`, err)
       setError(err.message || 'Unknown error')
     } finally {
       setLoading(false)
@@ -77,6 +64,24 @@ export default function DynamicFormPage({ params }: Props) {
   useEffect(() => {
     loadForm()
   }, [formName])
+
+  // Hot reload: detectar nuevas versiones y recargar automáticamente
+  const { hasUpdate, latestVersion } = useFormHotReload({
+    formName,
+    currentVersion: formMetadata?.currentVersion || '0.0.0',
+    pollingInterval: 10000, // 10 segundos
+    enabled: !!formMetadata, // Solo activar después de cargar metadata inicial
+    onVersionChange: (newVersion) => {
+      console.log(`[Hot Reload] 🔥 Nueva versión detectada: ${formMetadata?.currentVersion} → ${newVersion}`)
+      console.log('[Hot Reload] Invalidando cache y recargando form...')
+
+      // Invalidar cache
+      invalidateFormCache(formName)
+
+      // Recargar form con nueva versión
+      loadForm()
+    }
+  })
 
   // Loading state
   if (loading) {
@@ -95,13 +100,28 @@ export default function DynamicFormPage({ params }: Props) {
   }
 
   // Success - render form
-  const formMetadata = formRegistry.getForm(formName)
-
   return (
     <FormContainer
       formName={formName}
-      formVersion={formMetadata?.version}
+      formVersion={formMetadata?.currentVersion}
     >
+      {hasUpdate && (
+        <div style={{
+          position: 'fixed',
+          top: '1rem',
+          right: '1rem',
+          padding: '0.75rem 1rem',
+          backgroundColor: '#10b981',
+          color: 'white',
+          borderRadius: '0.5rem',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+          zIndex: 9999,
+          fontSize: '0.875rem',
+          fontWeight: '500'
+        }}>
+          🔥 Nueva versión cargada: {latestVersion}
+        </div>
+      )}
       <FormComponent />
     </FormContainer>
   )

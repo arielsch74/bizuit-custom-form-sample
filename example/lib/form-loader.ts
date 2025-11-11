@@ -1,120 +1,88 @@
 /**
- * Dynamic Form Loader
+ * Dynamic Form Loader (Refactored for Database Storage)
  *
- * Carga forms React dinámicamente desde múltiples CDN con fallback.
- * Los forms pueden venir de cualquier monorepo y se cargan en runtime.
+ * Carga forms React dinámicamente desde la BD (via API mock que simula SQL Server).
+ * El código compilado viene directo de CustomFormVersions.CompiledCode
  */
 
-import React from 'react'
-import * as ReactDOM from 'react-dom'
+const FORMS_API = '/api/custom-forms'
 
-// Make React available globally for dynamically loaded forms
-// Esto DEBE ejecutarse antes de cargar cualquier form
-if (typeof window !== 'undefined') {
-  (window as any).React = React;
-  (window as any).ReactDOM = ReactDOM;
-  console.log('[Form Loader] React exposed globally for dynamic forms')
+interface LoadOptions {
+  version?: string
 }
 
 /**
- * CDNs soportados para cargar ESM modules
- * Se intentan en orden hasta que uno funcione
- */
-const CDN_PROVIDERS = [
-  'https://esm.sh',
-  'https://cdn.jsdelivr.net/npm',
-  'https://unpkg.com',
-]
-
-/**
- * Genera URLs de CDN para un package npm
- */
-function generateCdnUrls(packageName: string, version: string): string[] {
-  return CDN_PROVIDERS.map(cdn => {
-    if (cdn.includes('esm.sh')) {
-      // esm.sh format with external deps
-      // Esto le dice a esm.sh que use React del browser (window.React)
-      return `${cdn}/${packageName}@${version}?external=react,react-dom`
-    } else if (cdn.includes('jsdelivr')) {
-      // jsdelivr format: https://cdn.jsdelivr.net/npm/@scope/package@version/+esm
-      return `${cdn}/${packageName}@${version}/+esm`
-    } else {
-      // unpkg format: https://unpkg.com/@scope/package@version?module
-      return `${cdn}/${packageName}@${version}?module`
-    }
-  })
-}
-
-/**
- * Carga un form dinámicamente desde CDN
+ * Carga un form component dinámicamente desde la BD (via API)
  *
- * @param packageName - Nombre del package npm (ej: "@empresa/aprobacion-gastos")
- * @param version - Versión del package (ej: "1.0.0")
+ * @param formName - Nombre del form (ej: "aprobacion-gastos")
+ * @param options - Opciones de carga (version específica opcional)
  * @returns Component React del form
  *
  * @example
  * ```typescript
- * const FormComponent = await loadDynamicForm('@empresa/aprobacion-gastos', '1.0.0')
+ * const FormComponent = await loadDynamicForm('aprobacion-gastos')
  * ```
  */
 export async function loadDynamicForm(
-  packageName: string,
-  version: string
+  formName: string,
+  options: LoadOptions = {}
 ): Promise<React.ComponentType<any>> {
-  const urls = generateCdnUrls(packageName, version)
+  console.log(`[Form Loader] Loading form: ${formName}`)
 
-  console.log(`[Form Loader] Loading ${packageName}@${version}`)
-  console.log(`[Form Loader] CDN URLs:`, urls)
+  const startTime = Date.now()
 
-  let lastError: Error | null = null
-
-  // Intentar cada CDN en orden
-  for (const url of urls) {
-    try {
-      console.log(`[Form Loader] Trying: ${url}`)
-
-      const startTime = Date.now()
-
-      // Dynamic import del ESM module
-      const module = await import(/* webpackIgnore: true */ url)
-
-      const loadTime = Date.now() - startTime
-      console.log(`[Form Loader] ✅ Loaded from ${url} in ${loadTime}ms`)
-
-      // El form debe exportar un default export
-      if (!module.default) {
-        throw new Error('Form module must have a default export')
-      }
-
-      return module.default
-
-    } catch (error: any) {
-      console.warn(`[Form Loader] ❌ Failed to load from ${url}:`, error.message)
-      lastError = error
-      // Continuar con el siguiente CDN
-    }
-  }
-
-  // Si llegamos acá, todos los CDN fallaron
-  throw new Error(
-    `Failed to load form ${packageName}@${version} from all CDN providers. ` +
-    `Last error: ${lastError?.message || 'Unknown error'}`
-  )
-}
-
-/**
- * Precarga un form en background (opcional)
- * Útil para mejorar performance cuando sabés qué forms se van a usar
- */
-export async function preloadForm(
-  packageName: string,
-  version: string
-): Promise<void> {
   try {
-    await loadDynamicForm(packageName, version)
-    console.log(`[Form Loader] ✅ Preloaded ${packageName}@${version}`)
+    // 1. Fetch código compilado desde API (simula SELECT compiled_code FROM CustomFormVersions)
+    const url = `${FORMS_API}/${formName}/code${
+      options.version ? `?version=${options.version}` : ''
+    }`
+
+    const response = await fetch(url, {
+      headers: {
+        Accept: 'application/javascript',
+      },
+    })
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: response.statusText }))
+      throw new Error(`Failed to load form: ${error.error || response.statusText}`)
+    }
+
+    const compiledCode = await response.text()
+
+    // Log metadata headers (simulan lo que vendría de la BD)
+    const version = response.headers.get('X-Form-Version')
+    const publishedAt = response.headers.get('X-Published-At')
+    const sizeBytes = response.headers.get('X-Size-Bytes')
+
+    console.log(`[Form Loader] ✅ Fetched ${formName}@${version} (${sizeBytes} bytes, published: ${publishedAt})`)
+
+    // 2. Crear blob URL para dynamic import
+    // Esto permite que el navegador ejecute el código como un ES Module
+    const blob = new Blob([compiledCode], { type: 'application/javascript' })
+    const blobUrl = URL.createObjectURL(blob)
+
+    console.log(`[Form Loader] ✅ Created blob URL: ${blobUrl.substring(0, 50)}...`)
+
+    // 3. Dynamic import del blob URL
+    // @ts-ignore - dynamic import de blob URL no tiene types
+    const module = await import(/* webpackIgnore: true */ /* @vite-ignore */ blobUrl)
+
+    // 4. Cleanup blob URL (ya no se necesita después del import)
+    URL.revokeObjectURL(blobUrl)
+
+    if (!module.default) {
+      throw new Error(`Form ${formName} does not export a default component`)
+    }
+
+    const loadTime = Date.now() - startTime
+    console.log(`[Form Loader] ✅ Successfully loaded ${formName} in ${loadTime}ms`)
+
+    return module.default
+
   } catch (error: any) {
-    console.warn(`[Form Loader] ⚠️  Failed to preload ${packageName}:`, error.message)
+    console.error(`[Form Loader] ❌ Failed to load form ${formName}:`, error)
+    throw new Error(`Failed to load form: ${error.message}`)
   }
 }
 
@@ -129,19 +97,19 @@ const formCache = new Map<string, React.ComponentType<any>>()
  * Si el form ya fue cargado antes, lo retorna del cache
  */
 export async function loadDynamicFormCached(
-  packageName: string,
-  version: string
+  formName: string,
+  options: LoadOptions = {}
 ): Promise<React.ComponentType<any>> {
-  const cacheKey = `${packageName}@${version}`
+  const cacheKey = `${formName}@${options.version || 'latest'}`
 
   // Verificar cache
   if (formCache.has(cacheKey)) {
-    console.log(`[Form Loader] ✅ Loaded from cache: ${cacheKey}`)
+    console.log(`[Form Loader] ✅ Cache hit: ${cacheKey}`)
     return formCache.get(cacheKey)!
   }
 
-  // Cargar desde CDN
-  const component = await loadDynamicForm(packageName, version)
+  // Cargar desde BD (via API)
+  const component = await loadDynamicForm(formName, options)
 
   // Guardar en cache
   formCache.set(cacheKey, component)
@@ -150,21 +118,42 @@ export async function loadDynamicFormCached(
 }
 
 /**
- * Limpia el cache de forms
- * Útil cuando se publica una nueva versión de un form
+ * Invalida cache de un form específico
+ * Útil cuando se publica una nueva versión
  */
-export function clearFormCache(packageName?: string): void {
-  if (packageName) {
-    // Limpiar solo forms que empiecen con ese packageName
-    for (const key of formCache.keys()) {
-      if (key.startsWith(packageName)) {
-        formCache.delete(key)
-      }
+export function invalidateFormCache(formName: string): void {
+  const keysToDelete: string[] = []
+
+  for (const key of formCache.keys()) {
+    if (key.startsWith(`${formName}@`)) {
+      keysToDelete.push(key)
     }
-    console.log(`[Form Loader] 🧹 Cleared cache for ${packageName}`)
-  } else {
-    // Limpiar todo el cache
-    formCache.clear()
-    console.log(`[Form Loader] 🧹 Cleared entire cache`)
+  }
+
+  keysToDelete.forEach((key) => formCache.delete(key))
+  console.log(`[Form Loader] 🧹 Cache invalidated for ${formName} (${keysToDelete.length} entries)`)
+}
+
+/**
+ * Limpia todo el cache de forms
+ */
+export function clearFormCache(): void {
+  formCache.clear()
+  console.log(`[Form Loader] 🧹 Cleared entire cache`)
+}
+
+/**
+ * Precarga un form en background (opcional)
+ * Útil para mejorar performance cuando sabés qué forms se van a usar
+ */
+export async function preloadForm(
+  formName: string,
+  options: LoadOptions = {}
+): Promise<void> {
+  try {
+    await loadDynamicFormCached(formName, options)
+    console.log(`[Form Loader] ✅ Preloaded ${formName}`)
+  } catch (error: any) {
+    console.warn(`[Form Loader] ⚠️  Failed to preload ${formName}:`, error.message)
   }
 }
