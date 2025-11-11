@@ -1,0 +1,30 @@
+{
+  "name": "bizuit-custom-form-sample",
+  "version": "1.0.0",
+  "description": "Sample repository for Bizuit Custom Forms - Demonstrates automated form compilation and publishing",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/compile-forms.js",
+    "build:watch": "node scripts/compile-forms.js --watch",
+    "publish:forms": "node scripts/publish-forms.js"
+  },
+  "keywords": [
+    "bizuit",
+    "bpm",
+    "custom-forms",
+    "react",
+    "typescript"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "esbuild": "^0.19.0",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
