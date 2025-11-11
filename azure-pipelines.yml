@@ -61,11 +61,15 @@ stages:
                 "# Bizuit API Configuration" | Out-File -FilePath ".env.local" -Encoding utf8
                 "NEXT_PUBLIC_BIZUIT_FORMS_API_URL=/api/bizuit" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=/api/bizuit" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                "NEXT_PUBLIC_BIZUIT_TIMEOUT=30000" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                "# Token expiration time in minutes" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                "NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES=1440" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                "# Internal configuration for proxy (server-side only)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "# Runtime Configuration (can be changed without rebuild - just restart)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "BIZUIT_TIMEOUT=30000" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "BIZUIT_TOKEN_EXPIRATION_MINUTES=1440" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "BIZUIT_API_BASE_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "# Legacy (kept for backward compatibility)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "NEXT_PUBLIC_BIZUIT_TIMEOUT=30000" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES=1440" | Out-File -FilePath ".env.local" -Append -Encoding utf8
 
                 Write-Host "✓ .env.local created successfully"
 
@@ -181,11 +185,15 @@ stages:
                       "# Bizuit API Configuration" | Out-File -FilePath ".env.local" -Encoding utf8
                       "NEXT_PUBLIC_BIZUIT_FORMS_API_URL=/api/bizuit" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                       "NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=/api/bizuit" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                      "NEXT_PUBLIC_BIZUIT_TIMEOUT=30000" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                      "# Token expiration time in minutes" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                      "NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES=1440" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                      "# Internal configuration for proxy (server-side only)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                      "" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                      "# Runtime Configuration (can be changed without rebuild - just restart)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                      "BIZUIT_TIMEOUT=30000" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                      "BIZUIT_TOKEN_EXPIRATION_MINUTES=1440" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                       "BIZUIT_API_BASE_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                      "" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                      "# Legacy (kept for backward compatibility)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                      "NEXT_PUBLIC_BIZUIT_TIMEOUT=30000" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                      "NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES=1440" | Out-File -FilePath ".env.local" -Append -Encoding utf8
 
                       Write-Host "✓ .env.local created successfully"
                   displayName: 'Create Environment Configuration'

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const BIZUIT_API_BASE = 'https://test.bizuit.com/arielschbizuitdashboardapi/api'
+// This variable is read from .env.local at RUNTIME (not burned into the build)
+// You can change it without rebuilding the app
+const BIZUIT_API_BASE = process.env.BIZUIT_API_BASE_URL || 'https://test.bizuit.com/arielschbizuitdashboardapi/api'
 
 export async function GET(
   request: NextRequest,
