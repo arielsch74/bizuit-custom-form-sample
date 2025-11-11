@@ -2,9 +2,11 @@
 
 import Link from 'next/link'
 import { useTranslation } from '@tyconsa/bizuit-ui-components'
+import { useAppTranslation } from '@/lib/useAppTranslation'
 
 export default function GettingStartedPage() {
-  const { t } = useTranslation()
+  const { t: tBase } = useTranslation() // For 'ui.backToHome'
+  const { t } = useAppTranslation() // For app-specific translations
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -12,7 +14,7 @@ export default function GettingStartedPage() {
         {/* Header */}
         <div className="text-center mb-12">
           <Link href="/" className="text-sm text-primary hover:underline mb-4 inline-block">
-            {t('ui.backToHome')}
+            {tBase('ui.backToHome')}
           </Link>
           <h1 className="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600">
             {t('gettingStarted.title')}

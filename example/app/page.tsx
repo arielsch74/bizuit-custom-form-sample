@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from '@tyconsa/bizuit-ui-components'
+import { useAppTranslation } from '@/lib/useAppTranslation'
 
 export default function Home() {
-  const { t } = useTranslation()
+  const { t } = useTranslation() // Base translations
+  const { t: tApp } = useAppTranslation() // App-specific translations
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [isNavigating, setIsNavigating] = useState(false)
@@ -54,11 +56,11 @@ export default function Home() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-2xl font-bold mb-2 flex items-center gap-2">
-                  🚀 {t('home.gettingStarted')}
+                  🚀 {tApp('home.gettingStarted')}
                   <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
                 </div>
                 <p className="text-sm opacity-90">
-                  {t('home.gettingStarted.description')}
+                  {tApp('home.gettingStarted.description')}
                 </p>
               </div>
             </div>
