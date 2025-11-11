@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   BizuitSDKProvider,
-  type ILoginResponse,
   formDataToParameters,
   filterFormParameters,
   type IBizuitProcessParameter,
@@ -13,13 +12,8 @@ import {
   buildLoginRedirectUrl,
   formatBizuitError
 } from '@tyconsa/bizuit-form-sdk'
-import { useBizuitAuth, useTranslation } from '@tyconsa/bizuit-ui-components'
-import { useAuthErrorHandler } from '@/hooks/use-auth-error-handler'
+import { useBizuitAuth, useTranslation, DynamicFormField, Button } from '@tyconsa/bizuit-ui-components'
 import { useBizuitSDKWithAuth } from '@/hooks/use-bizuit-sdk-with-auth'
-import {
-  DynamicFormField,
-  Button
-} from '@tyconsa/bizuit-ui-components'
 import Link from 'next/link'
 import { bizuitConfig } from '@/lib/config'
 
@@ -29,9 +23,6 @@ function StartProcessForm() {
   const sdk = useBizuitSDKWithAuth() // Ahora con manejo automático de 401
   const { t } = useTranslation()
   const { isAuthenticated, token: authToken, user, login: setAuthData } = useBizuitAuth()
-  const handleAuthError = useAuthErrorHandler()
-
-
 
   // Get URL parameters using SDK utility (handles &amp; encoding from Bizuit BPM)
   const urlToken = parseBizuitUrlParam('token', searchParams)
@@ -102,37 +93,6 @@ function StartProcessForm() {
       handleStartProcess()
     }
   }, [mounted, activeToken, urlEventName, status])
-
-
-
-  const categoryOptions = [
-    { value: 'sales', label: 'Ventas', group: 'Categoría' },
-    { value: 'support', label: 'Soporte', group: 'Categoría' },
-    { value: 'development', label: 'Desarrollo', group: 'Categoría' },
-    { value: 'hr', label: 'Recursos Humanos', group: 'Categoría' },
-  ]
-
-  // Columnas de ejemplo para el DataGrid
-  const columns = [
-    {
-      accessorKey: 'id',
-      header: 'ID',
-    },
-    {
-      accessorKey: 'name',
-      header: 'Nombre',
-    },
-    {
-      accessorKey: 'value',
-      header: 'Valor',
-    },
-  ]
-
-  const [gridData] = useState([
-    { id: 1, name: 'Item 1', value: 100 },
-    { id: 2, name: 'Item 2', value: 200 },
-    { id: 3, name: 'Item 3', value: 300 },
-  ])
 
   const handleStartProcess = async () => {
     if (!activeToken) {
@@ -325,8 +285,6 @@ function StartProcessForm() {
       </div>
     )
   }
-
-
 
   if (status === 'ready') {
     return (

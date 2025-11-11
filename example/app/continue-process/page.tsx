@@ -4,29 +4,15 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   BizuitSDKProvider,
-  type ILoginResponse,
   formDataToParameters,
-  parametersToFormData,
-  isParameterRequired,
-  filterContinueParameters,
   loadInstanceDataForContinue,
-  releaseInstanceLock,
   type IBizuitProcessParameter,
   parseBizuitUrlParam,
   createAuthFromUrlToken,
-  buildLoginRedirectUrl,
   formatBizuitError
 } from '@tyconsa/bizuit-form-sdk'
-import { useBizuitAuth, useTranslation, DynamicFormField } from '@tyconsa/bizuit-ui-components'
+import { useBizuitAuth, useTranslation, DynamicFormField, Button } from '@tyconsa/bizuit-ui-components'
 import { useBizuitSDKWithAuth } from '@/hooks/use-bizuit-sdk-with-auth'
-import {
-  BizuitCombo,
-  BizuitDateTimePicker,
-  BizuitFileUpload,
-  BizuitSlider,
-  BizuitDataGrid
-} from '@tyconsa/bizuit-ui-components'
-import { Button } from '@tyconsa/bizuit-ui-components'
 import Link from 'next/link'
 import { bizuitConfig } from '@/lib/config'
 
@@ -49,8 +35,6 @@ function ContinueProcessForm() {
   const [formData, setFormData] = useState<any>({})
   const [processData, setProcessData] = useState<any>(null)
   const [processParameters, setProcessParameters] = useState<IBizuitProcessParameter[]>([])
-  const [lockStatus, setLockStatus] = useState<'unlocked' | 'locked-by-me' | 'locked-by-other' | 'checking'>('unlocked')
-  const [sessionToken, setSessionToken] = useState<string | null>(null)
   const [status, setStatus] = useState<'idle' | 'loading' | 'initializing' | 'ready' | 'submitting' | 'success' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
@@ -100,148 +84,6 @@ function ContinueProcessForm() {
     }
   }, [mounted, activeToken, urlInstanceId, status])
 
-  /**
-   * Render form field based on parameter type
-   * Same as start-process but now includes variables
-   */
-  const renderFormField = (param: IBizuitProcessParameter) => {
-    const isRequired = !param.isVariable && isParameterRequired(param)
-    const label = `${param.name}${isRequired ? ' *' : param.isVariable ? ' (variable)' : ' (opcional)'}`
-
-    // Determine field type based on parameter metadata
-    const paramType = param.type.toLowerCase()
-
-    // String types
-    if (paramType === 'string' || paramType === 'text') {
-      return (
-        <div key={param.name}>
-          <label className="block text-sm font-medium mb-2">
-            {label}
-          </label>
-          <input
-            type="text"
-            value={formData[param.name] || ''}
-            onChange={(e) => setFormData({ ...formData, [param.name]: e.target.value })}
-            placeholder={`Ingrese ${param.name}`}
-            required={isRequired}
-            className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
-          />
-        </div>
-      )
-    }
-
-    // Numeric types
-    if (paramType === 'int' || paramType === 'integer' || paramType === 'number' || paramType === 'decimal' || paramType === 'double') {
-      return (
-        <div key={param.name}>
-          <label className="block text-sm font-medium mb-2">
-            {label}
-          </label>
-          <input
-            type="number"
-            value={formData[param.name] || ''}
-            onChange={(e) => setFormData({ ...formData, [param.name]: e.target.value })}
-            placeholder={`Ingrese ${param.name}`}
-            required={isRequired}
-            className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
-          />
-        </div>
-      )
-    }
-
-    // Boolean types
-    if (paramType === 'bool' || paramType === 'boolean') {
-      return (
-        <div key={param.name} className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            id={param.name}
-            checked={formData[param.name] || false}
-            onChange={(e) => setFormData({ ...formData, [param.name]: e.target.checked })}
-            className="w-4 h-4 border rounded"
-          />
-          <label htmlFor={param.name} className="text-sm font-medium">
-            {label}
-          </label>
-        </div>
-      )
-    }
-
-    // Date/DateTime types
-    if (paramType === 'date' || paramType === 'datetime' || paramType === 'timestamp') {
-      return (
-        <div key={param.name}>
-          <label className="block text-sm font-medium mb-2">
-            {label}
-          </label>
-          <BizuitDateTimePicker
-            value={formData[param.name]}
-            onChange={(value) => setFormData({ ...formData, [param.name]: value })}
-            mode={paramType === 'date' ? 'date' : 'datetime'}
-            locale="es"
-          />
-        </div>
-      )
-    }
-
-    // Default to text input for unknown types
-    return (
-      <div key={param.name}>
-        <label className="block text-sm font-medium mb-2">
-          {label}
-          <span className="text-xs text-muted-foreground ml-2">({param.type})</span>
-        </label>
-        <input
-          type="text"
-          value={formData[param.name] || ''}
-          onChange={(e) => setFormData({ ...formData, [param.name]: e.target.value })}
-          placeholder={`Ingrese ${param.name}`}
-          required={isRequired}
-          className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
-        />
-      </div>
-    )
-  }
-
-  // Opciones de ejemplo
-  const statusOptions = [
-    { value: 'pending', label: 'Pendiente', group: 'Estado' },
-    { value: 'in-progress', label: 'En Progreso', group: 'Estado' },
-    { value: 'completed', label: 'Completado', group: 'Estado' },
-    { value: 'cancelled', label: 'Cancelado', group: 'Estado' },
-  ]
-
-  const assigneeOptions = [
-    { value: 'user1', label: 'Juan Pérez', group: 'Asignado a' },
-    { value: 'user2', label: 'María García', group: 'Asignado a' },
-    { value: 'user3', label: 'Carlos López', group: 'Asignado a' },
-  ]
-
-  // Columnas para actividades completadas (solo lectura)
-  const activityColumns = [
-    {
-      accessorKey: 'activityName',
-      header: 'Actividad',
-    },
-    {
-      accessorKey: 'completedBy',
-      header: 'Completado Por',
-    },
-    {
-      accessorKey: 'completedAt',
-      header: 'Fecha',
-    },
-    {
-      accessorKey: 'result',
-      header: 'Resultado',
-    },
-  ]
-
-  const [activityData] = useState([
-    { activityName: 'Inicio', completedBy: 'Sistema', completedAt: '2024-01-15 10:00', result: 'OK' },
-    { activityName: 'Validación', completedBy: 'Juan Pérez', completedAt: '2024-01-15 11:30', result: 'Aprobado' },
-    { activityName: 'Revisión', completedBy: 'María García', completedAt: '2024-01-15 14:00', result: 'Aprobado' },
-  ])
 
   const loadInstanceData = async () => {
     if (!activeToken) {
@@ -300,42 +142,6 @@ function ContinueProcessForm() {
     }
   }
 
-  const handleAuthenticateAndLock = async () => {
-    if (!activeToken) {
-      const redirectUrl = `/login?redirect=/continue-process${instanceId ? `?instanceId=${encodeURIComponent(instanceId)}` : ''}`
-      router.push(redirectUrl)
-      return
-    }
-
-    if (!instanceId) {
-      setError('El ID de instancia es requerido')
-      return
-    }
-
-    try {
-      setStatus('initializing')
-      setError(null)
-
-      // Lock instance with pessimistic locking
-      const result = await sdk.process.acquireLock({
-        instanceId,
-        token: activeToken
-      })
-
-      setSessionToken(result.sessionToken)
-      setProcessData(result.processData)
-      setLockStatus('locked-by-me')
-      setStatus('ready')
-    } catch (err: any) {
-      // Note: 401 errors are handled automatically by useBizuitSDKWithAuth()
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('[ContinueProcess] Error acquiring lock:', err)
-      }
-      const friendlyMessage = formatBizuitError(err, 'lock')
-      setError(friendlyMessage)
-      setStatus('error')
-    }
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -356,20 +162,32 @@ function ContinueProcessForm() {
       setStatus('submitting')
       setError(null)
 
+      // Only send parameters that are in formParameters (excludes metadata like initiatedBy, LoggedUser, etc.)
+      // Create a filtered formData with only the editable parameters
+      const filteredFormData: Record<string, any> = {}
+      processParameters.forEach(param => {
+        if (formData[param.name] !== undefined) {
+          filteredFormData[param.name] = formData[param.name]
+        }
+      })
+
       if (process.env.NODE_ENV === 'development') {
         console.log('[ContinueProcess] Submitting with:', {
           instanceId,
           eventName,
-          parametersCount: formDataToParameters(formData).length
+          allParametersCount: formDataToParameters(formData).length,
+          filteredParametersCount: formDataToParameters(filteredFormData).length,
+          parameterNames: Object.keys(filteredFormData)
         })
       }
 
       // Submit changes using the event name from instance data
+      // IMPORTANT: Only send filtered parameters (excludes metadata)
       const result = await sdk.process.continueInstance(
         {
           instanceId,
           eventName, // Use dynamic event name from instance data
-          parameters: formDataToParameters(formData),
+          parameters: formDataToParameters(filteredFormData), // Use filtered data
         },
         formData.files || [], // Pass the files from formData
         activeToken // Pass the authentication token
@@ -381,7 +199,6 @@ function ContinueProcessForm() {
 
       // Store the result
       setProcessData(result)
-      setLockStatus('unlocked')
       setStatus('success')
     } catch (err: any) {
       // Note: 401 errors are handled automatically by useBizuitSDKWithAuth()
@@ -394,28 +211,6 @@ function ContinueProcessForm() {
       const friendlyMessage = formatBizuitError(err, 'submit')
       setError(friendlyMessage)
       setStatus('error')
-    }
-  }
-
-  const handleCancel = async () => {
-    if (sessionToken) {
-      try {
-        // Release lock without submitting
-        await sdk.process.releaseLock({
-          instanceId,
-          sessionToken
-        })
-        setLockStatus('unlocked')
-        setSessionToken(null)
-        setStatus('idle')
-      } catch (err: any) {
-        // Silently fail - lock will expire eventually
-        if (process.env.NODE_ENV === 'development') {
-          console.warn('[ContinueProcess] Error releasing lock:', err)
-        }
-      }
-    } else {
-      setStatus('idle')
     }
   }
 
@@ -559,21 +354,11 @@ function ContinueProcessForm() {
         <div className="border rounded-lg p-6 bg-card">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-3xl font-bold">Continuar Proceso</h1>
-            <div className="flex items-center gap-4">
-              {lockStatus === 'locked-by-me' && (
-                <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-sm font-medium">Bloqueado por ti</span>
-                </div>
-              )}
-              {user && (
-                <div className="text-sm text-muted-foreground">
-                  {t('ui.user')} <span className="font-medium">{user.DisplayName || user.Username}</span>
-                </div>
-              )}
-            </div>
+            {user && (
+              <div className="text-sm text-muted-foreground">
+                {t('ui.user')} <span className="font-medium">{user.DisplayName || user.Username}</span>
+              </div>
+            )}
           </div>
 
           {/* Process Info */}
@@ -601,7 +386,14 @@ function ContinueProcessForm() {
           {processParameters.length > 0 ? (
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Render dynamic form fields based on process parameters */}
-              {processParameters.map((param) => renderFormField(param))}
+              {processParameters.map((param) => (
+                <DynamicFormField
+                  key={param.name}
+                  parameter={param}
+                  value={formData[param.name]}
+                  onChange={(value) => setFormData({ ...formData, [param.name]: value })}
+                />
+              ))}
 
               {error && (
                 <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md">
