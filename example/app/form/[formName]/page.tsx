@@ -32,7 +32,7 @@ export default function DynamicFormPage({ params }: Props) {
         staticForms: [
           {
             formName: 'aprobacion-gastos',
-            packageName: '@bizuit-forms/aprobacion-gastos',
+            packageName: '@tyconsa/bizuit-form-aprobacion-gastos',
             version: '1.0.0',
             processName: 'AprobacionGastos',
             description: 'Formulario de aprobación de gastos',

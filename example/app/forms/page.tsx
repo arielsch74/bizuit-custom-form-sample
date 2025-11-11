@@ -20,10 +20,10 @@ export default function FormsListPage() {
         staticForms: [
           {
             formName: 'aprobacion-gastos',
-            packageName: '@bizuit-forms/aprobacion-gastos',
+            packageName: '@tyconsa/bizuit-form-aprobacion-gastos',
             version: '1.0.0',
             processName: 'AprobacionGastos',
-            description: 'Formulario de aprobación de gastos corporativos',
+            description: 'Formulario de aprobación de gastos corporativos (REAL - publicado en npm)',
             author: 'Bizuit Team',
             status: 'active',
             createdAt: '2025-01-11T00:00:00.000Z',
