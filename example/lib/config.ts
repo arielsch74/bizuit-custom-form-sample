@@ -25,8 +25,8 @@ if (!process.env.NEXT_PUBLIC_BIZUIT_TIMEOUT) {
   throw new Error('Missing required environment variable: NEXT_PUBLIC_BIZUIT_TIMEOUT. Please configure it in .env.local')
 }
 
-// Add basePath in production (same logic as providers.tsx)
-const basePath = process.env.NODE_ENV === 'production' ? '/BIZUITCustomForms' : ''
+// Get basePath from environment (e.g., /BIZUITCustomForms in production)
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
 
 export const bizuitConfig: IBizuitConfig = {
   formsApiUrl: basePath + process.env.NEXT_PUBLIC_BIZUIT_FORMS_API_URL,
