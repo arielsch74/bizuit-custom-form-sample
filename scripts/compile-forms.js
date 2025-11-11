@@ -26,7 +26,11 @@ async function compileForm(formPath) {
       target: 'es2020',
       jsx: 'automatic',
       outfile: outputPath,
-      external: ['react', 'react-dom'],
+      external: [
+        'react',
+        'react-dom',
+        '@/components/ui/*',
+      ],
       logLevel: 'info',
       minify: true,
       sourcemap: false,
