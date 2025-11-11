@@ -4,25 +4,22 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   BizuitSDKProvider,
-  useBizuitSDK,
-  BizuitAuthService,
   type ILoginResponse,
   formDataToParameters,
   filterFormParameters,
-  isParameterRequired,
-  type IBizuitProcessParameter
+  type IBizuitProcessParameter,
+  parseBizuitUrlParam,
+  createAuthFromUrlToken,
+  buildLoginRedirectUrl,
+  formatBizuitError
 } from '@tyconsa/bizuit-form-sdk'
 import { useBizuitAuth, useTranslation } from '@tyconsa/bizuit-ui-components'
 import { useAuthErrorHandler } from '@/hooks/use-auth-error-handler'
 import { useBizuitSDKWithAuth } from '@/hooks/use-bizuit-sdk-with-auth'
 import {
-  BizuitCombo,
-  BizuitDateTimePicker,
-  BizuitFileUpload,
-  BizuitSlider,
-  BizuitDataGrid
+  DynamicFormField,
+  Button
 } from '@tyconsa/bizuit-ui-components'
-import { Button } from '@tyconsa/bizuit-ui-components'
 import Link from 'next/link'
 import { bizuitConfig } from '@/lib/config'
 
@@ -34,50 +31,12 @@ function StartProcessForm() {
   const { isAuthenticated, token: authToken, user, login: setAuthData } = useBizuitAuth()
   const handleAuthError = useAuthErrorHandler()
 
-  // Get URL parameters - handle &amp; encoded URLs from Bizuit BPM
-  // When Bizuit generates URLs in HTML context, browsers URL-encode &amp; as &amp%3B
-  // This breaks standard query parameter parsing since "amp;" becomes part of param name
-  // We need to manually parse and clean the query string
-  const getRawUrlParam = (paramName: string): string | null => {
-    // Try standard parsing first
-    const standardValue = searchParams.get(paramName)
-    if (standardValue) {
-      return standardValue
-    }
 
-    // If standard parsing fails, manually parse query string
-    // This handles cases where &amp; was URL-encoded to &amp%3B
-    if (typeof window !== 'undefined') {
-      const rawUrl = window.location.href
 
-      // Extract query string after ?
-      const queryStartIndex = rawUrl.indexOf('?')
-      if (queryStartIndex === -1) {
-        return null
-      }
-
-      let queryString = rawUrl.substring(queryStartIndex + 1)
-
-      // Clean up the query string:
-      // 1. Replace &amp%3B with & (URL-encoded &amp;)
-      // 2. Replace &amp; with & (HTML entity)
-      // 3. Replace %3B with nothing (leftover semicolons)
-      queryString = queryString
-        .replace(/&amp%3B/gi, '&')
-        .replace(/&amp;/gi, '&')
-        .replace(/%3B/gi, '')
-
-      // Parse manually
-      const params = new URLSearchParams(queryString)
-      return params.get(paramName)
-    }
-
-    return null
-  }
-
-  const urlToken = getRawUrlParam('token')
-  const urlEventName = getRawUrlParam('eventName')
-  const urlUserName = getRawUrlParam('UserName')
+  // Get URL parameters using SDK utility (handles &amp; encoding from Bizuit BPM)
+  const urlToken = parseBizuitUrlParam('token', searchParams)
+  const urlEventName = parseBizuitUrlParam('eventName', searchParams)
+  const urlUserName = parseBizuitUrlParam('UserName', searchParams)
 
   const [eventName, setEventName] = useState(urlEventName || '')
   const [formData, setFormData] = useState<any>({})
@@ -101,34 +60,18 @@ function StartProcessForm() {
     if (mounted && urlToken && !urlTokenProcessed) {
       setUrlTokenProcessed(true)
 
-      // If we have a URL token, we need to validate it and extract user info
-      // Use the UserName from URL if available, otherwise use default
-      // Get expiration minutes from environment variable
-      if (!process.env.NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES) {
-        throw new Error('Missing required environment variable: NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES. Please configure it in .env.local')
-      }
-      const expirationMinutes = parseInt(process.env.NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES)
-      const expirationMs = expirationMinutes * 60 * 1000
+      // Get expiration from environment or use SDK default (1440 minutes = 24 hours)
+      const expirationMinutes = process.env.NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES
+        ? parseInt(process.env.NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES)
+        : undefined
 
-      const mockUserFromToken: ILoginResponse = {
-        Token: `Basic ${urlToken}`, // Add "Basic " prefix to match API requirements
-        User: {
-          Username: urlUserName || 'bizuit-user',
-          UserID: 0,
-          DisplayName: urlUserName || 'Usuario Bizuit',
-        },
-        ExpirationDate: new Date(Date.now() + expirationMs).toISOString(),
-      }
+      // Use SDK utility to create auth data from URL token
+      const authData = createAuthFromUrlToken(urlToken, urlUserName, expirationMinutes)
 
-      console.log('[StartProcess] Setting auth data with token:', {
-        originalToken: urlToken.substring(0, 20) + '...',
-        tokenWithBasic: mockUserFromToken.Token.substring(0, 26) + '...',
-        startsWithBasic: mockUserFromToken.Token.startsWith('Basic ')
-      })
-
-      setAuthData(mockUserFromToken)
+      console.log('[StartProcess] Setting auth data with token from URL')
+      setAuthData(authData)
     }
-  }, [mounted, urlToken, urlTokenProcessed, setAuthData])
+  }, [mounted, urlToken, urlTokenProcessed, setAuthData, urlUserName])
 
   // Redirect to login if not authenticated and no URL token
   // Wait a bit to allow AuthProvider to load from localStorage
@@ -160,13 +103,7 @@ function StartProcessForm() {
     }
   }, [mounted, activeToken, urlEventName, status])
 
-  // Opciones de ejemplo para el combo
-  const priorityOptions = [
-    { value: 'low', label: 'Baja', group: 'Prioridad' },
-    { value: 'medium', label: 'Media', group: 'Prioridad' },
-    { value: 'high', label: 'Alta', group: 'Prioridad' },
-    { value: 'urgent', label: 'Urgente', group: 'Prioridad' },
-  ]
+
 
   const categoryOptions = [
     { value: 'sales', label: 'Ventas', group: 'Categoría' },
@@ -199,7 +136,7 @@ function StartProcessForm() {
 
   const handleStartProcess = async () => {
     if (!activeToken) {
-      const redirectUrl = `/login?redirect=/start-process${eventName ? `?eventName=${encodeURIComponent(eventName)}` : ''}`
+      const redirectUrl = buildLoginRedirectUrl('/start-process', eventName ? { eventName } : undefined)
       router.push(redirectUrl)
       return
     }
@@ -236,20 +173,9 @@ function StartProcessForm() {
       console.error('[StartProcess] Error fetching parameters:', err)
 
       // Note: 401 errors are handled automatically by useBizuitSDKWithAuth()
-      // which will logout and redirect to login
-
-      let errorMessage = 'Error al obtener los parámetros del proceso'
-
-      if (err.message) {
-        errorMessage = err.message
-      }
-
-      // Check if it's a 404 error
-      if (err.status === 404 || (err.message && err.message.includes('404'))) {
-        errorMessage = `El proceso "${eventName}" no existe o no tiene parámetros definidos. Verifique el nombre del proceso.`
-      }
-
-      setError(errorMessage)
+      // Use SDK utility to format error message
+      const friendlyMessage = formatBizuitError(err, 'start')
+      setError(friendlyMessage)
       setStatus('error')
     }
   }
@@ -258,7 +184,7 @@ function StartProcessForm() {
     e.preventDefault()
 
     if (!activeToken) {
-      const redirectUrl = `/login?redirect=/start-process${eventName ? `?eventName=${encodeURIComponent(eventName)}` : ''}`
+      const redirectUrl = buildLoginRedirectUrl('/start-process', eventName ? { eventName } : undefined)
       router.push(redirectUrl)
       return
     }
@@ -400,105 +326,7 @@ function StartProcessForm() {
     )
   }
 
-  // Helper function to render form fields based on parameter type
-  const renderFormField = (param: IBizuitProcessParameter) => {
-    const isRequired = isParameterRequired(param)
-    const label = `${param.name}${isRequired ? ' *' : ' (opcional)'}`
 
-    // Determine field type based on parameter metadata
-    const paramType = param.type.toLowerCase()
-
-    // String types
-    if (paramType === 'string' || paramType === 'text') {
-      return (
-        <div key={param.name}>
-          <label className="block text-sm font-medium mb-2">
-            {label}
-          </label>
-          <input
-            type="text"
-            value={formData[param.name] || ''}
-            onChange={(e) => setFormData({ ...formData, [param.name]: e.target.value })}
-            placeholder={`Ingrese ${param.name}`}
-            required={isRequired}
-            className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
-          />
-        </div>
-      )
-    }
-
-    // Numeric types
-    if (paramType === 'int' || paramType === 'integer' || paramType === 'number' || paramType === 'decimal' || paramType === 'double') {
-      return (
-        <div key={param.name}>
-          <label className="block text-sm font-medium mb-2">
-            {label}
-          </label>
-          <input
-            type="number"
-            value={formData[param.name] || ''}
-            onChange={(e) => setFormData({ ...formData, [param.name]: e.target.value })}
-            placeholder={`Ingrese ${param.name}`}
-            required={isRequired}
-            className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
-          />
-        </div>
-      )
-    }
-
-    // Boolean types
-    if (paramType === 'bool' || paramType === 'boolean') {
-      return (
-        <div key={param.name} className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            id={param.name}
-            checked={formData[param.name] || false}
-            onChange={(e) => setFormData({ ...formData, [param.name]: e.target.checked })}
-            className="w-4 h-4 border rounded"
-          />
-          <label htmlFor={param.name} className="text-sm font-medium">
-            {label}
-          </label>
-        </div>
-      )
-    }
-
-    // Date/DateTime types
-    if (paramType === 'date' || paramType === 'datetime' || paramType === 'timestamp') {
-      return (
-        <div key={param.name}>
-          <label className="block text-sm font-medium mb-2">
-            {label}
-          </label>
-          <BizuitDateTimePicker
-            value={formData[param.name]}
-            onChange={(value) => setFormData({ ...formData, [param.name]: value })}
-            mode={paramType === 'date' ? 'date' : 'datetime'}
-            locale="es"
-          />
-        </div>
-      )
-    }
-
-    // Default to text input for unknown types
-    return (
-      <div key={param.name}>
-        <label className="block text-sm font-medium mb-2">
-          {label}
-          <span className="text-xs text-muted-foreground ml-2">({param.type})</span>
-        </label>
-        <input
-          type="text"
-          value={formData[param.name] || ''}
-          onChange={(e) => setFormData({ ...formData, [param.name]: e.target.value })}
-          placeholder={`Ingrese ${param.name}`}
-          required={isRequired}
-          className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
-        />
-      </div>
-    )
-  }
 
   if (status === 'ready') {
     return (
@@ -522,7 +350,14 @@ function StartProcessForm() {
           {processParameters.length > 0 ? (
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Render dynamic form fields based on process parameters */}
-              {processParameters.map((param) => renderFormField(param))}
+              {processParameters.map((param) => (
+                <DynamicFormField
+                  key={param.name}
+                  parameter={param}
+                  value={formData[param.name]}
+                  onChange={(value) => setFormData({ ...formData, [param.name]: value })}
+                />
+              ))}
 
               {error && (
                 <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md">

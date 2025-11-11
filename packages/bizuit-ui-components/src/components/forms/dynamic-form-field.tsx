@@ -10,6 +10,8 @@ export interface DynamicFormFieldProps {
   onChange: (value: any) => void
   required?: boolean
   className?: string
+  /** Show if this is a variable (for continue-process scenario) */
+  showVariableLabel?: boolean
 }
 
 /**
@@ -27,6 +29,7 @@ export interface DynamicFormFieldProps {
  * @param onChange - Callback when value changes
  * @param required - Override required status (defaults to parameter.parameterDirection === 1)
  * @param className - Additional CSS classes for the container div
+ * @param showVariableLabel - If true, shows (variable) label for variables instead of (opcional)
  */
 export function DynamicFormField({
   parameter,
@@ -34,10 +37,23 @@ export function DynamicFormField({
   onChange,
   required,
   className = '',
+  showVariableLabel = false,
 }: DynamicFormFieldProps) {
   // Determine if field is required
-  const isRequired = required !== undefined ? required : parameter.parameterDirection === 1
-  const label = `${parameter.name}${isRequired ? ' *' : ' (opcional)'}`
+  // Variables are not required, input parameters (direction === 1) are required
+  const isVariable = (parameter as any).isVariable === true
+  const isRequired = required !== undefined ? required : (!isVariable && parameter.parameterDirection === 1)
+
+  // Build label with appropriate suffix
+  let labelSuffix = ''
+  if (showVariableLabel && isVariable) {
+    labelSuffix = ' (variable)'
+  } else if (isRequired) {
+    labelSuffix = ' *'
+  } else {
+    labelSuffix = ' (opcional)'
+  }
+  const label = `${parameter.name}${labelSuffix}`
 
   // Determine field type based on parameter metadata
   const paramType = parameter.type.toLowerCase()

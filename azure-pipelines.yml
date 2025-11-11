@@ -47,8 +47,52 @@ stages:
 
           - script: |
               cd example
-              npm install
-            displayName: 'Install Dependencies'
+              npm run use:npm
+            displayName: 'Switch to npm registry packages and Install Dependencies'
+
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(Build.SourcesDirectory)/example'
+              script: |
+                Write-Host "Creating .env.local file for build..."
+
+                # Create .env.local with Bizuit configuration
+                # Use UTF8NoBOM encoding to prevent BOM issues
+                $content = @"
+# Bizuit API Configuration
+# Use Next.js proxy to handle CORS and authentication headers
+NEXT_PUBLIC_BIZUIT_FORMS_API_URL=/api/bizuit
+NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=/api/bizuit
+NEXT_PUBLIC_BIZUIT_TIMEOUT=30000
+
+# Token expiration time in minutes (default: 1440 minutes = 24 hours)
+NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES=1440
+
+# Internal configuration for proxy (server-side only)
+BIZUIT_API_BASE_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api
+"@
+
+                # Use UTF8NoBOM encoding (PowerShell 6+)
+                if ($PSVersionTable.PSVersion.Major -ge 6) {
+                    $content | Out-File -FilePath ".env.local" -Encoding utf8NoBOM
+                } else {
+                    # PowerShell 5.1 workaround - use .NET
+                    [System.IO.File]::WriteAllText("$PWD\.env.local", $content, (New-Object System.Text.UTF8Encoding $false))
+                }
+
+                Write-Host "✓ .env.local created successfully"
+
+                # Verify file was created
+                if (Test-Path ".env.local") {
+                    Write-Host "✓ File exists"
+                    Write-Host "`nContent preview:"
+                    Get-Content ".env.local" | Select-Object -First 5
+                } else {
+                    Write-Error "❌ Failed to create .env.local"
+                    exit 1
+                }
+            displayName: 'Create Environment Configuration for Build'
 
           - task: Cache@2
             inputs:

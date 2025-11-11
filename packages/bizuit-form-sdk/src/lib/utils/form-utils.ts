@@ -317,6 +317,20 @@ export function mergeParameters(...parameterArrays: IParameter[][]): IParameter[
 }
 
 /**
+ * Lock information returned by loadInstanceDataForContinue
+ */
+export interface ILockInfo {
+  /** Whether the instance is currently locked by this user */
+  isLocked: boolean
+  /** Session token for unlocking (only present if isLocked is true) */
+  sessionToken?: string
+  /** User who has the lock (only present if locked by another user) */
+  lockedBy?: string
+  /** Reason for lock failure (only present if lock failed) */
+  lockFailReason?: string
+}
+
+/**
  * Result type for loadInstanceDataForContinue helper
  */
 export interface ILoadInstanceDataResult {
@@ -325,6 +339,8 @@ export interface ILoadInstanceDataResult {
   eventName: string
   formParameters: IBizuitProcessParameter[]
   formData: Record<string, any>
+  /** Lock information (only present if autoLock was requested) */
+  lockInfo?: ILockInfo
 }
 
 /**
@@ -383,36 +399,74 @@ function guessTypeFromValue(value: any): string {
 }
 
 /**
+ * Options for loadInstanceDataForContinue helper
+ */
+export interface ILoadInstanceDataOptions {
+  /** Instance ID to load */
+  instanceId: string
+  /** Activity name (required if autoLock is true) */
+  activityName?: string
+  /** Process name (required if autoLock is true) */
+  processName?: string
+  /** Automatically acquire lock for editing (default: false) */
+  autoLock?: boolean
+  /** Lock operation type (default: 1 = Edit) */
+  lockOperation?: number
+}
+
+/**
  * Helper function to load all necessary data for continuing a process instance
  * This encapsulates the business logic of:
  * 1. Getting instance data with parameters
  * 2. Converting API parameters to form-friendly format
  * 3. Filtering editable parameters (excludes Output-only and system params)
  * 4. Parsing existing parameter values into form data
+ * 5. Optionally acquiring a pessimistic lock for editing
  *
- * NOTE: Only instanceId is required. eventName must be provided separately.
- *
- * @param sdk - Bizuit SDK instance with process service
- * @param instanceId - Instance ID to load
+ * @param sdk - Bizuit SDK instance with process and lock services
+ * @param options - Configuration options
  * @param token - Authentication token
  * @returns Promise with all data needed to render continue form
  *
  * @example
  * ```typescript
- * const result = await loadInstanceDataForContinue(sdk, instanceId, token)
- * // Returns: instanceData, formParameters (with values), formData
+ * // Load without lock (read-only)
+ * const result = await loadInstanceDataForContinue(sdk, {
+ *   instanceId: '123-456-789'
+ * }, token)
+ *
+ * // Load with automatic lock (for editing)
+ * const result = await loadInstanceDataForContinue(sdk, {
+ *   instanceId: '123-456-789',
+ *   activityName: 'ReviewTask',
+ *   processName: 'ApprovalProcess',
+ *   autoLock: true
+ * }, token)
+ *
+ * // Check lock status
+ * if (result.lockInfo?.isLocked) {
+ *   console.log('Locked with session:', result.lockInfo.sessionToken)
+ * }
  * ```
  */
 export async function loadInstanceDataForContinue(
   sdk: any, // TODO: Type this properly as BizuitSDK
-  instanceId: string,
+  options: string | ILoadInstanceDataOptions, // Support old API (string) and new API (options object)
   token: string
 ): Promise<ILoadInstanceDataResult> {
+  // Handle backward compatibility: if options is a string, treat it as instanceId
+  const opts: ILoadInstanceDataOptions = typeof options === 'string'
+    ? { instanceId: options, autoLock: false }
+    : options
+
+  const { instanceId, activityName, processName, autoLock = false, lockOperation = 1 } = opts
+
   // 1. Get instance data
   const instanceData = await sdk.process.getInstanceData(instanceId, token)
 
   let formParameters: IBizuitProcessParameter[] = []
   let formData: Record<string, any> = {}
+  let lockInfo: ILockInfo | undefined
 
   // 2. Parse parameters from API response
   // API structure: results.tyconParameters.tyconParameter[]
@@ -439,12 +493,105 @@ export async function loadInstanceDataForContinue(
     formData = parametersToFormData(parameters)
   }
 
+  // 3. Optionally acquire lock for editing
+  if (autoLock) {
+    if (!activityName || !processName) {
+      throw new Error('activityName and processName are required when autoLock is true')
+    }
+
+    try {
+      // Try to acquire lock
+      const lockResult = await sdk.lock.lock(
+        {
+          instanceId,
+          activityName,
+          processName,
+          operation: lockOperation,
+        },
+        token
+      )
+
+      if (lockResult.available) {
+        lockInfo = {
+          isLocked: true,
+          sessionToken: lockResult.sessionToken,
+        }
+      } else {
+        lockInfo = {
+          isLocked: false,
+          lockedBy: lockResult.user,
+          lockFailReason: lockResult.reason || 'Instance is locked by another user',
+        }
+      }
+    } catch (err: any) {
+      // Lock failed - provide error info but don't throw
+      // This allows the app to decide how to handle lock failures
+      lockInfo = {
+        isLocked: false,
+        lockFailReason: err.message || 'Failed to acquire lock',
+      }
+    }
+  }
+
   return {
     instanceData,
-    processName: '', // Not available from getInstanceData
-    eventName: '', // Must be provided by user
+    processName: processName || '', // Use provided processName if available
+    eventName: '', // Must be provided by user separately
     formParameters,
     formData,
+    lockInfo,
+  }
+}
+
+/**
+ * Release a lock acquired by loadInstanceDataForContinue
+ *
+ * This is a convenience helper that wraps sdk.lock.unlock().
+ * Use this to release locks when canceling edits or after successful submit.
+ *
+ * @param sdk - Bizuit SDK instance with lock service
+ * @param options - Lock release options
+ * @param token - Authentication token
+ * @returns Promise that resolves when lock is released
+ *
+ * @example
+ * ```typescript
+ * // After loading with lock
+ * const result = await loadInstanceDataForContinue(sdk, {
+ *   instanceId: '123',
+ *   activityName: 'Task',
+ *   processName: 'Process',
+ *   autoLock: true
+ * }, token)
+ *
+ * // ... user cancels or finishes editing ...
+ *
+ * // Release the lock
+ * if (result.lockInfo?.sessionToken) {
+ *   await releaseInstanceLock(sdk, {
+ *     instanceId: '123',
+ *     activityName: 'Task',
+ *     sessionToken: result.lockInfo.sessionToken
+ *   }, token)
+ * }
+ * ```
+ */
+export async function releaseInstanceLock(
+  sdk: any,
+  options: {
+    instanceId: string
+    activityName: string
+    sessionToken: string
+  },
+  token: string
+): Promise<void> {
+  try {
+    await sdk.lock.unlock(options, token)
+  } catch (err: any) {
+    // Silently fail - lock will expire eventually
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[releaseInstanceLock] Failed to release lock:', err.message)
+    }
   }
 }
 
