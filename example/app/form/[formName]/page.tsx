@@ -1,11 +1,18 @@
 'use client'
 
-import { use, useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
+import * as ReactDOM from 'react-dom'
 import { FormContainer } from '@/components/FormContainer'
 import { FormLoadingState } from '@/components/FormLoadingState'
 import { FormErrorBoundary } from '@/components/FormErrorBoundary'
 import { loadDynamicFormCached } from '@/lib/form-loader'
 import { formRegistry, initializeFormRegistry } from '@/lib/form-registry'
+
+// Make React available globally for dynamically loaded forms
+if (typeof window !== 'undefined') {
+  (window as any).React = React;
+  (window as any).ReactDOM = ReactDOM
+}
 
 interface Props {
   params: Promise<{

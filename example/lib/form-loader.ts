@@ -21,8 +21,9 @@ const CDN_PROVIDERS = [
 function generateCdnUrls(packageName: string, version: string): string[] {
   return CDN_PROVIDERS.map(cdn => {
     if (cdn.includes('esm.sh')) {
-      // esm.sh format: https://esm.sh/@scope/package@version
-      return `${cdn}/${packageName}@${version}?bundle`
+      // esm.sh format with external deps
+      // Esto le dice a esm.sh que use React del browser (window.React)
+      return `${cdn}/${packageName}@${version}?external=react,react-dom`
     } else if (cdn.includes('jsdelivr')) {
       // jsdelivr format: https://cdn.jsdelivr.net/npm/@scope/package@version/+esm
       return `${cdn}/${packageName}@${version}/+esm`
