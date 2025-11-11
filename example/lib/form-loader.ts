@@ -5,6 +5,17 @@
  * Los forms pueden venir de cualquier monorepo y se cargan en runtime.
  */
 
+import React from 'react'
+import * as ReactDOM from 'react-dom'
+
+// Make React available globally for dynamically loaded forms
+// Esto DEBE ejecutarse antes de cargar cualquier form
+if (typeof window !== 'undefined') {
+  (window as any).React = React;
+  (window as any).ReactDOM = ReactDOM;
+  console.log('[Form Loader] React exposed globally for dynamic forms')
+}
+
 /**
  * CDNs soportados para cargar ESM modules
  * Se intentan en orden hasta que uno funcione
