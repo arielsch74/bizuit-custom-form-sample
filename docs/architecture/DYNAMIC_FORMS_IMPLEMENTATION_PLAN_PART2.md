@@ -1,4 +1,4 @@
-# Bizuit Dynamic Forms System - Plan de Implementación (Parte 2)
+# Bizuit Custom Forms System - Plan de Implementación (Parte 2)
 
 **Continuación de:** [DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md](./DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md)
 
@@ -720,7 +720,7 @@ export function FormContainer({ formName, children }: Props) {
 
       <footer className="border-t mt-auto">
         <div className="container mx-auto px-4 py-4 text-center text-sm text-muted-foreground">
-          Powered by Bizuit Dynamic Forms v1.0.0
+          Powered by Bizuit Custom Forms v1.0.0
         </div>
       </footer>
     </div>
@@ -922,36 +922,31 @@ module.exports = nextConfig
 
 #### Día 1-2: Setup y Database
 
-**1. Crear proyecto**
+**1. Crear proyecto .NET Core**
 
 ```bash
-mkdir bizuit-bpm-backend
-cd bizuit-bpm-backend
+# Este controller se integra al proyecto existente:
+# Tycon.Bizuit.WebForms.API/Controllers/CustomFormsController.cs
 
-npm init -y
-npm install express pg dotenv cors helmet
-npm install -D typescript @types/express @types/node @types/pg ts-node nodemon
+# No se requiere proyecto separado - usa la infraestructura existente
+dotnet add package Microsoft.Data.SqlClient
+dotnet add package Dapper  # Opcional, para queries simplificados
 ```
 
-**2. Setup TypeScript**
+**2. Configurar Connection String**
 
 ```json
-// tsconfig.json
+// appsettings.json
 {
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "commonjs",
-    "lib": ["ES2020"],
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+  "ConnectionStrings": {
+    "BizuitDatabase": "Server=your-server;Database=BizuitDB;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True"
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  }
 }
 ```
 
@@ -960,15 +955,15 @@ npm install -D typescript @types/express @types/node @types/pg ts-node nodemon
 SQL ya provisto en Parte 1, sección 3.3.1
 
 ```bash
-# Ejecutar migration
-psql -U postgres -d bizuit_bpm -f database/migrations/001_create_forms_table.sql
+# Ejecutar migration con SQL Server Management Studio (SSMS) o:
+sqlcmd -S your-server -d BizuitDB -i database/migrations/001_create_custom_forms_tables.sql
 ```
 
 **4. Seeds iniciales**
 
 ```sql
 -- database/seeds/initial_forms.sql
-INSERT INTO bizuit_forms (form_name, package_name, current_version, process_name, description, author, status)
+INSERT INTO CustomForms (FormName, PackageName, CurrentVersion, ProcessName, Description, Author, Status)
 VALUES
   ('aprobacion-gastos', '@bizuit-forms/aprobacion-gastos', '1.0.0', 'AprobacionGastos', 'Formulario de aprobación de gastos', 'Bizuit Team', 'active'),
   ('solicitud-vacaciones', '@bizuit-forms/solicitud-vacaciones', '1.0.0', 'SolicitudVacaciones', 'Solicitud de vacaciones', 'Bizuit Team', 'active'),
@@ -979,82 +974,85 @@ VALUES
 
 Código ya provisto en Parte 1, sección 3.3.2 y 3.3.3
 
-**Adicional: GitHub Service**
+**Adicional: GitHub Service** (Integrado en .NET Core)
 
-```typescript
-// src/services/github.service.ts
-import { Octokit } from '@octokit/rest'
+```csharp
+// Services/GitHubService.cs
+using Octokit;
+using System;
+using System.Text;
+using System.Threading.Tasks;
 
-export class GitHubService {
-  private octokit: Octokit
+public class GitHubService
+{
+  private readonly GitHubClient _client;
+  private readonly IConfiguration _config;
 
-  constructor() {
-    this.octokit = new Octokit({
-      auth: process.env.GITHUB_TOKEN
-    })
+  public GitHubService(IConfiguration config)
+  {
+    _config = config;
+    _client = new GitHubClient(new ProductHeaderValue("BizuitCustomForms"));
+    var tokenAuth = new Credentials(config["GitHub:Token"]);
+    _client.Credentials = tokenAuth;
   }
 
-  /**
-   * Obtiene código fuente de un form desde GitHub
-   */
-  async getFormSource(formName: string): Promise<string> {
-    try {
-      const { data } = await this.octokit.repos.getContent({
-        owner: process.env.GITHUB_OWNER!,
-        repo: 'forms-monorepo',
-        path: `forms/${formName}/index.tsx`,
-        ref: 'main'
-      })
+  /// <summary>
+  /// Obtiene código fuente de un form desde GitHub
+  /// </summary>
+  public async Task<string> GetFormSourceAsync(string formName)
+  {
+    try
+    {
+      var owner = _config["GitHub:Owner"];
+      var repo = "forms-monorepo";
+      var path = $"forms/{formName}/index.tsx";
 
-      if ('content' in data) {
-        return Buffer.from(data.content, 'base64').toString('utf-8')
+      var contents = await _client.Repository.Content.GetAllContents(owner, repo, path);
+      var content = contents[0];
+
+      if (content.Type == ContentType.File)
+      {
+        var bytes = Convert.FromBase64String(content.Content);
+        return Encoding.UTF8.GetString(bytes);
       }
 
-      throw new Error('File not found')
-
-    } catch (err: any) {
-      console.error('[GitHub] Error fetching source:', err)
-      throw new Error(`Failed to fetch source: ${err.message}`)
+      throw new Exception("File not found");
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"[GitHub] Error fetching source: {ex.Message}");
+      throw new Exception($"Failed to fetch source: {ex.Message}");
     }
   }
 
-  /**
-   * Commitea cambios a un form
-   */
-  async commitFormChange(
-    formName: string,
-    content: string,
-    message: string
-  ): Promise<void> {
-    try {
-      const path = `forms/${formName}/index.tsx`
+  /// <summary>
+  /// Commitea cambios a un form
+  /// </summary>
+  public async Task CommitFormChangeAsync(string formName, string content, string message)
+  {
+    try
+    {
+      var owner = _config["GitHub:Owner"];
+      var repo = "forms-monorepo";
+      var path = $"forms/{formName}/index.tsx";
 
       // Get current file SHA
-      const { data: currentFile } = await this.octokit.repos.getContent({
-        owner: process.env.GITHUB_OWNER!,
-        repo: 'forms-monorepo',
-        path,
-        ref: 'main'
-      })
-
-      const sha = 'sha' in currentFile ? currentFile.sha : undefined
+      var existingFile = await _client.Repository.Content.GetAllContents(owner, repo, path);
+      var sha = existingFile[0].Sha;
 
       // Update file
-      await this.octokit.repos.createOrUpdateFileContents({
-        owner: process.env.GITHUB_OWNER!,
-        repo: 'forms-monorepo',
-        path,
-        message,
-        content: Buffer.from(content).toString('base64'),
-        sha,
-        branch: 'main'
-      })
+      var contentBytes = Encoding.UTF8.GetBytes(content);
+      var base64Content = Convert.ToBase64String(contentBytes);
 
-      console.log(`[GitHub] Committed changes to ${formName}`)
+      var updateRequest = new UpdateFileRequest(message, base64Content, sha);
+      await _client.Repository.Content.UpdateFile(owner, repo, path, updateRequest);
 
-    } catch (err: any) {
-      console.error('[GitHub] Error committing:', err)
-      throw new Error(`Failed to commit: ${err.message}`)
+      Console.WriteLine($"[GitHub] Committed changes to {formName}");
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine($"[GitHub] Error committing: {ex.Message}");
+      throw new Exception($"Failed to commit: {ex.Message}");
     }
   }
 }
@@ -1062,51 +1060,81 @@ export class GitHubService {
 
 #### Día 6-7: Testing y Documentation
 
-**Tests de API**
+**Tests de API** (.NET Core con xUnit)
 
-```typescript
-// tests/controllers/forms.controller.test.ts
-import request from 'supertest'
-import app from '../../src/app'
+```csharp
+// Tests/Controllers/CustomFormsControllerTests.cs
+using Xunit;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
-describe('Forms API', () => {
-  describe('GET /api/forms', () => {
-    it('should return all forms', async () => {
-      const response = await request(app)
-        .get('/api/forms')
-        .expect(200)
+public class CustomFormsControllerTests
+{
+  [Fact]
+  public async Task GetAllForms_ReturnsOkResult()
+  {
+    // Arrange
+    var mockService = new Mock<ICustomFormsService>();
+    mockService.Setup(s => s.GetAllFormsAsync(null))
+      .ReturnsAsync(new List<CustomFormDto>
+      {
+        new CustomFormDto { FormName = "aprobacion-gastos" }
+      });
 
-      expect(Array.isArray(response.body)).toBe(true)
-      expect(response.body.length).toBeGreaterThan(0)
-    })
+    var controller = new CustomFormsController(mockService.Object);
 
-    it('should filter by status', async () => {
-      const response = await request(app)
-        .get('/api/forms?status=active')
-        .expect(200)
+    // Act
+    var result = await controller.GetAllForms(null);
 
-      expect(response.body.every((f: any) => f.status === 'active')).toBe(true)
-    })
-  })
+    // Assert
+    var okResult = Assert.IsType<OkObjectResult>(result);
+    var forms = Assert.IsAssignableFrom<IEnumerable<CustomFormDto>>(okResult.Value);
+    Assert.NotEmpty(forms);
+  }
 
-  describe('GET /api/forms/:formName/metadata', () => {
-    it('should return form metadata', async () => {
-      const response = await request(app)
-        .get('/api/forms/aprobacion-gastos/metadata')
-        .expect(200)
+  [Fact]
+  public async Task GetFormMetadata_ReturnsFormData()
+  {
+    // Arrange
+    var mockService = new Mock<ICustomFormsService>();
+    mockService.Setup(s => s.GetFormMetadataAsync("aprobacion-gastos"))
+      .ReturnsAsync(new CustomFormDto
+      {
+        FormName = "aprobacion-gastos",
+        PackageName = "@bizuit-forms/aprobacion-gastos",
+        CurrentVersion = "1.0.0"
+      });
 
-      expect(response.body).toHaveProperty('packageName')
-      expect(response.body).toHaveProperty('version')
-      expect(response.body.formName).toBe('aprobacion-gastos')
-    })
+    var controller = new CustomFormsController(mockService.Object);
 
-    it('should return 404 for non-existent form', async () => {
-      await request(app)
-        .get('/api/forms/non-existent/metadata')
-        .expect(404)
-    })
-  })
-})
+    // Act
+    var result = await controller.GetFormMetadata("aprobacion-gastos");
+
+    // Assert
+    var okResult = Assert.IsType<OkObjectResult>(result);
+    var form = Assert.IsType<CustomFormDto>(okResult.Value);
+    Assert.Equal("aprobacion-gastos", form.FormName);
+  }
+
+  [Fact]
+  public async Task GetFormMetadata_NonExistent_ReturnsNotFound()
+  {
+    // Arrange
+    var mockService = new Mock<ICustomFormsService>();
+    mockService.Setup(s => s.GetFormMetadataAsync("non-existent"))
+      .ReturnsAsync((CustomFormDto)null);
+
+    var controller = new CustomFormsController(mockService.Object);
+
+    // Act
+    var result = await controller.GetFormMetadata("non-existent");
+
+    // Assert
+    Assert.IsType<NotFoundObjectResult>(result);
+  }
+}
 ```
 
 **Checklist Fase 4:**
@@ -1245,7 +1273,7 @@ Semana 8: Deployment
 
 ## Conclusión
 
-Este plan provee una ruta clara y detallada para implementar el sistema de Bizuit Dynamic Forms. Cada fase es independiente y entregable, permitiendo valor incremental.
+Este plan provee una ruta clara y detallada para implementar el sistema de Bizuit Custom Forms. Cada fase es independiente y entregable, permitiendo valor incremental.
 
 **Fecha estimada de go-live:** 8 semanas desde el inicio
 
@@ -1259,8 +1287,9 @@ Este plan provee una ruta clara y detallada para implementar el sistema de Bizui
 - npm Registry: $0 (público)
 - CDN: $0 (esm.sh/unpkg gratis)
 - Runtime App hosting: ~$50/mes (Vercel Pro)
-- BPM Backend: ~$100/mes (Database + API)
-- **Total: ~$150/mes**
+- SQL Server: $0 (usando BD existente del BPMS Bizuit)
+- .NET Core API: $0 (integrado en proyecto existente)
+- **Total: ~$50/mes** (70% más económico que arquitectura original)
 
 ---
 
