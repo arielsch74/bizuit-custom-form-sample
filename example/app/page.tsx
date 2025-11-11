@@ -38,9 +38,32 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm">
-        <h1 className="text-4xl font-bold mb-8 text-center">
+        <h1 className="text-4xl font-bold mb-4 text-center">
           BIZUIT Custom Forms Samples
         </h1>
+        <p className="text-center text-muted-foreground mb-8">
+          Interactive examples and live demos for Bizuit BPM integration
+        </p>
+
+        {/* Getting Started CTA */}
+        <div className="mb-8">
+          <Link
+            href="/getting-started"
+            className="block max-w-2xl mx-auto bg-gradient-to-r from-primary to-blue-600 text-primary-foreground rounded-lg p-6 hover:shadow-lg transition-all group"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-2xl font-bold mb-2 flex items-center gap-2">
+                  🚀 Getting Started Guide
+                  <span className="inline-block transition-transform group-hover:translate-x-1">→</span>
+                </div>
+                <p className="text-sm opacity-90">
+                  Learn how to integrate Bizuit BPM processes in your app with our interactive guide
+                </p>
+              </div>
+            </div>
+          </Link>
+        </div>
 
         <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-2 lg:text-left gap-4">
           <Link
