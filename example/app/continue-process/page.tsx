@@ -68,17 +68,10 @@ function ContinueProcessForm() {
     if (mounted && urlToken && !urlTokenProcessed) {
       setUrlTokenProcessed(true)
 
-      const mockUserFromToken: ILoginResponse = {
-        Token: urlToken,
-        User: {
-          Username: 'bizuit-user',
-          UserID: 0,
-          DisplayName: 'Usuario Bizuit',
-        },
-        ExpirationDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-      }
+      // Use SDK utility to create auth data from URL token
+      const authData = createAuthFromUrlToken(urlToken, urlUserName, 1440)
 
-      setAuthData(mockUserFromToken)
+      setAuthData(authData)
     }
   }, [mounted, urlToken, urlTokenProcessed, setAuthData])
 
