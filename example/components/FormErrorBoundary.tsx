@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, Button } from '@tyconsa/bizuit-ui-components'
+import { BizuitCard, Button } from '@tyconsa/bizuit-ui-components'
 
 interface Props {
   error: string
@@ -11,7 +11,7 @@ interface Props {
 export function FormErrorBoundary({ error, formName, onRetry }: Props) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <Card className="p-6 max-w-md w-full">
+      <BizuitCard className="p-6 max-w-md w-full">
         <div className="text-center">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
@@ -68,7 +68,7 @@ export function FormErrorBoundary({ error, formName, onRetry }: Props) {
             </details>
           </div>
         </div>
-      </Card>
+      </BizuitCard>
     </div>
   )
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Card, Button } from '@tyconsa/bizuit-ui-components'
+import { BizuitCard, Button } from '@tyconsa/bizuit-ui-components'
 import { formRegistry, initializeFormRegistry, FormMetadata } from '@/lib/form-registry'
 
 export default function FormsListPage() {
@@ -135,7 +135,7 @@ export default function FormsListPage() {
         {!loading && forms.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {forms.map((form) => (
-              <Card key={form.formName} className="p-6 hover:shadow-lg transition-shadow">
+              <BizuitCard key={form.formName} className="p-6 hover:shadow-lg transition-shadow">
                 <div className="flex items-start justify-between mb-3">
                   <h3 className="text-lg font-semibold">{form.formName}</h3>
                   <span className={`px-2 py-1 text-xs rounded-full font-medium ${getStatusColor(form.status)}`}>
@@ -173,7 +173,7 @@ export default function FormsListPage() {
                     Unavailable
                   </Button>
                 )}
-              </Card>
+              </BizuitCard>
             ))}
           </div>
         )}

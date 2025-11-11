@@ -280,7 +280,7 @@ const FormComponent = await loadDynamicForm(
 ```tsx
 // forms/my-form/index.tsx
 import { useBizuitSDK } from '@tyconsa/bizuit-form-sdk'
-import { Card, Button } from '@tyconsa/bizuit-ui-components'
+import { BizuitCard, Button } from '@tyconsa/bizuit-ui-components'
 
 export default function MyForm() {
   const sdk = useBizuitSDK()
@@ -293,10 +293,10 @@ export default function MyForm() {
   }
 
   return (
-    <Card>
+    <BizuitCard>
       <h1>My Custom Form</h1>
       <Button onClick={handleSubmit}>Submit</Button>
-    </Card>
+    </BizuitCard>
   )
 }
 ```
