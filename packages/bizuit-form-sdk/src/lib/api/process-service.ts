@@ -11,6 +11,7 @@ import type {
   IProcessData,
   IStartProcessParams,
   IProcessResult,
+  IRaiseEventParams,
 } from '../types'
 
 export class BizuitProcessService {
@@ -333,5 +334,67 @@ export class BizuitProcessService {
     )
 
     return result
+  }
+
+  /**
+   * @deprecated Use getParameters() instead
+   */
+  async getProcessParameters(
+    processName: string,
+    version?: string,
+    token?: string
+  ): Promise<any[]> {
+    console.warn('getProcessParameters() is deprecated. Use getParameters() instead.')
+    return this.getParameters(processName, version, token)
+  }
+
+  /**
+   * @deprecated Use start() instead
+   */
+  async raiseEvent(
+    params: IStartProcessParams | IRaiseEventParams,
+    files?: File[],
+    token?: string
+  ): Promise<IProcessResult> {
+    console.warn('raiseEvent() is deprecated. Use start() instead.')
+
+    // Normalize to IStartProcessParams if legacy IRaiseEventParams is used
+    const normalizedParams: IStartProcessParams = 'eventName' in params
+      ? {
+          processName: params.eventName,
+          instanceId: params.instanceId,
+          parameters: params.parameters,
+          processVersion: (params as IRaiseEventParams).eventVersion,
+          closeOnSuccess: params.closeOnSuccess,
+          deletedDocuments: params.deletedDocuments
+        }
+      : params
+
+    return this.start(normalizedParams, files, token)
+  }
+
+  /**
+   * @deprecated Use continue() instead
+   */
+  async continueInstance(
+    params: IStartProcessParams | IRaiseEventParams,
+    files?: File[],
+    token?: string
+  ): Promise<IProcessResult> {
+    console.warn('continueInstance() is deprecated. Use continue() instead.')
+
+    // Normalize to IStartProcessParams if legacy IRaiseEventParams is used
+    const normalizedParams: IStartProcessParams = 'eventName' in params
+      ? {
+          processName: params.eventName,
+          instanceId: params.instanceId,
+          parameters: params.parameters,
+          processVersion: (params as IRaiseEventParams).eventVersion,
+          closeOnSuccess: params.closeOnSuccess,
+          deletedDocuments: params.deletedDocuments
+        }
+      : params
+
+    return this.continue(normalizedParams, files, token)
   }
 }
