@@ -218,7 +218,7 @@ stages:
 
                       # Install production dependencies
                       Write-Host "Installing production dependencies..."
-                      npm ci --production
+                      npm install --production
 
                       # Verify server.js exists
                       if (Test-Path "server.js") {
