@@ -152,13 +152,16 @@ stages:
                       Write-Host "Preparing deployment directory..."
 
                       # Stop IIS Application Pool to release file locks
-                      $appPoolName = "DefaultAppPool"  # Adjust if using different app pool
+                      $appPoolName = "BizuitCustomFormsSample"
                       Write-Host "Stopping Application Pool: $appPoolName"
                       try {
-                          Stop-WebAppPool -Name $appPoolName -ErrorAction SilentlyContinue
-                          Start-Sleep -Seconds 3
+                          Import-Module WebAdministration -ErrorAction SilentlyContinue
+                          Stop-WebAppPool -Name $appPoolName -ErrorAction Stop
+                          Write-Host "✓ App Pool '$appPoolName' stopped successfully"
+                          Start-Sleep -Seconds 5  # Wait for IIS to fully release locks
                       } catch {
-                          Write-Host "Could not stop app pool (may not exist yet): $_"
+                          Write-Host "⚠ Could not stop app pool '$appPoolName': $_"
+                          Write-Host "Attempting to continue anyway..."
                       }
 
                       # Kill any Node.js processes running in the deployment directory
@@ -259,13 +262,16 @@ stages:
                       }
 
                       # Start IIS Application Pool
-                      $appPoolName = "DefaultAppPool"  # Adjust if using different app pool
+                      $appPoolName = "BizuitCustomFormsSample"
                       Write-Host "Starting Application Pool: $appPoolName"
                       try {
-                          Start-WebAppPool -Name $appPoolName -ErrorAction SilentlyContinue
-                          Write-Host "✓ Application Pool started"
+                          Import-Module WebAdministration -ErrorAction SilentlyContinue
+                          Start-WebAppPool -Name $appPoolName -ErrorAction Stop
+                          Write-Host "✓ Application Pool '$appPoolName' started successfully"
+                          Start-Sleep -Seconds 2
                       } catch {
-                          Write-Host "Could not start app pool: $_"
+                          Write-Host "⚠ Could not start app pool '$appPoolName': $_"
+                          Write-Host "You may need to start it manually via IIS Manager"
                       }
 
                       Write-Host "Deployment completed successfully!"
