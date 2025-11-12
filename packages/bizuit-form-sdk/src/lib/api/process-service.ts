@@ -1,6 +1,6 @@
 /**
  * Bizuit Process Service
- * Handles process initialization and RaiseEvent operations
+ * Handles process initialization, start and continue operations
  * Updated to match Bizuit API specification exactly
  */
 
@@ -9,8 +9,10 @@ import type {
   IBizuitConfig,
   IInitializeParams,
   IProcessData,
+  IStartProcessParams,
+  IProcessResult,
+  // Legacy types for backward compatibility
   IRaiseEventParams,
-  IRaiseEventResult,
 } from '../types'
 
 export class BizuitProcessService {
@@ -78,7 +80,7 @@ export class BizuitProcessService {
   }
 
   /**
-   * RaiseEvent - Execute process or continue instance
+   * Start process - Execute process or start new instance
    * Sends JSON directly as per Bizuit API specification
    *
    * Example from curl:
@@ -97,11 +99,11 @@ export class BizuitProcessService {
    *   ]
    * }
    */
-  async raiseEvent(
-    params: IRaiseEventParams,
+  async start(
+    params: IStartProcessParams | IRaiseEventParams,
     files?: File[],
     token?: string
-  ): Promise<IRaiseEventResult> {
+  ): Promise<IProcessResult> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     }
@@ -111,9 +113,13 @@ export class BizuitProcessService {
       headers['Authorization'] = token
     }
 
+    // Normalize params to handle both new and legacy interfaces
+    const processName = 'processName' in params ? params.processName : (params as IRaiseEventParams).eventName
+    const processVersion = 'processVersion' in params ? params.processVersion : (params as IRaiseEventParams).eventVersion
+
     // Build the payload exactly as the API expects
     const payload: any = {
-      eventName: params.eventName,
+      eventName: processName,
       parameters: params.parameters || [],
     }
 
@@ -122,8 +128,8 @@ export class BizuitProcessService {
       payload.instanceId = params.instanceId
     }
 
-    if (params.eventVersion) {
-      payload.eventVersion = params.eventVersion
+    if (processVersion) {
+      payload.eventVersion = processVersion
     }
 
     if (params.closeOnSuccess !== undefined) {
@@ -137,10 +143,10 @@ export class BizuitProcessService {
     // Note: File upload support would require multipart/form-data
     // For now, we're implementing JSON-only as per the curl examples
     if (files && files.length > 0) {
-      console.warn('File upload in RaiseEvent is not yet implemented in JSON mode')
+      console.warn('File upload in start is not yet implemented in JSON mode')
     }
 
-    const result = await this.client.post<IRaiseEventResult>(
+    const result = await this.client.post<IProcessResult>(
       `${this.formsApiUrl}/instances`,
       payload,
       { headers }
@@ -162,7 +168,7 @@ export class BizuitProcessService {
    * - parameterDirection: 1 (In), 2 (Out), 3 (Optional)
    * - name, type, schema, isSystemParameter, isVariable
    */
-  async getProcessParameters(
+  async getParameters(
     processName: string,
     version?: string,
     token?: string
@@ -263,13 +269,13 @@ export class BizuitProcessService {
    *   "instanceId": "e3137f94-0ab5-4ae7-b256-10806fe92958"
    * }
    */
-  async continueInstance(
-    params: IRaiseEventParams,
+  async continue(
+    params: IStartProcessParams | IRaiseEventParams,
     files?: File[],
     token?: string
-  ): Promise<IRaiseEventResult> {
+  ): Promise<IProcessResult> {
     if (!params.instanceId) {
-      throw new Error('instanceId is required for continueInstance')
+      throw new Error('instanceId is required for continue')
     }
 
     const headers: Record<string, string> = {
@@ -280,14 +286,18 @@ export class BizuitProcessService {
       headers['Authorization'] = token
     }
 
+    // Normalize params to handle both new and legacy interfaces
+    const processName = 'processName' in params ? params.processName : (params as IRaiseEventParams).eventName
+    const processVersion = 'processVersion' in params ? params.processVersion : (params as IRaiseEventParams).eventVersion
+
     const payload: any = {
-      eventName: params.eventName,
+      eventName: processName,
       parameters: params.parameters || [],
       instanceId: params.instanceId,
     }
 
-    if (params.eventVersion) {
-      payload.eventVersion = params.eventVersion
+    if (processVersion) {
+      payload.eventVersion = processVersion
     }
 
     if (params.closeOnSuccess !== undefined) {
@@ -299,15 +309,51 @@ export class BizuitProcessService {
     }
 
     if (files && files.length > 0) {
-      console.warn('File upload in continueInstance is not yet implemented in JSON mode')
+      console.warn('File upload in continue is not yet implemented in JSON mode')
     }
 
-    const result = await this.client.put<IRaiseEventResult>(
+    const result = await this.client.put<IProcessResult>(
       `${this.formsApiUrl}/instances`,
       payload,
       { headers }
     )
 
     return result
+  }
+
+  /**
+   * @deprecated Use start() instead
+   */
+  async raiseEvent(
+    params: IRaiseEventParams,
+    files?: File[],
+    token?: string
+  ): Promise<IProcessResult> {
+    console.warn('raiseEvent() is deprecated. Use start() instead.')
+    return this.start(params, files, token)
+  }
+
+  /**
+   * @deprecated Use continue() instead
+   */
+  async continueInstance(
+    params: IRaiseEventParams,
+    files?: File[],
+    token?: string
+  ): Promise<IProcessResult> {
+    console.warn('continueInstance() is deprecated. Use continue() instead.')
+    return this.continue(params, files, token)
+  }
+
+  /**
+   * @deprecated Use getParameters() instead
+   */
+  async getProcessParameters(
+    processName: string,
+    version?: string,
+    token?: string
+  ): Promise<any[]> {
+    console.warn('getProcessParameters() is deprecated. Use getParameters() instead.')
+    return this.getParameters(processName, version, token)
   }
 }

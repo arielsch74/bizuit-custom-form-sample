@@ -5,7 +5,7 @@ Core SDK for Bizuit BPM form integration. Provides authentication, process manag
 ## Features
 
 - ✅ **Authentication & Authorization** - Token validation, user info, permission checks
-- ✅ **Process Management** - Initialize processes, execute RaiseEvent, handle parameters
+- ✅ **Process Management** - Initialize, start and continue processes, handle parameters
 - ✅ **Instance Locking** - Pessimistic locking for concurrent access control
 - ✅ **TypeScript Support** - Full type safety with TypeScript definitions
 - ✅ **React Hooks** - Easy integration with React applications
@@ -32,7 +32,7 @@ There are **three main approaches** to building forms with Bizuit BPM. Choose th
 
 ```typescript
 // Auto-generate fields from API
-const params = await sdk.process.getProcessParameters('ProcessName', '', token)
+const params = await sdk.process.getParameters('ProcessName', '', token)
 
 // Render fields dynamically
 {params.map(param => (
@@ -46,7 +46,7 @@ const params = await sdk.process.getProcessParameters('ProcessName', '', token)
 
 // Send ALL fields
 const parameters = formDataToParameters(formData)
-await sdk.process.raiseEvent({ eventName, parameters }, undefined, token)
+await sdk.process.start({ processName: 'ProcessName', parameters }, undefined, token)
 ```
 
 ✅ **Pros:** No code changes for new parameters, fast development
@@ -74,7 +74,7 @@ const [formData, setFormData] = useState({
 
 // Send ALL fields
 const parameters = formDataToParameters(formData)
-await sdk.process.raiseEvent({ eventName, parameters }, undefined, token)
+await sdk.process.start({ processName, parameters }, undefined, token)
 ```
 
 ✅ **Pros:** Full UI control, custom validations
@@ -108,7 +108,7 @@ const mapping = {
 
 // Send ONLY mapped fields with transformations
 const parameters = buildParameters(mapping, formData)
-await sdk.process.raiseEvent({ eventName, parameters }, undefined, token)
+await sdk.process.start({ processName, parameters }, undefined, token)
 ```
 
 ✅ **Pros:** Full control, selective sending, value transformations, better performance
@@ -159,7 +159,7 @@ const handleSubmit = async (e) => {
   const allParameters = [...visibleParams, ...hiddenParams]
 
   // Send to Bizuit
-  await sdk.process.raiseEvent({ eventName: 'SolicitudGasto', parameters: allParameters }, undefined, token)
+  await sdk.process.start({ processName: 'SolicitudGasto', parameters: allParameters }, undefined, token)
 
   console.log(`Total: ${allParameters.length} parameters`)
   console.log(`- Visible: ${visibleParams.length}`)
@@ -191,7 +191,7 @@ const handleSubmit = async () => {
   ]
 
   // Send both
-  await sdk.process.raiseEvent({
+  await sdk.process.start({
     eventName: 'Proceso',
     parameters: [...visibleParams, ...hiddenParams]
   }, undefined, token)
@@ -268,7 +268,7 @@ const handleSubmit = async (e) => {
 
 const confirmSubmit = async () => {
   try {
-    const result = await sdk.process.raiseEvent({
+    const result = await sdk.process.start({
       eventName: 'SolicitudGasto',
       parameters: paramsToSend.all
     }, undefined, token)
@@ -393,7 +393,7 @@ function StartProcessForm() {
     }))
 
     // 3. Execute RaiseEvent
-    const result = await sdk.process.raiseEvent({
+    const result = await sdk.process.start({
       eventName: 'MyProcess',
       parameters,
     })
@@ -439,7 +439,7 @@ function ContinueProcessForm({ instanceId }: { instanceId: string }) {
         }))
 
         // 3. Execute RaiseEvent
-        const result = await sdk.process.raiseEvent(
+        const result = await sdk.process.start(
           {
             eventName: 'MyProcess',
             instanceId,
@@ -512,7 +512,7 @@ const processData = await sdk.process.initialize({
 })
 
 // Execute RaiseEvent
-const result = await sdk.process.raiseEvent({
+const result = await sdk.process.start({
   eventName: 'MyProcess',
   parameters: [
     { name: 'param1', value: 'value1', type: 'SingleValue', direction: 'In' },
@@ -520,7 +520,7 @@ const result = await sdk.process.raiseEvent({
 })
 
 // With files
-const result = await sdk.process.raiseEvent(
+const result = await sdk.process.start(
   {
     eventName: 'MyProcess',
     parameters: [...],
@@ -705,7 +705,7 @@ const parameters = formDataToParameters(formData)
 ]
 
 // Send to Bizuit
-await sdk.process.raiseEvent({
+await sdk.process.start({
   eventName: 'SolicitudGasto',
   parameters
 }, undefined, token)
@@ -788,7 +788,7 @@ import type {
 import { BizuitError, handleError } from '@bizuit/form-sdk'
 
 try {
-  await sdk.process.raiseEvent(...)
+  await sdk.process.start(...)
 } catch (error) {
   const bizuitError = handleError(error)
 

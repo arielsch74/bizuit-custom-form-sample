@@ -20,7 +20,7 @@ export interface IParameter {
   hasBinding?: boolean
 }
 
-export interface IEventParameter extends IParameter {
+export interface IProcessParameter extends IParameter {
   parameterType: 1 | 2 // 1 = SingleValue, 2 = Complex
 }
 
@@ -53,6 +53,23 @@ export interface IActivityResult {
   status: string
 }
 
+export interface IStartProcessParams {
+  processName: string
+  instanceId?: string
+  parameters: IParameter[]
+  processVersion?: string
+  closeOnSuccess?: boolean
+  deletedDocuments?: string[]
+}
+
+export interface IProcessResult {
+  instanceId: string
+  status: ProcessStatus
+  parameters: IProcessParameter[]
+  errorMessage?: string
+}
+
+// @deprecated Use IStartProcessParams instead
 export interface IRaiseEventParams {
   eventName: string
   instanceId?: string
@@ -62,11 +79,17 @@ export interface IRaiseEventParams {
   deletedDocuments?: string[]
 }
 
+// @deprecated Use IProcessResult instead
 export interface IRaiseEventResult {
   instanceId: string
   status: ProcessStatus
-  parameters: IEventParameter[]
+  parameters: IProcessParameter[]
   errorMessage?: string
+}
+
+// @deprecated Use IProcessParameter instead
+export interface IEventParameter extends IParameter {
+  parameterType: 1 | 2 // 1 = SingleValue, 2 = Complex
 }
 
 export interface IInstanceData {
