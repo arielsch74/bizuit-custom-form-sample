@@ -63,8 +63,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Limpiar cache del form específico
-    clearFormCache(packageName)
+    // Limpiar cache de todos los forms
+    clearFormCache()
 
     // Recargar registry desde API (si está configurado)
     const apiUrl = process.env.CUSTOM_FORMS_API_URL

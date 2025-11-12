@@ -166,12 +166,22 @@ function ContinueProcessForm() {
       // Build parameters preserving the original direction (In, Optional, Variable)
       const parameters = processParameters
         .filter(param => formData[param.name] !== undefined && formData[param.name] !== null && formData[param.name] !== '')
-        .map(param => ({
-          name: param.name,
-          value: String(formData[param.name]),
-          type: param.parameterType || 'SingleValue',
-          direction: param.direction || 'In'
-        }))
+        .map(param => {
+          // Map parameterType number to string
+          const type = param.parameterType === 2 ? 'Xml' : 'SingleValue'
+
+          // Map parameterDirection number to string
+          let direction: 'In' | 'Out' | 'Optional' = 'In'
+          if (param.parameterDirection === 2) direction = 'Out'
+          else if (param.parameterDirection === 3) direction = 'Optional'
+
+          return {
+            name: param.name,
+            value: String(formData[param.name]),
+            type,
+            direction
+          }
+        })
 
       if (process.env.NODE_ENV === 'development') {
         console.log('[ContinueProcess] Submitting with:', {
