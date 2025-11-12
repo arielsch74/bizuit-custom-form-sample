@@ -50,7 +50,10 @@ export default function SolicitudVacacionesForm() {
           Solicitud de Vacaciones
         </h1>
         <p className="text-slate-600 dark:text-slate-400 mb-6">
-          Complete el formulario para solicitar sus días de vacaciones
+          📅 Complete el formulario para solicitar sus días de vacaciones
+        </p>
+        <p className="text-sm text-slate-500 dark:text-slate-500 mb-6">
+          Versión 1.1.0 - Solicitud de vacaciones mejorada
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
