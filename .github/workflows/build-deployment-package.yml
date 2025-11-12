@@ -124,21 +124,21 @@ jobs:
             "forms": [
           EOF
 
-          # Agregar cada form al manifest
+          # Agregar SOLO los forms compilados al manifest
+          FORMS_TO_MANIFEST="${{ steps.changed_forms.outputs.changed_forms }}"
           first=true
-          for form_dir in $(find . -type f -name "form.js" -path "*/dist/form.js" | xargs dirname | xargs dirname); do
-            form_name=$(basename "$form_dir")
 
-            # Leer package.json del form
-            if [ -f "$form_dir/package.json" ]; then
-              version=$(jq -r '.version // "1.0.0"' "$form_dir/package.json")
-              description=$(jq -r '.description // "Custom form"' "$form_dir/package.json")
-              author=$(jq -r '.author // "Bizuit Team"' "$form_dir/package.json")
+          for form_name in $FORMS_TO_MANIFEST; do
+            # Verificar que exista el form compilado
+            if [ -d "$form_name" ] && [ -f "$form_name/package.json" ] && [ -f "$form_name/dist/form.js" ]; then
+              version=$(jq -r '.version // "1.0.0"' "$form_name/package.json")
+              description=$(jq -r '.description // "Custom form"' "$form_name/package.json")
+              author=$(jq -r '.author // "Bizuit Team"' "$form_name/package.json")
 
               # ProcessName = FormName con capitalización (AprobacionGastos)
               process_name=$(echo "$form_name" | sed -r 's/(^|-)([a-z])/\U\2/g')
 
-              size=$(wc -c < "$form_dir/dist/form.js")
+              size=$(wc -c < "$form_name/dist/form.js")
 
               # Agregar coma si no es el primero
               if [ "$first" = false ]; then
@@ -186,14 +186,15 @@ jobs:
           # Copiar manifest.json
           cp manifest.json deployment-package/
 
-          # Copiar forms compilados
-          for form_dir in $(find . -type f -name "form.js" -path "*/dist/form.js" | xargs dirname | xargs dirname); do
-            form_name=$(basename "$form_dir")
+          # Copiar SOLO los forms que fueron compilados
+          FORMS_TO_PACKAGE="${{ steps.changed_forms.outputs.changed_forms }}"
 
-            mkdir -p "deployment-package/forms/$form_name"
-            cp "$form_dir/dist/form.js" "deployment-package/forms/$form_name/"
-
-            echo "  ✅ Copied: $form_name"
+          for form_name in $FORMS_TO_PACKAGE; do
+            if [ -d "$form_name" ] && [ -f "$form_name/dist/form.js" ]; then
+              mkdir -p "deployment-package/forms/$form_name"
+              cp "$form_name/dist/form.js" "deployment-package/forms/$form_name/"
+              echo "  ✅ Copied: $form_name"
+            fi
           done
 
           echo "📂 Package structure:"
