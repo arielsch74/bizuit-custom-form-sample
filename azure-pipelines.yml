@@ -11,9 +11,6 @@ trigger:
       - packages/**
       - azure-pipelines.yml
 
-pool:
-  name: Testbizuitcom
-
 variables:
   nodeVersion: '22.x'
   deployPath: 'E:\DevSites\BIZUITCustomForms'
@@ -24,6 +21,8 @@ variables:
 stages:
   - stage: Build
     displayName: 'Build Application'
+    pool:
+      vmImage: 'windows-latest'
     jobs:
       - job: BuildJob
         displayName: 'Build Next.js App'
@@ -128,6 +127,8 @@ stages:
     displayName: 'Deploy to Server'
     dependsOn: Build
     condition: succeeded()
+    pool:
+      name: Testbizuitcom
     jobs:
       - deployment: DeployJob
         displayName: 'Deploy Next.js App'
