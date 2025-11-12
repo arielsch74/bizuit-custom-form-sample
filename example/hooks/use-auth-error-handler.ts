@@ -9,7 +9,7 @@
  * const handleAuthError = useAuthErrorHandler()
  *
  * try {
- *   await sdk.process.getProcessParameters(...)
+ *   await sdk.process.getParameters(...)
  * } catch (error) {
  *   handleAuthError(error) // Auto-logout si es 401
  *   // Continuar con manejo normal del error

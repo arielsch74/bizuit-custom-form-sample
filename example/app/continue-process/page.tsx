@@ -163,31 +163,32 @@ function ContinueProcessForm() {
       setError(null)
 
       // Only send parameters that are in formParameters (excludes metadata like initiatedBy, LoggedUser, etc.)
-      // Create a filtered formData with only the editable parameters
-      const filteredFormData: Record<string, any> = {}
-      processParameters.forEach(param => {
-        if (formData[param.name] !== undefined) {
-          filteredFormData[param.name] = formData[param.name]
-        }
-      })
+      // Build parameters preserving the original direction (In, Optional, Variable)
+      const parameters = processParameters
+        .filter(param => formData[param.name] !== undefined && formData[param.name] !== null && formData[param.name] !== '')
+        .map(param => ({
+          name: param.name,
+          value: String(formData[param.name]),
+          type: param.parameterType || 'SingleValue',
+          direction: param.direction || 'In'
+        }))
 
       if (process.env.NODE_ENV === 'development') {
         console.log('[ContinueProcess] Submitting with:', {
           instanceId,
           eventName,
-          allParametersCount: formDataToParameters(formData).length,
-          filteredParametersCount: formDataToParameters(filteredFormData).length,
-          parameterNames: Object.keys(filteredFormData)
+          parametersCount: parameters.length,
+          parameters: parameters
         })
       }
 
       // Submit changes using the event name from instance data
       // IMPORTANT: Only send filtered parameters (excludes metadata)
-      const result = await sdk.process.continueInstance(
+      const result = await sdk.process.continue(
         {
           instanceId,
-          eventName, // Use dynamic event name from instance data
-          parameters: formDataToParameters(filteredFormData), // Use filtered data
+          processName: eventName, // Use dynamic event name from instance data
+          parameters: parameters, // Parameters with preserved direction
         },
         formData.files || [], // Pass the files from formData
         activeToken // Pass the authentication token

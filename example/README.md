@@ -191,7 +191,7 @@ import { useBizuitSDK, filterFormParameters, formDataToParameters } from '@tycon
 import { DynamicFormField } from '@tyconsa/bizuit-ui-components'
 
 // Get process parameters
-const allParams = await sdk.process.getProcessParameters('ProcessName', '', token)
+const allParams = await sdk.process.getParameters('ProcessName', '', token)
 const formParams = filterFormParameters(allParams) // Only input params
 
 // Render form
@@ -205,7 +205,7 @@ const formParams = filterFormParameters(allParams) // Only input params
 ))}
 
 // Submit
-const result = await sdk.process.raiseEvent({
+const result = await sdk.process.start({
   eventName: 'ProcessName',
   parameters: formDataToParameters(formData),
 }, [], token)

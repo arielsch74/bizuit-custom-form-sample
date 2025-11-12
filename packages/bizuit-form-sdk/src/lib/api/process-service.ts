@@ -11,8 +11,6 @@ import type {
   IProcessData,
   IStartProcessParams,
   IProcessResult,
-  // Legacy types for backward compatibility
-  IRaiseEventParams,
 } from '../types'
 
 export class BizuitProcessService {
@@ -100,7 +98,7 @@ export class BizuitProcessService {
    * }
    */
   async start(
-    params: IStartProcessParams | IRaiseEventParams,
+    params: IStartProcessParams,
     files?: File[],
     token?: string
   ): Promise<IProcessResult> {
@@ -113,13 +111,9 @@ export class BizuitProcessService {
       headers['Authorization'] = token
     }
 
-    // Normalize params to handle both new and legacy interfaces
-    const processName = 'processName' in params ? params.processName : (params as IRaiseEventParams).eventName
-    const processVersion = 'processVersion' in params ? params.processVersion : (params as IRaiseEventParams).eventVersion
-
     // Build the payload exactly as the API expects
     const payload: any = {
-      eventName: processName,
+      eventName: params.processName,
       parameters: params.parameters || [],
     }
 
@@ -128,8 +122,8 @@ export class BizuitProcessService {
       payload.instanceId = params.instanceId
     }
 
-    if (processVersion) {
-      payload.eventVersion = processVersion
+    if (params.processVersion) {
+      payload.eventVersion = params.processVersion
     }
 
     if (params.closeOnSuccess !== undefined) {
@@ -270,7 +264,7 @@ export class BizuitProcessService {
    * }
    */
   async continue(
-    params: IStartProcessParams | IRaiseEventParams,
+    params: IStartProcessParams,
     files?: File[],
     token?: string
   ): Promise<IProcessResult> {
@@ -286,18 +280,14 @@ export class BizuitProcessService {
       headers['Authorization'] = token
     }
 
-    // Normalize params to handle both new and legacy interfaces
-    const processName = 'processName' in params ? params.processName : (params as IRaiseEventParams).eventName
-    const processVersion = 'processVersion' in params ? params.processVersion : (params as IRaiseEventParams).eventVersion
-
     const payload: any = {
-      eventName: processName,
+      eventName: params.processName,
       parameters: params.parameters || [],
       instanceId: params.instanceId,
     }
 
-    if (processVersion) {
-      payload.eventVersion = processVersion
+    if (params.processVersion) {
+      payload.eventVersion = params.processVersion
     }
 
     if (params.closeOnSuccess !== undefined) {
@@ -322,38 +312,26 @@ export class BizuitProcessService {
   }
 
   /**
-   * @deprecated Use start() instead
+   * Get Bizuit configuration settings for an organization
+   * @param organizationId - Organization identifier
+   * @param token - Authentication token
+   * @returns Configuration settings object
    */
-  async raiseEvent(
-    params: IRaiseEventParams,
-    files?: File[],
+  async getConfigurationSettings(
+    organizationId: string,
     token?: string
-  ): Promise<IProcessResult> {
-    console.warn('raiseEvent() is deprecated. Use start() instead.')
-    return this.start(params, files, token)
-  }
+  ): Promise<Record<string, any>> {
+    const headers: Record<string, string> = {}
 
-  /**
-   * @deprecated Use continue() instead
-   */
-  async continueInstance(
-    params: IRaiseEventParams,
-    files?: File[],
-    token?: string
-  ): Promise<IProcessResult> {
-    console.warn('continueInstance() is deprecated. Use continue() instead.')
-    return this.continue(params, files, token)
-  }
+    if (token) {
+      headers['Authorization'] = token
+    }
 
-  /**
-   * @deprecated Use getParameters() instead
-   */
-  async getProcessParameters(
-    processName: string,
-    version?: string,
-    token?: string
-  ): Promise<any[]> {
-    console.warn('getProcessParameters() is deprecated. Use getParameters() instead.')
-    return this.getParameters(processName, version, token)
+    const result = await this.client.get<Record<string, any>>(
+      `${this.formsApiUrl}/bpmn/configuration-settings?organizationId=${organizationId}`,
+      { headers }
+    )
+
+    return result
   }
 }

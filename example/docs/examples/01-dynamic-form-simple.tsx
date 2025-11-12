@@ -57,7 +57,7 @@ export default function FormularioDinamicoSimple() {
       setError(null)
 
       // Llamar a la API de Bizuit para obtener los parámetros
-      const allParameters = await sdk.process.getProcessParameters(
+      const allParameters = await sdk.process.getParameters(
         processName,  // Nombre del proceso (ej: "samplewebpages")
         '',          // Versión (vacío = última versión)
         token        // Token de autenticación
@@ -95,9 +95,9 @@ export default function FormularioDinamicoSimple() {
       console.log('📤 Iniciando proceso con parámetros:', parameters)
 
       // Llamar a la API de Bizuit para iniciar el proceso
-      const result = await sdk.process.raiseEvent(
+      const result = await sdk.process.start(
         {
-          eventName: processName,   // Nombre del proceso
+          processName: processName,   // Nombre del proceso
           parameters: parameters,   // Parámetros convertidos
         },
         [],                        // Archivos adjuntos (ninguno en este ejemplo)

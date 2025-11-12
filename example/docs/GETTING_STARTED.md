@@ -233,7 +233,7 @@ function FormularioDinamico() {
 
   const cargarParametros = async () => {
     // Obtener TODOS los parámetros del proceso
-    const allParams = await sdk.process.getProcessParameters(
+    const allParams = await sdk.process.getParameters(
       'NombreDelProceso', // eventName
       '',                 // version (vacío = última versión)
       'tu-token-aqui'    // token de autenticación
@@ -505,7 +505,7 @@ function IniciarProceso() {
       const parameters = formDataToParameters(formData)
 
       // Iniciar el proceso
-      const result = await sdk.process.raiseEvent(
+      const result = await sdk.process.start(
         {
           eventName: 'NombreDelProceso',
           parameters: parameters,
@@ -597,7 +597,7 @@ function ContinuarProceso() {
 
     const parameters = formDataToParameters(formData)
 
-    const result = await sdk.process.continueInstance(
+    const result = await sdk.process.continue(
       {
         instanceId: instanceId,
         eventName: eventName,

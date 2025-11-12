@@ -158,7 +158,7 @@ export default function GettingStartedPage() {
                   </h4>
                   <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
 {`const params = await sdk.process
-  .getProcessParameters('ProcessName', '', token)`}</pre>
+  .getParameters('ProcessName', '', token)`}</pre>
                 </div>
 
                 <div>
@@ -182,8 +182,8 @@ export default function GettingStartedPage() {
                     {t('gettingStarted.quickStart.start.step3')}
                   </h4>
                   <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
-{`const result = await sdk.process.raiseEvent({
-  eventName: 'ProcessName',
+{`const result = await sdk.process.start({
+  processName: 'ProcessName',
   parameters: formDataToParameters(formData)
 }, undefined, token)`}</pre>
                 </div>
@@ -240,7 +240,7 @@ processParameters.forEach(param => {
                     {t('gettingStarted.quickStart.continue.step3')}
                   </h4>
                   <pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
-{`const result = await sdk.process.continueInstance({
+{`const result = await sdk.process.continue({
   instanceId,
   eventName,
   parameters: formDataToParameters(filteredData)

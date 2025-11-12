@@ -64,13 +64,13 @@ import { useBizuitSDK, filterFormParameters, formDataToParameters } from '@tycon
 const sdk = useBizuitSDK()
 
 // 1. Obtener parámetros
-const allParams = await sdk.process.getProcessParameters('ProcessName', '', token)
+const allParams = await sdk.process.getParameters('ProcessName', '', token)
 const formParams = filterFormParameters(allParams)
 
 // 2. Renderizar formulario (ver ejemplos)
 
 // 3. Iniciar proceso
-const result = await sdk.process.raiseEvent(
+const result = await sdk.process.start(
   {
     eventName: 'ProcessName',
     parameters: formDataToParameters(formData),
@@ -85,7 +85,7 @@ console.log('Instance ID:', result.instanceId)
 ### Opción 2: Con datos fijos
 
 ```tsx
-const result = await sdk.process.raiseEvent(
+const result = await sdk.process.start(
   {
     eventName: 'ApprovalProcess',
     parameters: [
@@ -114,7 +114,7 @@ const result = await loadInstanceDataForContinue(sdk, instanceId, token)
 setFormData(result.formData)  // Pre-llenar formulario
 
 // 2. Continuar proceso
-await sdk.process.continueInstance(
+await sdk.process.continue(
   {
     instanceId: instanceId,
     eventName: 'ContinueEvent',
@@ -210,7 +210,7 @@ const formData = {
 }
 
 const parameters = formDataToParameters(formData)
-// Ahora puedes usar 'parameters' en raiseEvent o continueInstance
+// Ahora puedes usar 'parameters' en start o continueInstance
 ```
 
 ---
@@ -296,7 +296,7 @@ const options = [
 
 ```tsx
 try {
-  const result = await sdk.process.raiseEvent(...)
+  const result = await sdk.process.start(...)
   setStatus('success')
 } catch (error: any) {
   console.error('Error:', error)

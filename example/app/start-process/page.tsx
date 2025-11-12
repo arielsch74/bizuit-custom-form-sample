@@ -113,7 +113,7 @@ function StartProcessForm() {
       console.log('[StartProcess] Fetching process parameters for:', eventName)
 
       // Fetch process parameters from API
-      const allParameters = await sdk.process.getProcessParameters(eventName, '', activeToken)
+      const allParameters = await sdk.process.getParameters(eventName, '', activeToken)
 
       console.log('[StartProcess] All parameters received:', allParameters)
 
@@ -153,32 +153,18 @@ function StartProcessForm() {
       setStatus('submitting')
       setError(null)
 
-      // Visible form parameters
-      const visibleParameters = formDataToParameters(formData)
-
-      // Hidden/calculated parameters
-      const hiddenParameters = formDataToParameters({
-        initiatedBy: activeToken ? 'authenticated-user' : 'anonymous',
-        initiatedAt: new Date().toISOString(),
-        initiatedFrom: 'start-process-page',
-        browserInfo: navigator.userAgent.substring(0, 100),
-        formVersion: '1.0.0',
-      })
-
-      // Combine parameters
-      const allParameters = [...visibleParameters, ...hiddenParameters]
+      // Convert form data to parameters
+      const parameters = formDataToParameters(formData)
 
       console.log('Parameters to send:', {
-        visible: visibleParameters.length,
-        hidden: hiddenParameters.length,
-        total: allParameters.length
+        total: parameters.length
       })
 
-      // Execute RaiseEvent to create process instance
-      const result = await sdk.process.raiseEvent(
+      // Execute start to create process instance
+      const result = await sdk.process.start(
         {
-          eventName: eventName,
-          parameters: allParameters,
+          processName: eventName,
+          parameters: parameters,
         },
         formData.files || [], // Pass the files from formData
         activeToken // Pass the authentication token

@@ -11,11 +11,11 @@
  * ```tsx
  * // Antes:
  * const sdk = useBizuitSDK()
- * await sdk.process.getProcessParameters(...)
+ * await sdk.process.getParameters(...)
  *
  * // Ahora:
  * const sdk = useBizuitSDKWithAuth()
- * await sdk.process.getProcessParameters(...) // Auto-logout en 401
+ * await sdk.process.getParameters(...) // Auto-logout en 401
  * ```
  */
 

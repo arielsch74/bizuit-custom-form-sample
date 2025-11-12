@@ -6,12 +6,14 @@
 import { BizuitAuthService } from './auth-service'
 import { BizuitProcessService } from './process-service'
 import { BizuitInstanceLockService } from './instance-lock-service'
+import { BizuitFormService } from './form-service'
 import type { IBizuitConfig } from '../types'
 
 export class BizuitSDK {
   public auth: BizuitAuthService
   public process: BizuitProcessService
   public instanceLock: BizuitInstanceLockService
+  public forms: BizuitFormService
 
   private config: IBizuitConfig
 
@@ -20,6 +22,7 @@ export class BizuitSDK {
     this.auth = new BizuitAuthService(config)
     this.process = new BizuitProcessService(config)
     this.instanceLock = new BizuitInstanceLockService(config)
+    this.forms = new BizuitFormService(this)
   }
 
   /**
@@ -39,6 +42,7 @@ export class BizuitSDK {
     this.auth = new BizuitAuthService(this.config)
     this.process = new BizuitProcessService(this.config)
     this.instanceLock = new BizuitInstanceLockService(this.config)
+    this.forms = new BizuitFormService(this)
   }
 }
 

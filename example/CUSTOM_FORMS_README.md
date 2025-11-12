@@ -286,7 +286,7 @@ export default function MyForm() {
   const sdk = useBizuitSDK()
 
   const handleSubmit = async () => {
-    await sdk.process.raiseEvent({
+    await sdk.process.start({
       eventName: 'MyProcess',
       parameters: { /* ... */ }
     })

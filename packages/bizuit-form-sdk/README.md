@@ -511,23 +511,28 @@ const processData = await sdk.process.initialize({
   userName: 'john.doe',
 })
 
-// Execute RaiseEvent
+// Start process
 const result = await sdk.process.start({
-  eventName: 'MyProcess',
+  processName: 'MyProcess',
   parameters: [
     { name: 'param1', value: 'value1', type: 'SingleValue', direction: 'In' },
   ],
-})
+}, undefined, token)
 
 // With files
 const result = await sdk.process.start(
   {
-    eventName: 'MyProcess',
+    processName: 'MyProcess',
     parameters: [...],
   },
   [file1, file2], // File objects
-  sessionToken,
-  userName
+  token
+)
+
+// Get configuration settings
+const config = await sdk.process.getConfigurationSettings(
+  'ACME', // organizationId
+  token
 )
 ```
 
@@ -568,6 +573,167 @@ await sdk.instanceLock.withLock(lockRequest, token, async (sessionToken) => {
   // Instance will be unlocked automatically even if error occurs
 })
 ```
+
+## Process Workflows
+
+### Understanding `initialize()`
+
+The `initialize()` method is used to **obtain the initial or current state of a process/instance** before presenting a form to the user. It returns:
+
+- **Parameters**: Process fields with their default or current values
+- **Variables**: Available process variables
+- **Metadata**: `processName`, `version`, `instanceId` (if continuing)
+- **Activities**: History of completed activities (optional)
+
+### Workflow 1: Starting a New Process
+
+```typescript
+// Step 1: Get process definition (optional but recommended)
+const processData = await sdk.process.initialize({
+  processName: 'ExpenseRequest',
+  version: '1.0.0',
+  token: authToken,
+  userName: 'user@company.com'
+})
+
+// processData contains:
+// {
+//   parameters: [
+//     { name: 'amount', value: null, type: 'SingleValue', direction: 'In' },
+//     { name: 'description', value: null, type: 'SingleValue', direction: 'In' },
+//     { name: 'category', value: 'General', type: 'SingleValue', direction: 'In' } // with default value
+//   ],
+//   variables: [...],
+//   processName: 'ExpenseRequest',
+//   version: '1.0.0'
+// }
+
+// Step 2: Render form based on processData.parameters
+// User fills in the form fields...
+
+// Step 3: Start the process with submitted values
+const result = await sdk.process.start({
+  processName: 'ExpenseRequest',
+  processVersion: '1.0.0',
+  parameters: [
+    { name: 'amount', value: '5000', type: 'SingleValue', direction: 'In' },
+    { name: 'description', value: 'Equipment purchase', type: 'SingleValue', direction: 'In' },
+    { name: 'category', value: 'Hardware', type: 'SingleValue', direction: 'In' }
+  ]
+}, undefined, authToken)
+
+// result contains:
+// {
+//   instanceId: 'instance-uuid',
+//   status: 'Waiting', // or 'Completed'
+//   parameters: [...] // updated output parameters
+// }
+
+console.log(`Process started with ID: ${result.instanceId}`)
+```
+
+### Workflow 2: Continuing an Existing Instance
+
+```typescript
+// Scenario: User has a pending task (instanceId = 'abc-123')
+
+// Step 1: Get current state of the instance
+const processData = await sdk.process.initialize({
+  processName: 'ExpenseRequest',
+  instanceId: 'abc-123', // ⭐ Key: include instanceId
+  activityName: 'ManagerApproval', // optional: specific activity
+  token: authToken,
+  userName: 'manager@company.com'
+})
+
+// processData contains CURRENT values of the instance:
+// {
+//   parameters: [
+//     { name: 'amount', value: '5000', type: 'SingleValue', direction: 'In' },
+//     { name: 'description', value: 'Equipment purchase', type: 'SingleValue', direction: 'In' },
+//     { name: 'approved', value: null, type: 'SingleValue', direction: 'Out' }, // new field for this activity
+//     { name: 'comments', value: null, type: 'SingleValue', direction: 'Out' }
+//   ],
+//   instanceId: 'abc-123',
+//   processName: 'ExpenseRequest'
+// }
+
+// Step 2: Render form with existing values pre-populated
+// User completes new fields (approved, comments)...
+
+// Step 3: Continue the instance with updated values
+const result = await sdk.process.continue({
+  processName: 'ExpenseRequest',
+  instanceId: 'abc-123', // ⭐ Key: instanceId to continue
+  parameters: [
+    // Keep existing values + add new ones
+    { name: 'amount', value: '5000', type: 'SingleValue', direction: 'In' },
+    { name: 'description', value: 'Equipment purchase', type: 'SingleValue', direction: 'In' },
+    { name: 'approved', value: 'true', type: 'SingleValue', direction: 'Out' },
+    { name: 'comments', value: 'Approved with observations', type: 'SingleValue', direction: 'Out' }
+  ]
+}, undefined, authToken)
+
+// result contains:
+// {
+//   instanceId: 'abc-123',
+//   status: 'Completed', // or 'Waiting' if more activities exist
+//   parameters: [...] // updated parameters
+// }
+```
+
+### Workflow 3: With Pessimistic Locking (Concurrent Editing)
+
+```typescript
+// Scenario: Prevent two users from editing the same instance simultaneously
+
+// Step 1: Acquire lock
+const lockResult = await sdk.process.acquireLock({
+  instanceId: 'abc-123',
+  token: authToken
+})
+
+const { sessionToken, processData } = lockResult
+
+// Step 2: Use sessionToken to get data
+const data = await sdk.process.initialize({
+  processName: 'ExpenseRequest',
+  instanceId: 'abc-123',
+  token: authToken,
+  sessionToken: sessionToken // ⭐ Identifies the locked session
+})
+
+// Step 3: User edits the form...
+
+// Step 4: Continue with the same session
+const result = await sdk.process.continue({
+  processName: 'ExpenseRequest',
+  instanceId: 'abc-123',
+  parameters: [...]
+}, undefined, authToken)
+
+// Step 5: Release lock
+await sdk.process.releaseLock({
+  instanceId: 'abc-123',
+  sessionToken: sessionToken
+})
+```
+
+### Method Comparison
+
+| Method | When to Use | Requires instanceId |
+|--------|-------------|---------------------|
+| **`initialize()`** | Get initial/current state before showing form | ❌ For new process<br>✅ For continuing |
+| **`start()`** | Start new process instance | ❌ No (generates new one) |
+| **`continue()`** | Continue existing instance at specific activity | ✅ Required |
+| **`getParameters()`** | Get only parameter definitions (no values) | ❌ No |
+
+### Benefits of Using `initialize()`
+
+1. **Pre-population**: Get default or current values
+2. **Validation**: Know which parameters are required
+3. **Metadata**: Receive context information (version, variables)
+4. **Consistency**: Ensure form shows correct instance state
 
 ### ParameterParser Utilities
 
