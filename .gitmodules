@@ -1,0 +1,3 @@
+[submodule "custom-forms/forms-examples"]
+	path = custom-forms/forms-examples
+	url = https://github.com/arielsch74/bizuit-custom-form-sample.git
