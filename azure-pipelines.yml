@@ -12,7 +12,7 @@ trigger:
       - azure-pipelines.yml
 
 pool:
-  name: DARPrestamosAgentPool
+  name: Testbizuitcom
 
 variables:
   nodeVersion: '22.x'
