@@ -160,6 +160,26 @@ stages:
                           Write-Host "Could not stop app pool (may not exist yet): $_"
                       }
 
+                      # Kill any Node.js processes running in the deployment directory
+                      Write-Host "Killing Node.js processes in deployment directory..."
+                      try {
+                          $nodePids = Get-WmiObject Win32_Process -Filter "name = 'node.exe'" |
+                            Where-Object { $_.CommandLine -like "*$(deployPath)*" } |
+                            Select-Object -ExpandProperty ProcessId
+
+                          if ($nodePids) {
+                              foreach ($pid in $nodePids) {
+                                  Write-Host "Killing Node.js process: $pid"
+                                  Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue
+                              }
+                              Start-Sleep -Seconds 2
+                          } else {
+                              Write-Host "No Node.js processes found in deployment directory"
+                          }
+                      } catch {
+                          Write-Host "Could not kill Node.js processes: $_"
+                      }
+
                       # Clean deployment directory
                       if (Test-Path "$(deployPath)") {
                           Write-Host "Cleaning deployment directory..."
