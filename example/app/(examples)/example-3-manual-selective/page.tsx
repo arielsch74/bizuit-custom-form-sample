@@ -135,8 +135,8 @@ function Example3ManualSelectiveContent() {
         all: allParameters
       })
 
-      const response = await sdk.process.raiseEvent({
-        eventName: 'AprobacionGastos',
+      const response = await sdk.process.start({
+        processName: 'AprobacionGastos',
         parameters: allParameters
       }, undefined, token)
 
@@ -1236,8 +1236,8 @@ const hiddenParameters = formDataToParameters(hiddenData)`}</pre>
 {`// ${t('example3.combine')}
 const allParameters = [...parameters, ...hiddenParameters]
 
-await sdk.process.raiseEvent({
-  eventName: 'AprobacionGastos',
+await sdk.process.start({
+  processName: 'AprobacionGastos',
   parameters: allParameters // 6 ${t('example3.visibleHidden')} 10
 })`}</pre>
           </div>

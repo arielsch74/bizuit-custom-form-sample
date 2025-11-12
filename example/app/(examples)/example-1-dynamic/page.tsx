@@ -44,7 +44,7 @@ function Example1DynamicContent() {
       setError(null)
 
       // Llamada API para obtener parámetros
-      const params = await sdk.process.getProcessParameters(processName, '', token)
+      const params = await sdk.process.getParameters(processName, '', token)
 
       // Filtrar solo parámetros de entrada (In y Optional)
       const inputParams = params.filter(p =>
@@ -113,8 +113,8 @@ function Example1DynamicContent() {
       })
 
       // Iniciar proceso
-      const response = await sdk.process.raiseEvent({
-        eventName: processName,
+      const response = await sdk.process.start({
+        processName: processName,
         parameters: parametersToSend
       }, undefined, token)
 
@@ -1135,7 +1135,7 @@ body.dark .preview-total-text {
             <div>
               <h4 className="font-medium mb-1">1. {t('example1.step1')}</h4>
               <pre className="bg-background p-3 rounded text-xs overflow-auto">
-{`const params = await sdk.process.getProcessParameters(
+{`const params = await sdk.process.getParameters(
   'NombreProceso',
   '',
   token
@@ -1174,8 +1174,8 @@ const hiddenParameters = formDataToParameters({
 // Combinar ambos
 const allParameters = [...visibleParameters, ...hiddenParameters]
 
-await sdk.process.raiseEvent({
-  eventName: 'NombreProceso',
+await sdk.process.start({
+  processName: 'NombreProceso',
   parameters: allParameters
 }, undefined, token)`}</pre>
             </div>

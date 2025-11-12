@@ -90,8 +90,8 @@ function Example2ManualAllContent() {
         all: allParameters
       })
 
-      const response = await sdk.process.raiseEvent({
-        eventName: 'AprobacionGastos',
+      const response = await sdk.process.start({
+        processName: 'AprobacionGastos',
         parameters: allParameters
       }, undefined, token)
 
@@ -1160,8 +1160,8 @@ const hiddenParameters = formDataToParameters({
 {`// Combinar parámetros visibles (transformados) + ocultos
 const allParameters = [...visibleParameters, ...hiddenParameters]
 
-await sdk.process.raiseEvent({
-  eventName: 'AprobacionGastos',
+await sdk.process.start({
+  processName: 'AprobacionGastos',
   parameters: allParameters // Envía TODO
 })`}</pre>
             </div>
