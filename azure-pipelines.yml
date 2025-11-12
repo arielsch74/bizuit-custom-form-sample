@@ -153,19 +153,46 @@ stages:
 
                       # Stop IIS Application Pool to release file locks
                       $appPoolName = "BizuitCustomFormsSample"
+                      $appPoolStopped = $false
+
                       Write-Host "Stopping Application Pool: $appPoolName"
+
+                      # Method 1: Try appcmd.exe (doesn't require WebAdministration module)
                       try {
-                          Import-Module WebAdministration -ErrorAction SilentlyContinue
-                          Stop-WebAppPool -Name $appPoolName -ErrorAction Stop
-                          Write-Host "✓ App Pool '$appPoolName' stopped successfully"
-                          Start-Sleep -Seconds 5  # Wait for IIS to fully release locks
+                          $appcmd = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
+                          if (Test-Path $appcmd) {
+                              Write-Host "Attempting to stop app pool using appcmd.exe..."
+                              $output = & $appcmd stop apppool /apppool.name:"$appPoolName" 2>&1
+                              Write-Host $output
+                              $appPoolStopped = $true
+                              Write-Host "✓ App Pool '$appPoolName' stopped via appcmd.exe"
+                              Start-Sleep -Seconds 5
+                          }
                       } catch {
-                          Write-Host "⚠ Could not stop app pool '$appPoolName': $_"
-                          Write-Host "Attempting to continue anyway..."
+                          Write-Host "⚠ appcmd.exe failed: $_"
+                      }
+
+                      # Method 2: Try PowerShell WebAdministration module
+                      if (-not $appPoolStopped) {
+                          try {
+                              Write-Host "Attempting to stop app pool using WebAdministration module..."
+                              Import-Module WebAdministration -ErrorAction Stop
+                              Stop-WebAppPool -Name $appPoolName -ErrorAction Stop
+                              Write-Host "✓ App Pool '$appPoolName' stopped via PowerShell"
+                              $appPoolStopped = $true
+                              Start-Sleep -Seconds 5
+                          } catch {
+                              Write-Host "⚠ WebAdministration module failed: $_"
+                          }
+                      }
+
+                      if (-not $appPoolStopped) {
+                          Write-Host "⚠ WARNING: Could not stop app pool using any method"
+                          Write-Host "Deployment will continue, but file locks may cause issues"
                       }
 
                       # Kill any Node.js processes running in the deployment directory
-                      Write-Host "Killing Node.js processes in deployment directory..."
+                      Write-Host "`nKilling Node.js processes in deployment directory..."
                       try {
                           $nodePids = Get-WmiObject Win32_Process -Filter "name = 'node.exe'" |
                             Where-Object { $_.CommandLine -like "*$(deployPath)*" } |
@@ -176,22 +203,38 @@ stages:
                                   Write-Host "Killing Node.js process: $pid"
                                   Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue
                               }
+                              Write-Host "✓ Killed $($nodePids.Count) Node.js process(es)"
                               Start-Sleep -Seconds 2
                           } else {
-                              Write-Host "No Node.js processes found in deployment directory"
+                              Write-Host "✓ No Node.js processes found in deployment directory"
                           }
                       } catch {
-                          Write-Host "Could not kill Node.js processes: $_"
+                          Write-Host "⚠ Could not kill Node.js processes: $_"
                       }
 
                       # Clean deployment directory
+                      Write-Host "`nCleaning deployment directory..."
                       if (Test-Path "$(deployPath)") {
-                          Write-Host "Cleaning deployment directory..."
-                          Remove-Item "$(deployPath)\*" -Recurse -Force -ErrorAction SilentlyContinue
+                          try {
+                              Remove-Item "$(deployPath)\*" -Recurse -Force -ErrorAction Stop
+                              Write-Host "✓ Deployment directory cleaned"
+                          } catch {
+                              Write-Host "⚠ Some files could not be removed (may be locked): $_"
+                              Write-Host "Attempting to remove unlocked files only..."
+                              Get-ChildItem "$(deployPath)" -Recurse | ForEach-Object {
+                                  try {
+                                      Remove-Item $_.FullName -Force -ErrorAction SilentlyContinue
+                                  } catch {
+                                      Write-Host "Skipped locked file: $($_.FullName)"
+                                  }
+                              }
+                          }
                       } else {
                           Write-Host "Creating deployment directory..."
                           New-Item -ItemType Directory -Path "$(deployPath)" -Force
                       }
+
+                      Write-Host "`n✓ Deployment preparation completed"
                   displayName: 'Prepare Deployment Directory'
 
                 - task: CopyFiles@2
@@ -263,19 +306,49 @@ stages:
 
                       # Start IIS Application Pool
                       $appPoolName = "BizuitCustomFormsSample"
-                      Write-Host "Starting Application Pool: $appPoolName"
+                      $appPoolStarted = $false
+
+                      Write-Host "`nStarting Application Pool: $appPoolName"
+
+                      # Method 1: Try appcmd.exe (doesn't require WebAdministration module)
                       try {
-                          Import-Module WebAdministration -ErrorAction SilentlyContinue
-                          Start-WebAppPool -Name $appPoolName -ErrorAction Stop
-                          Write-Host "✓ Application Pool '$appPoolName' started successfully"
-                          Start-Sleep -Seconds 2
+                          $appcmd = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
+                          if (Test-Path $appcmd) {
+                              Write-Host "Attempting to start app pool using appcmd.exe..."
+                              $output = & $appcmd start apppool /apppool.name:"$appPoolName" 2>&1
+                              Write-Host $output
+                              if ($LASTEXITCODE -eq 0 -or $output -like "*already started*") {
+                                  $appPoolStarted = $true
+                                  Write-Host "✓ App Pool '$appPoolName' started via appcmd.exe"
+                              }
+                              Start-Sleep -Seconds 2
+                          }
                       } catch {
-                          Write-Host "⚠ Could not start app pool '$appPoolName': $_"
-                          Write-Host "You may need to start it manually via IIS Manager"
+                          Write-Host "⚠ appcmd.exe failed: $_"
                       }
 
-                      Write-Host "Deployment completed successfully!"
-                      Write-Host "IISNode will start the application on first request"
+                      # Method 2: Try PowerShell WebAdministration module
+                      if (-not $appPoolStarted) {
+                          try {
+                              Write-Host "Attempting to start app pool using WebAdministration module..."
+                              Import-Module WebAdministration -ErrorAction Stop
+                              Start-WebAppPool -Name $appPoolName -ErrorAction Stop
+                              Write-Host "✓ App Pool '$appPoolName' started via PowerShell"
+                              $appPoolStarted = $true
+                              Start-Sleep -Seconds 2
+                          } catch {
+                              Write-Host "⚠ WebAdministration module failed: $_"
+                          }
+                      }
+
+                      if ($appPoolStarted) {
+                          Write-Host "`n✓ Deployment completed successfully!"
+                          Write-Host "IISNode will start the application on first request"
+                      } else {
+                          Write-Host "`n⚠ WARNING: Could not start app pool automatically"
+                          Write-Host "You may need to start it manually via IIS Manager"
+                          Write-Host "Or the app pool may start automatically on first request"
+                      }
                   displayName: 'Configure IISNode Application'
 
                 - task: PowerShell@2
