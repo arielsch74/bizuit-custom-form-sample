@@ -7,14 +7,20 @@
  */
 
 export interface FormMetadata {
-  /** ID único en BD */
-  id: number
+  /** ID único en BD (opcional para forms estáticos) */
+  id?: number
 
   /** Nombre único del form (kebab-case) */
   formName: string
 
-  /** Versión actual del form */
-  currentVersion: string
+  /** Nombre del paquete npm (opcional) */
+  packageName?: string
+
+  /** Versión actual del form (usar version o currentVersion) */
+  currentVersion?: string
+
+  /** Versión del form (alias de currentVersion) */
+  version?: string
 
   /** Nombre del proceso BPM asociado */
   processName: string
@@ -28,11 +34,14 @@ export interface FormMetadata {
   /** Estado del form (active, inactive, deprecated) */
   status: 'active' | 'inactive' | 'deprecated'
 
-  /** Tamaño del código compilado en bytes */
-  sizeBytes: number
+  /** Tamaño del código compilado en bytes (opcional) */
+  sizeBytes?: number
 
   /** Fecha de publicación */
-  publishedAt: string
+  publishedAt?: string
+
+  /** Fecha de creación (alias de publishedAt) */
+  createdAt?: string
 
   /** Fecha de última actualización */
   updatedAt: string
