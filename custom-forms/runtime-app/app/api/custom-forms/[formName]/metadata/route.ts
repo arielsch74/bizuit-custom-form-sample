@@ -1,93 +1,69 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+const FASTAPI_URL = process.env.FASTAPI_URL || 'http://127.0.0.1:8000'
+
 /**
- * Mock API endpoint that simulates SQL Server response
  * GET /api/custom-forms/{formName}/metadata
  *
- * En producción, esto hará:
- * SELECT * FROM vw_CustomFormsCurrentVersion WHERE FormName = @formName
+ * Returns metadata for a specific form from SQL Server
+ * Uses the same backend endpoint as the forms list
  */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ formName: string }> }
 ) {
-  const { formName } = await params
+  try {
+    const { formName } = await params
 
-  // Simular delay de BD
-  await new Promise(resolve => setTimeout(resolve, 50))
+    console.log(`[Form Metadata API] GET /${formName}/metadata`)
 
-  // Mock de metadata de forms (simula tabla CustomForms + CustomFormVersions)
-  const mockMetadata: Record<string, any> = {
-    'aprobacion-gastos': {
-      id: 1,
-      formName: 'aprobacion-gastos',
-      processName: 'AprobacionGastos',
-      currentVersion: '1.0.0',
-      description: 'Formulario de aprobación de gastos corporativos',
-      author: 'Bizuit Team',
-      status: 'active',
-      sizeBytes: 2450,
-      publishedAt: '2025-01-10T10:00:00Z',
-      createdAt: '2025-01-10T10:00:00Z',
-      updatedAt: '2025-01-10T10:00:00Z',
-      commitHash: 'abc123',
-      metadata: {
-        tags: ['finanzas', 'aprobaciones'],
-        requiredRole: 'employee'
-      }
-    },
-    'solicitud-vacaciones': {
-      id: 2,
-      formName: 'solicitud-vacaciones',
-      processName: 'SolicitudVacaciones',
-      currentVersion: '1.0.0',
-      description: 'Solicitud de vacaciones para empleados',
-      author: 'Bizuit Team',
-      status: 'active',
-      sizeBytes: 2680,
-      publishedAt: '2025-01-10T11:00:00Z',
-      createdAt: '2025-01-10T11:00:00Z',
-      updatedAt: '2025-01-10T11:00:00Z',
-      commitHash: 'def456',
-      metadata: {
-        tags: ['rrhh', 'vacaciones'],
-        requiredRole: 'employee'
-      }
-    },
-    'onboarding-empleado': {
-      id: 3,
-      formName: 'onboarding-empleado',
-      processName: 'OnboardingEmpleado',
-      currentVersion: '1.0.0',
-      description: 'Proceso de onboarding para nuevos empleados',
-      author: 'Bizuit Team',
-      status: 'active',
-      sizeBytes: 3200,
-      publishedAt: '2025-01-10T12:00:00Z',
-      createdAt: '2025-01-10T12:00:00Z',
-      updatedAt: '2025-01-10T12:00:00Z',
-      commitHash: 'ghi789',
-      metadata: {
-        tags: ['rrhh', 'onboarding'],
-        requiredRole: 'hr_admin'
-      }
+    // Fetch all forms from backend
+    const response = await fetch(`${FASTAPI_URL}/api/custom-forms`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store'
+    })
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: response.statusText }))
+      console.error(`[Form Metadata API] Backend error:`, error)
+      return NextResponse.json(
+        { error: 'Failed to fetch forms from backend' },
+        { status: response.status }
+      )
     }
-  }
 
-  const metadata = mockMetadata[formName]
+    const forms = await response.json()
 
-  if (!metadata) {
+    // Find the specific form
+    const formMetadata = forms.find((f: any) => f.formName === formName)
+
+    if (!formMetadata) {
+      console.error(`[Form Metadata API] Form not found: ${formName}`)
+      return NextResponse.json(
+        { error: `Form '${formName}' not found` },
+        { status: 404 }
+      )
+    }
+
+    console.log(`[Form Metadata API] ✅ Metadata for ${formName}@${formMetadata.currentVersion}`)
+
+    return NextResponse.json(formMetadata, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate'
+      }
+    })
+
+  } catch (error: any) {
+    console.error('[Form Metadata API] Error:', error)
     return NextResponse.json(
-      { error: `Form '${formName}' not found` },
-      { status: 404 }
+      {
+        error: 'Failed to fetch form metadata',
+        details: error.message || 'Internal server error'
+      },
+      { status: 500 }
     )
   }
-
-  console.log(`[Mock API] ✅ Metadata for: ${formName}`)
-
-  return NextResponse.json(metadata, {
-    headers: {
-      'Cache-Control': 'public, max-age=300' // 5 min cache
-    }
-  })
 }

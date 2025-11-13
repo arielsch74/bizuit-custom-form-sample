@@ -60,6 +60,59 @@ def health_check():
     }
 
 
+@app.get("/api/custom-forms")
+def get_custom_forms():
+    """
+    Get list of all custom forms from SQL Server
+
+    Returns forms from vw_CustomFormsCurrentVersion view
+    """
+    from database import get_all_custom_forms
+
+    try:
+        forms = get_all_custom_forms()
+        print(f"[Forms API] Returning {len(forms)} forms")
+        return forms
+    except Exception as e:
+        print(f"[Forms API] Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch forms: {str(e)}")
+
+
+@app.get("/api/custom-forms/{form_name}/code")
+def get_form_compiled_code(form_name: str, version: str = None):
+    """
+    Get compiled code for a specific form
+
+    Returns JavaScript code from CustomFormVersions.CompiledCode
+    """
+    from database import get_form_compiled_code
+    from fastapi.responses import Response
+
+    try:
+        result = get_form_compiled_code(form_name, version)
+
+        if not result:
+            raise HTTPException(status_code=404, detail=f"Form '{form_name}' not found")
+
+        print(f"[Form Code API] Serving {form_name}@{result['version']} ({result['size_bytes']} bytes)")
+
+        return Response(
+            content=result['compiled_code'],
+            media_type='application/javascript; charset=utf-8',
+            headers={
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'X-Form-Version': result['version'],
+                'X-Published-At': result['published_at'],
+                'X-Size-Bytes': str(result['size_bytes']),
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[Form Code API] Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch form code: {str(e)}")
+
+
 @app.post("/api/deployment/upload", response_model=UploadDeploymentResponse)
 async def upload_deployment_package(file: UploadFile = File(...)):
     """
@@ -116,8 +169,17 @@ async def upload_deployment_package(file: UploadFile = File(...)):
 
         print(f"[Deployment API] Extracted to: {extract_dir}")
 
+        # DEBUG: List all extracted files
+        all_files = list(extract_dir.glob('**/*'))
+        print(f"[Deployment API] Extracted files ({len(all_files)}):")
+        for file_path in all_files:
+            rel_path = file_path.relative_to(extract_dir)
+            print(f"  - {rel_path} {'[DIR]' if file_path.is_dir() else f'[{file_path.stat().st_size} bytes]'}")
+
         # Leer manifest.json
         manifest_path = extract_dir / "manifest.json"
+        print(f"[Deployment API] Looking for manifest at: {manifest_path}")
+        print(f"[Deployment API] Manifest exists: {manifest_path.exists()}")
         if not manifest_path.exists():
             raise Exception("manifest.json not found in deployment package")
 
@@ -167,6 +229,7 @@ async def upload_deployment_package(file: UploadFile = File(...)):
         except Exception as e:
             print(f"[Deployment API] Warning: Failed to cleanup {temp_dir}: {e}")
 
+    print(f"[Deployment API] Returning response: {response.model_dump_json()}")
     return response
 
 

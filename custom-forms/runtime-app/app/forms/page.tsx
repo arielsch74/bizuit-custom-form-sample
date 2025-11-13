@@ -14,57 +14,35 @@ export default function FormsListPage() {
     try {
       setLoading(true)
 
-      // Inicializar registry con forms de ejemplo
-      // TODO: Usar API real cuando esté disponible
-      await initializeFormRegistry({
-        staticForms: [
-          {
-            formName: 'aprobacion-gastos',
-            packageName: '@tyconsa/bizuit-form-aprobacion-gastos',
-            version: '1.0.0',
-            processName: 'AprobacionGastos',
-            description: 'Formulario de aprobación de gastos corporativos (REAL - publicado en npm)',
-            author: 'Bizuit Team',
-            status: 'active',
-            createdAt: '2025-01-11T00:00:00.000Z',
-            updatedAt: '2025-01-11T00:00:00.000Z',
-          },
-          {
-            formName: 'solicitud-vacaciones',
-            packageName: '@bizuit-forms/solicitud-vacaciones',
-            version: '1.0.0',
-            processName: 'SolicitudVacaciones',
-            description: 'Solicitud de vacaciones y licencias',
-            author: 'HR Team',
-            status: 'active',
-            createdAt: '2025-01-11T00:00:00.000Z',
-            updatedAt: '2025-01-11T00:00:00.000Z',
-          },
-          {
-            formName: 'onboarding-empleado',
-            packageName: '@bizuit-forms/onboarding-empleado',
-            version: '1.0.0',
-            processName: 'OnboardingEmpleado',
-            description: 'Onboarding de nuevos empleados (multi-step)',
-            author: 'HR Team',
-            status: 'active',
-            createdAt: '2025-01-11T00:00:00.000Z',
-            updatedAt: '2025-01-11T00:00:00.000Z',
-          },
-        ],
-      })
+      // Fetch forms from API (which queries SQL Server via FastAPI)
+      const response = await fetch('/api/custom-forms')
 
-      // Obtener forms según filtro
-      let filteredForms: FormMetadata[]
-      if (filter === 'active') {
-        filteredForms = formRegistry.getActiveForms()
-      } else if (filter === 'all') {
-        filteredForms = formRegistry.getAllForms()
-      } else {
-        filteredForms = formRegistry.getAllForms().filter(f => f.status === filter)
+      if (!response.ok) {
+        throw new Error(`Failed to fetch forms: ${response.statusText}`)
       }
 
-      setForms(filteredForms)
+      const allForms = await response.json()
+
+      // Filter forms according to selected filter
+      let filteredForms = allForms
+      if (filter !== 'all') {
+        filteredForms = allForms.filter((f: any) => f.status === filter)
+      }
+
+      // Map API response to FormMetadata format
+      const mappedForms: FormMetadata[] = filteredForms.map((f: any) => ({
+        formName: f.formName,
+        packageName: `@tyconsa/bizuit-form-${f.formName}`,
+        version: f.currentVersion,
+        processName: f.processName,
+        description: f.description,
+        author: f.author,
+        status: f.status,
+        createdAt: f.publishedAt,
+        updatedAt: f.updatedAt,
+      }))
+
+      setForms(mappedForms)
 
     } catch (error: any) {
       console.error('[Forms List] Error loading forms:', error)

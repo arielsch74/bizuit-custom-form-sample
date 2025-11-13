@@ -123,3 +123,135 @@ def test_connection():
             "success": False,
             "message": str(e)
         }
+
+
+def get_all_custom_forms():
+    """
+    Get all custom forms from SQL Server
+
+    Returns list of forms with their most recent version info
+    """
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Query to get all forms with their current version
+        # CustomForms already has CurrentVersion, so we join with CustomFormVersions where IsCurrent = 1
+        query = """
+        SELECT
+            cf.FormId,
+            cf.FormName,
+            cf.ProcessName,
+            cf.Status,
+            cf.CurrentVersion,
+            cf.Description,
+            cf.Author,
+            cfv.SizeBytes,
+            cf.CreatedAt,
+            cf.UpdatedAt
+        FROM CustomForms cf
+        LEFT JOIN CustomFormVersions cfv ON cf.FormId = cfv.FormId AND cfv.IsCurrent = 1
+        WHERE cf.Status = 'active'
+        ORDER BY cf.FormName
+        """
+
+        cursor.execute(query)
+        rows = cursor.fetchall()
+
+        forms = []
+        for row in rows:
+            forms.append({
+                "id": row[0],
+                "formName": row[1],
+                "processName": row[2],
+                "status": row[3],
+                "currentVersion": row[4],
+                "description": row[5],
+                "author": row[6],
+                "sizeBytes": row[7],
+                "publishedAt": row[8].isoformat() if row[8] else None,
+                "updatedAt": row[9].isoformat() if row[9] else None
+            })
+
+        print(f"[Database] Retrieved {len(forms)} forms from SQL Server")
+        return forms
+
+    except Exception as e:
+        print(f"[Database] Error fetching forms: {str(e)}")
+        raise
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+
+def get_form_compiled_code(form_name: str, version: str = None):
+    """
+    Get compiled code for a specific form
+
+    Args:
+        form_name: Name of the form
+        version: Optional specific version (defaults to current/latest)
+
+    Returns:
+        dict with 'compiled_code', 'version', 'published_at', 'size_bytes'
+        or None if form not found
+    """
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        if version:
+            # Get specific version
+            query = """
+            SELECT
+                cfv.CompiledCode,
+                cfv.Version,
+                cfv.PublishedAt,
+                cfv.SizeBytes
+            FROM CustomFormVersions cfv
+            INNER JOIN CustomForms cf ON cfv.FormId = cf.FormId
+            WHERE cf.FormName = ? AND cfv.Version = ?
+            """
+            cursor.execute(query, (form_name, version))
+        else:
+            # Get current version
+            query = """
+            SELECT
+                cfv.CompiledCode,
+                cfv.Version,
+                cfv.PublishedAt,
+                cfv.SizeBytes
+            FROM CustomFormVersions cfv
+            INNER JOIN CustomForms cf ON cfv.FormId = cf.FormId
+            WHERE cf.FormName = ? AND cfv.IsCurrent = 1
+            """
+            cursor.execute(query, (form_name,))
+
+        row = cursor.fetchone()
+
+        if not row:
+            return None
+
+        return {
+            'compiled_code': row[0],
+            'version': row[1],
+            'published_at': row[2].isoformat() if row[2] else None,
+            'size_bytes': row[3] or 0
+        }
+
+    except Exception as e:
+        print(f"[Database] Error fetching form code: {str(e)}")
+        raise
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()

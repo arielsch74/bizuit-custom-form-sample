@@ -1,49 +1,49 @@
 import { NextResponse } from 'next/server'
 
+const FASTAPI_URL = process.env.FASTAPI_URL || 'http://127.0.0.1:8000'
+
 /**
- * API endpoint that proxies to Python FastAPI backend
  * GET /api/custom-forms
  *
- * Calls: GET http://localhost:8000/forms
+ * Proxy to FastAPI backend which queries SQL Server
  */
 export async function GET() {
-  const backendUrl = process.env.NEXT_PUBLIC_CUSTOM_FORMS_API_URL || 'http://localhost:8000'
-
   try {
-    console.log(`[Custom Forms API] Fetching forms from: ${backendUrl}/forms`)
-
-    const response = await fetch(`${backendUrl}/forms`, {
+    const response = await fetch(`${FASTAPI_URL}/api/custom-forms`, {
+      method: 'GET',
       headers: {
-        'Accept': 'application/json',
+        'Content-Type': 'application/json',
       },
-      cache: 'no-store', // Don't cache, always fetch fresh data
+      // No cache para siempre obtener datos frescos
+      cache: 'no-store'
     })
 
     if (!response.ok) {
-      throw new Error(`Backend returned ${response.status}: ${response.statusText}`)
+      const error = await response.text()
+      console.error('[Custom Forms API] Backend error:', error)
+      return NextResponse.json(
+        { error: 'Failed to fetch forms from backend' },
+        { status: response.status }
+      )
     }
 
     const forms = await response.json()
-
-    console.log(`[Custom Forms API] ✅ Loaded ${forms.length} forms from database`)
+    console.log(`[Custom Forms API] Retrieved ${forms.length} forms from backend`)
 
     return NextResponse.json(forms, {
       headers: {
-        'Cache-Control': 'public, max-age=60' // 1 min cache
+        'Cache-Control': 'public, max-age=300' // 5 min cache
       }
     })
-  } catch (error: any) {
-    console.error(`[Custom Forms API] ❌ Error fetching forms:`, error.message)
 
+  } catch (error) {
+    console.error('[Custom Forms API] Error:', error)
     return NextResponse.json(
       {
-        error: 'Failed to fetch forms from database',
-        message: error.message,
-        forms: [] // Return empty array on error
+        error: 'Failed to fetch forms',
+        details: error instanceof Error ? error.message : 'Unknown error'
       },
-      {
-        status: 500
-      }
+      { status: 500 }
     )
   }
 }
