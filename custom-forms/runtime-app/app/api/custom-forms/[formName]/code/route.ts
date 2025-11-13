@@ -1,69 +1,58 @@
 import { NextRequest, NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
 
 /**
  * API endpoint para obtener código compilado del form
  *
  * GET /api/custom-forms/{formName}/code
- * Retorna el código JavaScript compilado del form
+ * Retorna el código JavaScript compilado del form desde la base de datos
  *
- * En desarrollo: Lee desde forms-examples
- * En producción: SELECT CompiledCode FROM CustomFormVersions WHERE FormName = @formName AND IsCurrent = 1
+ * Calls: GET http://localhost:8000/forms/{formName}/code
  */
-
-// En desarrollo, servimos desde el directorio de forms-examples
-// En producción, esto vendría de la BD (CustomFormVersions table)
-const FORMS_DIR = path.join(process.cwd(), '../forms-examples')
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ formName: string }> }
 ) {
+  const backendUrl = process.env.NEXT_PUBLIC_CUSTOM_FORMS_API_URL || 'http://localhost:8000'
+
   try {
     const { formName } = await params
     const version = request.nextUrl.searchParams.get('version')
 
     console.log(`[Form Code API] GET /${formName}/code${version ? `?version=${version}` : ''}`)
 
-    // Ruta al form compilado (simula query a BD)
-    const formPath = path.join(FORMS_DIR, formName, 'dist/form.js')
-    const metaPath = path.join(FORMS_DIR, formName, 'dist/form.meta.json')
+    const url = `${backendUrl}/forms/${formName}/code${version ? `?version=${version}` : ''}`
 
-    // Verificar que el form existe
-    if (!fs.existsSync(formPath)) {
-      console.error(`[Form Code API] Form not found: ${formPath}`)
+    const response = await fetch(url, {
+      headers: {
+        'Accept': 'application/javascript',
+      },
+      cache: 'no-store',
+    })
+
+    if (!response.ok) {
+      console.error(`[Form Code API] Backend returned ${response.status}`)
       return NextResponse.json(
-        { error: `Form '${formName}' not found` },
-        { status: 404 }
+        { error: `Form '${formName}' not found in database` },
+        { status: response.status }
       )
     }
 
-    // Leer código compilado (simula SELECT CompiledCode FROM CustomFormVersions)
-    const compiledCode = fs.readFileSync(formPath, 'utf-8')
+    const compiledCode = await response.text()
+    const formVersion = response.headers.get('X-Form-Version') || '1.0.0'
+    const publishedAt = response.headers.get('X-Published-At') || new Date().toISOString()
+    const sizeBytes = response.headers.get('X-Size-Bytes') || compiledCode.length.toString()
 
-    // Leer metadata si existe
-    let metadata = {
-      version: '1.0.0',
-      builtAt: new Date().toISOString(),
-      sizeBytes: compiledCode.length,
-    }
-
-    if (fs.existsSync(metaPath)) {
-      const metaContent = fs.readFileSync(metaPath, 'utf-8')
-      metadata = JSON.parse(metaContent)
-    }
-
-    console.log(`[Form Code API] ✅ Serving ${formName}@${metadata.version} (${metadata.sizeBytes} bytes)`)
+    console.log(`[Form Code API] ✅ Serving ${formName}@${formVersion} (${sizeBytes} bytes) from database`)
 
     // Retornar código JavaScript
     return new NextResponse(compiledCode, {
       headers: {
         'Content-Type': 'application/javascript; charset=utf-8',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'X-Form-Version': metadata.version,
-        'X-Published-At': metadata.builtAt,
-        'X-Size-Bytes': metadata.sizeBytes.toString(),
+        'X-Form-Version': formVersion,
+        'X-Published-At': publishedAt,
+        'X-Size-Bytes': sizeBytes,
       },
     })
 
