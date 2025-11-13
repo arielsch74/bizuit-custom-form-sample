@@ -1,5 +1,6 @@
 // Bizuit Custom Form: Solicitud de Vacaciones
 // Este form será compilado con esbuild y cargado dinámicamente
+// Updated to trigger workflow
 
 import { useState } from 'react';
 
