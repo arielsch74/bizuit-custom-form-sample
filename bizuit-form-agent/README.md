@@ -4,7 +4,23 @@ Agente especializado de Claude Code para generar formularios de Bizuit BPM de ma
 
 ## 🎯 ¿Qué es este agente?
 
-Este agente te ayuda a crear formularios para procesos de Bizuit BPM simplemente describiendo lo que necesitas en lenguaje natural. El agente entiende la arquitectura de Bizuit, los componentes disponibles, y las mejores prácticas.
+Este agente te ayuda a crear **DOS tipos de formularios** para Bizuit BPM simplemente describiendo lo que necesitas en lenguaje natural:
+
+### A) Bizuit SDK Forms (Tradicionales)
+Formularios integrados en aplicaciones Next.js que usan `@tyconsa/bizuit-form-sdk`:
+- ✅ Integración completa con Bizuit BPM
+- ✅ Componentes UI avanzados (DynamicFormField, ProcessSuccessScreen, etc.)
+- ✅ Auto-generación desde parámetros de proceso
+- ✅ Manejo de locks y sesiones
+
+### B) Custom Forms (Dinámicos/Standalone)
+Formularios standalone que se compilan con esbuild y cargan dinámicamente:
+- ✅ Deployables independientemente del Next.js app
+- ✅ Versionados en SQL Server
+- ✅ Carga dinámica sin redeployar la aplicación
+- ✅ Compilados con GitHub Actions automáticamente
+
+El agente entiende ambas arquitecturas, los componentes disponibles, y las mejores prácticas para cada tipo.
 
 ## 🚀 Cómo usar el agente
 
@@ -12,13 +28,24 @@ Este agente te ayuda a crear formularios para procesos de Bizuit BPM simplemente
 
 En Claude Code, escribe:
 
+**Para Bizuit SDK Form:**
 ```
-@bizuit-form-generator crea un formulario para SolicitudVacaciones con:
+@bizuit-form-generator crea un formulario SDK para SolicitudVacaciones con:
 - Campo empleado (textbox)
 - Campo tipoVacacion (combo: Anuales, Enfermedad, Personales)
 - Campo motivo (textarea)
 - Botón "Comenzar" color primary
 - Botón "Cancelar" color secondary
+```
+
+**Para Custom Form:**
+```
+@bizuit-form-generator crea un Custom Form para solicitud-soporte con:
+- Campo categoria (select: software, hardware, red, acceso, otro)
+- Campo prioridad (select con colores: baja, media, alta, crítica)
+- Campo asunto (textbox)
+- Campo descripcion (textarea)
+- Campo archivo (file upload)
 ```
 
 ### Opción 2: Conversación natural
@@ -87,10 +114,10 @@ El agente conoce todos estos componentes y puede usarlos:
 
 ## 💡 Ejemplos de Uso
 
-### Ejemplo 1: Formulario Simple
+### Ejemplo 1: Bizuit SDK Form Simple
 
 ```
-Tú: Crea un formulario para SolicitudCompra con campos:
+Tú: Crea un formulario SDK para SolicitudCompra con campos:
     - proveedor (textbox)
     - monto (number)
     - fecha (datepicker)
@@ -98,6 +125,22 @@ Tú: Crea un formulario para SolicitudCompra con campos:
     - Botón "Enviar Solicitud"
 
 Agente: *Genera app/solicitud-compra/page.tsx con todos los campos*
+```
+
+### Ejemplo 1B: Custom Form Simple
+
+```
+Tú: Crea un Custom Form para orden-compra con:
+    - proveedor (textbox)
+    - monto (number con formato moneda)
+    - fecha (date input)
+    - urgente (checkbox)
+
+Agente: *Genera forms/orden-compra/src/index.tsx con export default*
+       *Crea package.json con version 1.0.0*
+
+       Para compilar: node build-form.js forms/orden-compra
+       Para deployar: git commit && git push (GitHub Actions se encarga)
 ```
 
 ### Ejemplo 2: Formulario Dinámico desde API
@@ -332,6 +375,122 @@ Agente: *Regenera con la información correcta*
 
 ---
 
+## 🔧 Custom Forms - Detalles Técnicos
+
+### Arquitectura
+
+```
+┌─────────────────────────────────────────────────┐
+│ Developer                                       │
+│ Crea form en: forms/mi-form/src/index.tsx       │
+└────────┬────────────────────────────────────────┘
+         │ git push
+         ▼
+┌─────────────────────────────────────────────────┐
+│ GitHub Actions                                  │
+│ - Detecta cambios en forms/                     │
+│ - npm install + esbuild (globalReactPlugin)     │
+│ - Upload to SQL Server (CustomFormVersions)     │
+└────────┬────────────────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────────────────────────┐
+│ SQL Server Database                             │
+│ CustomForms + CustomFormVersions tables         │
+└────────┬────────────────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────────────────────────┐
+│ Runtime App (Next.js + FastAPI)                 │
+│ Browser → Next.js API → FastAPI → SQL Server    │
+│         → Compiled JS → Blob URL → import()     │
+│         → Renderiza con window.React            │
+└─────────────────────────────────────────────────┘
+```
+
+### Estructura de Archivos Custom Forms
+
+**Repository de Forms:**
+```
+bizuit-custom-form-sample/
+├── build-form.js              # Script esbuild universal
+├── forms/
+│   ├── solicitud-vacaciones/
+│   │   ├── package.json       # { "name": "solicitud-vacaciones", "version": "1.0.0" }
+│   │   └── src/
+│   │       └── index.tsx      # export default function SolicitudVacacionesForm() {...}
+│   ├── solicitud-soporte/
+│   │   ├── package.json
+│   │   └── src/
+│   │       └── index.tsx
+└── .github/
+    └── workflows/
+        └── deploy-forms.yml   # Auto-deploy on push
+```
+
+### ⚠️ Diferencias Clave: SDK vs Custom Forms
+
+| Aspecto | SDK Forms | Custom Forms |
+|---------|-----------|--------------|
+| **Ubicación** | `app/mi-form/page.tsx` | `forms/mi-form/src/index.tsx` |
+| **'use client'** | ✅ Requerido | ❌ No usar |
+| **export default** | ✅ Sí | ✅ **CRÍTICO** - Sí |
+| **Imports React** | `from 'react'` | `from 'react'` (se externalizan) |
+| **Bizuit SDK** | ✅ `useBizuitSDK()` | ❌ No disponible |
+| **UI Components** | ✅ `DynamicFormField`, etc. | ❌ Solo HTML/Tailwind |
+| **Deployment** | `npm run build` | GitHub Actions + esbuild |
+| **Loading** | Route estática | Dinámico via blob URL |
+| **Versioning** | Git commits | SQL Server (CustomFormVersions) |
+| **Build Tool** | Next.js | esbuild + globalReactPlugin |
+
+### Build Configuration (Custom Forms)
+
+**esbuild con globalReactPlugin:**
+```javascript
+// build-form.js - Plugin que reemplaza React con window.React
+const globalReactPlugin = {
+  name: 'global-react',
+  setup(build) {
+    build.onResolve({ filter: /^react$/ }, args => {
+      return { path: args.path, namespace: 'global-react' }
+    })
+    build.onLoad({ filter: /.*/, namespace: 'global-react' }, args => {
+      return { contents: 'module.exports = window.React', loader: 'js' }
+    })
+  }
+}
+
+// Compilación
+esbuild.build({
+  format: 'esm',              // ⚠️ CRÍTICO: ESM para export default
+  plugins: [globalReactPlugin], // ⚠️ CRÍTICO: Externaliza React
+  // ...
+})
+```
+
+**¿Por qué ESM + globalReactPlugin?**
+1. **format: 'esm'** - Preserva `export default` para `import()` dinámico
+2. **globalReactPlugin** - Evita bundlear React (usa `window.React` del runtime)
+3. **No typeof require** - ESM elimina código CommonJS innecesario
+4. **Tamaño pequeño** - React no se bundlea, forms son ~5-10 KB
+
+### Cuándo Usar Cada Tipo
+
+**Usa SDK Forms si:**
+- ✅ Integración completa con Bizuit BPM (locks, sessions, events)
+- ✅ Auto-generación desde process parameters
+- ✅ Necesitas ProcessSuccessScreen, DynamicFormField
+- ✅ Form es parte de flujo de aplicación compleja
+
+**Usa Custom Forms si:**
+- ✅ Deploy independiente del Next.js app
+- ✅ Versioning en base de datos (A/B testing)
+- ✅ Equipo separado manteniendo forms
+- ✅ Necesitas catálogo centralizado en SQL Server
+- ✅ Hot reload de forms sin rebuild de Next.js
+
+---
+
 **Creado para:** Proyecto Bizuit Form Template
-**Versión:** 1.0.0
+**Versión:** 2.0.0 (Ahora con Custom Forms!)
 **Última actualización:** Noviembre 2025
