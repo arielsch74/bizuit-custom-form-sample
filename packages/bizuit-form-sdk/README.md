@@ -9,18 +9,114 @@ Core SDK for Bizuit BPM form integration. Provides authentication, process manag
 - ✅ **Instance Locking** - Pessimistic locking for concurrent access control
 - ✅ **TypeScript Support** - Full type safety with TypeScript definitions
 - ✅ **React Hooks** - Easy integration with React applications
+- ✅ **Server-Side Support** - Works in Next.js API routes, server components, and Node.js (NEW in v1.5.0)
 - ✅ **Complex Parameters** - Handle scalar and complex (JSON/XML) parameters
 - ✅ **Error Handling** - Comprehensive error handling and logging
 
 ## Installation
 
 ```bash
-npm install @bizuit/form-sdk
+npm install @tyconsa/bizuit-form-sdk
 # or
-yarn add @bizuit/form-sdk
+yarn add @tyconsa/bizuit-form-sdk
 # or
-pnpm add @bizuit/form-sdk
+pnpm add @tyconsa/bizuit-form-sdk
 ```
+
+## 🚀 Quick Start: Client-Side vs Server-Side
+
+### Client-Side (React Components)
+
+Use the default export for React components with hooks:
+
+```typescript
+'use client'
+
+import { useBizuitSDK, buildParameters } from '@tyconsa/bizuit-form-sdk'
+import type { IBizuitProcessParameter } from '@tyconsa/bizuit-form-sdk'
+
+export function ContactForm() {
+  const sdk = useBizuitSDK()
+  const [formData, setFormData] = useState({ name: '', email: '' })
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    const parameters = buildParameters(
+      {
+        name: { parameterName: 'Nombre' },
+        email: { parameterName: 'Email' }
+      },
+      formData
+    )
+
+    const result = await sdk.process.start({
+      processName: 'ContactoInicial',
+      parameters
+    })
+
+    console.log('Process started:', result.instanceId)
+  }
+
+  return <form onSubmit={handleSubmit}>...</form>
+}
+```
+
+### Server-Side (Next.js API Routes, Node.js)
+
+Use the `/core` export for server-side code (API routes, server components):
+
+```typescript
+// app/api/bizuit/start-process/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { BizuitSDK } from '@tyconsa/bizuit-form-sdk/core'  // ⭐ Use /core
+
+export async function POST(request: NextRequest) {
+  const { processName, parameters } = await request.json()
+
+  // Initialize SDK (no React dependencies)
+  const sdk = new BizuitSDK({
+    formsApiUrl: process.env.BIZUIT_FORMS_API_URL!,
+    dashboardApiUrl: process.env.BIZUIT_DASHBOARD_API_URL!
+  })
+
+  // Authenticate
+  const authString = `${process.env.BIZUIT_USER}:${process.env.BIZUIT_PASSWORD}`
+  const base64Auth = Buffer.from(authString).toString('base64')
+
+  const loginResponse = await fetch(`${process.env.BIZUIT_DASHBOARD_API_URL}/Login`, {
+    headers: { 'Authorization': `Basic ${base64Auth}` }
+  })
+
+  const loginData = await loginResponse.json()
+  const token = `Basic ${loginData.token}`
+
+  // Start process
+  const result = await sdk.process.start(
+    { processName, parameters },
+    undefined,
+    token
+  )
+
+  return NextResponse.json({
+    success: true,
+    instanceId: result.instanceId
+  })
+}
+```
+
+### Key Differences
+
+| Import Path | Use When | Includes React Hooks |
+|-------------|----------|---------------------|
+| `@tyconsa/bizuit-form-sdk` | React components (`'use client'`) | ✅ Yes |
+| `@tyconsa/bizuit-form-sdk/core` | API routes, server components, Node.js | ❌ No (server-safe) |
+
+**Why two entry points?**
+
+The main export includes React hooks that use `createContext`, which causes errors in Next.js 15+ API routes and server components. The `/core` export excludes React dependencies, making it safe for server-side use.
+
+For more details, see [SERVER-SIDE-USAGE.md](./SERVER-SIDE-USAGE.md).
 
 ## Form Implementation Strategies
 

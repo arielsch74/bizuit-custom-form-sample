@@ -17,10 +17,12 @@ import type {
 export class BizuitAuthService {
   private client: BizuitHttpClient
   private formsApiUrl: string
+  private dashboardApiUrl: string
 
   constructor(config: IBizuitConfig) {
     this.client = new BizuitHttpClient(config)
     this.formsApiUrl = config.formsApiUrl
+    this.dashboardApiUrl = config.dashboardApiUrl
   }
 
   /**
@@ -191,7 +193,7 @@ export class BizuitAuthService {
     try {
       // The API returns a JSON object with token and user info
       const response = await this.client.get<any>(
-        `${this.formsApiUrl}/Login`,
+        `${this.dashboardApiUrl}/Login`,
         {
           headers: {
             'Authorization': authHeader,
