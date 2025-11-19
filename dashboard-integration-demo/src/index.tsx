@@ -38,11 +38,10 @@ export default function DashboardIntegrationDemoForm({ dashboardParams }: FormPr
   const [sdk] = useState(() => {
     if (!BizuitSDK) return null;
 
-    // Usar el proxy /api/bizuit para todas las llamadas a Bizuit API
-    // El proxy se encarga de rutear a la URL correcta según el endpoint
+    // SDK v2.0.0+: Usar apiUrl único en lugar de formsApiUrl/dashboardApiUrl
+    // El proxy /api/bizuit se encarga de rutear a la URL correcta según el endpoint
     return new BizuitSDK({
-      formsApiUrl: '/api/bizuit',
-      dashboardApiUrl: '/api/bizuit',
+      apiUrl: '/api/bizuit',
       timeout: 120000
     });
   });

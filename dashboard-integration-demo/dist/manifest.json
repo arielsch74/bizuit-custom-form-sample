@@ -1,17 +1,16 @@
 {
-  "packageVersion": "1.0.8",
-  "buildDate": "2025-01-18T01:30:00.000Z",
-  "commitHash": "react-day-picker-v9-migration",
+  "packageVersion": "1.0.9",
+  "buildDate": "2025-11-19T06:15:00.000Z",
+  "commitHash": "sdk-v2-fix",
   "forms": [
     {
       "formName": "dashboard-integration-demo",
-      "version": "1.0.8",
       "processName": "DashboardIntegrationDemo",
-      "author": "Tyconsa",
-      "description": "Dashboard Integration Demo - react-day-picker v9 (no React warnings)",
-      "path": "form.js",
-      "sizeBytes": 11167,
-      "metadata": "form.meta.json"
+      "version": "1.0.9",
+      "author": "Bizuit Team",
+      "description": "Dashboard Integration Demo - Fixed SDK v2.0.0 apiUrl configuration",
+      "sizeBytes": 11138,
+      "path": "forms/dashboard-integration-demo/form.js"
     }
   ]
 }
