@@ -89,7 +89,7 @@ stages:
                       "",
                       "# SQL Server Connection - Persistence Store Database",
                       "PERSISTENCE_DB_SERVER=test.bizuit.com",
-                      "PERSISTENCE_DB_DATABASE=arielschBizuitPersistenceStore",
+                      "PERSISTENCE_DB_DATABASE=arielschBIZUITDashboard",
                       "PERSISTENCE_DB_USER=BIZUITarielsch",
                       "PERSISTENCE_DB_PASSWORD=Th3Qu33n1sD34d$",
                       "",

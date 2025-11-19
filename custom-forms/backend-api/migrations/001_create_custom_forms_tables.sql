@@ -2,9 +2,7 @@
 -- Description: Creates the initial database schema for Custom Forms system
 -- Date: 2025-11-19
 -- Idempotent: Yes (checks for existence before creating)
-
-USE [BizuitDashboard];
-GO
+-- Note: Database is selected via sqlcmd -d parameter, not USE statement
 
 -- ==============================================================================
 -- Table: CustomForms
