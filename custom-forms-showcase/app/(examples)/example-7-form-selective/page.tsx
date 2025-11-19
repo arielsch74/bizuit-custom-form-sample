@@ -1565,6 +1565,240 @@ body {
   color: #6b7280;
   text-align: center;
   font-style: italic;
+}
+
+/* Dark Mode */
+body.dark {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+}
+
+body.dark .card {
+  background: #1e293b;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .card h1 {
+  color: #f1f5f9;
+}
+
+body.dark .card h2 {
+  color: #e2e8f0;
+}
+
+body.dark .card h3 {
+  color: #cbd5e1;
+}
+
+body.dark .subtitle {
+  color: #94a3b8;
+}
+
+body.dark .info {
+  background: #1e3a5f;
+  border-left-color: #3b82f6;
+  color: #93c5fd;
+}
+
+body.dark .form-field label {
+  color: #e2e8f0;
+}
+
+body.dark .required {
+  color: #f87171;
+}
+
+body.dark .form-field input[type="text"],
+body.dark .form-field select {
+  background: #334155;
+  border-color: #475569;
+  color: #f1f5f9;
+}
+
+body.dark .form-field input:focus,
+body.dark .form-field select:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+body.dark .field-hint {
+  color: #94a3b8;
+}
+
+body.dark .field-hint.transform {
+  color: #a78bfa;
+}
+
+body.dark .additional-params-preview {
+  background: #422006;
+  border-color: #d97706;
+}
+
+body.dark .additional-params-preview h3 {
+  color: #fbbf24;
+}
+
+body.dark .params-grid {
+  color: #e2e8f0;
+}
+
+body.dark .param-item {
+  background: #1e293b;
+  border-color: #475569;
+}
+
+body.dark .param-name {
+  color: #cbd5e1;
+}
+
+body.dark .param-value {
+  color: #e2e8f0;
+}
+
+body.dark .calculated-badge {
+  background: #3730a3;
+  color: #c7d2fe;
+}
+
+body.dark .btn-secondary {
+  background: #334155;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+
+body.dark .btn-secondary:hover {
+  background: #475569;
+  border-color: #64748b;
+}
+
+body.dark .loading {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+body.dark .spinner {
+  border-color: #334155;
+  border-top-color: #60a5fa;
+}
+
+body.dark .success {
+  border-left-color: #22c55e;
+}
+
+body.dark .success h2 {
+  color: #86efac;
+}
+
+body.dark .magic-banner {
+  background: #1e3a5f;
+  border-color: #3b82f6;
+}
+
+body.dark .magic-banner h3 {
+  color: #93c5fd;
+}
+
+body.dark .stat {
+  background: #0f172a;
+}
+
+body.dark .stat-number {
+  color: #e2e8f0;
+}
+
+body.dark .stat-label {
+  color: #94a3b8;
+}
+
+body.dark .detail-row {
+  background: #0f172a;
+  border-bottom-color: #334155;
+}
+
+body.dark .label {
+  color: #cbd5e1;
+}
+
+body.dark .value {
+  color: #e2e8f0;
+}
+
+body.dark .parameters-sent {
+  background: #0f172a;
+}
+
+body.dark .parameters-sent h3 {
+  color: #e2e8f0;
+}
+
+body.dark .param-row {
+  background: #1e293b;
+}
+
+body.dark .param-key {
+  color: #cbd5e1;
+}
+
+body.dark .param-type {
+  background: #3730a3;
+  color: #c7d2fe;
+}
+
+body.dark .param-val {
+  color: #34d399;
+}
+
+body.dark .error {
+  border-left-color: #ef4444;
+}
+
+body.dark .error h3 {
+  color: #fca5a5;
+}
+
+body.dark .error p {
+  color: #e2e8f0;
+}
+
+body.dark .info-card {
+  background: linear-gradient(135deg, #1e3a5f 0%, #1e293b 100%);
+  border-color: #3b82f6;
+}
+
+body.dark .info-card h3 {
+  color: #93c5fd;
+}
+
+body.dark .info-card li {
+  color: #bfdbfe;
+}
+
+body.dark .info-card strong {
+  color: #60a5fa;
+}
+
+body.dark .comparison-card {
+  background: #1e293b;
+}
+
+body.dark .comparison-card h3 {
+  color: #e2e8f0;
+}
+
+body.dark .comparison-card .info {
+  background: #1e3a5f;
+  color: #93c5fd;
+}
+
+body.dark .comparison-side {
+  background: #0f172a;
+}
+
+body.dark .comparison-side h4 {
+  color: #cbd5e1;
+}
+
+body.dark .code-note {
+  color: #94a3b8;
 }`
             }}
           />
