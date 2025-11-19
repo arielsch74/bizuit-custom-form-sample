@@ -14,6 +14,8 @@ interface DashboardStats {
 
 interface RecentForm {
   name: string
+  displayName?: string
+  processName?: string
   version: string
   publishedAt: string
   sizeKb: number

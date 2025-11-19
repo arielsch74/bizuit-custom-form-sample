@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 
 // This variable is read from .env.local at RUNTIME (not burned into the build)
 // You can change it without rebuilding the app
-const BIZUIT_API_BASE = process.env.BIZUIT_API_BASE_URL
-
-if (!BIZUIT_API_BASE) {
-  throw new Error('BIZUIT_API_BASE_URL environment variable is not configured')
+function getBizuitApiBase() {
+  const apiBase = process.env.BIZUIT_API_BASE_URL
+  if (!apiBase) {
+    throw new Error('BIZUIT_API_BASE_URL environment variable is not configured')
+  }
+  return apiBase
 }
 
 /**
@@ -111,7 +113,7 @@ async function handleRequest(
     const path = params.path.join('/')
     const url = new URL(request.url)
     const queryString = url.search
-    const targetUrl = `${BIZUIT_API_BASE}/${path}${queryString}`
+    const targetUrl = `${getBizuitApiBase()}/${path}${queryString}`
 
     console.log(`[Bizuit Proxy] ${method} ${targetUrl}`)
 
