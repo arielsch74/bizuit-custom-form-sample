@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Button, BizuitCard, useTranslation } from '@tyconsa/bizuit-ui-components'
+import { Button, BizuitCard } from '@tyconsa/bizuit-ui-components'
+import { useAppTranslation } from '@/lib/useAppTranslation'
 import Link from 'next/link'
 import { startProcess, getInstance, continueProcess } from './actions'
 
@@ -56,7 +57,7 @@ import { startProcess, getInstance, continueProcess } from './actions'
  * ❌ Client-Side: Dashboard interactivo que muestra el estado de procesos en tiempo real
  */
 function Example4ServerSideContent() {
-  const { t } = useTranslation()
+  const { t } = useAppTranslation()
 
   // Estado para iniciar proceso
   const [processName, setProcessName] = useState('DemoFlow')
@@ -145,30 +146,29 @@ function Example4ServerSideContent() {
       {/* Header */}
       <div className="mb-8">
         <Link href="/" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
-          ← {t('ui.back')}
+          ← {t('example4.back')}
         </Link>
-        <h1 className="text-4xl font-bold mb-2">Server-Side SDK</h1>
+        <h1 className="text-4xl font-bold mb-2">{t('example4.title')}</h1>
         <p className="text-gray-600 text-lg">
-          Uso del SDK del lado del servidor con Next.js Server Actions
+          {t('example4.subtitle')}
         </p>
       </div>
 
       <div className="space-y-8">
         {/* Sección informativa: ¿Cuándo usar Server-Side SDK? */}
         <BizuitCard
-          title="📖 ¿Cuándo usar el SDK del lado del servidor?"
-          description="Guía completa para decidir entre server-side y client-side SDK"
+          title={`📖 ${t('example4.infoTitle')}`}
+          description={t('example4.infoSubtitle') as string}
         >
           <div className="space-y-6">
             {/* ¿Qué es? */}
             <div>
               <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
                 <span className="text-2xl">🎯</span>
-                ¿Qué es el Server-Side SDK?
+                {t('example4.whatIsTitle')}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                El SDK de Bizuit funciona tanto en el navegador como en Node.js. Cuando usas <code className="bg-muted px-1 py-0.5 rounded text-xs">@tyconsa/bizuit-form-sdk/core</code>,
-                obtienes una versión sin dependencias de React que es ideal para ejecutarse en el servidor con Next.js Server Actions, API Routes, o cualquier entorno Node.js.
+                {t('example4.whatIsDesc')}
               </p>
             </div>
 
@@ -176,50 +176,50 @@ function Example4ServerSideContent() {
             <div>
               <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
                 <span className="text-2xl">✅</span>
-                Usa el SDK en el SERVIDOR cuando:
+                {t('example4.useServerTitle')}
               </h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
-                    <span>🔒</span> Seguridad Crítica
+                    <span>🔒</span> {t('example4.security')}
                   </h4>
                   <ul className="text-sm space-y-1 text-gray-700 dark:text-gray-300">
-                    <li>• Ocultar credenciales API del cliente</li>
-                    <li>• Trabajar con datos sensibles</li>
-                    <li>• Lógica de negocio privada</li>
+                    {(t('example4.securityItems') as unknown as string[]).map((item: string, i: number) => (
+                      <li key={i}>• {item}</li>
+                    ))}
                   </ul>
                 </div>
 
                 <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
-                    <span>⚙️</span> Automatizaciones
+                    <span>⚙️</span> {t('example4.automations')}
                   </h4>
                   <ul className="text-sm space-y-1 text-gray-700 dark:text-gray-300">
-                    <li>• Cron jobs automáticos</li>
-                    <li>• Workflows programados</li>
-                    <li>• Procesos batch</li>
+                    {(t('example4.automationsItems') as unknown as string[]).map((item: string, i: number) => (
+                      <li key={i}>• {item}</li>
+                    ))}
                   </ul>
                 </div>
 
                 <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
-                    <span>🔗</span> Integraciones
+                    <span>🔗</span> {t('example4.integrations')}
                   </h4>
                   <ul className="text-sm space-y-1 text-gray-700 dark:text-gray-300">
-                    <li>• Webhooks externos</li>
-                    <li>• APIs públicas</li>
-                    <li>• Sincronización con ERP/CRM</li>
+                    {(t('example4.integrationsItems') as unknown as string[]).map((item: string, i: number) => (
+                      <li key={i}>• {item}</li>
+                    ))}
                   </ul>
                 </div>
 
                 <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
-                    <span>⚡</span> Mejor Rendimiento
+                    <span>⚡</span> {t('example4.performance')}
                   </h4>
                   <ul className="text-sm space-y-1 text-gray-700 dark:text-gray-300">
-                    <li>• Menor latencia de red</li>
-                    <li>• Sin restricciones CORS</li>
-                    <li>• Procesos pesados en servidor</li>
+                    {(t('example4.performanceItems') as unknown as string[]).map((item: string, i: number) => (
+                      <li key={i}>• {item}</li>
+                    ))}
                   </ul>
                 </div>
               </div>
@@ -229,21 +229,21 @@ function Example4ServerSideContent() {
             <div>
               <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
                 <span className="text-2xl">❌</span>
-                Usa el SDK en el CLIENTE cuando:
+                {t('example4.useClientTitle')}
               </h3>
               <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
                 <ul className="text-sm space-y-2 text-gray-700 dark:text-gray-300">
                   <li className="flex items-start gap-2">
                     <span className="text-amber-600 dark:text-amber-400">•</span>
-                    <span><strong>Formularios interactivos:</strong> El usuario necesita ver/editar datos en tiempo real</span>
+                    <span><strong>{t('example4.interactiveForms')}</strong> {t('example4.interactiveFormsDesc')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-amber-600 dark:text-amber-400">•</span>
-                    <span><strong>Componentes UI de Bizuit:</strong> Quieres usar DynamicFormField, BizuitDataGrid, etc.</span>
+                    <span><strong>{t('example4.reactComponents')}</strong> {t('example4.reactComponentsDesc')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-amber-600 dark:text-amber-400">•</span>
-                    <span><strong>Dashboards en tiempo real:</strong> Visualización dinámica del estado de procesos</span>
+                    <span><strong>{t('example4.realTimeValidation')}</strong> {t('example4.realTimeValidationDesc')}</span>
                   </li>
                 </ul>
               </div>
@@ -253,15 +253,15 @@ function Example4ServerSideContent() {
             <div>
               <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
                 <span className="text-2xl">💡</span>
-                Ejemplos de Casos de Uso Reales
+                {t('example4.examplesTitle')}
               </h3>
               <div className="grid md:grid-cols-2 gap-3">
                 <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
                   <div className="flex items-start gap-2">
                     <span className="text-green-600 font-bold">✅</span>
                     <div>
-                      <p className="font-semibold text-sm">Server-Side</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Sistema que crea solicitudes de compra automáticamente cuando el inventario baja de cierto nivel</p>
+                      <p className="font-semibold text-sm">{t('example4.serverSide')}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{t('example4.example1Server')}</p>
                     </div>
                   </div>
                 </div>
@@ -270,8 +270,8 @@ function Example4ServerSideContent() {
                   <div className="flex items-start gap-2">
                     <span className="text-red-600 font-bold">❌</span>
                     <div>
-                      <p className="font-semibold text-sm">Client-Side</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Formulario web donde el usuario ingresa datos de una solicitud de vacaciones</p>
+                      <p className="font-semibold text-sm">{t('example4.clientSide')}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{t('example4.example1Client')}</p>
                     </div>
                   </div>
                 </div>
@@ -280,8 +280,8 @@ function Example4ServerSideContent() {
                   <div className="flex items-start gap-2">
                     <span className="text-green-600 font-bold">✅</span>
                     <div>
-                      <p className="font-semibold text-sm">Server-Side</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Webhook que recibe confirmación de pago de Stripe y continúa el proceso de aprobación</p>
+                      <p className="font-semibold text-sm">{t('example4.serverSide')}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{t('example4.example2Server')}</p>
                     </div>
                   </div>
                 </div>
@@ -290,8 +290,8 @@ function Example4ServerSideContent() {
                   <div className="flex items-start gap-2">
                     <span className="text-red-600 font-bold">❌</span>
                     <div>
-                      <p className="font-semibold text-sm">Client-Side</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Dashboard interactivo que muestra el estado de todos los procesos activos en tiempo real</p>
+                      <p className="font-semibold text-sm">{t('example4.clientSide')}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{t('example4.example2Client')}</p>
                     </div>
                   </div>
                 </div>
@@ -300,8 +300,8 @@ function Example4ServerSideContent() {
                   <div className="flex items-start gap-2">
                     <span className="text-green-600 font-bold">✅</span>
                     <div>
-                      <p className="font-semibold text-sm">Server-Side</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">API pública que permite a clientes externos crear tickets de soporte en tu sistema BPM</p>
+                      <p className="font-semibold text-sm">{t('example4.serverSide')}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{t('example4.example3Server')}</p>
                     </div>
                   </div>
                 </div>
@@ -310,8 +310,8 @@ function Example4ServerSideContent() {
                   <div className="flex items-start gap-2">
                     <span className="text-red-600 font-bold">❌</span>
                     <div>
-                      <p className="font-semibold text-sm">Client-Side</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Formulario multi-paso con validaciones en tiempo real y preview de datos antes de enviar</p>
+                      <p className="font-semibold text-sm">{t('example4.clientSide')}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{t('example4.example3Client')}</p>
                     </div>
                   </div>
                 </div>
@@ -322,31 +322,31 @@ function Example4ServerSideContent() {
 
         {/* Sección 1: Iniciar Proceso */}
         <BizuitCard
-          title="1️⃣ Iniciar Proceso"
-          description="Iniciar un proceso desde el servidor usando Server Actions"
+          title={`1️⃣ ${t('example4.demo1Title')}`}
+           description={t('example4.demo1Subtitle') as string}
         >
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Nombre del Proceso</label>
+              <label className="block text-sm font-medium mb-2">{t('example4.processName')}</label>
               <input
                 type="text"
                 value={processName}
                 onChange={(e) => setProcessName(e.target.value)}
                 className="w-full px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                placeholder="DemoFlow"
+                placeholder={t('example4.processNamePlaceholder')}
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                Parámetros (JSON)
+                {t('example4.parameters')}
               </label>
               <textarea
                 value={startParams}
                 onChange={(e) => setStartParams(e.target.value)}
                 className="w-full px-3 py-2 bg-background border border-input rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                 rows={3}
-                placeholder='{"nombre": "Juan", "edad": 30}'
+                placeholder={t('example4.parametersPlaceholder')}
               />
             </div>
 
@@ -356,7 +356,7 @@ function Example4ServerSideContent() {
               variant="default"
               className="w-full"
             >
-              {startLoading ? 'Iniciando...' : 'Iniciar Proceso'}
+              {startLoading ? `${t('example4.startProcess')}...` : t('example4.startProcess')}
             </Button>
 
             {startResult && (
@@ -371,18 +371,18 @@ function Example4ServerSideContent() {
 
         {/* Sección 2: Obtener Instancia */}
         <BizuitCard
-          title="2️⃣ Obtener Datos de Instancia"
-          description="Consultar el estado y datos de una instancia de proceso"
+          title={`2️⃣ ${t('example4.demo2Title')}`}
+           description={t('example4.demo2Subtitle') as string}
         >
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Instance ID</label>
+              <label className="block text-sm font-medium mb-2">{t('example4.instanceId')}</label>
               <input
                 type="text"
                 value={instanceId}
                 onChange={(e) => setInstanceId(e.target.value)}
                 className="w-full px-3 py-2 bg-background border border-input rounded-md font-mono focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                placeholder="12345"
+                placeholder={t('example4.instanceIdPlaceholder')}
               />
             </div>
 
@@ -392,7 +392,7 @@ function Example4ServerSideContent() {
               variant="default"
               className="w-full"
             >
-              {instanceLoading ? 'Consultando...' : 'Obtener Instancia'}
+              {instanceLoading ? `${t('example4.getInstance')}...` : t('example4.getInstance')}
             </Button>
 
             {instanceData && (
@@ -407,42 +407,42 @@ function Example4ServerSideContent() {
 
         {/* Sección 3: Continuar Proceso */}
         <BizuitCard
-          title="3️⃣ Continuar Proceso"
-          description="Completar una tarea pendiente y continuar el flujo"
+          title={`3️⃣ ${t('example4.demo3Title')}`}
+           description={t('example4.demo3Subtitle') as string}
         >
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Instance ID</label>
+              <label className="block text-sm font-medium mb-2">{t('example4.instanceId')}</label>
               <input
                 type="text"
                 value={continueInstanceId}
                 onChange={(e) => setContinueInstanceId(e.target.value)}
                 className="w-full px-3 py-2 bg-background border border-input rounded-md font-mono focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                placeholder="12345"
+                placeholder={t('example4.instanceIdPlaceholder')}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Task ID</label>
+              <label className="block text-sm font-medium mb-2">{t('example4.taskId')}</label>
               <input
                 type="text"
                 value={continueTaskId}
                 onChange={(e) => setContinueTaskId(e.target.value)}
                 className="w-full px-3 py-2 bg-background border border-input rounded-md font-mono focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                placeholder="task-abc-123"
+                placeholder={t('example4.taskIdPlaceholder')}
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                Parámetros (JSON)
+                {t('example4.parameters')}
               </label>
               <textarea
                 value={continueParams}
                 onChange={(e) => setContinueParams(e.target.value)}
                 className="w-full px-3 py-2 bg-background border border-input rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                 rows={3}
-                placeholder='{"aprobado": true, "comentarios": "OK"}'
+                placeholder={t('example4.parametersPlaceholder')}
               />
             </div>
 
@@ -452,7 +452,7 @@ function Example4ServerSideContent() {
               variant="default"
               className="w-full"
             >
-              {continueLoading ? 'Continuando...' : 'Continuar Proceso'}
+              {continueLoading ? `${t('example4.continueProcess')}...` : t('example4.continueProcess')}
             </Button>
 
             {continueResult && (
@@ -467,13 +467,14 @@ function Example4ServerSideContent() {
 
         {/* Código de ejemplo - Server Actions */}
         <BizuitCard
-          title="💻 Código Server Actions"
-          description="Implementación de las Server Actions usando el SDK del lado del servidor"
+          title={`💻 ${t('example4.serverSideCode')}`}
+           description={t('example4.codeSubtitle') as string}
         >
           <div className="bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto">
             <pre className="text-sm"><code>{`'use server'
 
 import { BizuitSDK } from '@tyconsa/bizuit-form-sdk/core'
+import { IParameter } from '@tyconsa/bizuit-form-sdk'
 
 // Inicializar SDK con configuración del servidor
 const sdk = new BizuitSDK({
@@ -486,20 +487,27 @@ const credentials = {
   password: process.env.BIZUIT_PASSWORD || 'admin123'
 }
 
+// Helper: Convert Record to IParameter[]
+function toParams(obj: Record<string, any>): IParameter[] {
+  return Object.entries(obj).map(([name, value]) => ({
+    name,
+    value: String(value),
+    type: 'SingleValue' as const,
+    direction: 'In' as const
+  }))
+}
+
 // 1️⃣ Iniciar un proceso
 export async function startProcess(
   processName: string,
   parameters: Record<string, any>
 ) {
-  const authResponse = await sdk.auth.login(
-    credentials.username,
-    credentials.password
-  )
-  const token = authResponse.data?.token
+  const authResponse = await sdk.auth.login(credentials)
+  const token = authResponse.Token
 
   const response = await sdk.process.start({
     processName,
-    parameters
+    parameters: toParams(parameters)
   }, undefined, token)
 
   return { success: true, data: response }
@@ -507,13 +515,10 @@ export async function startProcess(
 
 // 2️⃣ Obtener datos de una instancia
 export async function getInstance(instanceId: string) {
-  const authResponse = await sdk.auth.login(
-    credentials.username,
-    credentials.password
-  )
-  const token = authResponse.data?.token
+  const authResponse = await sdk.auth.login(credentials)
+  const token = authResponse.Token
 
-  const instance = await sdk.process.getInstance(instanceId, token)
+  const instance = await sdk.process.getInstanceData(instanceId, token)
 
   return { success: true, data: instance }
 }
@@ -524,17 +529,14 @@ export async function continueProcess(
   taskId: string,
   parameters: Record<string, any>
 ) {
-  const authResponse = await sdk.auth.login(
-    credentials.username,
-    credentials.password
-  )
-  const token = authResponse.data?.token
+  const authResponse = await sdk.auth.login(credentials)
+  const token = authResponse.Token
 
   const response = await sdk.process.continue({
+    processName: '',
     instanceId,
-    taskId,
-    parameters
-  }, token)
+    parameters: toParams(parameters)
+  }, undefined, token)
 
   return { success: true, data: response }
 }`}</code></pre>
@@ -543,8 +545,8 @@ export async function continueProcess(
 
         {/* Código de ejemplo - Cliente */}
         <BizuitCard
-          title="💻 Código Cliente"
-          description="Uso de las Server Actions desde un Client Component"
+          title={`💻 ${t('example4.clientSideCode')}`}
+           description={t('example4.codeSubtitle') as string}
         >
           <div className="bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto">
             <pre className="text-sm"><code>{`'use client'
@@ -588,17 +590,16 @@ export default function ServerSideExample() {
 
         {/* Ventajas del Server-Side SDK */}
         <BizuitCard
-          title="🎯 Ventajas del Server-Side SDK"
-          description="Por qué usar el SDK del lado del servidor"
+          title={`🎯 ${t('example4.keyPointsTitle')}`}
+           description={t('example4.keyPointsTitle') as string}
         >
           <div className="space-y-4">
             <div className="flex items-start gap-3">
               <span className="text-2xl">🔒</span>
               <div>
-                <h3 className="font-semibold">Mayor Seguridad</h3>
-                <p className="text-sm text-gray-600">
-                  Las credenciales de autenticación nunca se exponen al cliente.
-                  Todo se ejecuta en el servidor de forma segura.
+                <h3 className="font-semibold">{t('example4.keyPoint2')}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {t('example4.keyPoint2Desc')}
                 </p>
               </div>
             </div>
@@ -606,21 +607,19 @@ export default function ServerSideExample() {
             <div className="flex items-start gap-3">
               <span className="text-2xl">⚡</span>
               <div>
-                <h3 className="font-semibold">Mejor Rendimiento</h3>
-                <p className="text-sm text-gray-600">
-                  Conexión directa al backend de Bizuit sin pasar por el navegador,
-                  reduciendo la latencia y el overhead de red.
+                <h3 className="font-semibold">{t('example4.keyPoint3')}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {t('example4.keyPoint3Desc')}
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
-              <span className="text-2xl">🌐</span>
+              <span className="text-2xl">🚀</span>
               <div>
-                <h3 className="font-semibold">Sin Problemas de CORS</h3>
-                <p className="text-sm text-gray-600">
-                  Al ejecutarse en el servidor, no hay restricciones de CORS.
-                  No necesitas configurar proxies o headers especiales.
+                <h3 className="font-semibold">{t('example4.keyPoint1')}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {t('example4.keyPoint1Desc')}
                 </p>
               </div>
             </div>
@@ -628,10 +627,9 @@ export default function ServerSideExample() {
             <div className="flex items-start gap-3">
               <span className="text-2xl">🔧</span>
               <div>
-                <h3 className="font-semibold">Integración Backend</h3>
-                <p className="text-sm text-gray-600">
-                  Ideal para workflows automáticos, integraciones con otros sistemas,
-                  y APIs públicas que consumen Bizuit.
+                <h3 className="font-semibold">{t('example4.keyPoint4')}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {t('example4.keyPoint4Desc')}
                 </p>
               </div>
             </div>

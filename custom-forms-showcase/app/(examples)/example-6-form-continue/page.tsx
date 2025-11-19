@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { useBizuitSDK, type IBizuitProcessParameter } from '@tyconsa/bizuit-form-sdk'
-import { DynamicFormField, Button, useBizuitAuth, useTranslation, BizuitCard } from '@tyconsa/bizuit-ui-components'
+import { DynamicFormField, Button, useBizuitAuth, BizuitCard } from '@tyconsa/bizuit-ui-components'
+import { useAppTranslation } from '@/lib/useAppTranslation'
 import { RequireAuth } from '@/components/require-auth'
 import { LiveCodeEditor } from '@/components/live-code-editor'
 import Link from 'next/link'
@@ -32,7 +33,7 @@ import Link from 'next/link'
  * - Más código y control manual de cada paso
  */
 function Example6FormContinueContent() {
-  const { t } = useTranslation()
+  const { t } = useAppTranslation()
   const sdk = useBizuitSDK()
   const { token } = useBizuitAuth()
 
@@ -159,144 +160,34 @@ function Example6FormContinueContent() {
         <Link href="/" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
           ← {t('ui.back')}
         </Link>
-        <h1 className="text-4xl font-bold mb-2">Form Service - Continue Process</h1>
+        <h1 className="text-4xl font-bold mb-2">{t('example6.title')}</h1>
         <p className="text-gray-600 text-lg">
-          API de alto nivel para continuar procesos con manejo automático de locks
+          {t('example6.subtitle')}
         </p>
       </div>
 
       <div className="space-y-8">
         {/* Info Card */}
         <BizuitCard
-          title="🔒 Lock Management con FormService"
-          description="Manejo automático de locks de instancia"
+          title={t('example6.lock.title')}
+          description={t('example6.lock.description')}
         >
           <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-            <h3 className="font-semibold mb-2">✨ Ventajas del FormService para Continue</h3>
+            <h3 className="font-semibold mb-2">{t('example6.advantages.title')}</h3>
             <ul className="text-sm space-y-2 text-gray-700 dark:text-gray-300">
-              <li>• <strong>prepareContinueForm()</strong> con <code className="text-xs bg-muted px-1 rounded">autoLock: true</code> adquiere el lock automáticamente</li>
-              <li>• Carga datos de instancia + parámetros en UNA sola llamada</li>
-              <li>• <strong>continueProcess()</strong> convierte formData → parámetros automáticamente</li>
-              <li>• <strong>releaseLock()</strong> helper simple para liberar locks</li>
-              <li>• Menos código que ProcessService (Ejemplo 2/3)</li>
+              <li>• {t('example6.advantages.item1')}</li>
+              <li>• {t('example6.advantages.item2')}</li>
+              <li>• {t('example6.advantages.item3')}</li>
+              <li>• {t('example6.advantages.item4')}</li>
+              <li>• {t('example6.advantages.item5')}</li>
             </ul>
           </div>
         </BizuitCard>
 
-        {/* Paso 1: Cargar instancia */}
-        <BizuitCard
-          title="1️⃣ Cargar Instancia"
-          description="Prepara el formulario con FormService.prepareContinueForm()"
-        >
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Instance ID</label>
-              <input
-                type="text"
-                value={instanceId}
-                onChange={(e) => setInstanceId(e.target.value)}
-                className="w-full px-3 py-2 bg-background border border-input rounded-md font-mono focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                placeholder="12345"
-                disabled={status === 'loading' || status === 'ready'}
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Nombre del Proceso</label>
-              <input
-                type="text"
-                value={processName}
-                onChange={(e) => setProcessName(e.target.value)}
-                className="w-full px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                placeholder="DemoFlow"
-                disabled={status === 'loading' || status === 'ready'}
-              />
-            </div>
-
-            <Button
-              onClick={handlePrepareForm}
-              disabled={status === 'loading' || status === 'ready' || !instanceId || !processName}
-              variant="default"
-              className="w-full"
-            >
-              {status === 'loading' ? 'Cargando...' : 'Cargar Formulario'}
-            </Button>
-
-            {lockInfo && (
-              <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
-                <p className="text-sm font-semibold text-green-700 dark:text-green-300">🔒 Lock Adquirido</p>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  Session Token: <code className="bg-muted px-1 rounded">{lockInfo.sessionToken?.substring(0, 20)}...</code>
-                </p>
-              </div>
-            )}
-
-            {error && status === 'error' && (
-              <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-md">
-                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-              </div>
-            )}
-          </div>
-        </BizuitCard>
-
-        {/* Paso 2: Formulario */}
-        {(status === 'ready' || status === 'submitting') && parameters.length > 0 && (
-          <BizuitCard
-            title="2️⃣ Editar Datos"
-            description={`${parameters.length} campos cargados con valores actuales de la instancia`}
-          >
-            <div className="space-y-4">
-              {parameters.map((param) => (
-                <DynamicFormField
-                  key={param.name}
-                  parameter={param}
-                  value={formData[param.name]}
-                  onChange={(value) => handleFieldChange(param.name, value)}
-                />
-              ))}
-
-              <div className="pt-4 border-t flex gap-2">
-                <Button
-                  onClick={handleSubmit}
-                  disabled={status === 'submitting'}
-                  variant="default"
-                  className="flex-1"
-                >
-                  {status === 'submitting' ? 'Continuando...' : 'Continuar Proceso'}
-                </Button>
-
-                {lockInfo && (
-                  <Button
-                    onClick={handleReleaseLock}
-                    variant="secondary"
-                    className="px-6"
-                  >
-                    🔓 Liberar Lock
-                  </Button>
-                )}
-              </div>
-            </div>
-          </BizuitCard>
-        )}
-
-        {/* Resultado */}
-        {result && (
-          <BizuitCard
-            title="✅ Proceso Continuado Exitosamente"
-            description="Resultado de FormService.continueProcess()"
-          >
-            <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-              <pre className="text-sm overflow-auto">
-                {JSON.stringify(result, null, 2)}
-              </pre>
-            </div>
-          </BizuitCard>
-        )}
-
         {/* Código de ejemplo */}
         <BizuitCard
-          title="💻 Código - FormService Continue"
-          description="Manejo simplificado de continue + locks"
+          title={t('example6.code.title')}
+          description={t('example6.code.description')}
         >
           <div className="bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto">
             <pre className="text-sm"><code>{`// 1️⃣ Preparar formulario con lock automático
@@ -335,11 +226,175 @@ await sdk.forms.releaseLock({
         {/* Live Code Editor */}
         <div className="mb-8">
           <LiveCodeEditor
-            title="⚡ Playground Interactivo - FormService.prepareContinueForm() + Lock Management"
-            description="Experimenta con locks de instancia y continuación de procesos. Modifica el código y ve los resultados al instante."
+            title={t('example6.playground.title')}
+            description={t('example6.playground.description')}
             files={{
-              '/App.js': `import { useState } from 'react';
+              '/App.js': `import { useState, createContext, useContext, useEffect } from 'react';
 import './styles.css';
+
+// 🎨 Theme Context
+const ThemeContext = createContext();
+
+const ThemeProvider = ({ children }) => {
+  const [mode, setMode] = useState('system');
+  const [primaryColor, setPrimaryColor] = useState('#f97316');
+
+  const getSystemTheme = () => {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  };
+
+  const effectiveTheme = mode === 'system' ? getSystemTheme() : mode;
+  const isDark = effectiveTheme === 'dark';
+
+  useEffect(() => {
+    document.body.className = isDark ? 'dark' : 'light';
+  }, [isDark]);
+
+  return (
+    <ThemeContext.Provider value={{ mode, setMode, isDark, primaryColor, setPrimaryColor }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+const useTheme = () => useContext(ThemeContext);
+
+// 🌐 I18n Context
+const I18nContext = createContext();
+
+const useTranslation = () => useContext(I18nContext);
+
+const I18nProvider = ({ children }) => {
+  const [language, setLanguage] = useState('es');
+
+  const translations = {
+    es: {
+      title: 'Demo de Gestión de Locks',
+      subtitle: 'Edición segura de instancias con locks automáticos',
+      step1: 'Cargar Instancia y Adquirir Lock',
+      step2: 'Actualizar Datos',
+      step3: 'Liberar Lock',
+      loadingInstance: 'Cargando instancia...',
+      updatingProcess: 'Actualizando proceso...',
+      updatingInstance: 'Actualizando instancia...',
+      releasingLock: 'Liberando lock...',
+      processUpdated: 'Proceso Actualizado Exitosamente',
+      instanceUpdated: 'Instancia Actualizada',
+      lockReleased: 'Lock Liberado',
+      submit: 'Actualizar Proceso',
+      release: 'Liberar Lock',
+      startNew: 'Cargar Nueva Instancia',
+      lockInfo: 'Información del Lock',
+      session: 'Session',
+      activity: 'Actividad',
+      duration: 'Duración',
+      instanceId: 'Instance ID',
+      process: 'Proceso',
+      loadWithPrepare: 'Cargar con prepareContinueForm(autoLock: true)',
+      prepareHint: 'prepareContinueForm() adquirirá el lock automáticamente',
+      lockActive: 'Lock activo - Tienes control exclusivo de esta instancia',
+      instanceInfo: 'Información de la Instancia',
+      status: 'Estado',
+      created: 'Creada',
+      addNotes: 'Agregar notas de actualización...',
+      cancelRelease: 'Cancelar (libera lock)',
+      continueProcess: 'Continuar Proceso',
+      nextActivity: 'Siguiente Actividad',
+      fieldsUpdated: 'Campos Actualizados',
+      fields: 'campos',
+      timestamp: 'Timestamp',
+      dataSent: 'Datos enviados',
+      lockStillActive: 'Lock aún activo',
+      lockWarning: 'Debes liberar el lock para que otros usuarios puedan editar esta instancia',
+      releaseLockBtn: 'Liberar Lock con releaseLock()',
+      error: 'Error',
+      retry: 'Reintentar',
+      whyLocks: '¿Por qué usar Locks?',
+      preventConflicts: 'Previene conflictos: Solo un usuario puede editar a la vez',
+      consistency: 'Consistencia: Evita sobrescritura de cambios',
+      automatic: 'Automático: FormService maneja acquire/release por ti',
+      secure: 'Seguro: Los locks expiran automáticamente si el usuario se desconecta',
+      workflow: 'Workflow de Lock Management',
+      workflowStep1: 'prepareContinueForm(autoLock: true)',
+      workflowStep1Desc: 'Carga instancia + Adquiere lock',
+      workflowStep2: 'Usuario edita formulario',
+      workflowStep2Desc: 'Lock activo, edición exclusiva',
+      workflowStep3: 'continueProcess(formData)',
+      workflowStep3Desc: 'Actualiza instancia',
+      workflowStep4: 'releaseLock()',
+      workflowStep4Desc: 'Libera para otros usuarios'
+    },
+    en: {
+      title: 'Lock Management Demo',
+      subtitle: 'Secure instance editing with automatic locks',
+      step1: 'Load Instance and Acquire Lock',
+      step2: 'Update Data',
+      step3: 'Release Lock',
+      loadingInstance: 'Loading instance...',
+      updatingProcess: 'Updating process...',
+      updatingInstance: 'Updating instance...',
+      releasingLock: 'Releasing lock...',
+      processUpdated: 'Process Updated Successfully',
+      instanceUpdated: 'Instance Updated',
+      lockReleased: 'Lock Released',
+      submit: 'Update Process',
+      release: 'Release Lock',
+      startNew: 'Load New Instance',
+      lockInfo: 'Lock Information',
+      session: 'Session',
+      activity: 'Activity',
+      duration: 'Duration',
+      instanceId: 'Instance ID',
+      process: 'Process',
+      loadWithPrepare: 'Load with prepareContinueForm(autoLock: true)',
+      prepareHint: 'prepareContinueForm() will acquire the lock automatically',
+      lockActive: 'Lock active - You have exclusive control of this instance',
+      instanceInfo: 'Instance Information',
+      status: 'Status',
+      created: 'Created',
+      addNotes: 'Add update notes...',
+      cancelRelease: 'Cancel (releases lock)',
+      continueProcess: 'Continue Process',
+      nextActivity: 'Next Activity',
+      fieldsUpdated: 'Updated Fields',
+      fields: 'fields',
+      timestamp: 'Timestamp',
+      dataSent: 'Data sent',
+      lockStillActive: 'Lock still active',
+      lockWarning: 'You must release the lock so other users can edit this instance',
+      releaseLockBtn: 'Release Lock with releaseLock()',
+      error: 'Error',
+      retry: 'Retry',
+      whyLocks: 'Why Use Locks?',
+      preventConflicts: 'Prevents conflicts: Only one user can edit at a time',
+      consistency: 'Consistency: Prevents change overwriting',
+      automatic: 'Automatic: FormService handles acquire/release for you',
+      secure: 'Secure: Locks expire automatically if user disconnects',
+      workflow: 'Lock Management Workflow',
+      workflowStep1: 'prepareContinueForm(autoLock: true)',
+      workflowStep1Desc: 'Load instance + Acquire lock',
+      workflowStep2: 'User edits form',
+      workflowStep2Desc: 'Lock active, exclusive editing',
+      workflowStep3: 'continueProcess(formData)',
+      workflowStep3Desc: 'Update instance',
+      workflowStep4: 'releaseLock()',
+      workflowStep4Desc: 'Release for other users'
+    }
+  };
+
+  const t = (key) => {
+    const keys = key.split('.');
+    let value = translations[language];
+    for (const k of keys) value = value?.[k];
+    return value || key;
+  };
+
+  return (
+    <I18nContext.Provider value={{ t, language, setLanguage }}>
+      {children}
+    </I18nContext.Provider>
+  );
+};
 
 /**
  * 🔒 FORM SERVICE - LOCK MANAGEMENT & CONTINUE PROCESS
@@ -446,6 +501,9 @@ const mockFormService = {
 };
 
 function LockManagementDemo() {
+  const { t, language, setLanguage } = useTranslation();
+  const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
+
   const [instanceId] = useState('INST-abc123xyz');
   const [processName] = useState('OrderApproval');
   const [step, setStep] = useState('idle'); // idle, loading, ready, submitting, success, releasing
@@ -576,8 +634,66 @@ function LockManagementDemo() {
   return (
     <div className="app-container">
       <div className="card">
-        <h1>🔒 Lock Management Demo</h1>
-        <p className="subtitle">Edición segura de instancias con locks automáticos</p>
+        {/* Theme and Language Controls */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <button
+            type="button"
+            onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+            style={{
+              padding: '6px 12px',
+              background: isDark ? '#374151' : '#f3f4f6',
+              color: isDark ? '#f9fafb' : '#111827',
+              border: \`1px solid \${isDark ? '#4b5563' : '#d1d5db'}\`,
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            {language === 'es' ? '🇪🇸 ES' : '🇬🇧 EN'}
+          </button>
+
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {['light', 'dark', 'system'].map(themeMode => (
+                <button
+                  key={themeMode}
+                  type="button"
+                  onClick={() => setMode(themeMode)}
+                  style={{
+                    padding: '6px 12px',
+                    background: mode === themeMode ? primaryColor : (isDark ? '#374151' : '#f3f4f6'),
+                    color: mode === themeMode ? 'white' : (isDark ? '#f9fafb' : '#111827'),
+                    border: \`1px solid \${mode === themeMode ? primaryColor : (isDark ? '#4b5563' : '#d1d5db')}\`,
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '500'
+                  }}
+                >
+                  {themeMode === 'light' ? '☀️' : themeMode === 'dark' ? '🌙' : '💻'}
+                </button>
+              ))}
+            </div>
+
+            <input
+              type="color"
+              value={primaryColor}
+              onChange={(e) => setPrimaryColor(e.target.value)}
+              style={{
+                width: '32px',
+                height: '32px',
+                border: \`2px solid \${isDark ? '#4b5563' : '#d1d5db'}\`,
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+              title="Primary Color"
+            />
+          </div>
+        </div>
+
+        <h1>🔒 {t('title')}</h1>
+        <p className="subtitle">{t('subtitle')}</p>
       </div>
 
       {/* Lock Status Badge */}
@@ -586,13 +702,13 @@ function LockManagementDemo() {
           <div className="lock-badge active">
             <span className="lock-icon">🔒</span>
             <div>
-              <div className="lock-text">Lock Activo</div>
+              <div className="lock-text">{t('lockInfo')}</div>
               <div className="lock-details">
-                Session: {lockInfo.sessionToken?.substr(0, 12)}...
+                {t('session')}: {lockInfo.sessionToken?.substr(0, 12)}...
                 <br />
-                Actividad: {lockInfo.activityName}
+                {t('activity')}: {lockInfo.activityName}
                 <br />
-                Duración: {getLockDuration()}
+                {t('duration')}: {getLockDuration()}
               </div>
             </div>
           </div>
@@ -602,25 +718,26 @@ function LockManagementDemo() {
       {/* PASO 1: Cargar instancia y adquirir lock */}
       {step === 'idle' && (
         <div className="card">
-          <h2>1️⃣ Cargar Instancia y Adquirir Lock</h2>
+          <h2>1️⃣ {t('step1')}</h2>
           <div className="instance-info">
             <div className="info-row">
-              <span className="label">Instance ID:</span>
+              <span className="label">{t('instanceId')}:</span>
               <span className="value">{instanceId}</span>
             </div>
             <div className="info-row">
-              <span className="label">Proceso:</span>
+              <span className="label">{t('process')}:</span>
               <span className="value">{processName}</span>
             </div>
           </div>
           <button
             onClick={handlePrepareForm}
             className="btn-primary"
+            style={{ background: primaryColor }}
           >
-            Cargar con prepareContinueForm(autoLock: true)
+            {t('loadWithPrepare')}
           </button>
           <p className="hint">
-            ✨ prepareContinueForm() adquirirá el lock automáticamente
+            ✨ {t('prepareHint')}
           </p>
         </div>
       )}
@@ -628,28 +745,28 @@ function LockManagementDemo() {
       {step === 'loading' && (
         <div className="card loading">
           <div className="spinner"></div>
-          <p>Cargando instancia y adquiriendo lock...</p>
+          <p>{t('loadingInstance')}</p>
         </div>
       )}
 
       {/* PASO 2: Editar formulario (lock activo) */}
       {step === 'ready' && (
         <div className="card">
-          <h2>2️⃣ Editar Formulario</h2>
+          <h2>2️⃣ {t('step2')}</h2>
           <p className="info">
-            🔒 Lock activo - Tienes control exclusivo de esta instancia
+            🔒 {t('lockActive')}
           </p>
 
           {/* Instance Details */}
           <div className="instance-details">
-            <h3>📋 Información de la Instancia</h3>
+            <h3>📋 {t('instanceInfo')}</h3>
             <div className="detail-grid">
               <div className="detail-item">
-                <span className="label">Estado:</span>
+                <span className="label">{t('status')}:</span>
                 <span className="badge status-pending">{instance?.status}</span>
               </div>
               <div className="detail-item">
-                <span className="label">Creada:</span>
+                <span className="label">{t('created')}:</span>
                 <span className="value">{new Date(instance?.createdDate).toLocaleString()}</span>
               </div>
             </div>
@@ -672,7 +789,7 @@ function LockManagementDemo() {
                       ? parseFloat(e.target.value) || 0
                       : e.target.value
                   )}
-                  placeholder={param.name === 'notes' ? 'Agregar notas de actualización...' : ''}
+                  placeholder={param.name === 'notes' ? t('addNotes') : ''}
                 />
               </div>
             ))}
@@ -680,13 +797,14 @@ function LockManagementDemo() {
 
           <div className="button-group">
             <button onClick={reset} className="btn-secondary">
-              ❌ Cancelar (libera lock)
+              ❌ {t('cancelRelease')}
             </button>
             <button
               onClick={handleContinueProcess}
               className="btn-primary"
+              style={{ background: primaryColor }}
             >
-              ✅ Continuar Proceso
+              ✅ {t('continueProcess')}
             </button>
           </div>
         </div>
@@ -695,46 +813,46 @@ function LockManagementDemo() {
       {step === 'submitting' && (
         <div className="card loading">
           <div className="spinner"></div>
-          <p>Actualizando instancia...</p>
+          <p>{t('updatingInstance')}</p>
         </div>
       )}
 
       {/* PASO 3: Éxito - Liberar lock */}
       {step === 'success' && result && (
         <div className="card success">
-          <h2>✅ Instancia Actualizada</h2>
+          <h2>✅ {t('instanceUpdated')}</h2>
 
           <div className="result-details">
             <div className="detail-row">
-              <span className="label">Instance ID:</span>
+              <span className="label">{t('instanceId')}:</span>
               <span className="value">{result.instanceId}</span>
             </div>
             <div className="detail-row">
-              <span className="label">Siguiente Actividad:</span>
+              <span className="label">{t('nextActivity')}:</span>
               <span className="badge status-active">{result.nextActivity}</span>
             </div>
             <div className="detail-row">
-              <span className="label">Campos Actualizados:</span>
-              <span className="value">{result.updatedFields.length} campos</span>
+              <span className="label">{t('fieldsUpdated')}:</span>
+              <span className="value">{result.updatedFields.length} {t('fields')}</span>
             </div>
             <div className="detail-row">
-              <span className="label">Timestamp:</span>
+              <span className="label">{t('timestamp')}:</span>
               <span className="value">{new Date(result.timestamp).toLocaleString()}</span>
             </div>
           </div>
 
           <div className="preview">
-            <h3>📦 Datos enviados:</h3>
+            <h3>📦 {t('dataSent')}:</h3>
             <pre>{JSON.stringify(formData, null, 2)}</pre>
           </div>
 
           <div className="warning-box">
-            <strong>⚠️ Lock aún activo</strong>
-            <p>Debes liberar el lock para que otros usuarios puedan editar esta instancia</p>
+            <strong>⚠️ {t('lockStillActive')}</strong>
+            <p>{t('lockWarning')}</p>
           </div>
 
           <button onClick={handleReleaseLock} className="btn-danger">
-            🔓 Liberar Lock con releaseLock()
+            🔓 {t('releaseLockBtn')}
           </button>
         </div>
       )}
@@ -742,63 +860,63 @@ function LockManagementDemo() {
       {step === 'releasing' && (
         <div className="card loading">
           <div className="spinner"></div>
-          <p>Liberando lock...</p>
+          <p>{t('releasingLock')}</p>
         </div>
       )}
 
       {error && (
         <div className="card error">
-          <h3>❌ Error</h3>
+          <h3>❌ {t('error')}</h3>
           <p>{error}</p>
           <button onClick={reset} className="btn-secondary">
-            Reintentar
+            {t('retry')}
           </button>
         </div>
       )}
 
       {/* Info Cards */}
       <div className="card info-card">
-        <h3>🔒 ¿Por qué usar Locks?</h3>
+        <h3>🔒 {t('whyLocks')}</h3>
         <ul>
-          <li>✅ <strong>Previene conflictos:</strong> Solo un usuario puede editar a la vez</li>
-          <li>✅ <strong>Consistencia:</strong> Evita sobrescritura de cambios</li>
-          <li>✅ <strong>Automático:</strong> FormService maneja acquire/release por ti</li>
-          <li>✅ <strong>Seguro:</strong> Los locks expiran automáticamente si el usuario se desconecta</li>
+          <li>✅ <strong>{t('preventConflicts')}</strong></li>
+          <li>✅ <strong>{t('consistency')}</strong></li>
+          <li>✅ <strong>{t('automatic')}</strong></li>
+          <li>✅ <strong>{t('secure')}</strong></li>
         </ul>
       </div>
 
       <div className="card info-card workflow">
-        <h3>📋 Workflow de Lock Management</h3>
+        <h3>📋 {t('workflow')}</h3>
         <div className="workflow-steps">
           <div className="workflow-step">
             <div className="step-number">1</div>
             <div className="step-content">
-              <strong>prepareContinueForm(autoLock: true)</strong>
-              <p>Carga instancia + Adquiere lock</p>
+              <strong>{t('workflowStep1')}</strong>
+              <p>{t('workflowStep1Desc')}</p>
             </div>
           </div>
           <div className="workflow-arrow">→</div>
           <div className="workflow-step">
             <div className="step-number">2</div>
             <div className="step-content">
-              <strong>Usuario edita formulario</strong>
-              <p>Lock activo, edición exclusiva</p>
+              <strong>{t('workflowStep2')}</strong>
+              <p>{t('workflowStep2Desc')}</p>
             </div>
           </div>
           <div className="workflow-arrow">→</div>
           <div className="workflow-step">
             <div className="step-number">3</div>
             <div className="step-content">
-              <strong>continueProcess(formData)</strong>
-              <p>Actualiza instancia</p>
+              <strong>{t('workflowStep3')}</strong>
+              <p>{t('workflowStep3Desc')}</p>
             </div>
           </div>
           <div className="workflow-arrow">→</div>
           <div className="workflow-step">
             <div className="step-number">4</div>
             <div className="step-content">
-              <strong>releaseLock()</strong>
-              <p>Libera para otros usuarios</p>
+              <strong>{t('workflowStep4')}</strong>
+              <p>{t('workflowStep4Desc')}</p>
             </div>
           </div>
         </div>
@@ -807,18 +925,27 @@ function LockManagementDemo() {
   );
 }
 
-export default LockManagementDemo;`,
+export default function App() {
+  return (
+    <ThemeProvider>
+      <I18nProvider>
+        <LockManagementDemo />
+      </I18nProvider>
+    </ThemeProvider>
+  );
+}`,
               '/styles.css': `* {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+/* Light Mode (Default) */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  min-height: 100vh;
-  padding: 20px;
+  font-family: system-ui, -apple-system, sans-serif !important;
+  background: #f9fafb !important;
+  color: #111827 !important;
+  padding: 20px !important;
 }
 
 .app-container {
@@ -830,33 +957,37 @@ body {
 }
 
 .card {
-  background: white;
-  border-radius: 12px;
+  background: white !important;
+  border-radius: 8px;
   padding: 24px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
 }
 
 .card h1 {
-  color: #1a202c;
-  font-size: 28px;
-  margin-bottom: 8px;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #111827 !important;
 }
 
 .card h2 {
-  color: #2d3748;
-  font-size: 20px;
-  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #111827 !important;
 }
 
 .card h3 {
-  color: #4a5568;
   font-size: 16px;
-  margin-bottom: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #374151 !important;
 }
 
 .subtitle {
-  color: #718096;
   font-size: 14px;
+  color: #6b7280 !important;
+  margin-bottom: 24px;
 }
 
 .lock-status {
@@ -1195,7 +1326,8 @@ body {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  min-width: 150px;
+  min-width: 200px;
+  flex: 1;
 }
 
 .step-number {
@@ -1216,24 +1348,196 @@ body {
   padding: 12px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .step-content strong {
   display: block;
   font-size: 11px;
-  color: #92400e;
-  margin-bottom: 4px;
+  color: #111827;
+  margin-bottom: 6px;
+  font-weight: 700;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .step-content p {
   font-size: 10px;
-  color: #78350f;
+  color: #374151;
+  line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .workflow-arrow {
   font-size: 24px;
   color: #f59e0b;
   flex-shrink: 0;
+  align-self: center;
+  margin-top: 40px;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #374151 !important;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db !important;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: system-ui, -apple-system, sans-serif;
+  background: white !important;
+  color: #111827 !important;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Dark Mode */
+body.dark {
+  background: #111827 !important;
+  color: #f9fafb !important;
+}
+
+body.dark .card {
+  background: #1f2937 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark .card h1,
+body.dark .card h2,
+body.dark .card h3 {
+  color: #f9fafb !important;
+}
+
+body.dark .subtitle {
+  color: #9ca3af !important;
+}
+
+body.dark .form-label {
+  color: #d1d5db !important;
+}
+
+body.dark .form-input,
+body.dark .form-field input,
+body.dark .form-field textarea {
+  background: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+
+body.dark .form-input:focus,
+body.dark .form-field input:focus,
+body.dark .form-field textarea:focus {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1) !important;
+}
+
+body.dark .instance-info {
+  background: #374151 !important;
+}
+
+body.dark .label {
+  color: #d1d5db !important;
+}
+
+body.dark .value {
+  color: #e5e7eb !important;
+}
+
+body.dark .instance-details {
+  background: #1e3a8a !important;
+  border-left-color: #60a5fa !important;
+}
+
+body.dark .info {
+  background: #1e3a8a !important;
+  border-left-color: #60a5fa !important;
+  color: #dbeafe !important;
+}
+
+body.dark .preview {
+  background: #111827 !important;
+  border-color: #374151 !important;
+}
+
+body.dark .preview h3 {
+  color: #e5e7eb !important;
+}
+
+body.dark .preview pre {
+  background: #0f172a !important;
+  color: #e5e7eb !important;
+}
+
+body.dark .lock-status {
+  background: linear-gradient(135deg, #92400e 0%, #78350f 100%) !important;
+  border-color: #f59e0b !important;
+}
+
+body.dark .lock-text {
+  color: #fef3c7 !important;
+}
+
+body.dark .lock-details {
+  color: #fde68a !important;
+}
+
+body.dark .info-card {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%) !important;
+  border-color: #3b82f6 !important;
+}
+
+body.dark .info-card h3 {
+  color: #dbeafe !important;
+}
+
+body.dark .info-card li {
+  color: #bfdbfe !important;
+}
+
+body.dark .info-card strong {
+  color: #dbeafe !important;
+}
+
+body.dark .workflow {
+  background: linear-gradient(135deg, #92400e 0%, #78350f 100%) !important;
+  border-color: #f59e0b !important;
+}
+
+body.dark .workflow h3 {
+  color: #fef3c7 !important;
+}
+
+body.dark .step-content {
+  background: #374151 !important;
+}
+
+body.dark .step-content strong {
+  color: #f9fafb !important;
+}
+
+body.dark .step-content p {
+  color: #d1d5db !important;
+}
+
+body.dark .loading {
+  background: #1f2937 !important;
 }`
             }}
           />

@@ -6,22 +6,60 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { timingSafeEqual } from 'crypto'
 import { formRegistry } from '@/lib/form-registry'
 import { clearFormCache } from '@/lib/form-loader'
 
 /**
- * Verifica el webhook secret para seguridad
+ * SECURITY: Verifica el webhook secret usando comparación timing-safe
+ *
+ * Previene timing attacks usando timingSafeEqual de Node.js crypto
+ *
+ * @param request - NextRequest con header x-webhook-secret
+ * @returns true si el secret es válido, false si no
+ * @throws Error si WEBHOOK_SECRET no está configurado o es débil
  */
 function verifyWebhookSecret(request: NextRequest): boolean {
   const secret = request.headers.get('x-webhook-secret')
   const expectedSecret = process.env.WEBHOOK_SECRET
 
+  // SECURITY: Rechazar si no está configurado
   if (!expectedSecret) {
-    console.warn('[Webhook] WEBHOOK_SECRET not configured')
+    throw new Error(
+      'WEBHOOK_SECRET environment variable is not configured. ' +
+      'Generate a strong secret with: openssl rand -hex 32'
+    )
+  }
+
+  // SECURITY: Rechazar si es el valor por defecto débil
+  if (expectedSecret === 'dev-webhook-secret-change-in-production' ||
+      expectedSecret === 'your-webhook-secret-here' ||
+      expectedSecret.length < 32) {
+    throw new Error(
+      'WEBHOOK_SECRET is too weak or using default value. ' +
+      'Generate a strong secret with: openssl rand -hex 32'
+    )
+  }
+
+  if (!secret) {
     return false
   }
 
-  return secret === expectedSecret
+  // SECURITY: Timing-safe comparison para prevenir timing attacks
+  try {
+    const secretBuf = Buffer.from(secret, 'utf-8')
+    const expectedBuf = Buffer.from(expectedSecret, 'utf-8')
+
+    // Verificar longitud primero (timing-safe igual verifica esto)
+    if (secretBuf.length !== expectedBuf.length) {
+      return false
+    }
+
+    return timingSafeEqual(secretBuf, expectedBuf)
+  } catch (error) {
+    console.error('[Webhook Security] Error in timing-safe comparison:', error)
+    return false
+  }
 }
 
 /**
@@ -107,50 +145,12 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * GET /api/forms/reload?secret=xxx
+ * SECURITY NOTE: GET endpoint removed
  *
- * Permite recargar manualmente el registry (útil para debugging)
+ * Previously allowed secret via query parameter (?secret=xxx) which is insecure:
+ * - Secrets in URLs appear in server logs, browser history, referrer headers
+ * - Not suitable for production security
+ *
+ * Use POST endpoint with x-webhook-secret header instead.
+ * For manual cache reload, use admin panel or deployment scripts.
  */
-export async function GET(request: NextRequest) {
-  try {
-    const url = new URL(request.url)
-    const secret = url.searchParams.get('secret')
-
-    // Verificar secret via query param
-    if (secret !== process.env.WEBHOOK_SECRET) {
-      return NextResponse.json(
-        { error: 'Unauthorized: Invalid secret' },
-        { status: 401 }
-      )
-    }
-
-    // Limpiar todo el cache
-    clearFormCache()
-
-    // Recargar registry
-    const apiUrl = process.env.CUSTOM_FORMS_API_URL
-    if (apiUrl) {
-      await formRegistry.loadFromAPI(`${apiUrl}/api/custom-forms`)
-    }
-
-    const stats = formRegistry.getStats()
-
-    return NextResponse.json({
-      success: true,
-      message: 'Form cache cleared and registry reloaded',
-      stats,
-      timestamp: new Date().toISOString(),
-    })
-
-  } catch (error: any) {
-    console.error('[Webhook] Error in manual reload:', error)
-
-    return NextResponse.json(
-      {
-        error: 'Internal server error',
-        message: error.message,
-      },
-      { status: 500 }
-    )
-  }
-}

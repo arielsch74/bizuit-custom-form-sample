@@ -374,7 +374,7 @@ function App() {
               fontWeight: '500'
             }}
           >
-            {language === 'es' ? '🇬🇧 EN' : '🇪🇸 ES'}
+            {language === 'es' ? '🇪🇸 ES' : '🇬🇧 EN'}
           </button>
 
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -1186,7 +1186,7 @@ await sdk.process.start({
 
 export default function Example2ManualAllPage() {
   return (
-    <RequireAuth returnUrl="/example-2-manual-all">
+    <RequireAuth returnUrl="/example-2-process-get-instance">
       <Example2ManualAllContent />
     </RequireAuth>
   )

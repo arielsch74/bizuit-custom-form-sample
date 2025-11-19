@@ -161,7 +161,7 @@ const ThemeContext = createContext();
 
 const ThemeProvider = ({ children }) => {
   const [mode, setMode] = useState('system'); // 'light', 'dark', 'system'
-  const [primaryColor, setPrimaryColor] = useState('#3b82f6');
+  const [primaryColor, setPrimaryColor] = useState('#f97316');
 
   // Detectar preferencia del sistema
   const getSystemTheme = () => {
@@ -371,7 +371,7 @@ function DynamicFormDemo() {
               fontWeight: '500'
             }}
           >
-            {language === 'es' ? '🇬🇧 EN' : '🇪🇸 ES'}
+            {language === 'es' ? '🇪🇸 ES' : '🇬🇧 EN'}
           </button>
 
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -1197,7 +1197,7 @@ await sdk.process.start({
 
 export default function Example1DynamicPage() {
   return (
-    <RequireAuth returnUrl="/example-1-dynamic">
+    <RequireAuth returnUrl="/example-1-process-start">
       <Example1DynamicContent />
     </RequireAuth>
   )

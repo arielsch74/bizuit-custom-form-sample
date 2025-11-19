@@ -1,6 +1,7 @@
 'use server'
 
-import { BizuitSDK, formDataToParameters } from '@tyconsa/bizuit-form-sdk/core'
+import { BizuitSDK } from '@tyconsa/bizuit-form-sdk/core'
+import { IParameter } from '@tyconsa/bizuit-form-sdk'
 
 /**
  * Server Actions para demostrar el uso del SDK del lado del servidor
@@ -25,6 +26,18 @@ const credentials = {
 }
 
 /**
+ * Helper: Convert Record<string, any> to IParameter[]
+ */
+function convertToParameters(params: Record<string, any>): IParameter[] {
+  return Object.entries(params).map(([name, value]) => ({
+    name,
+    value: String(value),
+    type: 'SingleValue' as const,
+    direction: 'In' as const
+  }))
+}
+
+/**
  * Server Action: Iniciar un proceso
  */
 export async function startProcess(processName: string, parameters: Record<string, any>) {
@@ -41,7 +54,7 @@ export async function startProcess(processName: string, parameters: Record<strin
     // 2. Iniciar el proceso
     const response = await sdk.process.start({
       processName,
-      parameters: formDataToParameters(parameters)
+      parameters: convertToParameters(parameters)
     }, undefined, token)
 
     return {
@@ -106,10 +119,11 @@ export async function continueProcess(
     const token = authResponse.Token
 
     // 2. Continuar el proceso
+    // Note: processName is required but we use empty string as it's not needed for continue
     const response = await sdk.process.continue({
+      processName: '',
       instanceId,
-      processName: '', // Required by IStartProcessParams
-      parameters: formDataToParameters(parameters)
+      parameters: convertToParameters(parameters)
     }, undefined, token)
 
     return {

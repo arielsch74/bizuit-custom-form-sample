@@ -21,7 +21,7 @@ export function useAppTranslation() {
   const { t: baseT, language } = useBaseTranslation()
 
   // Extend the base translation function with app-specific translations
-  const t = (key: AppTranslationKey | string): string => {
+  const t = (key: AppTranslationKey | string): any => {
     // Try app translations first
     const appTranslation = appTranslations[language as keyof typeof appTranslations]?.[key as keyof typeof appTranslations.en]
 

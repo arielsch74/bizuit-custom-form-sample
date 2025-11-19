@@ -10,6 +10,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer
 from fastapi.openapi.utils import get_openapi
 from dotenv import load_dotenv
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from models import (
     UploadDeploymentResponse,
@@ -107,17 +110,45 @@ app = FastAPI(
 )
 
 # CORS configuration
-cors_origins = os.getenv("CORS_ORIGINS", "*").split(",")
+# SECURITY: CORS_ORIGINS environment variable is REQUIRED
+# Never use wildcard (*) with allow_credentials=True
+cors_origins_env = os.getenv("CORS_ORIGINS")
+
+if not cors_origins_env:
+    raise ValueError(
+        "CORS_ORIGINS environment variable is required. "
+        "Specify allowed origins as comma-separated list (e.g., http://localhost:3000,http://localhost:3001). "
+        "Never use '*' in production with credentials enabled."
+    )
+
+cors_origins = [origin.strip() for origin in cors_origins_env.split(",")]
+
+# Validate that wildcard is not used with credentials
+if "*" in cors_origins:
+    raise ValueError(
+        "SECURITY ERROR: Cannot use wildcard '*' in CORS_ORIGINS with allow_credentials=True. "
+        "This is a critical security vulnerability. "
+        "Specify explicit origins instead (e.g., http://localhost:3000,http://localhost:3001)"
+    )
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins if cors_origins != ["*"] else ["*"],
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
 )
 
 # Authentication middleware
 app.add_middleware(AuthMiddleware)
+
+# ==============================================================================
+# Rate Limiting Configuration
+# ==============================================================================
+# SECURITY: Configure rate limiting to prevent brute force and DoS attacks
+limiter = Limiter(key_func=get_remote_address, default_limits=["200/hour"])
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Security scheme for Swagger UI
 security = HTTPBearer()
@@ -196,7 +227,8 @@ def health_check():
 # ==============================================================================
 
 @app.post("/api/auth/login", response_model=AdminLoginResponse, tags=["Authentication"])
-async def admin_login(credentials: AdminLoginRequest):
+@limiter.limit("5/minute")  # SECURITY: 5 login attempts per minute per IP
+async def admin_login(request: Request, credentials: AdminLoginRequest):
     """
     Administrator login
 
@@ -222,7 +254,9 @@ async def admin_login(credentials: AdminLoginRequest):
     ```
     """
     try:
-        print(f"[Auth API] Login attempt for user '{credentials.username}'")
+        # SECURITY: Sanitize username in logs (only show first 3 chars)
+        sanitized_username = f"{credentials.username[:3]}***" if len(credentials.username) > 3 else "***"
+        print(f"[Auth API] Login attempt for user '{sanitized_username}'")
 
         # 1. Login to Bizuit API
         bizuit_login = login_to_bizuit(credentials.username, credentials.password)
@@ -240,7 +274,7 @@ async def admin_login(credentials: AdminLoginRequest):
         validation = validate_admin_user(credentials.username, bizuit_login["token"])
 
         if not validation["has_access"]:
-            print(f"[Auth API] User '{credentials.username}' lacks admin permissions")
+            print(f"[Auth API] User '{sanitized_username}' lacks admin permissions")
             return AdminLoginResponse(
                 success=False,
                 token=None,
@@ -262,7 +296,7 @@ async def admin_login(credentials: AdminLoginRequest):
             **validation["user_info"]
         }
 
-        print(f"[Auth API] Login successful for '{credentials.username}'")
+        print(f"[Auth API] Login successful for '{sanitized_username}'")
 
         return AdminLoginResponse(
             success=True,
@@ -357,7 +391,8 @@ async def refresh_session(request: ValidateSessionRequest):
 # ==============================================================================
 
 @app.post("/api/forms/validate-token", response_model=ValidateFormTokenResponse, tags=["Form Tokens"])
-async def validate_form_token(request: ValidateFormTokenRequest):
+@limiter.limit("30/minute")  # SECURITY: 30 token validations per minute per IP
+async def validate_form_token(http_request: Request, request: ValidateFormTokenRequest):
     """
     Validate security token for form access
 
@@ -429,8 +464,64 @@ async def close_form_token(token_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+def validate_dashboard_params(request: ValidateDashboardTokenRequest):
+    """
+    SECURITY: Valida parámetros del Dashboard antes de procesarlos
+
+    Validates:
+    - instanceId: Numeric, max 20 chars
+    - userName: Alphanumeric + @._-, max 100 chars
+    - eventName: Alphanumeric + _- and spaces, max 100 chars
+    - activityName: Alphanumeric + _- and spaces, max 100 chars
+    - token: Base64 format, max 500 chars
+
+    Args:
+        request: ValidateDashboardTokenRequest with parameters to validate
+
+    Raises:
+        HTTPException: If validation fails
+    """
+    import re
+
+    # SECURITY: Validar instanceId es numérico
+    if request.instanceId:
+        if not str(request.instanceId).isdigit():
+            raise HTTPException(status_code=400, detail="Invalid instanceId format: must be numeric")
+        if len(str(request.instanceId)) > 20:
+            raise HTTPException(status_code=400, detail="instanceId too long: max 20 characters")
+
+    # SECURITY: Validar userName no contiene caracteres peligrosos
+    if request.userName:
+        if not re.match(r'^[a-zA-Z0-9_@.\-]+$', request.userName):
+            raise HTTPException(status_code=400, detail="Invalid userName format: only alphanumeric, @, ., _, - allowed")
+        if len(request.userName) > 100:
+            raise HTTPException(status_code=400, detail="userName too long: max 100 characters")
+
+    # SECURITY: Validar eventName
+    if request.eventName:
+        if not re.match(r'^[a-zA-Z0-9_\-\s]+$', request.eventName):
+            raise HTTPException(status_code=400, detail="Invalid eventName format")
+        if len(request.eventName) > 100:
+            raise HTTPException(status_code=400, detail="eventName too long: max 100 characters")
+
+    # SECURITY: Validar activityName
+    if request.activityName:
+        if not re.match(r'^[a-zA-Z0-9_\-\s]+$', request.activityName):
+            raise HTTPException(status_code=400, detail="Invalid activityName format")
+        if len(request.activityName) > 100:
+            raise HTTPException(status_code=400, detail="activityName too long: max 100 characters")
+
+    # SECURITY: Validar format de token (Base64)
+    if request.token:
+        if not re.match(r'^[a-zA-Z0-9+/=]+$', request.token):
+            raise HTTPException(status_code=400, detail="Invalid token format: must be Base64")
+        if len(request.token) > 500:
+            raise HTTPException(status_code=400, detail="token too long: max 500 characters")
+
+
 @app.post("/api/dashboard/validate-token", response_model=ValidateDashboardTokenResponse, tags=["Form Tokens"])
-async def validate_dashboard_token_endpoint(request: ValidateDashboardTokenRequest):
+@limiter.limit("20/minute")  # SECURITY: 20 dashboard token validations per minute per IP
+async def validate_dashboard_token_endpoint(http_request: Request, request: ValidateDashboardTokenRequest):
     """
     Validate encrypted token from Bizuit Dashboard and return all parameters for the form
 
@@ -492,6 +583,9 @@ async def validate_dashboard_token_endpoint(request: ValidateDashboardTokenReque
     ```
     """
     try:
+        # SECURITY: Validate all dashboard parameters FIRST
+        validate_dashboard_params(request)
+
         print(f"[Dashboard Token API] Validating encrypted token with parameters:")
         print(f"  - Encrypted token: '{request.encryptedToken[:20]}...'")
         print(f"  - InstanceId: {request.instanceId}")
@@ -612,6 +706,87 @@ def get_form_compiled_code(form_name: str, version: str = None):
         raise HTTPException(status_code=500, detail=f"Failed to fetch form code: {str(e)}")
 
 
+# ==============================================================================
+# Security Functions for File Upload
+# ==============================================================================
+
+# Configuration constants
+MAX_ZIP_FILES = 100
+MAX_ZIP_SIZE_MB = 50
+ALLOWED_EXTENSIONS = {'.json', '.js', '.map', '.txt', '.md'}
+
+def safe_extract(zip_file: zipfile.ZipFile, extract_dir: Path) -> List[str]:
+    """
+    SECURITY: Extrae ZIP validando que no hay path traversal (Zip Slip)
+
+    Validates:
+    - No path traversal attempts (../, ..\\)
+    - File count limit (max MAX_ZIP_FILES files)
+    - Total size limit (max MAX_ZIP_SIZE_MB MB)
+    - Allowed file extensions only
+    - No dangerous characters in filenames
+
+    Args:
+        zip_file: ZipFile object to extract
+        extract_dir: Destination directory (must be absolute path)
+
+    Returns:
+        List of extracted file paths (relative to extract_dir)
+
+    Raises:
+        ValueError: If validation fails (path traversal, too many files, etc.)
+    """
+    extract_dir = extract_dir.resolve()
+    members = zip_file.namelist()
+
+    # SECURITY: Validar número de archivos
+    if len(members) > MAX_ZIP_FILES:
+        raise ValueError(
+            f"Zip contains too many files. Max: {MAX_ZIP_FILES}, Found: {len(members)}"
+        )
+
+    # SECURITY: Validar tamaño total
+    total_size = sum(zinfo.file_size for zinfo in zip_file.filelist)
+    max_size_bytes = MAX_ZIP_SIZE_MB * 1024 * 1024
+    if total_size > max_size_bytes:
+        raise ValueError(
+            f"Zip too large. Max: {MAX_ZIP_SIZE_MB}MB, "
+            f"Found: {total_size / 1024 / 1024:.2f}MB"
+        )
+
+    extracted_files = []
+
+    for member in members:
+        # SECURITY: Validar que el path no sale del directorio (Zip Slip prevention)
+        member_path = (extract_dir / member).resolve()
+
+        if not str(member_path).startswith(str(extract_dir)):
+            raise ValueError(f"Zip Slip attempt detected: {member}")
+
+        # SECURITY: Validar extensiones permitidas
+        file_ext = Path(member).suffix.lower()
+        if file_ext and file_ext not in ALLOWED_EXTENSIONS:
+            raise ValueError(
+                f"Invalid file type in zip: {member} (extension: {file_ext}). "
+                f"Allowed: {', '.join(ALLOWED_EXTENSIONS)}"
+            )
+
+        # SECURITY: Validar nombres de archivo (no caracteres peligrosos)
+        if any(char in member for char in ['..', '~', '\\']):
+            raise ValueError(f"Invalid characters in filename: {member}")
+
+        # SECURITY: Prevenir null bytes en nombres de archivo
+        if '\x00' in member:
+            raise ValueError(f"Null byte in filename: {member}")
+
+        extracted_files.append(member)
+
+    # Si todas las validaciones pasaron, extraer
+    zip_file.extractall(extract_dir)
+
+    return extracted_files
+
+
 @app.post("/api/deployment/upload", response_model=UploadDeploymentResponse, tags=["Deployment"])
 async def upload_deployment_package(
     file: UploadFile = File(...),
@@ -680,10 +855,20 @@ async def upload_deployment_package(
         with open(zip_path, "wb") as f:
             f.write(content)
 
-        # Extraer .zip
+        # SECURITY: Extraer .zip con validaciones de seguridad
         extract_dir = temp_dir / "extracted"
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(extract_dir)
+        extract_dir.mkdir(parents=True, exist_ok=True)
+
+        try:
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                extracted_files = safe_extract(zip_ref, extract_dir)
+                print(f"[Deployment API] Safely extracted {len(extracted_files)} files to: {extract_dir}")
+        except ValueError as e:
+            # Validación de seguridad falló
+            raise HTTPException(
+                status_code=400,
+                detail=f"Security validation failed: {str(e)}"
+            )
 
         print(f"[Deployment API] Extracted to: {extract_dir}")
 
