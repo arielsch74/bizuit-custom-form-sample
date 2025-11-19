@@ -31,7 +31,7 @@ export function Providers({ children }: ProvidersProps) {
     >
       <BizuitThemeProvider
         defaultTheme="system"
-        defaultColorTheme="blue"
+        defaultColorTheme="orange"
         defaultLanguage="es"
       >
         <BizuitAuthProvider>
