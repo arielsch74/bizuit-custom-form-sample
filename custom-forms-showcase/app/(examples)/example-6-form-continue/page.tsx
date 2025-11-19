@@ -61,7 +61,7 @@ function Example6FormContinueContent() {
       // - Adquiere lock automáticamente (si autoLock: true)
       // - Extrae variables y parámetros
       // - Prepara formData con valores actuales
-      const prepared = await sdk.form.prepareContinueForm({
+      const prepared = await sdk.forms.prepareContinueForm({
         instanceId,
         processName,
         autoLock: true, // ✨ Lock automático
@@ -100,7 +100,7 @@ function Example6FormContinueContent() {
       // ✨ FormService.continueProcess() simplifica:
       // - Convierte formData a parámetros automáticamente
       // - Envía todo en una sola llamada
-      const response = await sdk.form.continueProcess({
+      const response = await sdk.forms.continueProcess({
         instanceId,
         processName,
         formData, // ✨ TODOS los campos automáticamente
@@ -130,7 +130,7 @@ function Example6FormContinueContent() {
     try {
       console.log('🔓 [FormService] Liberando lock...')
 
-      await sdk.form.releaseLock({
+      await sdk.forms.releaseLock({
         instanceId,
         activityName: lockInfo.activityName || 'default',
         sessionToken: lockInfo.sessionToken,
@@ -300,7 +300,7 @@ function Example6FormContinueContent() {
           <div className="bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto">
             <pre className="text-sm"><code>{`// 1️⃣ Preparar formulario con lock automático
 const { parameters, formData, lockInfo } =
-  await sdk.form.prepareContinueForm({
+  await sdk.forms.prepareContinueForm({
     instanceId: '123-456',
     processName: 'ExpenseRequest',
     autoLock: true, // ✨ Adquiere lock automáticamente
@@ -314,7 +314,7 @@ const { parameters, formData, lockInfo } =
 // - Convierte a formData
 
 // 2️⃣ Continuar proceso
-const result = await sdk.form.continueProcess({
+const result = await sdk.forms.continueProcess({
   instanceId,
   processName,
   formData, // ✨ Conversión automática
@@ -322,7 +322,7 @@ const result = await sdk.form.continueProcess({
 })
 
 // 3️⃣ Liberar lock
-await sdk.form.releaseLock({
+await sdk.forms.releaseLock({
   instanceId,
   activityName: lockInfo.activityName,
   sessionToken: lockInfo.sessionToken,

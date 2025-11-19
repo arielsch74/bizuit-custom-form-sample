@@ -67,7 +67,7 @@ function Example7FormSelectiveContent() {
 
       console.log('📋 [FormService] Preparando formulario para:', processName)
 
-      const prepared = await sdk.form.prepareStartForm({
+      const prepared = await sdk.forms.prepareStartForm({
         processName,
         token
       })
@@ -92,7 +92,7 @@ function Example7FormSelectiveContent() {
       console.log('📤 [FormService] Iniciando proceso con field mapping selectivo')
 
       // ✨ MAGIA DEL FORM SERVICE: Field Mapping + Transformations
-      const response = await sdk.form.startProcess({
+      const response = await sdk.forms.startProcess({
         processName,
         formData, // Solo los campos del formulario
 
@@ -111,7 +111,7 @@ function Example7FormSelectiveContent() {
         },
 
         // 🚀 Additional Parameters: Campos NO en el formulario
-        additionalParameters: sdk.form.createParameters({
+        additionalParameters: sdk.forms.createParameters({
           // Auditoría automática
           requestedBy: user?.username || 'system',
           requestedDate: new Date().toISOString(),
@@ -446,7 +446,7 @@ function Example7FormSelectiveContent() {
         >
           <div className="bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto">
             <pre className="text-sm"><code>{`// ✨ FORM SERVICE: Field Mapping + Transformations
-const response = await sdk.form.startProcess({
+const response = await sdk.forms.startProcess({
   processName: 'ExpenseRequest',
 
   // Formulario: Solo 4 campos
@@ -471,7 +471,7 @@ const response = await sdk.form.startProcess({
   },
 
   // 🚀 Additional Parameters: NO están en el formulario
-  additionalParameters: sdk.form.createParameters({
+  additionalParameters: sdk.forms.createParameters({
     // Auditoría
     requestedBy: user?.username || 'system',
     requestedDate: new Date().toISOString(),
@@ -506,7 +506,7 @@ const response = await sdk.form.startProcess({
               </h3>
               <div className="bg-gray-900 text-gray-100 p-3 rounded-md text-xs">
                 <pre>{`// Declarativo y conciso
-const response = await sdk.form.startProcess({
+const response = await sdk.forms.startProcess({
   processName,
   formData,
 
@@ -519,7 +519,7 @@ const response = await sdk.form.startProcess({
     // ...
   },
 
-  additionalParameters: sdk.form.createParameters({
+  additionalParameters: sdk.forms.createParameters({
     requestedBy: user?.username,
     requestedDate: new Date().toISOString(),
     status: 'Pending',
@@ -611,7 +611,7 @@ const response = await sdk.process.start({
             <div className="bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto">
               <h4 className="font-semibold mb-2 text-green-400">3️⃣ Cálculos Complejos</h4>
               <pre className="text-xs"><code>{`// En additionalParameters puedes hacer cálculos basados en formData
-additionalParameters: sdk.form.createParameters({
+additionalParameters: sdk.forms.createParameters({
   // Calcular total con IVA
   totalWithTax: parseFloat(formData.subtotal) * 1.21,
 

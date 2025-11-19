@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useBizuitSDK, type IBizuitProcessParameter } from '@tyconsa/bizuit-form-sdk'
 import { DynamicFormField, Button, useBizuitAuth, useTranslation, BizuitCard } from '@tyconsa/bizuit-ui-components'
 import { RequireAuth } from '@/components/require-auth'
+import { LiveCodeEditor } from '@/components/live-code-editor'
 import Link from 'next/link'
 
 /**
@@ -70,7 +71,7 @@ function Example5FormDynamicContent() {
       // - Llama a process.initialize() internamente
       // - Filtra parámetros de entrada
       // - Prepara formData con valores por defecto
-      const prepared = await sdk.form.prepareStartForm({
+      const prepared = await sdk.forms.prepareStartForm({
         processName,
         token
       })
@@ -102,7 +103,7 @@ function Example5FormDynamicContent() {
       // - Convierte formData a parámetros automáticamente
       // - No necesitas llamar a formDataToParameters()
       // - Maneja files, parámetros adicionales, etc.
-      const response = await sdk.form.startProcess({
+      const response = await sdk.forms.startProcess({
         processName,
         formData, // ✨ Envía TODOS los campos automáticamente
         token
@@ -258,7 +259,7 @@ function Example5FormDynamicContent() {
         >
           <div className="bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto">
             <pre className="text-sm"><code>{`// 1️⃣ Preparar formulario (TODO en una llamada)
-const { parameters, formData } = await sdk.form.prepareStartForm({
+const { parameters, formData } = await sdk.forms.prepareStartForm({
   processName: 'DemoFlow',
   token
 })
@@ -269,7 +270,7 @@ const { parameters, formData } = await sdk.form.prepareStartForm({
 // - Convierte parámetros a formData con defaults
 
 // 2️⃣ Iniciar proceso (conversión automática de formData)
-const result = await sdk.form.startProcess({
+const result = await sdk.forms.startProcess({
   processName: 'DemoFlow',
   formData, // ✨ TODOS los campos se envían automáticamente
   token
@@ -344,6 +345,567 @@ const result = await sdk.process
             </div>
           </div>
         </BizuitCard>
+
+        {/* Live Code Editor */}
+        <div className="mb-8">
+          <LiveCodeEditor
+            title="⚡ Playground Interactivo - FormService.prepareStartForm() + startProcess()"
+            description="Experimenta con FormService en vivo. Modifica el código y ve los resultados al instante."
+            files={{
+              '/App.js': `import { useState } from 'react';
+import './styles.css';
+
+/**
+ * 🎯 FORM SERVICE - API DE ALTO NIVEL
+ *
+ * FormService simplifica workflows comunes de formularios con helpers que:
+ * - Preparan formularios automáticamente (prepareStartForm)
+ * - Convierten formData a parámetros (startProcess)
+ * - Manejan locks de instancia (prepareContinueForm)
+ * - Permiten field mapping selectivo (fieldMapping)
+ * - Agregan parámetros adicionales (additionalParameters)
+ */
+
+// 🔧 Mock del SDK FormService para demostración
+const mockFormService = {
+  /**
+   * prepareStartForm(): Prepara un formulario de inicio
+   * - Obtiene parámetros del proceso
+   * - Filtra parámetros de entrada
+   * - Crea formData con valores por defecto
+   */
+  prepareStartForm: async ({ processName }) => {
+    // Simular delay de API
+    await new Promise(r => setTimeout(r, 800));
+
+    // Simular respuesta de la API
+    const mockParameters = [
+      { name: 'productName', dataType: 'string', value: '', required: true },
+      { name: 'quantity', dataType: 'number', value: 1, required: true },
+      { name: 'price', dataType: 'number', value: 0, required: true },
+      { name: 'description', dataType: 'string', value: '', required: false }
+    ];
+
+    // Crear formData inicial con defaults
+    const formData = {};
+    mockParameters.forEach(p => {
+      formData[p.name] = p.value;
+    });
+
+    return {
+      parameters: mockParameters,
+      formData: formData
+    };
+  },
+
+  /**
+   * startProcess(): Inicia un proceso con formData
+   * - Convierte formData a parámetros automáticamente
+   * - Envía al servidor
+   */
+  startProcess: async ({ processName, formData }) => {
+    // Simular delay de API
+    await new Promise(r => setTimeout(r, 1000));
+
+    // Calcular total automáticamente
+    const total = (formData.quantity || 0) * (formData.price || 0);
+
+    // Simular respuesta exitosa
+    return {
+      success: true,
+      instanceId: \`INST-\${Math.random().toString(36).substr(2, 9)}\`,
+      processName: processName,
+      submittedData: formData,
+      calculatedTotal: total,
+      timestamp: new Date().toISOString()
+    };
+  }
+};
+
+function FormServiceDemo() {
+  const [processName] = useState('ProductOrder');
+  const [step, setStep] = useState('idle'); // idle, loading, ready, submitting, success
+  const [parameters, setParameters] = useState([]);
+  const [formData, setFormData] = useState({});
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+
+  /**
+   * PASO 1: Preparar formulario con FormService.prepareStartForm()
+   * ✨ Una sola llamada que hace TODO
+   */
+  const handlePrepareForm = async () => {
+    try {
+      setStep('loading');
+      setError(null);
+
+      console.log('📋 [FormService] Preparando formulario...');
+
+      // ✨ prepareStartForm() hace TODO en una llamada:
+      // 1. Obtiene parámetros del proceso
+      // 2. Filtra parámetros de entrada
+      // 3. Crea formData con defaults
+      const prepared = await mockFormService.prepareStartForm({
+        processName: processName
+      });
+
+      console.log('✅ Formulario preparado:', prepared);
+
+      setParameters(prepared.parameters);
+      setFormData(prepared.formData);
+      setStep('ready');
+    } catch (err) {
+      setError(err.message);
+      setStep('idle');
+    }
+  };
+
+  /**
+   * PASO 2: Iniciar proceso con FormService.startProcess()
+   * ✨ Conversión automática de formData a parámetros
+   */
+  const handleStartProcess = async () => {
+    try {
+      setStep('submitting');
+      setError(null);
+
+      console.log('📤 [FormService] Iniciando proceso con formData:', formData);
+
+      // ✨ startProcess() convierte formData automáticamente
+      const response = await mockFormService.startProcess({
+        processName: processName,
+        formData: formData // ✨ Envía TODOS los campos automáticamente
+      });
+
+      console.log('✅ Proceso iniciado:', response);
+
+      setResult(response);
+      setStep('success');
+    } catch (err) {
+      setError(err.message);
+      setStep('ready');
+    }
+  };
+
+  const handleFieldChange = (fieldName, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [fieldName]: value
+    }));
+  };
+
+  const reset = () => {
+    setStep('idle');
+    setParameters([]);
+    setFormData({});
+    setResult(null);
+    setError(null);
+  };
+
+  return (
+    <div className="app-container">
+      <div className="card">
+        <h1>🎯 FormService Demo</h1>
+        <p className="subtitle">API de alto nivel para formularios dinámicos</p>
+      </div>
+
+      {/* PASO 1: Preparar Formulario */}
+      {step === 'idle' && (
+        <div className="card">
+          <h2>1️⃣ Preparar Formulario</h2>
+          <p>Proceso: <strong>{processName}</strong></p>
+          <button
+            onClick={handlePrepareForm}
+            className="btn-primary"
+          >
+            Preparar Formulario con prepareStartForm()
+          </button>
+        </div>
+      )}
+
+      {step === 'loading' && (
+        <div className="card loading">
+          <div className="spinner"></div>
+          <p>Cargando parámetros del proceso...</p>
+        </div>
+      )}
+
+      {/* PASO 2: Completar Formulario */}
+      {step === 'ready' && (
+        <div className="card">
+          <h2>2️⃣ Completar Formulario</h2>
+          <p className="info">
+            ✨ FormService preparó {parameters.length} campos automáticamente
+          </p>
+
+          <div className="form-grid">
+            {parameters.map(param => (
+              <div key={param.name} className="form-field">
+                <label>
+                  {param.name}
+                  {param.required && <span className="required">*</span>}
+                </label>
+                <input
+                  type={param.dataType === 'number' ? 'number' : 'text'}
+                  value={formData[param.name] || ''}
+                  onChange={(e) => handleFieldChange(
+                    param.name,
+                    param.dataType === 'number'
+                      ? parseFloat(e.target.value) || 0
+                      : e.target.value
+                  )}
+                  placeholder={\`Ingrese \${param.name}\`}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Preview de los datos */}
+          <div className="preview">
+            <h3>📝 FormData actual:</h3>
+            <pre>{JSON.stringify(formData, null, 2)}</pre>
+          </div>
+
+          <div className="button-group">
+            <button onClick={reset} className="btn-secondary">
+              ← Volver
+            </button>
+            <button
+              onClick={handleStartProcess}
+              className="btn-primary"
+            >
+              Iniciar Proceso con startProcess()
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === 'submitting' && (
+        <div className="card loading">
+          <div className="spinner"></div>
+          <p>Iniciando proceso...</p>
+        </div>
+      )}
+
+      {/* PASO 3: Resultado */}
+      {step === 'success' && result && (
+        <div className="card success">
+          <h2>✅ Proceso Iniciado Exitosamente</h2>
+
+          <div className="result-details">
+            <div className="detail-row">
+              <span className="label">Instance ID:</span>
+              <span className="value">{result.instanceId}</span>
+            </div>
+            <div className="detail-row">
+              <span className="label">Proceso:</span>
+              <span className="value">{result.processName}</span>
+            </div>
+            <div className="detail-row">
+              <span className="label">Total Calculado:</span>
+              <span className="value highlight">
+                ${result.calculatedTotal.toFixed(2)}
+              </span>
+            </div>
+            <div className="detail-row">
+              <span className="label">Timestamp:</span>
+              <span className="value">{new Date(result.timestamp).toLocaleString()}</span>
+            </div>
+          </div>
+
+          <div className="preview">
+            <h3>📦 Datos enviados:</h3>
+            <pre>{JSON.stringify(result.submittedData, null, 2)}</pre>
+          </div>
+
+          <button onClick={reset} className="btn-primary">
+            🔄 Iniciar Nuevo Proceso
+          </button>
+        </div>
+      )}
+
+      {error && (
+        <div className="card error">
+          <h3>❌ Error</h3>
+          <p>{error}</p>
+          <button onClick={reset} className="btn-secondary">
+            Reintentar
+          </button>
+        </div>
+      )}
+
+      {/* Ventajas de FormService */}
+      <div className="card info-card">
+        <h3>✨ Ventajas de FormService</h3>
+        <ul>
+          <li>✅ <strong>Menos código:</strong> prepareStartForm() hace todo en una llamada</li>
+          <li>✅ <strong>Conversión automática:</strong> formData → parámetros automático</li>
+          <li>✅ <strong>Menos errores:</strong> No necesitas filtrar ni transformar manualmente</li>
+          <li>✅ <strong>Más productivo:</strong> Enfócate en la lógica de negocio, no en boilerplate</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+export default FormServiceDemo;`,
+              '/styles.css': `* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.app-container {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card h1 {
+  color: #1a202c;
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.card h2 {
+  color: #2d3748;
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+
+.card h3 {
+  color: #4a5568;
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.subtitle {
+  color: #718096;
+  font-size: 14px;
+}
+
+.info {
+  background: #ebf8ff;
+  border-left: 4px solid #4299e1;
+  padding: 12px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+  color: #2c5282;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.required {
+  color: #e53e3e;
+  margin-left: 4px;
+}
+
+.form-field input {
+  padding: 10px 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.form-field input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.preview {
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.preview h3 {
+  color: #4a5568;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.preview pre {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #2d3748;
+  overflow-x: auto;
+  background: white;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+  background: white;
+  color: #4a5568;
+  border: 2px solid #e2e8f0;
+}
+
+.btn-secondary:hover {
+  background: #f7fafc;
+  border-color: #cbd5e0;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  background: #f7fafc;
+}
+
+.spinner {
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.success {
+  border-left: 6px solid #48bb78;
+}
+
+.success h2 {
+  color: #22543d;
+}
+
+.result-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background: #f7fafc;
+  border-radius: 6px;
+}
+
+.label {
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.value {
+  color: #2d3748;
+}
+
+.value.highlight {
+  font-size: 18px;
+  font-weight: 700;
+  color: #38a169;
+}
+
+.error {
+  border-left: 6px solid #f56565;
+}
+
+.error h3 {
+  color: #c53030;
+}
+
+.info-card {
+  background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+  border: 2px solid #93c5fd;
+}
+
+.info-card h3 {
+  color: #1e40af;
+  margin-bottom: 12px;
+}
+
+.info-card ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-card li {
+  color: #1e3a8a;
+  font-size: 14px;
+  padding-left: 8px;
+}
+
+.info-card strong {
+  color: #1e40af;
+}`
+            }}
+          />
+        </div>
       </div>
     </div>
   )
