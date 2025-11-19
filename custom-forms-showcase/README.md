@@ -334,3 +334,66 @@ MIT
 2. **Explore** the live pages at http://localhost:3000
 3. **Review** code examples in `docs/examples/`
 4. **Build** your first Bizuit process screen!
+
+---
+
+## 🔍 Component Validation
+
+### validate-components.js
+
+This script validates that all 17 UI component demos in `/components-demo` are correctly structured with proper Sandpack examples.
+
+**What it validates:**
+- ✅ All components have a `codeExample` object
+- ✅ Each component has `/App.js` with proper imports
+- ✅ JSX components used are properly imported
+- ✅ Component files exist in the Sandpack example
+- ⚠️ Warns if missing i18n controls (🇬🇧 EN / 🇪🇸 ES)
+- ⚠️ Warns if missing theme controls (☀️/🌙/💻)
+- ⚠️ Warns if missing color picker
+
+**When to run:**
+- Before committing changes to component demos
+- After adding new component examples
+- When updating Sandpack code examples
+- To ensure all demos follow the same structure
+
+**How to run:**
+
+```bash
+# From custom-forms-showcase/ directory
+node validate-components.js
+```
+
+**Expected output (success):**
+```
+🔍 Validando componentes...
+
+📊 Resumen de Validación:
+   Total de componentes: 17
+   Errores: 0
+   Advertencias: 0
+
+✅ Todos los componentes están correctos!
+```
+
+**Components validated:**
+1. button
+2. card
+3. combo
+4. data-grid
+5. date-time-picker
+6. document-input
+7. dynamic-form-field
+8. file-upload
+9. geolocation
+10. iframe
+11. media
+12. radio-button
+13. signature
+14. slider
+15. stepper
+16. subform
+17. tabs
+
+**Note:** This validation ensures consistency across all component demos and helps catch missing imports or broken Sandpack examples before they reach production.
