@@ -3,7 +3,6 @@ import { Quicksand } from "next/font/google";
 import "./globals.css";
 import { ReactGlobalExposer } from "@/components/ReactGlobalExposer";
 import { Providers } from "@/components/providers";
-import { SettingsToolbar } from "@/components/settings-toolbar";
 
 const quicksand = Quicksand({
   subsets: ["latin"],
@@ -38,7 +37,6 @@ export default function RootLayout({
       <body className="antialiased">
         <ReactGlobalExposer />
         <Providers>
-          <SettingsToolbar />
           {children}
         </Providers>
       </body>

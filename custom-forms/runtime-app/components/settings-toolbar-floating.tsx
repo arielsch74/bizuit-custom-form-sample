@@ -18,7 +18,7 @@ const LANGUAGES = [
   { value: 'es', label: 'Español', flag: '🇪🇸' },
 ]
 
-export function SettingsToolbar() {
+export function SettingsToolbarFloating() {
   const [mounted, setMounted] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -46,24 +46,26 @@ export function SettingsToolbar() {
 
   if (!mounted) {
     return (
-      <button className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-700">
-        <Settings className="w-5 h-5 animate-pulse" />
-      </button>
+      <div className="fixed top-4 right-4 z-[60]">
+        <button className="p-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg text-slate-600 dark:text-slate-400">
+          <Settings className="w-5 h-5 animate-pulse" />
+        </button>
+      </div>
     )
   }
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="fixed top-4 right-4 z-[60]" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-700 transition-colors"
+        className="p-3 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
         aria-label="Settings"
       >
         <Settings className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-90' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-12 min-w-[240px] rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg p-3 z-50">
+        <div className="absolute right-0 top-16 min-w-[240px] max-h-[80vh] overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg p-3">
           <div className="flex flex-col gap-3">
             {/* Theme Selection */}
             <div>

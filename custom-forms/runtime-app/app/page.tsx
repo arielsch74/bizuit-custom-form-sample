@@ -2,13 +2,15 @@
 
 import Link from 'next/link'
 import { useAppTranslation } from '@/lib/useAppTranslation'
+import { SettingsToolbarFloating } from '@/components/settings-toolbar-floating'
 
 export default function HomePage() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+  const backendApiUrl = process.env.NEXT_PUBLIC_API_URL
   const { t } = useAppTranslation()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 dark:from-slate-900 dark:to-slate-800">
+      <SettingsToolbarFloating />
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -57,7 +59,7 @@ export default function HomePage() {
               {t('home.adminDescription')}
             </p>
             <Link
-              href="/login"
+              href="/admin"
               className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 py-3 rounded-lg transition-colors shadow-lg hover:shadow-xl"
             >
               {t('home.goToAdmin')}
@@ -89,6 +91,8 @@ export default function HomePage() {
             <div className="flex justify-center gap-4 flex-wrap">
               <a
                 href="https://github.com/tyconsa/bizuit-custom-forms"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="hover:text-primary dark:hover:text-primary underline"
               >
                 GitHub
@@ -100,13 +104,19 @@ export default function HomePage() {
               >
                 {t('home.adminPanel.link')}
               </Link>
-              <span>•</span>
-              <a
-                href={`${apiUrl}/docs`}
-                className="hover:text-primary dark:hover:text-primary underline"
-              >
-                API Docs
-              </a>
+              {backendApiUrl && (
+                <>
+                  <span>•</span>
+                  <a
+                    href={`${backendApiUrl}/docs`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-primary dark:hover:text-primary underline"
+                  >
+                    API Docs
+                  </a>
+                </>
+              )}
             </div>
           </div>
         </div>

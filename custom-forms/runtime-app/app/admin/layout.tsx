@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { LayoutDashboard, Upload, FileText, LogOut, User, Menu, X } from 'lucide-react'
+import { SettingsToolbar } from '@/components/settings-toolbar'
+import { useAppTranslation } from '@/lib/useAppTranslation'
 
 export default function AdminLayout({
   children,
@@ -15,6 +17,8 @@ export default function AdminLayout({
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { t } = useAppTranslation()
+  const backendApiUrl = process.env.NEXT_PUBLIC_API_URL
 
   useEffect(() => {
     // Verificar autenticación (excepto en la página de login)
@@ -87,9 +91,9 @@ export default function AdminLayout({
   }
 
   const navigation = [
-    { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-    { name: 'Gestión de Forms', href: '/admin/forms', icon: FileText },
-    { name: 'Upload Forms', href: '/admin/upload-forms', icon: Upload },
+    { name: t('nav.dashboard'), href: '/admin', icon: LayoutDashboard },
+    { name: t('nav.formsManagement'), href: '/admin/forms', icon: FileText },
+    { name: t('nav.uploadForms'), href: '/admin/upload-forms', icon: Upload },
   ]
 
   return (
@@ -108,13 +112,13 @@ export default function AdminLayout({
               </button>
               <Link href="/admin" className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">B</span>
+                  <span className="text-primary-foreground font-bold text-xl">B</span>
                 </div>
                 <div className="hidden sm:block">
                   <h1 className="text-lg font-bold text-slate-900 dark:text-white">
-                    BIZUIT Custom Forms
+                    {t('admin.title')}
                   </h1>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">Panel de Administración</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">{t('admin.subtitle')}</p>
                 </div>
               </Link>
             </div>
@@ -141,8 +145,15 @@ export default function AdminLayout({
               })}
             </div>
 
-            {/* User Menu */}
-            <div className="flex items-center gap-3">
+            {/* Settings & User Menu */}
+            <div className="flex items-center gap-2">
+              {/* Settings Button */}
+              <SettingsToolbar />
+
+              {/* Separator */}
+              <div className="h-8 w-px bg-slate-300 dark:bg-slate-600 mx-1" />
+
+              {/* User Info */}
               <div className="hidden sm:block text-right">
                 <p className="text-sm font-semibold text-slate-900 dark:text-white">
                   {user.displayName || user.username}
@@ -157,7 +168,7 @@ export default function AdminLayout({
                 className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
               >
                 <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Salir</span>
+                <span className="hidden sm:inline">{t('admin.logout')}</span>
               </button>
             </div>
           </div>
@@ -204,12 +215,16 @@ export default function AdminLayout({
               BIZUIT Custom Forms © {new Date().getFullYear()} - Tycon S.A.
             </p>
             <div className="flex gap-4">
-              <Link href="/" className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary">
-                Ver Formularios
-              </Link>
-              <Link href="/docs" className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary">
-                Documentación
-              </Link>
+              {backendApiUrl && (
+                <a
+                  href={`${backendApiUrl}/docs`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-slate-600 dark:text-slate-400 hover:text-primary"
+                >
+                  Documentación
+                </a>
+              )}
             </div>
           </div>
         </div>

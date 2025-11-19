@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { FileText, Upload, Clock, Database, TrendingUp, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
+import { useAppTranslation } from '@/lib/useAppTranslation'
 
 interface DashboardStats {
   totalForms: number
@@ -23,6 +24,7 @@ export default function AdminDashboard() {
   const [recentForms, setRecentForms] = useState<RecentForm[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { t } = useAppTranslation()
 
   useEffect(() => {
     loadDashboardData()
@@ -132,75 +134,75 @@ export default function AdminDashboard() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-          Dashboard
+          {t('dashboard.title')}
         </h1>
         <p className="text-slate-600 dark:text-slate-400">
-          Vista general del sistema de Custom Forms
+          {t('dashboard.subtitle')}
         </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total Forms */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border-l-4 border-primary">
+        <div className="bg-card dark:bg-card rounded-xl shadow-lg p-6 border-l-4 border-primary">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
               <FileText className="w-6 h-6 text-primary" />
             </div>
             <TrendingUp className="w-5 h-5 text-green-500" />
           </div>
-          <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
-            Total Forms
+          <h3 className="text-sm font-medium text-muted-foreground mb-1">
+            {t('dashboard.totalForms')}
           </h3>
-          <p className="text-3xl font-bold text-slate-900 dark:text-white">
+          <p className="text-3xl font-bold text-card-foreground">
             {stats?.totalForms || 0}
           </p>
         </div>
 
         {/* Recent Updates */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+        <div className="bg-card dark:bg-card rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center">
               <Clock className="w-6 h-6 text-blue-500" />
             </div>
             <CheckCircle className="w-5 h-5 text-blue-500" />
           </div>
-          <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
-            Actualizaciones (7d)
+          <h3 className="text-sm font-medium text-muted-foreground mb-1">
+            {t('dashboard.updates')}
           </h3>
-          <p className="text-3xl font-bold text-slate-900 dark:text-white">
+          <p className="text-3xl font-bold text-card-foreground">
             {stats?.recentUpdates || 0}
           </p>
         </div>
 
         {/* Total Size */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+        <div className="bg-card dark:bg-card rounded-xl shadow-lg p-6 border-l-4 border-green-500">
           <div className="flex items-center justify-between mb-4">
             <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center">
               <Database className="w-6 h-6 text-green-500" />
             </div>
             <Database className="w-5 h-5 text-green-500" />
           </div>
-          <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
-            Espacio Total
+          <h3 className="text-sm font-medium text-muted-foreground mb-1">
+            {t('dashboard.totalSpace')}
           </h3>
-          <p className="text-3xl font-bold text-slate-900 dark:text-white">
+          <p className="text-3xl font-bold text-card-foreground">
             {formatSize(stats?.totalSize || 0)}
           </p>
         </div>
 
         {/* Average Form Size */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border-l-4 border-amber-500">
+        <div className="bg-card dark:bg-card rounded-xl shadow-lg p-6 border-l-4 border-primary">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-amber-500/10 rounded-lg flex items-center justify-center">
-              <FileText className="w-6 h-6 text-amber-500" />
+            <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+              <FileText className="w-6 h-6 text-primary" />
             </div>
-            <TrendingUp className="w-5 h-5 text-amber-500" />
+            <TrendingUp className="w-5 h-5 text-primary" />
           </div>
-          <h3 className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
-            Tamaño Promedio
+          <h3 className="text-sm font-medium text-muted-foreground mb-1">
+            {t('dashboard.avgSize')}
           </h3>
-          <p className="text-3xl font-bold text-slate-900 dark:text-white">
+          <p className="text-3xl font-bold text-card-foreground">
             {formatSize(stats?.avgFormSize || 0)}
           </p>
         </div>
@@ -210,18 +212,18 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Link
           href="/admin/upload-forms"
-          className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border-2 border-transparent hover:border-primary"
+          className="bg-card rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border-2 border-transparent hover:border-primary"
         >
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center">
               <Upload className="w-7 h-7 text-primary" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
-                Upload Forms
+              <h3 className="text-lg font-semibold text-card-foreground mb-1">
+                {t('dashboard.uploadForms.title')}
               </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Subir paquete de deployment
+              <p className="text-sm text-muted-foreground">
+                {t('dashboard.uploadForms.subtitle')}
               </p>
             </div>
           </div>
@@ -229,18 +231,18 @@ export default function AdminDashboard() {
 
         <Link
           href="/admin/forms"
-          className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border-2 border-transparent hover:border-blue-500"
+          className="bg-card rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border-2 border-transparent hover:border-primary"
         >
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-blue-500/10 rounded-xl flex items-center justify-center">
-              <FileText className="w-7 h-7 text-blue-500" />
+            <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center">
+              <FileText className="w-7 h-7 text-primary" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
-                Gestionar Forms
+              <h3 className="text-lg font-semibold text-card-foreground mb-1">
+                {t('dashboard.manageForms.title')}
               </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Ver y administrar formularios
+              <p className="text-sm text-muted-foreground">
+                {t('dashboard.manageForms.subtitle')}
               </p>
             </div>
           </div>
@@ -248,16 +250,16 @@ export default function AdminDashboard() {
       </div>
 
       {/* Recent Forms */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6">
+      <div className="bg-card rounded-xl shadow-lg p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-            Formularios Recientes
+          <h2 className="text-xl font-bold text-card-foreground">
+            {t('dashboard.recentForms')}
           </h2>
           <Link
             href="/admin/forms"
             className="text-sm font-medium text-primary hover:text-primary/80"
           >
-            Ver todos →
+            {t('dashboard.viewAll')}
           </Link>
         </div>
 

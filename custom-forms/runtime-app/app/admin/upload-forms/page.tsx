@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Upload, CheckCircle, XCircle, AlertCircle, FileArchive, Loader2 } from 'lucide-react'
+import { useAppTranslation } from '@/lib/useAppTranslation'
 
 interface UploadResult {
   success: boolean
@@ -22,20 +23,21 @@ export default function UploadFormsPage() {
   const [file, setFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [result, setResult] = useState<UploadResult | null>(null)
+  const { t } = useAppTranslation()
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0]
     if (selectedFile) {
       // Validar que sea .zip
       if (!selectedFile.name.endsWith('.zip')) {
-        alert('Solo se permiten archivos .zip')
+        alert(t('upload.alertOnlyZip'))
         return
       }
 
       // Validar tamaño (max 50 MB)
       const maxSize = 50 * 1024 * 1024 // 50 MB
       if (selectedFile.size > maxSize) {
-        alert('El archivo excede el tamaño máximo de 50 MB')
+        alert(t('upload.alertMaxSize'))
         return
       }
 
@@ -46,7 +48,7 @@ export default function UploadFormsPage() {
 
   const handleUpload = async () => {
     if (!file) {
-      alert('Selecciona un archivo primero')
+      alert(t('upload.alertSelectFile'))
       return
     }
 
@@ -103,7 +105,7 @@ export default function UploadFormsPage() {
       setFile(droppedFile)
       setResult(null)
     } else {
-      alert('Solo se permiten archivos .zip')
+      alert(t('upload.alertOnlyZip'))
     }
   }
 
@@ -116,16 +118,16 @@ export default function UploadFormsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-          Upload de Formularios
+        <h1 className="text-3xl font-bold text-card-foreground mb-2">
+          {t('upload.title')}
         </h1>
-        <p className="text-slate-600 dark:text-slate-400">
-          Sube un paquete de deployment (.zip) generado por GitHub Actions
+        <p className="text-muted-foreground">
+          {t('upload.subtitle')}
         </p>
       </div>
 
         {/* Upload Area */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-8 mb-6">
+        <div className="bg-card rounded-xl shadow-lg p-8 mb-6">
           <div
             className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-12 text-center transition-colors hover:border-blue-500 dark:hover:border-blue-400"
             onDrop={handleDrop}
@@ -146,18 +148,18 @@ export default function UploadFormsPage() {
                   onClick={() => setFile(null)}
                   className="text-sm text-red-600 hover:text-red-700 dark:text-red-400"
                 >
-                  Remover archivo
+                  {t('upload.removeFile')}
                 </button>
               </div>
             ) : (
               <div className="space-y-4">
                 <Upload className="w-16 h-16 mx-auto text-slate-400" />
                 <div>
-                  <p className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                    Arrastra un archivo .zip aquí
+                  <p className="text-lg font-semibold text-card-foreground mb-2">
+                    {t('upload.dragDrop')}
                   </p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                    o haz click para seleccionar
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {t('upload.orClick')}
                   </p>
                   <label className="inline-block">
                     <input
@@ -166,13 +168,13 @@ export default function UploadFormsPage() {
                       onChange={handleFileChange}
                       className="hidden"
                     />
-                    <span className="px-6 py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg cursor-pointer transition-colors">
-                      Seleccionar archivo
+                    <span className="px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg cursor-pointer transition-colors">
+                      {t('upload.selectFile')}
                     </span>
                   </label>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Tamaño máximo: 50 MB • Solo archivos .zip
+                <p className="text-xs text-muted-foreground">
+                  {t('upload.maxSize')}
                 </p>
               </div>
             )}
@@ -189,12 +191,12 @@ export default function UploadFormsPage() {
                 {uploading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Procesando deployment...
+                    {t('upload.processing')}
                   </>
                 ) : (
                   <>
                     <Upload className="w-5 h-5" />
-                    Subir e instalar forms
+                    {t('upload.uploadButton')}
                   </>
                 )}
               </button>
@@ -225,7 +227,7 @@ export default function UploadFormsPage() {
                       : 'text-red-900 dark:text-red-100'
                   }`}
                 >
-                  {result.success ? '✅ Deployment exitoso' : '❌ Deployment con errores'}
+                  {result.success ? t('upload.successTitle') : t('upload.errorTitle')}
                 </h2>
                 <p
                   className={`${
@@ -241,31 +243,31 @@ export default function UploadFormsPage() {
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="bg-white dark:bg-slate-800 rounded-lg p-4 text-center">
+              <div className="bg-card rounded-lg p-4 text-center">
                 <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                   {result.formsProcessed}
                 </p>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Procesados</p>
+                <p className="text-sm text-muted-foreground">{t('upload.processed')}</p>
               </div>
-              <div className="bg-white dark:bg-slate-800 rounded-lg p-4 text-center">
+              <div className="bg-card rounded-lg p-4 text-center">
                 <p className="text-3xl font-bold text-green-600 dark:text-green-400">
                   {result.formsInserted}
                 </p>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Insertados</p>
+                <p className="text-sm text-muted-foreground">{t('upload.inserted')}</p>
               </div>
-              <div className="bg-white dark:bg-slate-800 rounded-lg p-4 text-center">
-                <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">
+              <div className="bg-card rounded-lg p-4 text-center">
+                <p className="text-3xl font-bold text-primary">
                   {result.formsUpdated}
                 </p>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Actualizados</p>
+                <p className="text-sm text-muted-foreground">{t('upload.updated')}</p>
               </div>
             </div>
 
             {/* Forms Results */}
             {result.results && result.results.length > 0 && (
               <div className="space-y-3">
-                <h3 className="font-semibold text-slate-900 dark:text-white mb-3">
-                  Detalle por form:
+                <h3 className="font-semibold text-card-foreground mb-3">
+                  {t('upload.detailTitle')}
                 </h3>
                 {result.results.map((formResult, idx) => (
                   <div
@@ -294,15 +296,15 @@ export default function UploadFormsPage() {
                         formResult.action === 'inserted'
                           ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
                           : formResult.action === 'updated'
-                          ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300'
+                          ? 'bg-primary/10 text-primary dark:bg-primary/20'
                           : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
                       }`}
                     >
                       {formResult.action === 'inserted'
-                        ? 'Nuevo'
+                        ? t('upload.new')
                         : formResult.action === 'updated'
-                        ? 'Actualizado'
-                        : 'Error'}
+                        ? t('upload.updatedLabel')
+                        : t('upload.error')}
                     </span>
                   </div>
                 ))}
@@ -316,7 +318,7 @@ export default function UploadFormsPage() {
                   <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <h4 className="font-semibold text-red-900 dark:text-red-100 mb-2">
-                      Errores:
+                      {t('upload.errorsTitle')}
                     </h4>
                     <ul className="list-disc list-inside space-y-1 text-sm text-red-800 dark:text-red-200">
                       {result.errors.map((error, idx) => (
@@ -334,14 +336,14 @@ export default function UploadFormsPage() {
         <div className="mt-8 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-6">
           <h3 className="font-semibold text-orange-900 dark:text-orange-100 mb-3 flex items-center gap-2">
             <AlertCircle className="w-5 h-5" />
-            Instrucciones
+            {t('upload.instructionsTitle')}
           </h3>
           <ol className="list-decimal list-inside space-y-2 text-sm text-orange-800 dark:text-orange-200">
-            <li>Descarga el deployment package (.zip) desde GitHub Actions Artifacts</li>
-            <li>Transfiere el archivo al servidor (USB, red interna, etc.)</li>
-            <li>Sube el archivo usando este formulario</li>
-            <li>Verifica que todos los forms se hayan instalado correctamente</li>
-            <li>Prueba los forms en el runtime app</li>
+            <li>{t('upload.instruction1')}</li>
+            <li>{t('upload.instruction2')}</li>
+            <li>{t('upload.instruction3')}</li>
+            <li>{t('upload.instruction4')}</li>
+            <li>{t('upload.instruction5')}</li>
           </ol>
         </div>
     </div>

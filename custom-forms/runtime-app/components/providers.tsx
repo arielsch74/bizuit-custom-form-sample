@@ -18,8 +18,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
       }}
     >
       <BizuitThemeProvider
-        defaultTheme="system"
-        defaultColorTheme="blue"
+        defaultTheme="light"
+        defaultColorTheme="orange"
         defaultLanguage="es"
       >
         <BizuitAuthProvider>
