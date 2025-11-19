@@ -207,22 +207,30 @@ stages:
 
                         Write-Host "Executing: sqlcmd -S $dbServer -d $dbDatabase -U $dbUser -i $($file.Name)" -ForegroundColor Gray
                         $output = & $sqlcmd $arguments 2>&1
+                        $exitCode = $LASTEXITCODE
 
-                        if ($LASTEXITCODE -eq 0) {
+                        if ($exitCode -eq 0) {
                             Write-Host "✓ Migration executed successfully" -ForegroundColor Green
                             if ($output) {
                                 Write-Host $output -ForegroundColor Gray
                             }
                         } else {
-                            Write-Error "❌ Migration failed with exit code: $LASTEXITCODE"
+                            Write-Host "`n========================================" -ForegroundColor Red
+                            Write-Host "❌ MIGRATION FAILED" -ForegroundColor Red
+                            Write-Host "========================================" -ForegroundColor Red
+                            Write-Host "Exit Code: $exitCode" -ForegroundColor Yellow
+                            Write-Host "Migration File: $($file.FullName)" -ForegroundColor Yellow
                             Write-Host "`nSQL Error Output:" -ForegroundColor Red
-                            Write-Host $output -ForegroundColor Red
-                            Write-Host "`nMigration file: $($file.FullName)" -ForegroundColor Yellow
-                            exit 1
+                            Write-Host "----------------------------------------" -ForegroundColor Red
+                            Write-Host $output -ForegroundColor White
+                            Write-Host "----------------------------------------" -ForegroundColor Red
+                            Write-Host "`nCommand executed:" -ForegroundColor Yellow
+                            Write-Host "sqlcmd -S $dbServer -d $dbDatabase -U $dbUser -P ****** -i `"$($file.FullName)`"" -ForegroundColor Gray
+                            throw "Migration failed with exit code $exitCode"
                         }
                     } catch {
-                        Write-Error "❌ Error executing migration: $_"
-                        exit 1
+                        Write-Host "`n❌ Exception during migration execution: $($_.Exception.Message)" -ForegroundColor Red
+                        throw
                     }
                 }
 
