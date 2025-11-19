@@ -1,6 +1,6 @@
 # Bizuit Custom Forms
 
-**Estado**: 85% completo - Pipeline CI/CD configurado con PM2
+**Estado**: 90% completo - Pipelines separados: Build y Deploy independientes
 
 ---
 
