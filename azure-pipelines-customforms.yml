@@ -227,24 +227,41 @@ stages:
 
                 Write-Host "Found $($sqlFiles.Count) migration file(s)" -ForegroundColor Green
 
-                # Read connection string from .env.local (already exists on server)
+                # Read or create .env.local
                 $envPath = "$(backendDeployPath)\.env.local"
 
                 if (-not (Test-Path $envPath)) {
-                    Write-Host "❌ .env.local not found at: $envPath" -ForegroundColor Red
+                    Write-Host "⚠️  .env.local not found, creating with default values..." -ForegroundColor Yellow
+
+                    # Create backend deploy directory if it doesn't exist
+                    $backendDir = "$(backendDeployPath)"
+                    if (-not (Test-Path $backendDir)) {
+                        New-Item -ItemType Directory -Path $backendDir -Force | Out-Null
+                        Write-Host "✓ Created backend directory: $backendDir" -ForegroundColor Green
+                    }
+
+                    # Create .env.local with default configuration
+                    @"
+# Database Configuration
+DB_SERVER=test.bizuit.com
+DB_DATABASE=BizuitForms
+DB_USER=BizuitFormsUser
+DB_PASSWORD=YourSecurePassword123!
+
+# Backend API Configuration
+BIZUIT_API_BASE_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api
+API_PORT=8000
+SECRET_KEY=change-this-to-a-secure-random-key
+
+# Python Environment
+PYTHONUNBUFFERED=1
+"@ | Out-File -FilePath $envPath -Encoding utf8
+
+                    Write-Host "✓ Created $envPath" -ForegroundColor Green
                     Write-Host ""
-                    Write-Host "SETUP REQUIRED:" -ForegroundColor Yellow
-                    Write-Host "Please create $envPath with the following content:" -ForegroundColor Yellow
+                    Write-Host "⚠️  IMPORTANT: Update database credentials in .env.local before production use!" -ForegroundColor Yellow
+                    Write-Host "   File location: $envPath" -ForegroundColor Gray
                     Write-Host ""
-                    Write-Host "DB_SERVER=your-sql-server" -ForegroundColor Gray
-                    Write-Host "DB_DATABASE=your-database" -ForegroundColor Gray
-                    Write-Host "DB_USER=your-username" -ForegroundColor Gray
-                    Write-Host "DB_PASSWORD=your-password" -ForegroundColor Gray
-                    Write-Host "BIZUIT_API_BASE_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api" -ForegroundColor Gray
-                    Write-Host ""
-                    Write-Host "After creating the file, re-run the pipeline." -ForegroundColor Yellow
-                    Write-Error "Migrations require database credentials from .env.local"
-                    exit 1
                 }
 
                 Write-Host "Reading database configuration from .env.local..." -ForegroundColor Gray
