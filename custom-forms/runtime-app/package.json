@@ -13,7 +13,7 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "@tyconsa/bizuit-form-sdk": "latest",
+    "@tyconsa/bizuit-form-sdk": "^2.0.0",
     "@tyconsa/bizuit-ui-components": "latest",
     "lucide-react": "^0.552.0",
     "next": "^15.5.6",

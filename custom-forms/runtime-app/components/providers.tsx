@@ -21,9 +21,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
         defaultTheme="system"
         defaultColorTheme="blue"
         defaultLanguage="es"
-        storageKey="bizuit-ui-theme"
-        colorStorageKey="bizuit-ui-color-theme"
-        languageStorageKey="bizuit-ui-language"
       >
         <BizuitAuthProvider>
           {children}

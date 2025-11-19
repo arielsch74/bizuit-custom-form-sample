@@ -3,6 +3,7 @@ import { Quicksand } from "next/font/google";
 import "./globals.css";
 import { ReactGlobalExposer } from "@/components/ReactGlobalExposer";
 import { Providers } from "@/components/providers";
+import { SettingsToolbar } from "@/components/settings-toolbar";
 
 const quicksand = Quicksand({
   subsets: ["latin"],
@@ -21,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html suppressHydrationWarning className={quicksand.variable}>
+    <html lang="es" suppressHydrationWarning className={quicksand.variable}>
       <head>
         {/* Expose React globally for dynamically loaded forms */}
         <script dangerouslySetInnerHTML={{
@@ -37,6 +38,7 @@ export default function RootLayout({
       <body className="antialiased">
         <ReactGlobalExposer />
         <Providers>
+          <SettingsToolbar />
           {children}
         </Providers>
       </body>
