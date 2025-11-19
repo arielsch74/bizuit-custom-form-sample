@@ -1,9 +1,7 @@
 -- Migration: Add ReleaseNotes column to CustomFormVersions table
 -- Description: Adds a column to store change descriptions for each version
 -- Date: 2025-11-19
-
-USE [BizuitDashboard];
-GO
+-- Note: Database is selected via sqlcmd -d parameter, not USE statement
 
 -- Add ReleaseNotes column if it doesn't exist
 IF NOT EXISTS (

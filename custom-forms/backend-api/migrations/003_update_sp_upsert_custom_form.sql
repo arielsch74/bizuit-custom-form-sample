@@ -2,8 +2,8 @@
 -- Description: Adds ReleaseNotes parameter to the stored procedure
 -- Date: 2025-11-19
 
-USE [BizuitDashboard];
-GO
+-- Note: Database is selected via sqlcmd -d parameter, not USE statement
+
 
 -- Drop existing procedure if it exists
 IF OBJECT_ID('dbo.sp_UpsertCustomForm', 'P') IS NOT NULL
