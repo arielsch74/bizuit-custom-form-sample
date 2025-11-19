@@ -11,8 +11,9 @@ Sistema que permite crear, publicar y cargar formularios customizados para proce
 
 - ✅ **Versionado**: Control de versiones con historial completo en base de datos
 - ✅ **Form Registry**: Registro centralizado con metadata de forms
-- ✅ **Backend API REST**: .NET Core con 6 endpoints
+- ✅ **Backend API REST**: FastAPI (Python) con endpoints completos
 - ✅ **Base de Datos**: SQL Server con stored procedures optimizados
+- ✅ **Deployment Pipeline**: Azure DevOps CI/CD con PM2
 - ⚠️ **Carga Dinámica**: Implementación parcial (ver sección de Arquitectura)
 
 ---
