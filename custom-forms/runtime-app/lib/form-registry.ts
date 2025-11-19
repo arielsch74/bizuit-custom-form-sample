@@ -234,12 +234,8 @@ export async function initializeFormRegistry(config: {
 
   } catch (error: any) {
     console.error(`[Form Registry] Failed to initialize:`, error)
-
-    // Fallback a static forms si API falla
-    if (staticForms && staticForms.length > 0) {
-      console.log(`[Form Registry] Falling back to static forms`)
-      formRegistry.loadFromConfig(staticForms)
-    }
+    // Per project rules: NEVER use fallback data - fail explicitly
+    throw new Error(`Form Registry initialization failed: ${error.message}`)
   }
 }
 

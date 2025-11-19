@@ -4,3 +4,13 @@ python-multipart==0.0.18
 pyodbc==5.2.0
 pydantic==2.10.3
 python-dotenv==1.0.1
+pyjwt==2.8.0
+requests==2.31.0
+pycryptodome==3.23.0
+
+# Testing dependencies
+pytest==7.4.3
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+httpx==0.25.2
+pytest-asyncio==0.21.1

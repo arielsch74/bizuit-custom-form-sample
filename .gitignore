@@ -48,8 +48,33 @@ package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
-# Python cache
+# Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.py[cod]
+*$py.class
+
+# Python virtual environments
+venv/
+env/
+ENV/
+.venv/
+*.egg-info/
+.eggs/
+
+# Python distribution / packaging
+dist/
+build/
+*.egg
+
+# Python testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Python temp files
+*.log
+temp-uploads/
+*.sqlite3

@@ -55,16 +55,22 @@
     --primary-foreground: 210 20% 98%;
   }
 
-  /* Orange Theme */
+  /* Orange Theme - BIZUIT Brand Colors */
   .theme-orange {
-    --primary: 24.6 95% 53.1%;
-    --primary-foreground: 60 9.1% 97.8%;
-    --ring: 24.6 95% 53.1%;
+    --primary: 24 100% 50%;        /* BIZUIT Orange #FF8800 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 31 100% 45%;       /* Darker orange for accents */
+    --secondary-foreground: 0 0% 100%;
+    --accent: 39 100% 50%;          /* Golden orange for highlights */
+    --accent-foreground: 0 0% 0%;
+    --ring: 24 100% 50%;
   }
 
   .theme-orange.dark {
-    --primary: 20.5 90.2% 48.2%;
-    --primary-foreground: 60 9.1% 97.8%;
+    --primary: 24 100% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 31 100% 40%;
+    --secondary-foreground: 0 0% 100%;
   }
 
   /* Red Theme */
@@ -120,6 +126,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-quicksand), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 }
 

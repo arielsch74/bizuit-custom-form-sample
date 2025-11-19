@@ -55,7 +55,7 @@ export function FormContainer({ formName, formVersion, children }: Props) {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <div>
-              Powered by <span className="font-semibold">Bizuit Custom Forms</span>
+              Powered by <span className="font-semibold">BIZUIT Custom Forms</span>
             </div>
             <div className="flex items-center gap-4">
               <Link

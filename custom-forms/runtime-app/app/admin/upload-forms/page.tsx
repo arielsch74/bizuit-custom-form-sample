@@ -59,9 +59,11 @@ export default function UploadFormsPage() {
 
       console.log('[Upload] Uploading deployment package:', file.name)
 
+      // Use Next.js API route to forward the request with HttpOnly cookies
       const response = await fetch('/api/deployment/upload', {
         method: 'POST',
         body: formData,
+        credentials: 'include', // Important: include HttpOnly cookies
       })
 
       const data = await response.json()
@@ -111,17 +113,16 @@ export default function UploadFormsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
-            📦 Deployment de Custom Forms
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400">
-            Sube un paquete de deployment (.zip) generado por GitHub Actions
-          </p>
-        </div>
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+          Upload de Formularios
+        </h1>
+        <p className="text-slate-600 dark:text-slate-400">
+          Sube un paquete de deployment (.zip) generado por GitHub Actions
+        </p>
+      </div>
 
         {/* Upload Area */}
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-8 mb-6">
@@ -165,7 +166,7 @@ export default function UploadFormsPage() {
                       onChange={handleFileChange}
                       className="hidden"
                     />
-                    <span className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg cursor-pointer transition-colors">
+                    <span className="px-6 py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-lg cursor-pointer transition-colors">
                       Seleccionar archivo
                     </span>
                   </label>
@@ -330,12 +331,12 @@ export default function UploadFormsPage() {
         )}
 
         {/* Instructions */}
-        <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
-          <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
+        <div className="mt-8 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-6">
+          <h3 className="font-semibold text-orange-900 dark:text-orange-100 mb-3 flex items-center gap-2">
             <AlertCircle className="w-5 h-5" />
             Instrucciones
           </h3>
-          <ol className="list-decimal list-inside space-y-2 text-sm text-blue-800 dark:text-blue-200">
+          <ol className="list-decimal list-inside space-y-2 text-sm text-orange-800 dark:text-orange-200">
             <li>Descarga el deployment package (.zip) desde GitHub Actions Artifacts</li>
             <li>Transfiere el archivo al servidor (USB, red interna, etc.)</li>
             <li>Sube el archivo usando este formulario</li>
@@ -343,7 +344,6 @@ export default function UploadFormsPage() {
             <li>Prueba los forms en el runtime app</li>
           </ol>
         </div>
-      </div>
     </div>
   )
 }

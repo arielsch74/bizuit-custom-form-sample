@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
+import { Quicksand } from "next/font/google";
 import "./globals.css";
 import { ReactGlobalExposer } from "@/components/ReactGlobalExposer";
 
+const quicksand = Quicksand({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-quicksand",
+});
+
 export const metadata: Metadata = {
-  title: "Bizuit Custom Forms - Runtime App",
-  description: "Runtime application for Bizuit Custom Forms with hot reload support",
+  title: "BIZUIT Custom Forms - Runtime App",
+  description: "Runtime application for BIZUIT Custom Forms with hot reload support",
 };
 
 export default function RootLayout({
@@ -13,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning className={quicksand.variable}>
       <head>
         {/* Expose React globally for dynamically loaded forms */}
         <script dangerouslySetInnerHTML={{
@@ -26,7 +33,7 @@ export default function RootLayout({
           `
         }} />
       </head>
-      <body className="antialiased">
+      <body className="antialiased theme-orange">
         <ReactGlobalExposer />
         {children}
       </body>

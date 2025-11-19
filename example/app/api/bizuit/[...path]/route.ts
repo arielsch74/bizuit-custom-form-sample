@@ -51,16 +51,29 @@ async function handleRequest(
 
     // Copy headers from the incoming request
     const headers: HeadersInit = {}
+    let authToken: string | null = null
+
     request.headers.forEach((value, key) => {
       // Skip host and connection headers
       if (!['host', 'connection', 'content-length'].includes(key.toLowerCase())) {
-        headers[key] = value
+        // Capture Authorization header but don't copy it yet
+        if (key.toLowerCase() === 'authorization') {
+          authToken = value.replace(/^Bearer\s+/i, '') // Remove "Bearer " prefix
+        } else {
+          headers[key] = value
+        }
       }
     })
 
+    // Transform Authorization: Bearer TOKEN to Authorization: Basic TOKEN
+    // (Bizuit API expects Basic authentication, not Bearer)
+    if (authToken) {
+      headers['Authorization'] = `Basic ${authToken}`
+    }
+
     console.log(`[Bizuit Proxy] Headers being sent:`, {
-      authorization: headers['authorization'] || 'NOT PRESENT',
-      authStartsWith: headers['authorization'] ? `Starts with: "${headers['authorization'].substring(0, 6)}"` : 'N/A',
+      authorization: headers['Authorization'] || 'NOT PRESENT',
+      authStartsWith: headers['Authorization'] ? `Starts with: "${headers['Authorization'].substring(0, 12)}"` : 'N/A',
       contentType: headers['content-type'],
       allHeaders: Object.keys(headers)
     })
