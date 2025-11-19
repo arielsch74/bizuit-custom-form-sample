@@ -1,21 +1,14 @@
 'use client'
 
 import Link from 'next/link'
-import { ThemeToggle } from '@/components/theme-toggle'
-import { LanguageToggle } from '@/components/language-toggle'
+import { SettingsToolbar } from '@/components/settings-toolbar'
 
 export default function HomePage() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 dark:from-slate-900 dark:to-slate-800">
-      {/* Settings Toolbar */}
-      <div className="fixed top-4 right-4 z-50 flex items-center gap-2 rounded-lg border bg-card p-2 shadow-lg">
-        <ThemeToggle />
-        <div className="h-6 w-px bg-border" />
-        <LanguageToggle />
-      </div>
-
+      <SettingsToolbar />
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
           {/* Header */}

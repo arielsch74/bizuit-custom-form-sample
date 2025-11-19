@@ -34,7 +34,7 @@ export default function RootLayout({
           `
         }} />
       </head>
-      <body className="antialiased theme-orange">
+      <body className="antialiased">
         <ReactGlobalExposer />
         <Providers>
           {children}
