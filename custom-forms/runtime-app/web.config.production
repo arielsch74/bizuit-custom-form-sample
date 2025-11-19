@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  IIS Reverse Proxy Configuration for BIZUIT Custom Forms Runtime
+
+  This web.config configures IIS as a reverse proxy to PM2-managed processes:
+  - Frontend (Next.js): http://localhost:3001
+  - Backend (FastAPI): http://localhost:8000
+
+  Prerequisites:
+  - URL Rewrite Module installed in IIS
+  - Application Request Routing (ARR) installed in IIS
+  - PM2 running both processes (see ecosystem.config.js)
+
+  Deployment:
+  - This file is copied as web.config during Azure DevOps deployment
+  - DO NOT commit web.config to repository (it's environment-specific)
+-->
+<configuration>
+  <system.webServer>
+
+    <!-- ===================================== -->
+    <!-- URL Rewrite Rules (Reverse Proxy)    -->
+    <!-- ===================================== -->
+    <rewrite>
+      <rules>
+
+        <!-- Rule 1: Proxy Backend API (FastAPI) -->
+        <rule name="Backend API (FastAPI)" stopProcessing="true">
+          <match url="^api/(.*)" />
+          <conditions logicalGrouping="MatchAll" trackAllCaptures="false">
+            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+          </conditions>
+          <action type="Rewrite" url="http://localhost:8000/api/{R:1}" />
+          <serverVariables>
+            <set name="HTTP_X_ORIGINAL_HOST" value="{HTTP_HOST}" />
+            <set name="HTTP_X_FORWARDED_FOR" value="{REMOTE_ADDR}" />
+            <set name="HTTP_X_FORWARDED_PROTO" value="https" />
+          </serverVariables>
+        </rule>
+
+        <!-- Rule 2: Proxy Frontend (Next.js) -->
+        <rule name="Frontend (Next.js)" stopProcessing="true">
+          <match url="(.*)" />
+          <conditions logicalGrouping="MatchAll" trackAllCaptures="false">
+            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+          </conditions>
+          <action type="Rewrite" url="http://localhost:3001/{R:1}" />
+          <serverVariables>
+            <set name="HTTP_X_ORIGINAL_HOST" value="{HTTP_HOST}" />
+            <set name="HTTP_X_FORWARDED_FOR" value="{REMOTE_ADDR}" />
+            <set name="HTTP_X_FORWARDED_PROTO" value="https" />
+          </serverVariables>
+        </rule>
+
+      </rules>
+    </rewrite>
+
+    <!-- ===================================== -->
+    <!-- Security Settings                     -->
+    <!-- ===================================== -->
+    <security>
+      <requestFiltering>
+        <!-- Allow all HTTP verbs (GET, POST, PUT, DELETE, PATCH, etc.) -->
+        <verbs allowUnlisted="true" />
+
+        <!-- Max upload size: 100 MB (for deployment packages) -->
+        <requestLimits maxAllowedContentLength="104857600" />
+
+        <!-- Hide sensitive directories -->
+        <hiddenSegments>
+          <add segment="logs" />
+          <add segment=".env.local" />
+          <add segment=".env.production" />
+        </hiddenSegments>
+      </requestFiltering>
+    </security>
+
+    <!-- ===================================== -->
+    <!-- HTTP Headers                          -->
+    <!-- ===================================== -->
+    <httpProtocol>
+      <customHeaders>
+        <!-- Remove default headers -->
+        <remove name="X-Powered-By" />
+
+        <!-- Add custom headers -->
+        <add name="X-Powered-By" value="BIZUIT Custom Forms" />
+
+        <!-- Security headers -->
+        <add name="X-Content-Type-Options" value="nosniff" />
+        <add name="X-Frame-Options" value="SAMEORIGIN" />
+        <add name="X-XSS-Protection" value="1; mode=block" />
+        <add name="Referrer-Policy" value="strict-origin-when-cross-origin" />
+      </customHeaders>
+    </httpProtocol>
+
+    <!-- ===================================== -->
+    <!-- Compression                           -->
+    <!-- ===================================== -->
+    <urlCompression
+      doStaticCompression="true"
+      doDynamicCompression="true"
+    />
+
+    <!-- ===================================== -->
+    <!-- Default Document                      -->
+    <!-- ===================================== -->
+    <defaultDocument>
+      <files>
+        <clear />
+        <add value="index.html" />
+      </files>
+    </defaultDocument>
+
+    <!-- ===================================== -->
+    <!-- Application Request Routing (ARR)     -->
+    <!-- ===================================== -->
+    <proxy>
+      <!-- Don't preserve host header (let backend see its own host) -->
+      <preserveHostHeader>false</preserveHostHeader>
+
+      <!-- Timeout for proxy requests: 10 minutes -->
+      <timeout value="00:10:00" />
+
+      <!-- Buffer threshold: 64 KB -->
+      <bufferSize>65536</bufferSize>
+    </proxy>
+
+    <!-- ===================================== -->
+    <!-- Error Pages                           -->
+    <!-- ===================================== -->
+    <httpErrors errorMode="DetailedLocalOnly" />
+
+  </system.webServer>
+</configuration>

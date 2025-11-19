@@ -168,13 +168,24 @@ npm run use:npm       # Use npm registry packages (for testing)
 
 ### Deployment
 
-**Azure DevOps Pipeline:**
-- Configured in `azure-pipelines.yml`
-- Triggers on commits to `main` branch affecting `custom-forms-showcase/` or `packages/`
-- Builds Next.js with standalone output
-- Deploys to IIS with IISNode configuration
+**Showcase App (IISNode):**
+- Pipeline: `azure-pipelines.yml`
+- Triggers on: `custom-forms-showcase/**` or `packages/**`
+- Deployment: IIS with IISNode (manages Node.js process)
 - Target: `E:\DevSites\BIZUITCustomForms`
 - Environment: `test.bizuit.com/BIZUITCustomForms`
+
+**Custom Forms (PM2 + IIS Reverse Proxy):**
+- Pipeline: `azure-pipelines-customforms.yml`
+- Triggers on: `custom-forms/**`
+- Deployment: PM2 for process management + IIS as reverse proxy
+- Architecture:
+  - Runtime (Next.js): PM2 on port 3001
+  - Backend (FastAPI): PM2 on port 8000
+  - IIS: Reverse proxy routing (/api/* → 8000, /* → 3001)
+- Target: `E:\BIZUITSites\arielsch\arielschBIZUITCustomForms` (runtime) and `E:\BIZUITSites\arielsch\arielschBIZUITCustomFormsBackEnd` (backend)
+- Environment: `test.bizuit.com/arielschBIZUITCustomForms`
+- Documentation: See `custom-forms/DEPLOYMENT.md` and `custom-forms/PM2_WINDOWS_SETUP.md`
 
 ## Key Implementation Details
 

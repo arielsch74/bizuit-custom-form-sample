@@ -706,6 +706,59 @@ def get_form_compiled_code(form_name: str, version: str = None):
         raise HTTPException(status_code=500, detail=f"Failed to fetch form code: {str(e)}")
 
 
+@app.get("/api/custom-forms/{form_name}/versions", tags=["Custom Forms"])
+def get_form_versions_api(form_name: str):
+    """
+    Get all versions for a specific form
+
+    Returns list of all versions with metadata (size, date, isCurrent, etc.)
+    """
+    from database import get_form_versions
+
+    try:
+        versions = get_form_versions(form_name)
+
+        if not versions:
+            raise HTTPException(status_code=404, detail=f"Form '{form_name}' not found or has no versions")
+
+        print(f"[Form Versions API] Returning {len(versions)} versions for '{form_name}'")
+        return versions
+    except ValueError as e:
+        # Invalid format
+        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"[Form Versions API] Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch form versions: {str(e)}")
+
+
+@app.post("/api/custom-forms/{form_name}/set-version", tags=["Custom Forms"])
+def set_form_version_api(form_name: str, version: str):
+    """
+    Set a specific version as the current/active version
+
+    Args:
+        form_name: Name of the form
+        version: Version to set as current (query parameter)
+
+    Returns:
+        Success message
+    """
+    from database import set_current_form_version
+
+    try:
+        result = set_current_form_version(form_name, version)
+        print(f"[Set Version API] Set '{form_name}' to version '{version}'")
+        return result
+    except ValueError as e:
+        # Invalid format or version not found
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        print(f"[Set Version API] Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to set form version: {str(e)}")
+
+
 # ==============================================================================
 # Security Functions for File Upload
 # ==============================================================================
@@ -969,7 +1022,8 @@ async def process_form(form_info, extract_dir: Path, manifest: DeploymentManifes
             size_bytes=len(compiled_code),
             package_version=manifest.packageVersion,
             commit_hash=manifest.commitHash,
-            build_date=manifest.buildDate  # Pass datetime object directly
+            build_date=manifest.buildDate,  # Pass datetime object directly
+            release_notes=form_info.releaseNotes or ""
         )
 
         result.success = db_result["success"]
@@ -990,10 +1044,46 @@ if __name__ == "__main__":
     import uvicorn
 
     port = int(os.getenv("API_PORT", "8000"))
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=port,
-        reload=True,
-        log_level="info"
+
+    # Detect production environment
+    is_production = (
+        os.getenv("NODE_ENV") == "production" or
+        os.getenv("PYTHON_ENV") == "production" or
+        os.getenv("ENVIRONMENT") == "production"
     )
+
+    # Production configuration
+    if is_production:
+        print("=" * 50)
+        print("Starting FastAPI in PRODUCTION mode")
+        print(f"Port: {port}")
+        print(f"Workers: 1 (PM2 managed)")
+        print(f"Reload: Disabled")
+        print("=" * 50)
+
+        uvicorn.run(
+            "main:app",
+            host="0.0.0.0",
+            port=port,
+            reload=False,  # NO reload in production
+            log_level="info",
+            access_log=True,
+            timeout_keep_alive=120,
+            limit_concurrency=1000,
+            limit_max_requests=10000  # Restart worker after 10K requests
+        )
+    else:
+        # Development configuration
+        print("=" * 50)
+        print("Starting FastAPI in DEVELOPMENT mode")
+        print(f"Port: {port}")
+        print(f"Reload: Enabled")
+        print("=" * 50)
+
+        uvicorn.run(
+            "main:app",
+            host="0.0.0.0",
+            port=port,
+            reload=True,
+            log_level="debug"
+        )
