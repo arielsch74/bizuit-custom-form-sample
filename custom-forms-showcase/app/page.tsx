@@ -67,7 +67,7 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-3 lg:text-left gap-4">
+        <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-2 lg:text-left gap-4">
           <Link
             href="/start-process"
             className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
@@ -95,24 +95,6 @@ export default function Home() {
             </h2>
             <p className="m-0 max-w-[30ch] text-sm opacity-50">
               {t('home.continueProcess.description')}
-            </p>
-          </Link>
-
-          <Link
-            href="/forms"
-            className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-green-300 hover:bg-green-50 hover:dark:border-green-700 hover:dark:bg-green-950/30 relative overflow-hidden"
-          >
-            <div className="absolute top-2 right-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium dark:bg-green-900 dark:text-green-100">
-              NEW
-            </div>
-            <h2 className="mb-3 text-2xl font-semibold">
-              Custom Forms{' '}
-              <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-                →
-              </span>
-            </h2>
-            <p className="m-0 max-w-[30ch] text-sm opacity-50">
-              Browse and load dynamic forms from any monorepo
             </p>
           </Link>
         </div>
