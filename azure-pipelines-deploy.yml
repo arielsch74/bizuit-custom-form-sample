@@ -269,6 +269,32 @@ stages:
                   inputs:
                     targetType: 'inline'
                     script: |
+                      Write-Host "Checking PM2 installation..." -ForegroundColor Cyan
+
+                      $pm2Path = (Get-Command pm2 -ErrorAction SilentlyContinue).Path
+
+                      if ($pm2Path) {
+                          Write-Host "✓ PM2 is already installed at: $pm2Path" -ForegroundColor Green
+                          pm2 --version
+                      } else {
+                          Write-Host "⚠️  PM2 not found. Installing globally..." -ForegroundColor Yellow
+                          npm install -g pm2
+
+                          # Verify installation
+                          $pm2Path = (Get-Command pm2 -ErrorAction SilentlyContinue).Path
+                          if ($pm2Path) {
+                              Write-Host "✓ PM2 installed successfully at: $pm2Path" -ForegroundColor Green
+                              pm2 --version
+                          } else {
+                              throw "Failed to install PM2"
+                          }
+                      }
+                  displayName: 'Ensure PM2 is Installed'
+
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    script: |
                       Write-Host "Stopping PM2 process: $(pm2RuntimeApp)"
                       pm2 stop $(pm2RuntimeApp) 2>&1 | Out-Null
                       Write-Host "✓ Process stopped (or was not running)"
@@ -405,6 +431,32 @@ stages:
                     artifactName: 'backend-drop'
                     downloadPath: '$(System.ArtifactsDirectory)'
                   displayName: 'Download Backend Artifacts'
+
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      Write-Host "Checking PM2 installation..." -ForegroundColor Cyan
+
+                      $pm2Path = (Get-Command pm2 -ErrorAction SilentlyContinue).Path
+
+                      if ($pm2Path) {
+                          Write-Host "✓ PM2 is already installed at: $pm2Path" -ForegroundColor Green
+                          pm2 --version
+                      } else {
+                          Write-Host "⚠️  PM2 not found. Installing globally..." -ForegroundColor Yellow
+                          npm install -g pm2
+
+                          # Verify installation
+                          $pm2Path = (Get-Command pm2 -ErrorAction SilentlyContinue).Path
+                          if ($pm2Path) {
+                              Write-Host "✓ PM2 installed successfully at: $pm2Path" -ForegroundColor Green
+                              pm2 --version
+                          } else {
+                              throw "Failed to install PM2"
+                          }
+                      }
+                  displayName: 'Ensure PM2 is Installed'
 
                 - task: PowerShell@2
                   inputs:
