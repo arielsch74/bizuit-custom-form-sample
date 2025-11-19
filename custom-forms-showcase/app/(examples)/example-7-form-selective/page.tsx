@@ -217,38 +217,38 @@ function Example7FormSelectiveContent() {
 
             {/* Casos de uso reales */}
             <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-              <h3 className="font-semibold mb-2">💼 Casos de Uso Reales</h3>
+              <h3 className="font-semibold mb-2">{t('example7.useCases.title')}</h3>
               <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-700 dark:text-gray-300">
                 <div>
-                  <p className="font-semibold mb-1">📝 Formulario de Gastos:</p>
+                  <p className="font-semibold mb-1">{t('example7.useCases.expenses')}</p>
                   <ul className="space-y-1 text-xs">
-                    <li>• Campo "Monto" (string) → parámetro "amount" (number)</li>
-                    <li>• Agregar automáticamente: requestedBy, requestedDate</li>
-                    <li>• Calcular: approvalRequired = amount &gt; 1000</li>
+                    <li>• {t('example7.useCases.expenses.item1')}</li>
+                    <li>• {t('example7.useCases.expenses.item2')}</li>
+                    <li>• {t('example7.useCases.expenses.item3')}</li>
                   </ul>
                 </div>
                 <div>
-                  <p className="font-semibold mb-1">👤 Registro de Usuario:</p>
+                  <p className="font-semibold mb-1">{t('example7.useCases.user')}</p>
                   <ul className="space-y-1 text-xs">
-                    <li>• Campo "email" → lowercase automático</li>
-                    <li>• Agregar: createdDate, registrationSource</li>
-                    <li>• Omitir: passwordConfirm (solo validación UI)</li>
+                    <li>• {t('example7.useCases.user.item1')}</li>
+                    <li>• {t('example7.useCases.user.item2')}</li>
+                    <li>• {t('example7.useCases.user.item3')}</li>
                   </ul>
                 </div>
                 <div>
-                  <p className="font-semibold mb-1">📅 Solicitud de Vacaciones:</p>
+                  <p className="font-semibold mb-1">{t('example7.useCases.vacation')}</p>
                   <ul className="space-y-1 text-xs">
-                    <li>• Campo "desde/hasta" → toISOString()</li>
-                    <li>• Calcular: totalDays = diferencia de fechas</li>
-                    <li>• Agregar: employeeId, managerId automático</li>
+                    <li>• {t('example7.useCases.vacation.item1')}</li>
+                    <li>• {t('example7.useCases.vacation.item2')}</li>
+                    <li>• {t('example7.useCases.vacation.item3')}</li>
                   </ul>
                 </div>
                 <div>
-                  <p className="font-semibold mb-1">🛒 Orden de Compra:</p>
+                  <p className="font-semibold mb-1">{t('example7.useCases.purchase')}</p>
                   <ul className="space-y-1 text-xs">
-                    <li>• Campo "cantidad" (string) → quantity (number)</li>
-                    <li>• Calcular: total = cantidad * precio</li>
-                    <li>• Agregar: orderDate, orderNumber generado</li>
+                    <li>• {t('example7.useCases.purchase.item1')}</li>
+                    <li>• {t('example7.useCases.purchase.item2')}</li>
+                    <li>• {t('example7.useCases.purchase.item3')}</li>
                   </ul>
                 </div>
               </div>
@@ -258,8 +258,8 @@ function Example7FormSelectiveContent() {
 
         {/* Código de ejemplo */}
         <BizuitCard
-          title="💻 Código - FormService con Field Mapping"
-          description="Mapeo selectivo + transformaciones + parámetros adicionales"
+          title={t('example7.code.title')}
+          description={t('example7.code.description')}
         >
           <div className="bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto">
             <pre className="text-sm"><code>{`// ✨ FORM SERVICE: Field Mapping + Transformations
@@ -313,13 +313,13 @@ const response = await sdk.forms.startProcess({
 
         {/* Comparación con ProcessService */}
         <BizuitCard
-          title="📊 Comparación: FormService vs ProcessService"
-          description="Mismo resultado, MUCHO menos código"
+          title={t('example7.comparison.title')}
+          description={t('example7.comparison.description')}
         >
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <h3 className="font-semibold mb-2 text-green-600 dark:text-green-400">
-                ✅ FormService (Este ejemplo)
+                {t('example7.comparison.formService')}
               </h3>
               <div className="bg-gray-900 text-gray-100 p-3 rounded-md text-xs">
                 <pre>{`// Declarativo y conciso
@@ -347,13 +347,13 @@ const response = await sdk.forms.startProcess({
 })`}</pre>
               </div>
               <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-                📏 ~20 líneas, declarativo
+                {t('example7.comparison.formService.lines')}
               </p>
             </div>
 
             <div>
               <h3 className="font-semibold mb-2 text-amber-600 dark:text-amber-400">
-                ⚙️ ProcessService (Ejemplo 1)
+                {t('example7.comparison.processService')}
               </h3>
               <div className="bg-gray-900 text-gray-100 p-3 rounded-md text-xs">
                 <pre>{`// Imperativo y verboso
@@ -381,7 +381,7 @@ const response = await sdk.process.start({
 }, undefined, token)`}</pre>
               </div>
               <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-                📏 ~35 líneas, imperativo, propenso a errores
+                {t('example7.comparison.processService.lines')}
               </p>
             </div>
           </div>
@@ -389,12 +389,12 @@ const response = await sdk.process.start({
 
         {/* Casos de uso avanzados */}
         <BizuitCard
-          title="🚀 Casos de Uso Avanzados"
-          description="Transformaciones personalizadas y lógica compleja"
+          title={t('example7.advanced.title')}
+          description={t('example7.advanced.description')}
         >
           <div className="space-y-4">
             <div className="bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto">
-              <h4 className="font-semibold mb-2 text-purple-400">1️⃣ Transformación de Fechas</h4>
+              <h4 className="font-semibold mb-2 text-purple-400">{t('example7.advanced.dates')}</h4>
               <pre className="text-xs"><code>{`fieldMapping: {
   startDate: {
     parameterName: 'startDate',
@@ -412,7 +412,7 @@ const response = await sdk.process.start({
             </div>
 
             <div className="bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto">
-              <h4 className="font-semibold mb-2 text-blue-400">2️⃣ Normalización de Texto</h4>
+              <h4 className="font-semibold mb-2 text-blue-400">{t('example7.advanced.text')}</h4>
               <pre className="text-xs"><code>{`fieldMapping: {
   email: {
     parameterName: 'email',
@@ -426,7 +426,7 @@ const response = await sdk.process.start({
             </div>
 
             <div className="bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto">
-              <h4 className="font-semibold mb-2 text-green-400">3️⃣ Cálculos Complejos</h4>
+              <h4 className="font-semibold mb-2 text-green-400">{t('example7.advanced.calculations')}</h4>
               <pre className="text-xs"><code>{`// En additionalParameters puedes hacer cálculos basados en formData
 additionalParameters: sdk.forms.createParameters({
   // Calcular total con IVA
@@ -444,7 +444,7 @@ additionalParameters: sdk.forms.createParameters({
             </div>
 
             <div className="bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto">
-              <h4 className="font-semibold mb-2 text-amber-400">4️⃣ Arrays y Objetos JSON</h4>
+              <h4 className="font-semibold mb-2 text-amber-400">{t('example7.advanced.arrays')}</h4>
               <pre className="text-xs"><code>{`fieldMapping: {
   // Convertir string separado por comas a array
   tags: {
