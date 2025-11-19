@@ -1197,7 +1197,7 @@ await sdk.process.start({
 
 export default function Example1DynamicPage() {
   return (
-    <RequireAuth returnUrl="/example-1-dynamic">
+    <RequireAuth returnUrl="/example-1-process-start">
       <Example1DynamicContent />
     </RequireAuth>
   )

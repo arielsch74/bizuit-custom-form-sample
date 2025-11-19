@@ -1186,7 +1186,7 @@ await sdk.process.start({
 
 export default function Example2ManualAllPage() {
   return (
-    <RequireAuth returnUrl="/example-2-manual-all">
+    <RequireAuth returnUrl="/example-2-process-get-instance">
       <Example2ManualAllContent />
     </RequireAuth>
   )

@@ -1262,7 +1262,7 @@ await sdk.process.start({
 
 export default function Example3ManualSelectivePage() {
   return (
-    <RequireAuth returnUrl="/example-3-manual-selective">
+    <RequireAuth returnUrl="/example-3-process-continue">
       <Example3ManualSelectiveContent />
     </RequireAuth>
   )
