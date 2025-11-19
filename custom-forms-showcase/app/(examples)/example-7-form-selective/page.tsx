@@ -511,17 +511,85 @@ const I18nProvider = ({ children }) => {
       title: 'Demo de Field Mapping',
       subtitle: '4 campos en el form → 10 parámetros al proceso',
       step1: 'Preparar Formulario',
+      step2Title: '2️⃣ Completar Formulario (4 campos)',
+      step2Note: 'ℹ️ Nota: Solo 4 campos en el formulario, pero se enviarán 10 parámetros al proceso',
+      description: 'Descripción del Gasto',
+      descriptionPlaceholder: 'Ej: Viaje a conferencia',
+      descriptionHint: '→ se enviará como "description"',
+      amount: 'Monto (en texto)',
+      amountPlaceholder: '1500.50',
+      amountHint: '✨ transformación → "amount" (number)',
+      category: 'Categoría',
+      categoryTravel: 'Viaje',
+      categoryFood: 'Comida',
+      categoryEquipment: 'Equipamiento',
+      categoryOther: 'Otro',
+      categoryHint: '→ se enviará como "category"',
+      urgent: '¿Es urgente?',
+      urgentHint: '→ se enviará como "urgent"',
+      additional: '🚀 Parámetros que se agregarán automáticamente (6 adicionales):',
+      calculated: 'calculado',
+      back: '← Volver',
       loading: 'Cargando parámetros...',
       submit: 'Iniciar Proceso',
-      success: 'Proceso Iniciado Exitosamente'
+      success: 'Proceso Iniciado Exitosamente',
+      successMagic: '✨ La Magia del Field Mapping',
+      fieldsInForm: 'Campos en formulario',
+      parametersSent: 'Parámetros enviados',
+      parametersSentTitle: '📦 Parámetros Enviados al Proceso:',
+      newProcess: '🔄 Iniciar Nuevo Proceso',
+      error: '❌ Error',
+      retry: 'Reintentar',
+      infoTitle: '🎯 Ventajas de Field Mapping',
+      infoItem1: 'Mapeo selectivo: Envía solo los campos necesarios',
+      infoItem2: 'Transformaciones: Convierte tipos automáticamente',
+      infoItem3: 'Nombres diferentes: UI "amountStr" → BPM "amount"',
+      infoItem4: 'Parámetros adicionales: Auditoría sin tocar el form',
+      infoItem5: 'Campos calculados: approvalRequired basado en amount',
+      comparisonTitle: '📊 Field Mapping Comparison',
+      comparisonDesc: '✨ Con Field Mapping: Código más limpio, transformaciones automáticas y parámetros adicionales sin esfuerzo'
     },
     en: {
       title: 'Field Mapping Demo',
       subtitle: '4 fields in form → 10 parameters to process',
       step1: 'Prepare Form',
+      step2Title: '2️⃣ Complete Form (4 fields)',
+      step2Note: 'ℹ️ Note: Only 4 fields in the form, but 10 parameters will be sent to the process',
+      description: 'Expense Description',
+      descriptionPlaceholder: 'E.g.: Travel to conference',
+      descriptionHint: '→ will be sent as "description"',
+      amount: 'Amount (text)',
+      amountPlaceholder: '1500.50',
+      amountHint: '✨ transformation → "amount" (number)',
+      category: 'Category',
+      categoryTravel: 'Travel',
+      categoryFood: 'Food',
+      categoryEquipment: 'Equipment',
+      categoryOther: 'Other',
+      categoryHint: '→ will be sent as "category"',
+      urgent: 'Is it urgent?',
+      urgentHint: '→ will be sent as "urgent"',
+      additional: '🚀 Parameters that will be added automatically (6 additional):',
+      calculated: 'calculated',
+      back: '← Back',
       loading: 'Loading parameters...',
       submit: 'Start Process',
-      success: 'Process Started Successfully'
+      success: 'Process Started Successfully',
+      successMagic: '✨ The Magic of Field Mapping',
+      fieldsInForm: 'Fields in form',
+      parametersSent: 'Parameters sent',
+      parametersSentTitle: '📦 Parameters Sent to Process:',
+      newProcess: '🔄 Start New Process',
+      error: '❌ Error',
+      retry: 'Retry',
+      infoTitle: '🎯 Field Mapping Advantages',
+      infoItem1: 'Selective mapping: Send only necessary fields',
+      infoItem2: 'Transformations: Convert types automatically',
+      infoItem3: 'Different names: UI "amountStr" → BPM "amount"',
+      infoItem4: 'Additional parameters: Audit without touching the form',
+      infoItem5: 'Calculated fields: approvalRequired based on amount',
+      comparisonTitle: '📊 Field Mapping Comparison',
+      comparisonDesc: '✨ With Field Mapping: Cleaner code, automatic transformations and effortless additional parameters'
     }
   };
 
@@ -817,57 +885,57 @@ function FieldMappingDemo() {
       {/* PASO 2: Completar Formulario */}
       {step === 'ready' && (
         <div className="card">
-          <h2>2️⃣ Completar Formulario (4 campos)</h2>
+          <h2>{t('step2Title')}</h2>
           <p className="info">
-            ℹ️ Nota: Solo 4 campos en el formulario, pero se enviarán 10 parámetros al proceso
+            {t('step2Note')}
           </p>
 
           <div className="form-grid">
             <div className="form-field">
               <label>
-                Descripción del Gasto
+                {t('description')}
                 <span className="required">*</span>
               </label>
               <input
                 type="text"
                 value={formData.description || ''}
                 onChange={(e) => handleFieldChange('description', e.target.value)}
-                placeholder="Ej: Viaje a conferencia"
+                placeholder={t('descriptionPlaceholder')}
               />
-              <span className="field-hint">→ se enviará como "description"</span>
+              <span className="field-hint">{t('descriptionHint')}</span>
             </div>
 
             <div className="form-field">
               <label>
-                Monto (en texto)
+                {t('amount')}
                 <span className="required">*</span>
               </label>
               <input
                 type="text"
                 value={formData.amountStr || ''}
                 onChange={(e) => handleFieldChange('amountStr', e.target.value)}
-                placeholder="1500.50"
+                placeholder={t('amountPlaceholder')}
               />
               <span className="field-hint transform">
-                ✨ transformación → "amount" (number)
+                {t('amountHint')}
               </span>
             </div>
 
             <div className="form-field">
               <label>
-                Categoría
+                {t('category')}
                 <span className="required">*</span>
               </label>
               <select
                 value={formData.category || 'Travel'}
                 onChange={(e) => handleFieldChange('category', e.target.value)}
               >
-                <option value="Travel">Viaje</option>
-                <option value="Food">Comida</option>
-                <option value="Equipment">Equipamiento</option>
-                <option value="Other">Otro</option>
+                <option value="Travel">{t('categoryTravel')}</option>
+                <option value="Food">{t('categoryFood')}</option>
+                <option value="Equipment">{t('categoryEquipment')}</option>
+                <option value="Other">{t('categoryOther')}</option>
               </select>
-              <span className="field-hint">→ se enviará como "category"</span>
+              <span className="field-hint">{t('categoryHint')}</span>
             </div>
 
             <div className="form-field">
@@ -877,15 +945,15 @@ function FieldMappingDemo() {
                   checked={formData.urgent || false}
                   onChange={(e) => handleFieldChange('urgent', e.target.checked)}
                 />
-                ¿Es urgente?
+                {t('urgent')}
               </label>
-              <span className="field-hint">→ se enviará como "urgent"</span>
+              <span className="field-hint">{t('urgentHint')}</span>
             </div>
           </div>
 
           {/* Preview de parámetros adicionales */}
           <div className="additional-params-preview">
-            <h3>🚀 Parámetros que se agregarán automáticamente (6 adicionales):</h3>
+            <h3>{t('additional')}</h3>
             <div className="params-grid">
               <div className="param-item">
                 <span className="param-name">requestedBy</span>
@@ -904,7 +972,7 @@ function FieldMappingDemo() {
                 <span className="param-value">
                   {parseFloat(formData.amountStr || '0') > 1000 ? 'true' : 'false'}
                 </span>
-                <span className="calculated-badge">calculado</span>
+                <span className="calculated-badge">{t('calculated')}</span>
               </div>
               <div className="param-item">
                 <span className="param-name">source</span>
@@ -919,7 +987,7 @@ function FieldMappingDemo() {
 
           <div className="button-group">
             <button onClick={reset} className="btn-secondary">
-              ← Volver
+              {t('back')}
             </button>
             <button onClick={handleSubmit} className="btn-primary">
               {t('submit')}
@@ -941,16 +1009,16 @@ function FieldMappingDemo() {
           <h2>✅ {t('success')}</h2>
 
           <div className="magic-banner">
-            <h3>✨ La Magia del Field Mapping</h3>
+            <h3>{t('successMagic')}</h3>
             <div className="magic-stats">
               <div className="stat">
                 <div className="stat-number">{result.formFieldsCount}</div>
-                <div className="stat-label">Campos en formulario</div>
+                <div className="stat-label">{t('fieldsInForm')}</div>
               </div>
               <div className="stat-arrow">→</div>
               <div className="stat highlight">
                 <div className="stat-number">{result.totalParametersSent}</div>
-                <div className="stat-label">Parámetros enviados</div>
+                <div className="stat-label">{t('parametersSent')}</div>
               </div>
             </div>
           </div>
@@ -967,7 +1035,7 @@ function FieldMappingDemo() {
           </div>
 
           <div className="parameters-sent">
-            <h3>📦 Parámetros Enviados al Proceso:</h3>
+            <h3>{t('parametersSentTitle')}</h3>
             <div className="params-table">
               {Object.entries(result.parameters).map(([key, value]) => (
                 <div key={key} className="param-row">
@@ -983,37 +1051,37 @@ function FieldMappingDemo() {
           </div>
 
           <button onClick={reset} className="btn-primary">
-            🔄 Iniciar Nuevo Proceso
+            {t('newProcess')}
           </button>
         </div>
       )}
 
       {error && (
         <div className="card error">
-          <h3>❌ Error</h3>
+          <h3>{t('error')}</h3>
           <p>{error}</p>
           <button onClick={reset} className="btn-secondary">
-            Reintentar
+            {t('retry')}
           </button>
         </div>
       )}
 
       {/* Info Cards */}
       <div className="card info-card">
-        <h3>🎯 Ventajas de Field Mapping</h3>
+        <h3>{t('infoTitle')}</h3>
         <ul>
-          <li>✅ <strong>Mapeo selectivo:</strong> Envía solo los campos necesarios</li>
-          <li>✅ <strong>Transformaciones:</strong> Convierte tipos automáticamente</li>
-          <li>✅ <strong>Nombres diferentes:</strong> UI "amountStr" → BPM "amount"</li>
-          <li>✅ <strong>Parámetros adicionales:</strong> Auditoría sin tocar el form</li>
-          <li>✅ <strong>Campos calculados:</strong> approvalRequired basado en amount</li>
+          <li>✅ <strong>{t('infoItem1')}</strong></li>
+          <li>✅ <strong>{t('infoItem2')}</strong></li>
+          <li>✅ <strong>{t('infoItem3')}</strong></li>
+          <li>✅ <strong>{t('infoItem4')}</strong></li>
+          <li>✅ <strong>{t('infoItem5')}</strong></li>
         </ul>
       </div>
 
       <div className="card comparison-card">
-        <h3>📊 Field Mapping Comparison</h3>
+        <h3>{t('comparisonTitle')}</h3>
         <p className="info">
-          ✨ Con Field Mapping: Código más limpio, transformaciones automáticas y parámetros adicionales sin esfuerzo
+          {t('comparisonDesc')}
         </p>
       </div>
     </div>
