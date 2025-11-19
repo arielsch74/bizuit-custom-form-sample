@@ -15,6 +15,10 @@ on:
         description: 'Package version (e.g., 1.0.0)'
         required: true
         default: '1.0.0'
+      release_notes:
+        description: 'Release notes (optional, will use commit message if empty)'
+        required: false
+        type: string
 
 jobs:
   build-deployment-package:
@@ -110,6 +114,46 @@ jobs:
             fi
           done
 
+      - name: Extract release notes
+        id: release_notes
+        run: |
+          echo "📝 Extracting release notes..."
+
+          # Prioridad 1: Input manual (workflow_dispatch)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.release_notes }}" ]; then
+            RELEASE_NOTES="${{ github.event.inputs.release_notes }}"
+            echo "ℹ️  Using manual release notes from workflow input"
+          else
+            # Prioridad 2: Mensaje del commit
+            COMMIT_MESSAGE=$(git log -1 --pretty=format:"%B")
+
+            # Si el mensaje del commit tiene formato especial (conventional commits), extraerlo
+            # Formato esperado: "feat: descripción\n\n- cambio 1\n- cambio 2"
+            if echo "$COMMIT_MESSAGE" | grep -q "^feat:\|^fix:\|^chore:\|^docs:\|^refactor:\|^perf:\|^test:"; then
+              # Extraer todo después del título (primera línea)
+              RELEASE_NOTES=$(echo "$COMMIT_MESSAGE" | tail -n +2 | sed '/^$/d')
+
+              if [ -z "$RELEASE_NOTES" ]; then
+                # Si no hay cuerpo, usar solo el título
+                RELEASE_NOTES=$(echo "$COMMIT_MESSAGE" | head -n 1)
+              fi
+            else
+              # Usar el mensaje del commit completo
+              RELEASE_NOTES="$COMMIT_MESSAGE"
+            fi
+
+            # Si está vacío, usar mensaje por defecto
+            if [ -z "$RELEASE_NOTES" ]; then
+              RELEASE_NOTES="Version ${{ steps.version.outputs.version }} - Build automático"
+            fi
+          fi
+
+          # Guardar en archivo temporal
+          echo "$RELEASE_NOTES" > /tmp/release_notes.txt
+
+          echo "✅ Release notes extracted:"
+          echo "$RELEASE_NOTES"
+
       - name: Generate manifest.json
         id: manifest
         run: |
@@ -123,6 +167,9 @@ jobs:
             "commitHash": "${{ steps.version.outputs.commit_hash }}",
             "forms": [
           EOF
+
+          # Leer release notes del archivo temporal
+          RELEASE_NOTES=$(cat /tmp/release_notes.txt)
 
           # Agregar SOLO los forms compilados al manifest
           FORMS_TO_MANIFEST="${{ steps.changed_forms.outputs.changed_forms }}"
@@ -140,13 +187,16 @@ jobs:
 
               size=$(wc -c < "$form_name/dist/form.js")
 
+              # Escapar release notes para JSON (convertir a JSON string)
+              release_notes_json=$(echo "$RELEASE_NOTES" | jq -Rs .)
+
               # Agregar coma si no es el primero
               if [ "$first" = false ]; then
                 echo "," >> manifest.json
               fi
               first=false
 
-              # Agregar form al manifest
+              # Agregar form al manifest con releaseNotes
               cat >> manifest.json << FORM_EOF
               {
                 "formName": "$form_name",
@@ -155,7 +205,8 @@ jobs:
                 "author": "$author",
                 "description": "$description",
                 "sizeBytes": $size,
-                "path": "forms/$form_name/form.js"
+                "path": "forms/$form_name/form.js",
+                "releaseNotes": $release_notes_json
               }
           FORM_EOF
             fi
