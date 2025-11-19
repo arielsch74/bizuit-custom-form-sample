@@ -576,7 +576,65 @@ function LockManagementDemo() {
   return (
     <div className="app-container">
       <div className="card">
-        <h1>🔒 Lock Management Demo</h1>
+        {/* Theme and Language Controls */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <button
+            type="button"
+            onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+            style={{
+              padding: '6px 12px',
+              background: isDark ? '#374151' : '#f3f4f6',
+              color: isDark ? '#f9fafb' : '#111827',
+              border: \\\`1px solid \\\${isDark ? '#4b5563' : '#d1d5db'}\\\`,
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            {language === 'es' ? '🇬🇧 EN' : '🇪🇸 ES'}
+          </button>
+
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {['light', 'dark', 'system'].map(themeMode => (
+                <button
+                  key={themeMode}
+                  type="button"
+                  onClick={() => setMode(themeMode)}
+                  style={{
+                    padding: '6px 12px',
+                    background: mode === themeMode ? primaryColor : (isDark ? '#374151' : '#f3f4f6'),
+                    color: mode === themeMode ? 'white' : (isDark ? '#f9fafb' : '#111827'),
+                    border: \\\`1px solid \\\${mode === themeMode ? primaryColor : (isDark ? '#4b5563' : '#d1d5db')}\\\`,
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '500'
+                  }}
+                >
+                  {themeMode === 'light' ? '☀️' : themeMode === 'dark' ? '🌙' : '💻'}
+                </button>
+              ))}
+            </div>
+
+            <input
+              type="color"
+              value={primaryColor}
+              onChange={(e) => setPrimaryColor(e.target.value)}
+              style={{
+                width: '32px',
+                height: '32px',
+                border: \\\`2px solid \\\${isDark ? '#4b5563' : '#d1d5db'}\\\`,
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+              title="Primary Color"
+            />
+          </div>
+        </div>
+
+        <h1>🔒 {t('title')}</h1>
         <p className="subtitle">Edición segura de instancias con locks automáticos</p>
       </div>
 

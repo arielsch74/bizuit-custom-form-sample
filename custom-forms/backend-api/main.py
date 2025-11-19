@@ -10,6 +10,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer
 from fastapi.openapi.utils import get_openapi
 from dotenv import load_dotenv
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from models import (
     UploadDeploymentResponse,
@@ -139,6 +142,14 @@ app.add_middleware(
 # Authentication middleware
 app.add_middleware(AuthMiddleware)
 
+# ==============================================================================
+# Rate Limiting Configuration
+# ==============================================================================
+# SECURITY: Configure rate limiting to prevent brute force and DoS attacks
+limiter = Limiter(key_func=get_remote_address, default_limits=["200/hour"])
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 # Security scheme for Swagger UI
 security = HTTPBearer()
 
@@ -216,7 +227,8 @@ def health_check():
 # ==============================================================================
 
 @app.post("/api/auth/login", response_model=AdminLoginResponse, tags=["Authentication"])
-async def admin_login(credentials: AdminLoginRequest):
+@limiter.limit("5/minute")  # SECURITY: 5 login attempts per minute per IP
+async def admin_login(request: Request, credentials: AdminLoginRequest):
     """
     Administrator login
 
@@ -379,7 +391,8 @@ async def refresh_session(request: ValidateSessionRequest):
 # ==============================================================================
 
 @app.post("/api/forms/validate-token", response_model=ValidateFormTokenResponse, tags=["Form Tokens"])
-async def validate_form_token(request: ValidateFormTokenRequest):
+@limiter.limit("30/minute")  # SECURITY: 30 token validations per minute per IP
+async def validate_form_token(http_request: Request, request: ValidateFormTokenRequest):
     """
     Validate security token for form access
 
@@ -507,7 +520,8 @@ def validate_dashboard_params(request: ValidateDashboardTokenRequest):
 
 
 @app.post("/api/dashboard/validate-token", response_model=ValidateDashboardTokenResponse, tags=["Form Tokens"])
-async def validate_dashboard_token_endpoint(request: ValidateDashboardTokenRequest):
+@limiter.limit("20/minute")  # SECURITY: 20 dashboard token validations per minute per IP
+async def validate_dashboard_token_endpoint(http_request: Request, request: ValidateDashboardTokenRequest):
     """
     Validate encrypted token from Bizuit Dashboard and return all parameters for the form
 
@@ -706,7 +720,7 @@ def safe_extract(zip_file: zipfile.ZipFile, extract_dir: Path) -> List[str]:
     SECURITY: Extrae ZIP validando que no hay path traversal (Zip Slip)
 
     Validates:
-    - No path traversal attempts (../, ..\)
+    - No path traversal attempts (../, ..\\)
     - File count limit (max MAX_ZIP_FILES files)
     - Total size limit (max MAX_ZIP_SIZE_MB MB)
     - Allowed file extensions only

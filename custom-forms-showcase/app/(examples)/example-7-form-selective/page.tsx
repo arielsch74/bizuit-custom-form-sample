@@ -1059,74 +1059,10 @@ function FieldMappingDemo() {
       </div>
 
       <div className="card comparison-card">
-        <h3>📊 Sin Field Mapping vs Con Field Mapping</h3>
-        <div className="comparison-grid">
-          <div className="comparison-side">
-            <h4>❌ Sin Field Mapping</h4>
-            <pre className="code-block">{\\`// Construcción manual
-const params = [
-  { name: 'description',
-    value: formData.description },
-  { name: 'amount',
-    value: parseFloat(formData.amountStr) },
-  { name: 'category',
-    value: formData.category },
-  { name: 'urgent',
-    value: formData.urgent },
-  { name: 'requestedBy',
-    value: user.username },
-  { name: 'requestedDate',
-    value: new Date().toISOString() },
-  { name: 'status',
-    value: 'Pending' },
-  { name: 'approvalRequired',
-    value: parseFloat(formData.amountStr) > 1000 },
-  { name: 'source',
-    value: 'CustomFormsShowcase' },
-  { name: 'version',
-    value: '2.0.0' }
-]
-
-await sdk.process.start({
-  processName,
-  parameters: params
-}, token)\\`}</pre>
-            <p className="code-note">~25 líneas, propenso a errores</p>
-          </div>
-
-          <div className="comparison-side">
-            <h4>✅ Con Field Mapping</h4>
-            <pre className="code-block">{\\`// Declarativo y conciso
-await sdk.forms.startProcess({
-  processName,
-  formData,
-
-  fieldMapping: {
-    description: 'description',
-    category: 'category',
-    urgent: 'urgent',
-    amountStr: {
-      parameterName: 'amount',
-      transform: parseFloat
-    }
-  },
-
-  additionalParameters:
-    sdk.forms.createParameters({
-      requestedBy: user.username,
-      requestedDate: new Date().toISOString(),
-      status: 'Pending',
-      approvalRequired:
-        parseFloat(formData.amountStr) > 1000,
-      source: 'CustomFormsShowcase',
-      version: '2.0.0'
-    }),
-
-  token
-})\\`}</pre>
-            <p className="code-note">~15 líneas, más legible</p>
-          </div>
-        </div>
+        <h3>📊 Field Mapping Comparison</h3>
+        <p className="info">
+          ✨ Con Field Mapping: Código más limpio, transformaciones automáticas y parámetros adicionales sin esfuerzo
+        </p>
       </div>
     </div>
   );
