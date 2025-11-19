@@ -240,42 +240,44 @@ stages:
                         Write-Host "✓ Created backend directory: $backendDir" -ForegroundColor Green
                     }
 
-                    # Create .env.local with production configuration
-                    @"
-# SQL Server Connection - Dashboard Database
-DB_SERVER=test.bizuit.com
-DB_DATABASE=arielschBIZUITDashboard
-DB_USER=BIZUITarielsch
-DB_PASSWORD=Th3Qu33n1sD34d`$
+                    # Create .env.local with production configuration (use array to avoid YAML heredoc issues)
+                    $envLines = @(
+                      "# SQL Server Connection - Dashboard Database",
+                      "DB_SERVER=test.bizuit.com",
+                      "DB_DATABASE=arielschBIZUITDashboard",
+                      "DB_USER=BIZUITarielsch",
+                      "DB_PASSWORD=Th3Qu33n1sD34d$",
+                      "",
+                      "# SQL Server Connection - Persistence Store Database",
+                      "PERSISTENCE_DB_SERVER=test.bizuit.com",
+                      "PERSISTENCE_DB_DATABASE=arielschBizuitPersistenceStore",
+                      "PERSISTENCE_DB_USER=BIZUITarielsch",
+                      "PERSISTENCE_DB_PASSWORD=Th3Qu33n1sD34d$",
+                      "",
+                      "# Bizuit Dashboard API",
+                      "BIZUIT_API_BASE_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api",
+                      "BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api",
+                      "",
+                      "# Security Configuration",
+                      "ADMIN_ALLOWED_ROLES=Administrators,BIZUIT Admins,SuperAdmin,FormManager",
+                      "SESSION_TIMEOUT_MINUTES=30",
+                      "JWT_SECRET_KEY=prod-$(New-Guid)-$((Get-Date).ToString('yyyyMMddHHmmss'))",
+                      "ENCRYPTION_TOKEN_KEY=Vq2ixrmV6oUGhQfIPWiCBk0S",
+                      "",
+                      "# API Configuration",
+                      "API_PORT=8000",
+                      "MAX_UPLOAD_SIZE_MB=50",
+                      "TEMP_UPLOAD_PATH=./temp-uploads",
+                      "",
+                      "# CORS Configuration",
+                      "CORS_ORIGINS=https://test.bizuit.com,http://localhost:3001,http://localhost:3000",
+                      "",
+                      "# Python Environment",
+                      "PYTHONUNBUFFERED=1",
+                      "ENVIRONMENT=production"
+                    )
 
-# SQL Server Connection - Persistence Store Database
-PERSISTENCE_DB_SERVER=test.bizuit.com
-PERSISTENCE_DB_DATABASE=arielschBizuitPersistenceStore
-PERSISTENCE_DB_USER=BIZUITarielsch
-PERSISTENCE_DB_PASSWORD=Th3Qu33n1sD34d`$
-
-# Bizuit Dashboard API
-BIZUIT_API_BASE_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api
-BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api
-
-# Security Configuration
-ADMIN_ALLOWED_ROLES=Administrators,BIZUIT Admins,SuperAdmin,FormManager
-SESSION_TIMEOUT_MINUTES=30
-JWT_SECRET_KEY=prod-$(New-Guid)-$(Get-Date -Format yyyyMMddHHmmss)
-ENCRYPTION_TOKEN_KEY=Vq2ixrmV6oUGhQfIPWiCBk0S
-
-# API Configuration
-API_PORT=8000
-MAX_UPLOAD_SIZE_MB=50
-TEMP_UPLOAD_PATH=./temp-uploads
-
-# CORS Configuration
-CORS_ORIGINS=https://test.bizuit.com,http://localhost:3001,http://localhost:3000
-
-# Python Environment
-PYTHONUNBUFFERED=1
-ENVIRONMENT=production
-"@ | Out-File -FilePath $envPath -Encoding utf8
+                    $envLines | Out-File -FilePath $envPath -Encoding utf8
 
                     Write-Host "✓ Created $envPath" -ForegroundColor Green
                     Write-Host ""
