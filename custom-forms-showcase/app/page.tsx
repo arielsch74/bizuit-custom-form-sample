@@ -100,89 +100,235 @@ export default function Home() {
         </div>
 
         <div className="mt-16">
-          <h3 className="text-xl font-semibold mb-4 text-center">📚 {t('home.examples.title')}</h3>
-          <p className="text-sm opacity-50 mb-6 text-center">
-            {t('home.examples.description')}
+          <h3 className="text-2xl font-bold mb-2 text-center">📚 SDK Examples</h3>
+          <p className="text-sm opacity-50 mb-8 text-center max-w-3xl mx-auto">
+            El SDK de Bizuit ofrece DOS APIs para diferentes necesidades: <strong>ProcessService</strong> (bajo nivel, control total)
+            y <strong>FormService</strong> (alto nivel, workflows simplificados).
           </p>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-            <Link
-              href="/example-1-dynamic"
-              className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:dark:border-blue-700 hover:dark:bg-blue-900/20"
-            >
-              <h4 className="mb-2 text-lg font-semibold">
-                {t('home.example1.title')}{' '}
-                <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-                  →
-                </span>
-              </h4>
-              <p className="text-sm opacity-70">
-                {t('home.example1.description')}
-              </p>
-              <p className="text-xs mt-2 text-blue-600 dark:text-blue-400">
-                {t('home.example1.uses')}
-              </p>
-            </Link>
-
-            <Link
-              href="/example-2-manual-all"
-              className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-amber-300 hover:bg-amber-50 hover:dark:border-amber-700 hover:dark:bg-amber-900/20"
-            >
-              <h4 className="mb-2 text-lg font-semibold">
-                {t('home.example2.title')}{' '}
-                <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-                  →
-                </span>
-              </h4>
-              <p className="text-sm opacity-70">
-                {t('home.example2.description')}
-              </p>
-              <p className="text-xs mt-2 text-amber-600 dark:text-amber-400">
-                {t('home.example2.uses')}
-              </p>
-            </Link>
-
-            <Link
-              href="/example-3-manual-selective"
-              className="group rounded-lg border border-green-500 px-5 py-4 transition-colors hover:border-green-400 hover:bg-green-50 hover:dark:border-green-600 hover:dark:bg-green-900/20 relative"
-            >
-              <div className="absolute top-2 right-2 text-xs bg-green-600 text-white px-2 py-0.5 rounded-full">
-                {t('home.example3.badge')} ⭐
+          {/* Comparison Card */}
+          <div className="mb-8 max-w-4xl mx-auto">
+            <div className="bg-gradient-to-r from-amber-50 to-green-50 dark:from-amber-950/20 dark:to-green-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-6">
+              <h4 className="font-bold text-lg mb-4 text-center">🤔 ¿Cuál API usar?</h4>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-amber-300 dark:border-amber-700">
+                  <h5 className="font-semibold text-amber-600 dark:text-amber-400 mb-2 flex items-center gap-2">
+                    ⚙️ ProcessService (Bajo Nivel)
+                  </h5>
+                  <p className="text-xs mb-3 text-gray-600 dark:text-gray-400">
+                    Control total sobre cada paso del proceso. Ideal para casos complejos o no estándar.
+                  </p>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex items-start gap-2">
+                      <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                      <span>Máximo control y flexibilidad</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                      <span>Integraciones personalizadas</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                      <span>Lógica de negocio compleja</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-amber-600 dark:text-amber-400 mt-0.5">⚠</span>
+                      <span>Más código boilerplate</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-green-300 dark:border-green-700">
+                  <h5 className="font-semibold text-green-600 dark:text-green-400 mb-2 flex items-center gap-2">
+                    ✨ FormService (Alto Nivel)
+                  </h5>
+                  <p className="text-xs mb-3 text-gray-600 dark:text-gray-400">
+                    API simplificada con helpers para casos comunes. Menos código, workflows optimizados.
+                  </p>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex items-start gap-2">
+                      <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                      <span>Menos código, más productivo</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                      <span>Field mapping y transformaciones</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                      <span>Lock management automático</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-green-600 dark:text-green-400 mt-0.5">✓</span>
+                      <span>Perfecto para formularios CRUD</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h4 className="mb-2 text-lg font-semibold">
-                {t('home.example3.title')}{' '}
-                <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-                  →
-                </span>
-              </h4>
-              <p className="text-sm opacity-70">
-                {t('home.example3.description')}
-              </p>
-              <p className="text-xs mt-2 text-green-600 dark:text-green-400">
-                {t('home.example3.uses')} 🎯
-              </p>
-            </Link>
+            </div>
+          </div>
 
-            <Link
-              href="/example-4-server-side"
-              className="group rounded-lg border border-purple-500 px-5 py-4 transition-colors hover:border-purple-400 hover:bg-purple-50 hover:dark:border-purple-600 hover:dark:bg-purple-900/20 relative"
-            >
-              <div className="absolute top-2 right-2 text-xs bg-purple-600 text-white px-2 py-0.5 rounded-full">
-                SERVER
-              </div>
-              <h4 className="mb-2 text-lg font-semibold">
-                Server-Side SDK{' '}
-                <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-                  →
-                </span>
+          {/* SECTION 1: ProcessService (Low-Level API) */}
+          <div className="mb-12">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-grow h-px bg-amber-300 dark:bg-amber-700"></div>
+              <h4 className="text-xl font-bold text-amber-600 dark:text-amber-400">
+                ⚙️ ProcessService - API de Bajo Nivel
               </h4>
-              <p className="text-sm opacity-70">
-                Use SDK from server with Next.js Server Actions
-              </p>
-              <p className="text-xs mt-2 text-purple-600 dark:text-purple-400">
-                start(), getInstance(), continue() 🔐
-              </p>
-            </Link>
+              <div className="flex-grow h-px bg-amber-300 dark:bg-amber-700"></div>
+            </div>
+            <p className="text-sm text-center mb-6 text-gray-600 dark:text-gray-400">
+              Control manual sobre cada paso. Usa cuando necesitas flexibilidad total o lógica personalizada.
+            </p>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Link
+                href="/example-1-process-start"
+                className="group rounded-lg border border-amber-200 dark:border-amber-800 px-5 py-4 transition-colors hover:border-amber-400 hover:bg-amber-50 hover:dark:border-amber-600 hover:dark:bg-amber-900/20"
+              >
+                <h4 className="mb-2 text-lg font-semibold">
+                  Process Start{' '}
+                  <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+                    →
+                  </span>
+                </h4>
+                <p className="text-sm opacity-70">
+                  Start process with all fields manually
+                </p>
+                <p className="text-xs mt-2 text-amber-600 dark:text-amber-400">
+                  getParameters(), start()
+                </p>
+              </Link>
+
+              <Link
+                href="/example-2-process-get-instance"
+                className="group rounded-lg border border-amber-200 dark:border-amber-800 px-5 py-4 transition-colors hover:border-amber-400 hover:bg-amber-50 hover:dark:border-amber-600 hover:dark:bg-amber-900/20"
+              >
+                <h4 className="mb-2 text-lg font-semibold">
+                  Get Instance{' '}
+                  <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+                    →
+                  </span>
+                </h4>
+                <p className="text-sm opacity-70">
+                  Load instance data and variables manually
+                </p>
+                <p className="text-xs mt-2 text-amber-600 dark:text-amber-400">
+                  getInstance()
+                </p>
+              </Link>
+
+              <Link
+                href="/example-3-process-continue"
+                className="group rounded-lg border border-amber-200 dark:border-amber-800 px-5 py-4 transition-colors hover:border-amber-400 hover:bg-amber-50 hover:dark:border-amber-600 hover:dark:bg-amber-900/20"
+              >
+                <h4 className="mb-2 text-lg font-semibold">
+                  Process Continue{' '}
+                  <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+                    →
+                  </span>
+                </h4>
+                <p className="text-sm opacity-70">
+                  Continue process with lock management
+                </p>
+                <p className="text-xs mt-2 text-amber-600 dark:text-amber-400">
+                  continue(), acquireLock()
+                </p>
+              </Link>
+
+              <Link
+                href="/example-4-server-side"
+                className="group rounded-lg border border-purple-500 px-5 py-4 transition-colors hover:border-purple-400 hover:bg-purple-50 hover:dark:border-purple-600 hover:dark:bg-purple-900/20 relative"
+              >
+                <div className="absolute top-2 right-2 text-xs bg-purple-600 text-white px-2 py-0.5 rounded-full">
+                  SERVER
+                </div>
+                <h4 className="mb-2 text-lg font-semibold">
+                  Server-Side SDK{' '}
+                  <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+                    →
+                  </span>
+                </h4>
+                <p className="text-sm opacity-70">
+                  Use SDK from server with Next.js Server Actions
+                </p>
+                <p className="text-xs mt-2 text-purple-600 dark:text-purple-400">
+                  /core entry point 🔐
+                </p>
+              </Link>
+            </div>
+          </div>
+
+          {/* SECTION 2: FormService (High-Level API) */}
+          <div className="mb-12">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-grow h-px bg-green-300 dark:bg-green-700"></div>
+              <h4 className="text-xl font-bold text-green-600 dark:text-green-400">
+                ✨ FormService - API de Alto Nivel
+              </h4>
+              <div className="flex-grow h-px bg-green-300 dark:bg-green-700"></div>
+            </div>
+            <p className="text-sm text-center mb-6 text-gray-600 dark:text-gray-400">
+              Workflows simplificados para formularios. Conversión automática, field mapping, y menos código.
+            </p>
+
+            <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4">
+              <Link
+                href="/example-5-form-dynamic"
+                className="group rounded-lg border border-green-200 dark:border-green-800 px-5 py-4 transition-colors hover:border-green-400 hover:bg-green-50 hover:dark:border-green-600 hover:dark:bg-green-900/20"
+              >
+                <h4 className="mb-2 text-lg font-semibold">
+                  Form Dynamic{' '}
+                  <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+                    →
+                  </span>
+                </h4>
+                <p className="text-sm opacity-70">
+                  Start process with automatic field conversion
+                </p>
+                <p className="text-xs mt-2 text-green-600 dark:text-green-400">
+                  prepareStartForm(), startProcess()
+                </p>
+              </Link>
+
+              <Link
+                href="/example-6-form-continue"
+                className="group rounded-lg border border-green-200 dark:border-green-800 px-5 py-4 transition-colors hover:border-green-400 hover:bg-green-50 hover:dark:border-green-600 hover:dark:bg-green-900/20"
+              >
+                <h4 className="mb-2 text-lg font-semibold">
+                  Form Continue{' '}
+                  <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+                    →
+                  </span>
+                </h4>
+                <p className="text-sm opacity-70">
+                  Continue with auto lock management
+                </p>
+                <p className="text-xs mt-2 text-green-600 dark:text-green-400">
+                  prepareContinueForm(), releaseLock()
+                </p>
+              </Link>
+
+              <Link
+                href="/example-7-form-selective"
+                className="group rounded-lg border border-green-500 px-5 py-4 transition-colors hover:border-green-400 hover:bg-green-50 hover:dark:border-green-600 hover:dark:bg-green-900/20 relative"
+              >
+                <div className="absolute top-2 right-2 text-xs bg-green-600 text-white px-2 py-0.5 rounded-full">
+                  BEST ⭐
+                </div>
+                <h4 className="mb-2 text-lg font-semibold">
+                  Field Mapping{' '}
+                  <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+                    →
+                  </span>
+                </h4>
+                <p className="text-sm opacity-70">
+                  Selective mapping + transformations + audit
+                </p>
+                <p className="text-xs mt-2 text-green-600 dark:text-green-400">
+                  fieldMapping, additionalParameters 🎯
+                </p>
+              </Link>
+            </div>
           </div>
 
           <h3 className="text-xl font-semibold mb-4 text-center">{t('home.components.title')}</h3>
