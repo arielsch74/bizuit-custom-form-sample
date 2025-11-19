@@ -246,7 +246,7 @@ function DynamicFormDemo() {
   //
   // // Obtener parámetros desde la API de Bizuit:
   // const loadParameters = async () => {
-  //   const params = await sdk.process.getProcessParameters('DemoFlow', '', token);
+  //   const params = await sdk.process.getParameters('DemoFlow', '', token);
   //   const inputParams = params.filter(p =>
   //     !p.isSystemParameter &&
   //     (p.direction === 'In' || p.direction === 'Optional')
@@ -315,8 +315,8 @@ function DynamicFormDemo() {
 
     // 🔹 CÓDIGO REAL para enviar a Bizuit (comentado porque no funciona en Sandpack):
     // try {
-    //   const response = await sdk.process.raiseEvent({
-    //     eventName: 'DemoFlow',
+    //   const response = await sdk.process.start({
+    //     processName: 'DemoFlow',
     //     parameters: allParams
     //   }, undefined, token);
     //

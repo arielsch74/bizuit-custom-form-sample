@@ -105,7 +105,7 @@ export default function Home() {
             {t('home.examples.description')}
           </p>
 
-          <div className="grid md:grid-cols-3 gap-4 mb-12">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
             <Link
               href="/example-1-dynamic"
               className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:dark:border-blue-700 hover:dark:bg-blue-900/20"
@@ -160,6 +160,27 @@ export default function Home() {
               </p>
               <p className="text-xs mt-2 text-green-600 dark:text-green-400">
                 {t('home.example3.uses')} 🎯
+              </p>
+            </Link>
+
+            <Link
+              href="/example-4-server-side"
+              className="group rounded-lg border border-purple-500 px-5 py-4 transition-colors hover:border-purple-400 hover:bg-purple-50 hover:dark:border-purple-600 hover:dark:bg-purple-900/20 relative"
+            >
+              <div className="absolute top-2 right-2 text-xs bg-purple-600 text-white px-2 py-0.5 rounded-full">
+                SERVER
+              </div>
+              <h4 className="mb-2 text-lg font-semibold">
+                Server-Side SDK{' '}
+                <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
+                  →
+                </span>
+              </h4>
+              <p className="text-sm opacity-70">
+                Use SDK from server with Next.js Server Actions
+              </p>
+              <p className="text-xs mt-2 text-purple-600 dark:text-purple-400">
+                start(), getInstance(), continue() 🔐
               </p>
             </Link>
           </div>

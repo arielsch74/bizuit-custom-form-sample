@@ -337,8 +337,8 @@ function App() {
 
     // 🔹 CÓDIGO REAL para enviar a Bizuit (comentado porque no funciona en Sandpack):
     // try {
-    //   const response = await sdk.process.raiseEvent({
-    //     eventName: 'AprobacionGastos',
+    //   const response = await sdk.process.start({
+    //     processName: 'AprobacionGastos',
     //     parameters: allParams
     //   }, undefined, token);
     //

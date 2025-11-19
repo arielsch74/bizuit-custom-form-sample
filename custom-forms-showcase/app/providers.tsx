@@ -11,28 +11,22 @@ export function Providers({ children }: ProvidersProps) {
   // Get basePath from environment (e.g., /BIZUITCustomForms in production)
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
 
-  // Build full URLs with basePath
-  const baseFormsUrl = process.env.NEXT_PUBLIC_BIZUIT_FORMS_API_URL || '/api/bizuit'
-  const baseDashboardUrl = process.env.NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL || '/api/bizuit'
-
-  const formsApiUrl = basePath + baseFormsUrl
-  const dashboardApiUrl = basePath + baseDashboardUrl
+  // SDK v2.0.0+: Build full URL with basePath (single URL for all endpoints)
+  const baseApiUrl = process.env.NEXT_PUBLIC_BIZUIT_API_URL || '/api/bizuit'
+  const apiUrl = basePath + baseApiUrl
 
   console.log('[Providers] Environment variables:', {
     NODE_ENV: process.env.NODE_ENV,
     BASE_PATH: process.env.NEXT_PUBLIC_BASE_PATH,
     basePath,
-    FORMS_API: process.env.NEXT_PUBLIC_BIZUIT_FORMS_API_URL,
-    DASHBOARD_API: process.env.NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL,
-    formsApiUrl,
-    dashboardApiUrl
+    BIZUIT_API_URL: process.env.NEXT_PUBLIC_BIZUIT_API_URL,
+    apiUrl
   })
 
   return (
     <BizuitSDKProvider
       config={{
-        formsApiUrl,
-        dashboardApiUrl,
+        apiUrl,
       }}
     >
       <BizuitThemeProvider

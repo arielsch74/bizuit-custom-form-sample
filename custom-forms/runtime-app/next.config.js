@@ -1,4 +1,7 @@
 const path = require('path')
+const createNextIntlPlugin = require('next-intl/plugin')
+
+const withNextIntl = createNextIntlPlugin('./i18n.ts')
 
 // Determine if we're in production (Azure DevOps deployment)
 const isProduction = process.env.NODE_ENV === 'production' || process.env.DEPLOY_ENV === 'production'
@@ -26,4 +29,4 @@ const nextConfig = {
   outputFileTracingRoot: path.join(__dirname, '../'),
 }
 
-module.exports = nextConfig
+module.exports = withNextIntl(nextConfig)

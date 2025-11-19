@@ -1,0 +1,29 @@
+{
+  "common": {
+    "theme": "Theme",
+    "language": "Language",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "app": {
+    "title": "Custom Forms Runtime",
+    "description": "Dynamic forms system"
+  },
+  "form": {
+    "loading": "Loading form...",
+    "error": "Error loading form",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "success": "Form submitted successfully",
+    "cancel": "Cancel",
+    "save": "Save",
+    "validation": {
+      "required": "This field is required",
+      "invalid": "Invalid value",
+      "email": "Invalid email",
+      "minLength": "Minimum length: {min}",
+      "maxLength": "Maximum length: {max}"
+    }
+  }
+}
