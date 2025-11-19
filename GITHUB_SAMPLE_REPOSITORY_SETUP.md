@@ -384,7 +384,7 @@ git push origin main
 - **Database Scripts:** `/Users/arielschwindt/SourceCode/PlayGround/BizuitFormTemplate/database/`
 - **Backend API Code:** `/Users/arielschwindt/SourceCode/PlayGround/BizuitFormTemplate/backend-api/`
 - **Implementation Summary:** `/Users/arielschwindt/SourceCode/PlayGround/BizuitFormTemplate/IMPLEMENTATION_SUMMARY.md`
-- **Hot Reload Demo:** `/Users/arielschwindt/SourceCode/PlayGround/BizuitFormTemplate/example/HOT_RELOAD_DEMO.md`
+- **Hot Reload Demo:** `/Users/arielschwindt/SourceCode/PlayGround/BizuitFormTemplate/custom-forms-showcase/HOT_RELOAD_DEMO.md`
 
 ---
 

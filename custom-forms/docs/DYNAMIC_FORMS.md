@@ -348,7 +348,7 @@ new ModuleFederationPlugin({
 
 ## 📁 Archivos y Componentes Creados
 
-### Frontend (`/example/`)
+### Frontend (`/custom-forms-showcase/`)
 
 **Core System**:
 - `lib/form-loader.ts` - Dynamic form loader (parcial, bloqueado por CDN issue)
@@ -452,7 +452,7 @@ Developer → npm publish → Forms CDN Server
 - [HOT_RELOAD.md](./HOT_RELOAD.md) - Mecanismo de hot reload en detalle
 - [BACKEND_IMPLEMENTATION.md](./BACKEND_IMPLEMENTATION.md) - Backend API y base de datos
 - [RUNTIME_CONFIG.md](./RUNTIME_CONFIG.md) - Configuración runtime vs build-time
-- [/example/README.md](../example/README.md) - Documentación del proyecto de ejemplo
+- [/custom-forms-showcase/README.md](../custom-forms-showcase/README.md) - Documentación del proyecto de ejemplo
 
 ---
 

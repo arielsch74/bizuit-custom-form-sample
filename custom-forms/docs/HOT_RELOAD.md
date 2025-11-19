@@ -183,7 +183,7 @@ En producción, el flujo sería:
 
 Para cambiar la frecuencia del polling, editar:
 
-[example/app/form/[formName]/page.tsx:72](example/app/form/[formName]/page.tsx#L72)
+[custom-forms-showcase/app/form/[formName]/page.tsx:72](custom-forms-showcase/app/form/[formName]/page.tsx#L72)
 
 ```typescript
 pollingInterval: 5000, // 5 segundos en lugar de 10

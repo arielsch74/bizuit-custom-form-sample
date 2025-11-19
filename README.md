@@ -17,7 +17,7 @@ BizuitFormTemplate/
 │   │   └── src/__tests__/      # 36 tests unitarios
 │   └── bizuit-ui-components/   # Componentes UI (@tyconsa/bizuit-ui-components)
 │       └── src/__tests__/      # 41 tests unitarios
-├── example/                     # Proyecto de ejemplo Next.js 15
+├── custom-forms-showcase/                     # Proyecto de ejemplo Next.js 15
 │   └── docs/                    # Documentación completa para desarrolladores
 └── README.md                    # Este archivo
 ```
@@ -112,9 +112,9 @@ Biblioteca de componentes React altamente personalizables:
 
 ## 📱 Proyecto de Ejemplo
 
-El directorio [example/](example/) contiene una aplicación Next.js 15 completa que demuestra:
+El directorio [custom-forms-showcase/](custom-forms-showcase/) contiene una aplicación Next.js 15 completa que demuestra:
 
-### Página: Iniciar Proceso ([/start-process](example/app/start-process/page.tsx))
+### Página: Iniciar Proceso ([/start-process](custom-forms-showcase/app/start-process/page.tsx))
 
 1. Autenticación con token JWT
 2. Validación de permisos
@@ -122,7 +122,7 @@ El directorio [example/](example/) contiene una aplicación Next.js 15 completa 
 4. Formulario con todos los componentes UI
 5. Ejecución de RaiseEvent para crear instancia
 
-### Página: Continuar Proceso ([/continue-process](example/app/continue-process/page.tsx))
+### Página: Continuar Proceso ([/continue-process](custom-forms-showcase/app/continue-process/page.tsx))
 
 1. Autenticación con token JWT
 2. Verificación de estado de bloqueo
@@ -131,12 +131,12 @@ El directorio [example/](example/) contiene una aplicación Next.js 15 completa 
 5. Edición con desbloqueo automático
 6. Historial de actividades (solo lectura)
 
-[Ver documentación del ejemplo →](example/README.md)
+[Ver documentación del ejemplo →](custom-forms-showcase/README.md)
 
 **📚 Documentación para desarrolladores:**
-- [GETTING_STARTED.md](example/docs/GETTING_STARTED.md) - Guía completa paso a paso (600+ líneas)
-- [QUICK_REFERENCE.md](example/docs/QUICK_REFERENCE.md) - Referencia rápida de código
-- [examples/](example/docs/examples/) - 6 ejemplos completos con código funcional
+- [GETTING_STARTED.md](custom-forms-showcase/docs/GETTING_STARTED.md) - Guía completa paso a paso (600+ líneas)
+- [QUICK_REFERENCE.md](custom-forms-showcase/docs/QUICK_REFERENCE.md) - Referencia rápida de código
+- [examples/](custom-forms-showcase/docs/examples/) - 6 ejemplos completos con código funcional
 
 ## 🛠️ Stack Tecnológico
 
@@ -311,14 +311,14 @@ El ejemplo tiene:
 
 ## 📝 Variables de Entorno
 
-Crea un archivo `.env.local` en el directorio `example/`:
+Crea un archivo `.env.local` en el directorio `custom-forms-showcase/`:
 
 ```env
 NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://tu-api.com/forms
 NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://tu-api.com/dashboard
 ```
 
-Ver [example/.env.example](example/.env.example) para más detalles.
+Ver [custom-forms-showcase/.env.example](custom-forms-showcase/.env.example) para más detalles.
 
 ## 🎨 Personalización
 

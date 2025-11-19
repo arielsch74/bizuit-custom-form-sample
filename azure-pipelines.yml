@@ -7,7 +7,7 @@ trigger:
       - main
   paths:
     include:
-      - example/**
+      - custom-forms-showcase/**
       - packages/**
       - azure-pipelines.yml
 
@@ -39,21 +39,21 @@ stages:
           # Cache disabled - causes tar errors on Windows and we want latest packages anyway
           # - task: Cache@2
           #   inputs:
-          #     key: 'npm | "$(Agent.OS)" | example/package.json'
+          #     key: 'npm | "$(Agent.OS)" | custom-forms-showcase/package.json'
           #     restoreKeys: |
           #       npm | "$(Agent.OS)"
-          #     path: '$(Build.SourcesDirectory)/example/node_modules'
+          #     path: '$(Build.SourcesDirectory)/custom-forms-showcase/node_modules'
           #   displayName: 'Cache npm dependencies'
 
           - script: |
-              cd example
+              cd custom-forms-showcase
               npm run use:npm
             displayName: 'Switch to npm registry packages and Install Dependencies'
 
           - task: PowerShell@2
             inputs:
               targetType: 'inline'
-              workingDirectory: '$(Build.SourcesDirectory)/example'
+              workingDirectory: '$(Build.SourcesDirectory)/custom-forms-showcase'
               script: |
                 Write-Host "Creating .env.local file for build..."
 
@@ -88,14 +88,14 @@ stages:
           # Cache disabled - causes tar errors on Windows
           # - task: Cache@2
           #   inputs:
-          #     key: 'nextjs | "$(Agent.OS)" | example/package.json'
+          #     key: 'nextjs | "$(Agent.OS)" | custom-forms-showcase/package.json'
           #     restoreKeys: |
           #       nextjs | "$(Agent.OS)"
-          #     path: '$(Build.SourcesDirectory)/example/.next/cache'
+          #     path: '$(Build.SourcesDirectory)/custom-forms-showcase/.next/cache'
           #   displayName: 'Cache Next.js build'
 
           - script: |
-              cd example
+              cd custom-forms-showcase
               npm run build
             displayName: 'Build Next.js Application'
             env:
@@ -108,12 +108,12 @@ stages:
 
           - task: CopyFiles@2
             inputs:
-              SourceFolder: '$(Build.SourcesDirectory)/example'
+              SourceFolder: '$(Build.SourcesDirectory)/custom-forms-showcase'
               Contents: |
                 **/*
                 !node_modules/**
                 !.next/cache/**
-              TargetFolder: '$(Build.ArtifactStagingDirectory)/example'
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/custom-forms-showcase'
             displayName: 'Copy Build Files'
 
           - task: PublishBuildArtifacts@1
@@ -239,7 +239,7 @@ stages:
 
                 - task: CopyFiles@2
                   inputs:
-                    SourceFolder: '$(System.ArtifactsDirectory)/drop/example'
+                    SourceFolder: '$(System.ArtifactsDirectory)/drop/custom-forms-showcase'
                     Contents: '**'
                     TargetFolder: '$(deployPath)'
                     OverWrite: true
