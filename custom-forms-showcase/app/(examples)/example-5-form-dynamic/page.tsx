@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { useBizuitSDK, type IBizuitProcessParameter } from '@tyconsa/bizuit-form-sdk'
-import { DynamicFormField, Button, useBizuitAuth, useTranslation, BizuitCard } from '@tyconsa/bizuit-ui-components'
+import { DynamicFormField, Button, useBizuitAuth, BizuitCard } from '@tyconsa/bizuit-ui-components'
+import { useAppTranslation } from '@/lib/useAppTranslation'
 import { RequireAuth } from '@/components/require-auth'
 import { LiveCodeEditor } from '@/components/live-code-editor'
 import Link from 'next/link'
@@ -47,7 +48,7 @@ import Link from 'next/link'
  * ✅ Optimizaciones específicas de rendimiento
  */
 function Example5FormDynamicContent() {
-  const { t } = useTranslation()
+  const { t } = useAppTranslation()
   const sdk = useBizuitSDK()
   const { token } = useBizuitAuth()
 
@@ -134,37 +135,37 @@ function Example5FormDynamicContent() {
         <Link href="/" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
           ← {t('ui.back')}
         </Link>
-        <h1 className="text-4xl font-bold mb-2">Form Service - Dynamic Form</h1>
+        <h1 className="text-4xl font-bold mb-2">{t('example5.title')}</h1>
         <p className="text-gray-600 text-lg">
-          API de alto nivel para formularios dinámicos con todos los campos
+          {t('example5.subtitle')}
         </p>
       </div>
 
       <div className="space-y-8">
         {/* Info Card: Qué es FormService */}
         <BizuitCard
-          title="ℹ️ ¿Qué es Form Service?"
-          description="API de alto nivel que simplifica workflows comunes de formularios"
+          title={t('example5.whatIs.title')}
+          description={t('example5.whatIs.description')}
         >
           <div className="space-y-4">
             <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-              <h3 className="font-semibold mb-2">✨ FormService vs ProcessService</h3>
+              <h3 className="font-semibold mb-2">{t('example5.comparison.title')}</h3>
               <div className="grid md:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="font-semibold text-green-600 dark:text-green-400 mb-2">✅ FormService (Este ejemplo)</p>
+                  <p className="font-semibold text-green-600 dark:text-green-400 mb-2">{t('example5.comparison.formService')}</p>
                   <ul className="space-y-1 text-gray-700 dark:text-gray-300">
                     <li>• <code className="text-xs bg-muted px-1 rounded">prepareStartForm()</code> - Todo en una llamada</li>
                     <li>• <code className="text-xs bg-muted px-1 rounded">startProcess(formData)</code> - Conversión automática</li>
-                    <li>• Menos código, casos comunes cubiertos</li>
+                    <li>• {t('example5.comparison.formService.less')}</li>
                     <li>• Helpers para field mapping y locks</li>
                   </ul>
                 </div>
                 <div>
-                  <p className="font-semibold text-amber-600 dark:text-amber-400 mb-2">⚙️ ProcessService (Ejemplo 1)</p>
+                  <p className="font-semibold text-amber-600 dark:text-amber-400 mb-2">{t('example5.comparison.processService')}</p>
                   <ul className="space-y-1 text-gray-700 dark:text-gray-300">
                     <li>• <code className="text-xs bg-muted px-1 rounded">getParameters()</code> + manual filtering</li>
                     <li>• <code className="text-xs bg-muted px-1 rounded">formDataToParameters()</code> + <code className="text-xs bg-muted px-1 rounded">start()</code></li>
-                    <li>• Más código, control total</li>
+                    <li>• {t('example5.comparison.processService.more')}</li>
                     <li>• Para casos avanzados/no estándar</li>
                   </ul>
                 </div>
@@ -173,89 +174,10 @@ function Example5FormDynamicContent() {
           </div>
         </BizuitCard>
 
-        {/* Paso 1: Seleccionar proceso */}
-        <BizuitCard
-          title="1️⃣ Seleccionar Proceso"
-          description="Elige el proceso y prepara el formulario con FormService.prepareStartForm()"
-        >
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Nombre del Proceso</label>
-              <input
-                type="text"
-                value={processName}
-                onChange={(e) => setProcessName(e.target.value)}
-                className="w-full px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                placeholder="DemoFlow"
-                disabled={status === 'loading' || status === 'ready'}
-              />
-            </div>
-
-            <Button
-              onClick={handlePrepareForm}
-              disabled={status === 'loading' || status === 'ready' || !processName}
-              variant="primary"
-              className="w-full"
-            >
-              {status === 'loading' ? 'Cargando...' : 'Cargar Formulario'}
-            </Button>
-
-            {error && status === 'error' && (
-              <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-md">
-                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-              </div>
-            )}
-          </div>
-        </BizuitCard>
-
-        {/* Paso 2: Formulario dinámico */}
-        {status === 'ready' && parameters.length > 0 && (
-          <BizuitCard
-            title="2️⃣ Completar Formulario"
-            description={`${parameters.length} campos cargados dinámicamente desde el proceso`}
-          >
-            <div className="space-y-4">
-              {parameters.map((param) => (
-                <DynamicFormField
-                  key={param.name}
-                  parameter={param}
-                  value={formData[param.name]}
-                  onChange={(value) => handleFieldChange(param.name, value)}
-                />
-              ))}
-
-              <div className="pt-4 border-t">
-                <Button
-                  onClick={handleSubmit}
-                  disabled={status === 'submitting'}
-                  variant="primary"
-                  className="w-full"
-                >
-                  {status === 'submitting' ? 'Enviando...' : 'Iniciar Proceso'}
-                </Button>
-              </div>
-            </div>
-          </BizuitCard>
-        )}
-
-        {/* Resultado */}
-        {result && (
-          <BizuitCard
-            title="✅ Proceso Iniciado Exitosamente"
-            description="Resultado de FormService.startProcess()"
-          >
-            <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-              <pre className="text-sm overflow-auto">
-                {JSON.stringify(result, null, 2)}
-              </pre>
-            </div>
-          </BizuitCard>
-        )}
-
         {/* Código de ejemplo */}
         <BizuitCard
-          title="💻 Código - FormService (Alto Nivel)"
-          description="Mucho menos código que ProcessService gracias a los helpers"
+          title={t('example5.code.title')}
+          description={t('example5.code.description')}
         >
           <div className="bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto">
             <pre className="text-sm"><code>{`// 1️⃣ Preparar formulario (TODO en una llamada)
@@ -285,12 +207,12 @@ const result = await sdk.forms.startProcess({
 
         {/* Comparación con ProcessService */}
         <BizuitCard
-          title="📊 Comparación: FormService vs ProcessService"
-          description="Mismo resultado, menos código"
+          title={t('example5.comparison2.title')}
+          description={t('example5.comparison2.description')}
         >
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <h3 className="font-semibold mb-2 text-green-600 dark:text-green-400">✅ FormService (Este ejemplo)</h3>
+              <h3 className="font-semibold mb-2 text-green-600 dark:text-green-400">{t('example5.comparison.formService')}</h3>
               <div className="bg-gray-900 text-gray-100 p-3 rounded-md text-xs">
                 <pre>{`// Solo 2 llamadas
 const prepared = await sdk.form
@@ -312,7 +234,7 @@ const result = await sdk.form
             </div>
 
             <div>
-              <h3 className="font-semibold mb-2 text-amber-600 dark:text-amber-400">⚙️ ProcessService (Ejemplo 1)</h3>
+              <h3 className="font-semibold mb-2 text-amber-600 dark:text-amber-400">{t('example5.comparison.processService')}</h3>
               <div className="bg-gray-900 text-gray-100 p-3 rounded-md text-xs">
                 <pre>{`// Múltiples pasos manuales
 const params = await sdk.process
@@ -352,8 +274,76 @@ const result = await sdk.process
             title="⚡ Playground Interactivo - FormService.prepareStartForm() + startProcess()"
             description="Experimenta con FormService en vivo. Modifica el código y ve los resultados al instante."
             files={{
-              '/App.js': `import { useState } from 'react';
+              '/App.js': `import { useState, createContext, useContext, useEffect } from 'react';
 import './styles.css';
+
+// 🎨 Theme Context
+const ThemeContext = createContext();
+
+const ThemeProvider = ({ children }) => {
+  const [mode, setMode] = useState('system');
+  const [primaryColor, setPrimaryColor] = useState('#f97316');
+
+  const getSystemTheme = () => {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  };
+
+  const effectiveTheme = mode === 'system' ? getSystemTheme() : mode;
+  const isDark = effectiveTheme === 'dark';
+
+  useEffect(() => {
+    document.body.className = isDark ? 'dark' : 'light';
+  }, [isDark]);
+
+  return (
+    <ThemeContext.Provider value={{ mode, setMode, isDark, primaryColor, setPrimaryColor }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+const useTheme = () => useContext(ThemeContext);
+
+// 🌐 I18n Context
+const I18nContext = createContext();
+
+const useTranslation = () => useContext(I18nContext);
+
+const I18nProvider = ({ children }) => {
+  const [language, setLanguage] = useState('es');
+
+  const translations = {
+    es: {
+      title: 'Demo de FormService',
+      subtitle: 'API de alto nivel para formularios dinámicos',
+      step1: 'Preparar Formulario',
+      loading: 'Cargando parámetros...',
+      submit: 'Enviar Solicitud',
+      success: 'Proceso Iniciado Exitosamente'
+    },
+    en: {
+      title: 'FormService Demo',
+      subtitle: 'High-level API for dynamic forms',
+      step1: 'Prepare Form',
+      loading: 'Loading parameters...',
+      submit: 'Submit Request',
+      success: 'Process Started Successfully'
+    }
+  };
+
+  const t = (key) => {
+    const keys = key.split('.');
+    let value = translations[language];
+    for (const k of keys) value = value?.[k];
+    return value || key;
+  };
+
+  return (
+    <I18nContext.Provider value={{ t, language, setLanguage }}>
+      {children}
+    </I18nContext.Provider>
+  );
+};
 
 /**
  * 🎯 FORM SERVICE - API DE ALTO NIVEL
@@ -423,6 +413,9 @@ const mockFormService = {
 };
 
 function FormServiceDemo() {
+  const { t, language, setLanguage } = useTranslation();
+  const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
+
   const [processName] = useState('ProductOrder');
   const [step, setStep] = useState('idle'); // idle, loading, ready, submitting, success
   const [parameters, setParameters] = useState([]);
@@ -505,8 +498,66 @@ function FormServiceDemo() {
   return (
     <div className="app-container">
       <div className="card">
-        <h1>🎯 FormService Demo</h1>
-        <p className="subtitle">API de alto nivel para formularios dinámicos</p>
+        {/* Theme and Language Controls */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <button
+            type="button"
+            onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+            style={{
+              padding: '6px 12px',
+              background: isDark ? '#374151' : '#f3f4f6',
+              color: isDark ? '#f9fafb' : '#111827',
+              border: \`1px solid \${isDark ? '#4b5563' : '#d1d5db'}\`,
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            {language === 'es' ? '🇪🇸 ES' : '🇬🇧 EN'}
+          </button>
+
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {['light', 'dark', 'system'].map(themeMode => (
+                <button
+                  key={themeMode}
+                  type="button"
+                  onClick={() => setMode(themeMode)}
+                  style={{
+                    padding: '6px 12px',
+                    background: mode === themeMode ? primaryColor : (isDark ? '#374151' : '#f3f4f6'),
+                    color: mode === themeMode ? 'white' : (isDark ? '#f9fafb' : '#111827'),
+                    border: \`1px solid \${mode === themeMode ? primaryColor : (isDark ? '#4b5563' : '#d1d5db')}\`,
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '500'
+                  }}
+                >
+                  {themeMode === 'light' ? '☀️' : themeMode === 'dark' ? '🌙' : '💻'}
+                </button>
+              ))}
+            </div>
+
+            <input
+              type="color"
+              value={primaryColor}
+              onChange={(e) => setPrimaryColor(e.target.value)}
+              style={{
+                width: '32px',
+                height: '32px',
+                border: \`2px solid \${isDark ? '#4b5563' : '#d1d5db'}\`,
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+              title="Primary Color"
+            />
+          </div>
+        </div>
+
+        <h1>🎯 {t('title')}</h1>
+        <p className="subtitle">{t('subtitle')}</p>
       </div>
 
       {/* PASO 1: Preparar Formulario */}
@@ -517,6 +568,7 @@ function FormServiceDemo() {
           <button
             onClick={handlePrepareForm}
             className="btn-primary"
+            style={{ background: primaryColor }}
           >
             Preparar Formulario con prepareStartForm()
           </button>
@@ -573,6 +625,7 @@ function FormServiceDemo() {
             <button
               onClick={handleStartProcess}
               className="btn-primary"
+              style={{ background: primaryColor }}
             >
               Iniciar Proceso con startProcess()
             </button>
@@ -618,7 +671,7 @@ function FormServiceDemo() {
             <pre>{JSON.stringify(result?.submittedData || {}, null, 2)}</pre>
           </div>
 
-          <button onClick={reset} className="btn-primary">
+          <button onClick={reset} className="btn-primary" style={{ background: primaryColor }}>
             🔄 Iniciar Nuevo Proceso
           </button>
         </div>
@@ -648,7 +701,15 @@ function FormServiceDemo() {
   );
 }
 
-export default FormServiceDemo;`,
+export default function App() {
+  return (
+    <ThemeProvider>
+      <I18nProvider>
+        <FormServiceDemo />
+      </I18nProvider>
+    </ThemeProvider>
+  );
+}`,
               '/styles.css': `* {
   box-sizing: border-box;
   margin: 0;
@@ -902,6 +963,145 @@ body {
 
 .info-card strong {
   color: #1e40af;
+}
+
+/* Dark Mode */
+body.dark {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+}
+
+body.dark .card {
+  background: #1e293b;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .card h1 {
+  color: #f1f5f9;
+}
+
+body.dark .card h2 {
+  color: #e2e8f0;
+}
+
+body.dark .card h3 {
+  color: #cbd5e1;
+}
+
+body.dark .subtitle {
+  color: #94a3b8;
+}
+
+body.dark .info {
+  background: #1e3a5f;
+  border-left-color: #3b82f6;
+  color: #93c5fd;
+}
+
+body.dark .form-field label {
+  color: #e2e8f0;
+}
+
+body.dark .required {
+  color: #f87171;
+}
+
+body.dark .form-field input {
+  background: #334155;
+  border-color: #475569;
+  color: #f1f5f9;
+}
+
+body.dark .form-field input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+body.dark .preview {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+body.dark .preview h3 {
+  color: #cbd5e1;
+}
+
+body.dark .preview pre {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+body.dark .btn-secondary {
+  background: #334155;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+
+body.dark .btn-secondary:hover {
+  background: #475569;
+  border-color: #64748b;
+}
+
+body.dark .loading {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+body.dark .spinner {
+  border-color: #334155;
+  border-top-color: #60a5fa;
+}
+
+body.dark .success {
+  border-left-color: #22c55e;
+}
+
+body.dark .success h2 {
+  color: #86efac;
+}
+
+body.dark .detail-row {
+  background: #0f172a;
+}
+
+body.dark .label {
+  color: #cbd5e1;
+}
+
+body.dark .value {
+  color: #e2e8f0;
+}
+
+body.dark .value.highlight {
+  color: #22c55e;
+}
+
+body.dark .error {
+  border-left-color: #ef4444;
+}
+
+body.dark .error h3 {
+  color: #fca5a5;
+}
+
+body.dark .error p {
+  color: #e2e8f0;
+}
+
+body.dark .info-card {
+  background: linear-gradient(135deg, #1e3a5f 0%, #1e293b 100%);
+  border-color: #3b82f6;
+}
+
+body.dark .info-card h3 {
+  color: #93c5fd;
+}
+
+body.dark .info-card li {
+  color: #bfdbfe;
+}
+
+body.dark .info-card strong {
+  color: #60a5fa;
 }`
             }}
           />

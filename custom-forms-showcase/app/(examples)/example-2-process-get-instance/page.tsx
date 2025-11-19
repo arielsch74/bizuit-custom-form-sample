@@ -374,7 +374,7 @@ function App() {
               fontWeight: '500'
             }}
           >
-            {language === 'es' ? '🇬🇧 EN' : '🇪🇸 ES'}
+            {language === 'es' ? '🇪🇸 ES' : '🇬🇧 EN'}
           </button>
 
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>

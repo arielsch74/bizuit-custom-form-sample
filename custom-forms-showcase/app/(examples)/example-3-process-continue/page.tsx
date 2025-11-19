@@ -276,7 +276,7 @@ const useTheme = () => {
 
 const ThemeProvider = ({ children }) => {
   const [mode, setMode] = useState('system'); // 'light', 'dark', 'system'
-  const [primaryColor, setPrimaryColor] = useState('#3b82f6');
+  const [primaryColor, setPrimaryColor] = useState('#f97316');
 
   // Detectar preferencia del sistema
   const getSystemTheme = () => {
@@ -441,7 +441,7 @@ function SelectiveMappingForm() {
               fontWeight: '500'
             }}
           >
-            {language === 'es' ? '🇬🇧 EN' : '🇪🇸 ES'}
+            {language === 'es' ? '🇪🇸 ES' : '🇬🇧 EN'}
           </button>
 
           {/* Selector de tema y color */}

@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { Sandpack } from '@codesandbox/sandpack-react'
 import { Card } from '@/components/ui/card'
-import { useBizuitTheme, useTranslation, type ColorTheme } from '@tyconsa/bizuit-ui-components'
+import { useBizuitTheme, type ColorTheme } from '@tyconsa/bizuit-ui-components'
+import { useAppTranslation } from '@/lib/useAppTranslation'
 
 interface LiveCodeEditorProps {
   title: string
@@ -61,7 +62,7 @@ export function LiveCodeEditor({
   template = 'react-ts'
 }: LiveCodeEditorProps) {
   const { theme, colorTheme } = useBizuitTheme()
-  const { t } = useTranslation()
+  const { t, language } = useAppTranslation()
   const [mounted, setMounted] = useState(false)
 
   // Resolver el tema actual (para el EDITOR del Sandpack)
@@ -159,6 +160,13 @@ export function LiveCodeEditor({
       .replace(/#f3e8ff/g, colors.primaryLight)
       .replace(/#7e22ce/g, colors.primaryDark)
 
+    // Inyectar idioma global desde el contexto padre
+    // Buscar el estado inicial de language y reemplazarlo con el idioma actual
+    processedJS = processedJS.replace(
+      /const \[language, setLanguage\] = useState\(['"]es['"]\)/,
+      `const [language, setLanguage] = useState('${language}')`
+    )
+
     // NOTA: Ya NO forzamos dark mode aquí porque el código dentro del Sandpack
     // tiene su propio ThemeProvider que maneja el tema independientemente.
     // El LiveCodeEditor solo reemplaza colores primarios, no controla el tema del Sandpack.
@@ -217,7 +225,7 @@ export function LiveCodeEditor({
       {/* Sandpack Editor - Always Visible */}
       <div className="rounded-lg overflow-hidden border-2 border-primary/20 shadow-xl">
         <Sandpack
-          key={`${resolvedTheme}-${colorTheme}`}
+          key={`${resolvedTheme}-${colorTheme}-${language}`}
           template="react"
           theme={resolvedTheme}
           files={processedFiles}

@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { useBizuitSDK, type IBizuitProcessParameter } from '@tyconsa/bizuit-form-sdk'
-import { DynamicFormField, Button, useBizuitAuth, useTranslation, BizuitCard } from '@tyconsa/bizuit-ui-components'
+import { DynamicFormField, Button, useBizuitAuth, BizuitCard } from '@tyconsa/bizuit-ui-components'
+import { useAppTranslation } from '@/lib/useAppTranslation'
 import { RequireAuth } from '@/components/require-auth'
 import { LiveCodeEditor } from '@/components/live-code-editor'
 import Link from 'next/link'
@@ -39,7 +40,7 @@ import Link from 'next/link'
  * - Todo se convierte automáticamente
  */
 function Example7FormSelectiveContent() {
-  const { t } = useTranslation()
+  const { t } = useAppTranslation()
   const sdk = useBizuitSDK()
   const { token, user } = useBizuitAuth()
 
@@ -169,37 +170,37 @@ function Example7FormSelectiveContent() {
         <Link href="/" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
           ← {t('ui.back')}
         </Link>
-        <h1 className="text-4xl font-bold mb-2">Form Service - Selective Field Mapping</h1>
+        <h1 className="text-4xl font-bold mb-2">{t('example7.title')}</h1>
         <p className="text-gray-600 text-lg">
-          Mapeo selectivo, transformaciones y parámetros adicionales automáticos
+          {t('example7.subtitle')}
         </p>
       </div>
 
       <div className="space-y-8">
         {/* Info Card: Qué es Field Mapping */}
         <BizuitCard
-          title="🎯 Field Mapping: La característica más poderosa"
-          description="Controla exactamente QUÉ se envía y CÓMO se transforma"
+          title={t('example7.mapping.title')}
+          description={t('example7.mapping.description')}
         >
           <div className="space-y-4">
             <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
-              <h3 className="font-semibold mb-3">✨ ¿Por qué es tan poderoso?</h3>
+              <h3 className="font-semibold mb-3">{t('example7.whyPowerful.title')}</h3>
               <div className="grid md:grid-cols-3 gap-4 text-sm">
                 <div>
-                  <p className="font-semibold text-purple-600 dark:text-purple-400 mb-2">🎨 Mapeo Selectivo</p>
+                  <p className="font-semibold text-purple-600 dark:text-purple-400 mb-2">{t('example7.whyPowerful.selective')}</p>
                   <ul className="space-y-1 text-gray-700 dark:text-gray-300">
-                    <li>• Envía SOLO los campos que necesitas</li>
-                    <li>• Ignora campos del formulario automáticamente</li>
-                    <li>• Mapea nombres diferentes (UI vs BPM)</li>
+                    <li>• {t('example7.whyPowerful.selective.item1')}</li>
+                    <li>• {t('example7.whyPowerful.selective.item2')}</li>
+                    <li>• {t('example7.whyPowerful.selective.item3')}</li>
                   </ul>
                 </div>
                 <div>
-                  <p className="font-semibold text-blue-600 dark:text-blue-400 mb-2">🔄 Transformaciones</p>
+                  <p className="font-semibold text-blue-600 dark:text-blue-400 mb-2">{t('example7.whyPowerful.transformations')}</p>
                   <ul className="space-y-1 text-gray-700 dark:text-gray-300">
-                    <li>• string → number (parseFloat)</li>
-                    <li>• Formato de fechas (toISOString)</li>
-                    <li>• uppercase, lowercase, trim</li>
-                    <li>• Funciones personalizadas</li>
+                    <li>• {t('example7.whyPowerful.transformations.item1')}</li>
+                    <li>• {t('example7.whyPowerful.transformations.item2')}</li>
+                    <li>• {t('example7.whyPowerful.transformations.item3')}</li>
+                    <li>• {t('example7.whyPowerful.transformations.item4')}</li>
                   </ul>
                 </div>
                 <div>
@@ -254,191 +255,6 @@ function Example7FormSelectiveContent() {
             </div>
           </div>
         </BizuitCard>
-
-        {/* Paso 1: Seleccionar proceso */}
-        <BizuitCard
-          title="1️⃣ Seleccionar Proceso"
-          description="Elige el proceso para cargar sus parámetros"
-        >
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Nombre del Proceso</label>
-              <input
-                type="text"
-                value={processName}
-                onChange={(e) => setProcessName(e.target.value)}
-                className="w-full px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                placeholder="ExpenseRequest"
-                disabled={status === 'loading' || status === 'ready'}
-              />
-            </div>
-
-            <Button
-              onClick={handlePrepareForm}
-              disabled={status === 'loading' || status === 'ready' || !processName}
-              variant="primary"
-              className="w-full"
-            >
-              {status === 'loading' ? 'Cargando...' : 'Cargar Parámetros'}
-            </Button>
-
-            {error && status === 'error' && (
-              <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-md">
-                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-              </div>
-            )}
-          </div>
-        </BizuitCard>
-
-        {/* Paso 2: Formulario SIMPLIFICADO (solo 4 campos) */}
-        {status === 'ready' && (
-          <BizuitCard
-            title="2️⃣ Completar Formulario (Solo 4 Campos)"
-            description="Nota: El formulario tiene SOLO 4 campos, pero enviaremos 10 parámetros al proceso"
-          >
-            <div className="space-y-4">
-              {/* Campo: Description */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Descripción del Gasto
-                  <span className="text-xs text-gray-500 ml-2">(se enviará como "description")</span>
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => handleFieldChange('description', e.target.value)}
-                  className="w-full px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                  rows={3}
-                  placeholder="Ej: Viaje a conferencia técnica en Madrid"
-                />
-              </div>
-
-              {/* Campo: Amount (string) → se convertirá a number */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Monto (en texto)
-                  <span className="text-xs text-purple-600 dark:text-purple-400 ml-2">
-                    ✨ Se transformará a number y se enviará como "amount"
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.amountStr}
-                  onChange={(e) => handleFieldChange('amountStr', e.target.value)}
-                  className="w-full px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                  placeholder="1500.50"
-                />
-              </div>
-
-              {/* Campo: Category */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Categoría
-                  <span className="text-xs text-gray-500 ml-2">(se enviará como "category")</span>
-                </label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => handleFieldChange('category', e.target.value)}
-                  className="w-full px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                >
-                  <option value="Travel">Viaje</option>
-                  <option value="Food">Comida</option>
-                  <option value="Equipment">Equipamiento</option>
-                  <option value="Other">Otro</option>
-                </select>
-              </div>
-
-              {/* Campo: Urgent */}
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={formData.urgent}
-                  onChange={(e) => handleFieldChange('urgent', e.target.checked)}
-                  className="w-4 h-4"
-                  id="urgent-checkbox"
-                />
-                <label htmlFor="urgent-checkbox" className="text-sm font-medium">
-                  ¿Es urgente?
-                  <span className="text-xs text-gray-500 ml-2">(se enviará como "urgent")</span>
-                </label>
-              </div>
-
-              {/* Preview: Parámetros adicionales que se agregarán automáticamente */}
-              <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                <h4 className="font-semibold text-sm mb-2">🚀 Parámetros que se agregarán automáticamente:</h4>
-                <div className="text-xs space-y-1 text-gray-700 dark:text-gray-300">
-                  <div className="grid grid-cols-2 gap-2">
-                    <div><code className="bg-muted px-1 rounded">requestedBy</code>: {user?.username || 'system'}</div>
-                    <div><code className="bg-muted px-1 rounded">requestedDate</code>: {new Date().toISOString().substring(0, 19)}</div>
-                    <div><code className="bg-muted px-1 rounded">status</code>: Pending</div>
-                    <div><code className="bg-muted px-1 rounded">approvalRequired</code>: {parseFloat(formData.amountStr || '0') > 1000 ? 'true' : 'false'}</div>
-                    <div><code className="bg-muted px-1 rounded">source</code>: CustomFormsShowcase</div>
-                    <div><code className="bg-muted px-1 rounded">version</code>: 2.0.0</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t">
-                <Button
-                  onClick={handleSubmit}
-                  disabled={status === 'submitting'}
-                  variant="primary"
-                  className="w-full"
-                >
-                  {status === 'submitting' ? 'Enviando...' : 'Iniciar Proceso'}
-                </Button>
-              </div>
-            </div>
-          </BizuitCard>
-        )}
-
-        {/* Resultado: Mostrar QUÉ se envió */}
-        {result && sentParameters.length > 0 && (
-          <BizuitCard
-            title="✅ Proceso Iniciado - Parámetros Enviados"
-            description="Comparación: 4 campos en el formulario → 10 parámetros enviados al proceso"
-          >
-            <div className="space-y-4">
-              {/* Tabla de parámetros enviados */}
-              <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                <h4 className="font-semibold mb-3">📊 Parámetros Enviados al Proceso:</h4>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-green-300 dark:border-green-700">
-                        <th className="text-left py-2 px-3 font-semibold">Parámetro</th>
-                        <th className="text-left py-2 px-3 font-semibold">Valor</th>
-                        <th className="text-left py-2 px-3 font-semibold">Origen</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sentParameters.map((param, idx) => (
-                        <tr key={idx} className="border-b border-green-200 dark:border-green-800">
-                          <td className="py-2 px-3">
-                            <code className="bg-muted px-1 rounded text-xs">{param.name}</code>
-                          </td>
-                          <td className="py-2 px-3">
-                            <span className="text-xs">{JSON.stringify(param.value)}</span>
-                          </td>
-                          <td className="py-2 px-3">
-                            <span className="text-xs text-gray-600 dark:text-gray-400">{param.source}</span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Resultado del proceso */}
-              <div className="bg-gray-50 dark:bg-gray-950/20 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-                <h4 className="font-semibold mb-2">🔍 Respuesta del Proceso:</h4>
-                <pre className="text-xs overflow-auto max-h-64">
-                  {JSON.stringify(result, null, 2)}
-                </pre>
-              </div>
-            </div>
-          </BizuitCard>
-        )}
 
         {/* Código de ejemplo */}
         <BizuitCard
@@ -649,11 +465,79 @@ additionalParameters: sdk.forms.createParameters({
         {/* Live Code Editor */}
         <div className="mb-8">
           <LiveCodeEditor
-            title="⚡ Playground Interactivo - Field Mapping & Transformations"
-            description="Experimenta con field mapping selectivo, transformaciones y parámetros adicionales. La característica MÁS PODEROSA de FormService."
+            title={t('example7.playground.title')}
+            description={t('example7.playground.description')}
             files={{
-              '/App.js': `import { useState } from 'react';
+              '/App.js': `import { useState, createContext, useContext, useEffect } from 'react';
 import './styles.css';
+
+// 🎨 Theme Context
+const ThemeContext = createContext();
+
+const ThemeProvider = ({ children }) => {
+  const [mode, setMode] = useState('system');
+  const [primaryColor, setPrimaryColor] = useState('#f97316');
+
+  const getSystemTheme = () => {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  };
+
+  const effectiveTheme = mode === 'system' ? getSystemTheme() : mode;
+  const isDark = effectiveTheme === 'dark';
+
+  useEffect(() => {
+    document.body.className = isDark ? 'dark' : 'light';
+  }, [isDark]);
+
+  return (
+    <ThemeContext.Provider value={{ mode, setMode, isDark, primaryColor, setPrimaryColor }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+const useTheme = () => useContext(ThemeContext);
+
+// 🌐 I18n Context
+const I18nContext = createContext();
+
+const useTranslation = () => useContext(I18nContext);
+
+const I18nProvider = ({ children }) => {
+  const [language, setLanguage] = useState('es');
+
+  const translations = {
+    es: {
+      title: 'Demo de Field Mapping',
+      subtitle: '4 campos en el form → 10 parámetros al proceso',
+      step1: 'Preparar Formulario',
+      loading: 'Cargando parámetros...',
+      submit: 'Iniciar Proceso',
+      success: 'Proceso Iniciado Exitosamente'
+    },
+    en: {
+      title: 'Field Mapping Demo',
+      subtitle: '4 fields in form → 10 parameters to process',
+      step1: 'Prepare Form',
+      loading: 'Loading parameters...',
+      submit: 'Start Process',
+      success: 'Process Started Successfully'
+    }
+  };
+
+  const t = (key) => {
+    const keys = key.split('.');
+    let value = translations[language];
+    for (const k of keys) value = value?.[k];
+    return value || key;
+  };
+
+  return (
+    <I18nContext.Provider value={{ t, language, setLanguage }}>
+      {children}
+    </I18nContext.Provider>
+  );
+};
 
 /**
  * 🎯 FIELD MAPPING - LA CARACTERÍSTICA MÁS PODEROSA
@@ -736,6 +620,9 @@ const mockFormService = {
 };
 
 function FieldMappingDemo() {
+  const { t, language, setLanguage } = useTranslation();
+  const { mode, setMode, isDark, primaryColor, setPrimaryColor } = useTheme();
+
   const [processName] = useState('ExpenseRequest');
   const [currentUser] = useState({ username: 'juan.perez' });
   const [step, setStep] = useState('idle');
@@ -839,18 +726,83 @@ function FieldMappingDemo() {
 
   return (
     <div className="app-container">
-      <div className="card header-card">
-        <h1>🎯 Field Mapping Demo</h1>
-        <p className="subtitle">4 campos en el form → 10 parámetros al proceso</p>
+      <div className="card">
+        {/* Theme and Language Controls */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <button
+            type="button"
+            onClick={() => setLanguage(language === 'es' ? 'en' : 'es')}
+            style={{
+              padding: '6px 12px',
+              background: isDark ? '#374151' : '#f3f4f6',
+              color: isDark ? '#f9fafb' : '#111827',
+              border: \`1px solid \${isDark ? '#4b5563' : '#d1d5db'}\`,
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            {language === 'es' ? '🇪🇸 ES' : '🇬🇧 EN'}
+          </button>
+
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {['light', 'dark', 'system'].map(themeMode => (
+                <button
+                  key={themeMode}
+                  type="button"
+                  onClick={() => setMode(themeMode)}
+                  style={{
+                    padding: '6px 12px',
+                    background: mode === themeMode ? (isDark ? '#4b5563' : '#e5e7eb') : 'transparent',
+                    color: isDark ? '#f9fafb' : '#111827',
+                    border: \`1px solid \${isDark ? '#4b5563' : '#d1d5db'}\`,
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '12px'
+                  }}
+                >
+                  {themeMode === 'light' ? '☀️' : themeMode === 'dark' ? '🌙' : '💻'}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {[
+                { name: 'orange', color: '#f97316' },
+                { name: 'blue', color: '#3b82f6' },
+                { name: 'purple', color: '#a855f7' }
+              ].map(({ name, color }) => (
+                <button
+                  key={name}
+                  type="button"
+                  onClick={() => setPrimaryColor(color)}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    background: color,
+                    border: primaryColor === color ? '2px solid ' + (isDark ? '#fff' : '#000') : '1px solid ' + (isDark ? '#4b5563' : '#d1d5db'),
+                    borderRadius: '6px',
+                    cursor: 'pointer'
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <h1>{t('title')}</h1>
+        <p className="subtitle">{t('subtitle')}</p>
       </div>
 
       {/* PASO 1: Preparar */}
       {step === 'idle' && (
         <div className="card">
-          <h2>1️⃣ Preparar Formulario</h2>
+          <h2>1️⃣ {t('step1')}</h2>
           <p>Proceso: <strong>{processName}</strong></p>
           <button onClick={handlePrepareForm} className="btn-primary">
-            Preparar Formulario
+            {t('step1')}
           </button>
         </div>
       )}
@@ -858,7 +810,7 @@ function FieldMappingDemo() {
       {step === 'loading' && (
         <div className="card loading">
           <div className="spinner"></div>
-          <p>Cargando parámetros...</p>
+          <p>{t('loading')}</p>
         </div>
       )}
 
@@ -970,7 +922,7 @@ function FieldMappingDemo() {
               ← Volver
             </button>
             <button onClick={handleSubmit} className="btn-primary">
-              Iniciar Proceso con Field Mapping
+              {t('submit')}
             </button>
           </div>
         </div>
@@ -979,14 +931,14 @@ function FieldMappingDemo() {
       {step === 'submitting' && (
         <div className="card loading">
           <div className="spinner"></div>
-          <p>Iniciando proceso...</p>
+          <p>{t('loading')}</p>
         </div>
       )}
 
       {/* PASO 3: Resultado */}
       {step === 'success' && result && (
         <div className="card success">
-          <h2>✅ Proceso Iniciado - Field Mapping Exitoso</h2>
+          <h2>✅ {t('success')}</h2>
 
           <div className="magic-banner">
             <h3>✨ La Magia del Field Mapping</h3>
@@ -1068,7 +1020,15 @@ function FieldMappingDemo() {
   );
 }
 
-export default FieldMappingDemo;`,
+export default function App() {
+  return (
+    <ThemeProvider>
+      <I18nProvider>
+        <FieldMappingDemo />
+      </I18nProvider>
+    </ThemeProvider>
+  );
+}`,
               '/styles.css': `* {
   box-sizing: border-box;
   margin: 0;
