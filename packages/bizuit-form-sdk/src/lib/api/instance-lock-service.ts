@@ -13,11 +13,11 @@ import type {
 
 export class BizuitInstanceLockService {
   private client: BizuitHttpClient
-  private dashboardApiUrl: string
+  private apiUrl: string
 
   constructor(config: IBizuitConfig) {
     this.client = new BizuitHttpClient(config)
-    this.dashboardApiUrl = config.dashboardApiUrl
+    this.apiUrl = config.apiUrl
   }
 
   /**
@@ -33,7 +33,7 @@ export class BizuitInstanceLockService {
     })
 
     const status = await this.client.get<boolean>(
-      `${this.dashboardApiUrl}/instances/status/${instanceId}?activityName=${activityName}`
+      `${this.apiUrl}/instances/status/${instanceId}?activityName=${activityName}`
     )
 
     this.client.clearBizuitHeaders()
@@ -61,7 +61,7 @@ export class BizuitInstanceLockService {
     })
 
     const result = await this.client.patch<ILockStatus>(
-      `${this.dashboardApiUrl}/instances/lock/${request.instanceId}?${queryParams.toString()}`
+      `${this.apiUrl}/instances/lock/${request.instanceId}?${queryParams.toString()}`
     )
 
     this.client.clearBizuitHeaders()
@@ -81,7 +81,7 @@ export class BizuitInstanceLockService {
     })
 
     const result = await this.client.patch<ILockStatus>(
-      `${this.dashboardApiUrl}/instances/unlock/${request.instanceId}`,
+      `${this.apiUrl}/instances/unlock/${request.instanceId}`,
       request
     )
 

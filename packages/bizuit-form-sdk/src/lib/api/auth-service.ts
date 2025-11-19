@@ -16,13 +16,11 @@ import type {
 
 export class BizuitAuthService {
   private client: BizuitHttpClient
-  private formsApiUrl: string
-  private dashboardApiUrl: string
+  private apiUrl: string
 
   constructor(config: IBizuitConfig) {
     this.client = new BizuitHttpClient(config)
-    this.formsApiUrl = config.formsApiUrl
-    this.dashboardApiUrl = config.dashboardApiUrl
+    this.apiUrl = config.apiUrl
   }
 
   /**
@@ -55,7 +53,7 @@ export class BizuitAuthService {
 
     try {
       const response = await this.client.post<IAuthCheckResponse>(
-        `${this.formsApiUrl}/Login/CheckFormAuth`,
+        `${this.apiUrl}/Login/CheckFormAuth`,
         request,
         { headers }
       )
@@ -81,7 +79,7 @@ export class BizuitAuthService {
     })
 
     const userInfo = await this.client.get<IUserInfo>(
-      `${this.formsApiUrl}/Login/UserInfo`
+      `${this.apiUrl}/Login/UserInfo`
     )
 
     this.client.clearBizuitHeaders()
@@ -94,7 +92,7 @@ export class BizuitAuthService {
    */
   async getLoginConfiguration(): Promise<Partial<ILoginSettings>> {
     const config = await this.client.get<Partial<ILoginSettings>>(
-      `${this.formsApiUrl}/Login/LoginConfiguration`
+      `${this.apiUrl}/Login/LoginConfiguration`
     )
 
     return config
@@ -144,7 +142,7 @@ export class BizuitAuthService {
    * Login methods (delegated to Bizuit Dashboard API)
    */
   async azureLogin(idToken: string, accessToken: string): Promise<any> {
-    return this.client.post(`${this.formsApiUrl}/Login/AzureLogin`, {
+    return this.client.post(`${this.apiUrl}/Login/AzureLogin`, {
       idToken,
       accessToken,
     })
@@ -152,12 +150,12 @@ export class BizuitAuthService {
 
   async oauthLogin(code: string, redirectUri: string): Promise<any> {
     return this.client.get(
-      `${this.formsApiUrl}/Login/GetOauthLoginAsync?code=${code}&redirectUri=${redirectUri}`
+      `${this.apiUrl}/Login/GetOauthLoginAsync?code=${code}&redirectUri=${redirectUri}`
     )
   }
 
   async socialLogin(token: string, type: 'google' | 'facebook'): Promise<any> {
-    return this.client.get(`${this.formsApiUrl}/Login/SocialLogin?type=${type}`, {
+    return this.client.get(`${this.apiUrl}/Login/SocialLogin?type=${type}`, {
       headers: {
         Authorization: `Basic ${token}`,
       },
@@ -193,7 +191,7 @@ export class BizuitAuthService {
     try {
       // The API returns a JSON object with token and user info
       const response = await this.client.get<any>(
-        `${this.dashboardApiUrl}/Login`,
+        `${this.apiUrl}/Login`,
         {
           headers: {
             'Authorization': authHeader,

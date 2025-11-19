@@ -15,11 +15,11 @@ import type {
 
 export class BizuitProcessService {
   private client: BizuitHttpClient
-  private formsApiUrl: string
+  private apiUrl: string
 
   constructor(config: IBizuitConfig) {
     this.client = new BizuitHttpClient(config)
-    this.formsApiUrl = config.formsApiUrl
+    this.apiUrl = config.apiUrl
   }
 
   /**
@@ -70,7 +70,7 @@ export class BizuitProcessService {
     }
 
     const processData = await this.client.get<IProcessData>(
-      `${this.formsApiUrl}/Process/Initialize?${queryParams.toString()}`,
+      `${this.apiUrl}/Process/Initialize?${queryParams.toString()}`,
       { headers }
     )
 
@@ -141,7 +141,7 @@ export class BizuitProcessService {
     }
 
     const result = await this.client.post<IProcessResult>(
-      `${this.formsApiUrl}/instances`,
+      `${this.apiUrl}/instances`,
       payload,
       { headers }
     )
@@ -177,7 +177,7 @@ export class BizuitProcessService {
     // Always add version parameter, even if empty (API requires it)
     queryParams.append('version', version || '')
 
-    const url = `${this.formsApiUrl}/eventmanager/workflowDefinition/parameters/${processName}?${queryParams.toString()}`
+    const url = `${this.apiUrl}/eventmanager/workflowDefinition/parameters/${processName}?${queryParams.toString()}`
 
     const parameters = await this.client.get<any[]>(url, { headers })
 
@@ -203,7 +203,7 @@ export class BizuitProcessService {
     }
 
     const data = await this.client.get<IProcessData>(
-      `${this.formsApiUrl}/instances?instanceId=${instanceId}`,
+      `${this.apiUrl}/instances?instanceId=${instanceId}`,
       { headers }
     )
 
@@ -223,7 +223,7 @@ export class BizuitProcessService {
     }
 
     const result = await this.client.post<{ sessionToken: string; processData: IProcessData }>(
-      `${this.formsApiUrl}/ProcessInstance/AcquireLock`,
+      `${this.apiUrl}/ProcessInstance/AcquireLock`,
       { instanceId: params.instanceId },
       { headers }
     )
@@ -243,7 +243,7 @@ export class BizuitProcessService {
     }
 
     await this.client.post<void>(
-      `${this.formsApiUrl}/ProcessInstance/ReleaseLock`,
+      `${this.apiUrl}/ProcessInstance/ReleaseLock`,
       { instanceId: params.instanceId },
       { headers }
     )
@@ -303,7 +303,7 @@ export class BizuitProcessService {
     }
 
     const result = await this.client.put<IProcessResult>(
-      `${this.formsApiUrl}/instances`,
+      `${this.apiUrl}/instances`,
       payload,
       { headers }
     )
@@ -328,7 +328,7 @@ export class BizuitProcessService {
     }
 
     const result = await this.client.get<Record<string, any>>(
-      `${this.formsApiUrl}/bpmn/configuration-settings?organizationId=${organizationId}`,
+      `${this.apiUrl}/bpmn/configuration-settings?organizationId=${organizationId}`,
       { headers }
     )
 

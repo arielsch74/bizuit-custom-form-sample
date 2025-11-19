@@ -61,8 +61,8 @@ export async function POST(request: NextRequest) {
 
   // Initialize SDK without React dependencies
   const sdk = new BizuitSDK({
-    formsApiUrl: process.env.BIZUIT_FORMS_API_URL!,
-    dashboardApiUrl: process.env.BIZUIT_DASHBOARD_API_URL!
+    apiUrl: process.env.BIZUIT_API_URL!,
+    
   })
 
   // Authenticate
@@ -88,8 +88,8 @@ export async function POST(request: NextRequest) {
 import { BizuitSDK } from '@tyconsa/bizuit-form-sdk/core'
 
 const sdk = new BizuitSDK({
-  formsApiUrl: 'https://api.bizuit.com/forms/api',
-  dashboardApiUrl: 'https://api.bizuit.com/dashboard/api'
+  apiUrl: 'https://api.bizuit.com/api'
+  
 })
 
 async function createInstance(processName: string, data: any) {

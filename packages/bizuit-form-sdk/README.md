@@ -76,8 +76,8 @@ export async function POST(request: NextRequest) {
 
   // Initialize SDK (no React dependencies)
   const sdk = new BizuitSDK({
-    formsApiUrl: process.env.BIZUIT_FORMS_API_URL!,
-    dashboardApiUrl: process.env.BIZUIT_DASHBOARD_API_URL!
+    apiUrl: process.env.BIZUIT_API_URL!,
+    
   })
 
   // Authenticate
@@ -428,8 +428,8 @@ function App() {
   return (
     <BizuitSDKProvider
       config={{
-        formsApiUrl: 'https://your-server.com/api',
-        dashboardApiUrl: 'https://your-server.com/api',
+        apiUrl: 'https://your-server.com/api'
+        
         timeout: 120000,
       }}
     >
@@ -562,8 +562,8 @@ Main SDK class providing access to all services.
 
 ```typescript
 const sdk = new BizuitSDK({
-  formsApiUrl: string
-  dashboardApiUrl: string
+  apiUrl: string
+  
   timeout?: number
   defaultHeaders?: Record<string, string>
 })

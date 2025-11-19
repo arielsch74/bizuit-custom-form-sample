@@ -12,8 +12,7 @@ export type Result<T, E = Error> =
   | { success: false; error: E }
 
 export interface IBizuitConfig {
-  formsApiUrl: string
-  dashboardApiUrl: string
+  apiUrl: string
   timeout?: number
   defaultHeaders?: Record<string, string>
 }
