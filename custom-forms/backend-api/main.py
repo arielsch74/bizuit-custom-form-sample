@@ -632,6 +632,87 @@ def get_form_compiled_code(form_name: str, version: str = None):
         raise HTTPException(status_code=500, detail=f"Failed to fetch form code: {str(e)}")
 
 
+# ==============================================================================
+# Security Functions for File Upload
+# ==============================================================================
+
+# Configuration constants
+MAX_ZIP_FILES = 100
+MAX_ZIP_SIZE_MB = 50
+ALLOWED_EXTENSIONS = {'.json', '.js', '.map', '.txt', '.md'}
+
+def safe_extract(zip_file: zipfile.ZipFile, extract_dir: Path) -> List[str]:
+    """
+    SECURITY: Extrae ZIP validando que no hay path traversal (Zip Slip)
+
+    Validates:
+    - No path traversal attempts (../, ..\)
+    - File count limit (max MAX_ZIP_FILES files)
+    - Total size limit (max MAX_ZIP_SIZE_MB MB)
+    - Allowed file extensions only
+    - No dangerous characters in filenames
+
+    Args:
+        zip_file: ZipFile object to extract
+        extract_dir: Destination directory (must be absolute path)
+
+    Returns:
+        List of extracted file paths (relative to extract_dir)
+
+    Raises:
+        ValueError: If validation fails (path traversal, too many files, etc.)
+    """
+    extract_dir = extract_dir.resolve()
+    members = zip_file.namelist()
+
+    # SECURITY: Validar número de archivos
+    if len(members) > MAX_ZIP_FILES:
+        raise ValueError(
+            f"Zip contains too many files. Max: {MAX_ZIP_FILES}, Found: {len(members)}"
+        )
+
+    # SECURITY: Validar tamaño total
+    total_size = sum(zinfo.file_size for zinfo in zip_file.filelist)
+    max_size_bytes = MAX_ZIP_SIZE_MB * 1024 * 1024
+    if total_size > max_size_bytes:
+        raise ValueError(
+            f"Zip too large. Max: {MAX_ZIP_SIZE_MB}MB, "
+            f"Found: {total_size / 1024 / 1024:.2f}MB"
+        )
+
+    extracted_files = []
+
+    for member in members:
+        # SECURITY: Validar que el path no sale del directorio (Zip Slip prevention)
+        member_path = (extract_dir / member).resolve()
+
+        if not str(member_path).startswith(str(extract_dir)):
+            raise ValueError(f"Zip Slip attempt detected: {member}")
+
+        # SECURITY: Validar extensiones permitidas
+        file_ext = Path(member).suffix.lower()
+        if file_ext and file_ext not in ALLOWED_EXTENSIONS:
+            raise ValueError(
+                f"Invalid file type in zip: {member} (extension: {file_ext}). "
+                f"Allowed: {', '.join(ALLOWED_EXTENSIONS)}"
+            )
+
+        # SECURITY: Validar nombres de archivo (no caracteres peligrosos)
+        if any(char in member for char in ['..', '~', '\\']):
+            raise ValueError(f"Invalid characters in filename: {member}")
+
+        # SECURITY: Prevenir null bytes en nombres de archivo
+        if '\x00' in member:
+            raise ValueError(f"Null byte in filename: {member}")
+
+        extracted_files.append(member)
+
+    # Si todas las validaciones pasaron, extraer
+    zip_file.extractall(extract_dir)
+
+    return extracted_files
+
+
 @app.post("/api/deployment/upload", response_model=UploadDeploymentResponse, tags=["Deployment"])
 async def upload_deployment_package(
     file: UploadFile = File(...),
@@ -700,10 +781,20 @@ async def upload_deployment_package(
         with open(zip_path, "wb") as f:
             f.write(content)
 
-        # Extraer .zip
+        # SECURITY: Extraer .zip con validaciones de seguridad
         extract_dir = temp_dir / "extracted"
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(extract_dir)
+        extract_dir.mkdir(parents=True, exist_ok=True)
+
+        try:
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                extracted_files = safe_extract(zip_ref, extract_dir)
+                print(f"[Deployment API] Safely extracted {len(extracted_files)} files to: {extract_dir}")
+        except ValueError as e:
+            # Validación de seguridad falló
+            raise HTTPException(
+                status_code=400,
+                detail=f"Security validation failed: {str(e)}"
+            )
 
         print(f"[Deployment API] Extracted to: {extract_dir}")
 
