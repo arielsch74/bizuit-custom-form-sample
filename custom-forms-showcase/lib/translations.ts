@@ -73,6 +73,56 @@ export const appTranslations = {
     // Home Page (Getting Started CTA)
     'home.gettingStarted': 'Getting Started Guide',
     'home.gettingStarted.description': 'Learn how to integrate Bizuit BPM processes in your app with our interactive guide',
+
+    // Home Page - SDK Examples Section
+    'home.sdkExamples.title': 'SDK Examples',
+    'home.sdkExamples.description': 'Bizuit SDK offers TWO APIs for different needs: ProcessService (low-level, full control) and FormService (high-level, simplified workflows).',
+
+    // Home Page - Comparison Card
+    'home.comparison.title': 'Which API to use?',
+    'home.comparison.processService.title': 'ProcessService (Low-Level)',
+    'home.comparison.processService.description': 'Full control over every process step. Ideal for complex or non-standard cases.',
+    'home.comparison.processService.pro1': 'Maximum control and flexibility',
+    'home.comparison.processService.pro2': 'Custom integrations',
+    'home.comparison.processService.pro3': 'Complex business logic',
+    'home.comparison.processService.con1': 'More boilerplate code',
+    'home.comparison.formService.title': 'FormService (High-Level)',
+    'home.comparison.formService.description': 'Simplified API with helpers for common cases. Less code, optimized workflows.',
+    'home.comparison.formService.pro1': 'Less code, more productive',
+    'home.comparison.formService.pro2': 'Field mapping & transformations',
+    'home.comparison.formService.pro3': 'Automatic lock management',
+    'home.comparison.formService.pro4': 'Perfect for CRUD forms',
+
+    // Home Page - ProcessService Section
+    'home.processService.title': 'ProcessService - Low-Level API',
+    'home.processService.description': 'Manual control over each step. Use when you need full flexibility or custom logic.',
+    'home.processService.example1.title': 'Process Start',
+    'home.processService.example1.description': 'Start process with all fields manually',
+    'home.processService.example1.methods': 'getParameters(), start()',
+    'home.processService.example2.title': 'Get Instance',
+    'home.processService.example2.description': 'Load instance data and variables manually',
+    'home.processService.example2.methods': 'getInstance()',
+    'home.processService.example3.title': 'Process Continue',
+    'home.processService.example3.description': 'Continue process with lock management',
+    'home.processService.example3.methods': 'continue(), acquireLock()',
+    'home.processService.example4.title': 'Server-Side SDK',
+    'home.processService.example4.badge': 'SERVER',
+    'home.processService.example4.description': 'Use SDK from server with Next.js Server Actions',
+    'home.processService.example4.methods': '/core entry point',
+
+    // Home Page - FormService Section
+    'home.formService.title': 'FormService - High-Level API',
+    'home.formService.description': 'Simplified workflows for forms. Automatic conversion, field mapping, and less code.',
+    'home.formService.example1.title': 'Form Dynamic',
+    'home.formService.example1.description': 'Start process with automatic field conversion',
+    'home.formService.example1.methods': 'prepareStartForm(), startProcess()',
+    'home.formService.example2.title': 'Form Continue',
+    'home.formService.example2.description': 'Continue with auto lock management',
+    'home.formService.example2.methods': 'prepareContinueForm(), releaseLock()',
+    'home.formService.example3.title': 'Field Mapping',
+    'home.formService.example3.badge': 'BEST',
+    'home.formService.example3.description': 'Selective mapping + transformations + audit',
+    'home.formService.example3.methods': 'fieldMapping, additionalParameters',
   },
   es: {
     // Getting Started Page
@@ -139,6 +189,56 @@ export const appTranslations = {
     // Home Page (Getting Started CTA)
     'home.gettingStarted': 'Guía de Primeros Pasos',
     'home.gettingStarted.description': 'Aprende a integrar procesos BPM de Bizuit en tu aplicación con nuestra guía interactiva',
+
+    // Home Page - SDK Examples Section
+    'home.sdkExamples.title': 'Ejemplos del SDK',
+    'home.sdkExamples.description': 'El SDK de Bizuit ofrece DOS APIs para diferentes necesidades: ProcessService (bajo nivel, control total) y FormService (alto nivel, workflows simplificados).',
+
+    // Home Page - Comparison Card
+    'home.comparison.title': '¿Cuál API usar?',
+    'home.comparison.processService.title': 'ProcessService (Bajo Nivel)',
+    'home.comparison.processService.description': 'Control total sobre cada paso del proceso. Ideal para casos complejos o no estándar.',
+    'home.comparison.processService.pro1': 'Máximo control y flexibilidad',
+    'home.comparison.processService.pro2': 'Integraciones personalizadas',
+    'home.comparison.processService.pro3': 'Lógica de negocio compleja',
+    'home.comparison.processService.con1': 'Más código boilerplate',
+    'home.comparison.formService.title': 'FormService (Alto Nivel)',
+    'home.comparison.formService.description': 'API simplificada con helpers para casos comunes. Menos código, workflows optimizados.',
+    'home.comparison.formService.pro1': 'Menos código, más productivo',
+    'home.comparison.formService.pro2': 'Field mapping y transformaciones',
+    'home.comparison.formService.pro3': 'Lock management automático',
+    'home.comparison.formService.pro4': 'Perfecto para formularios CRUD',
+
+    // Home Page - ProcessService Section
+    'home.processService.title': 'ProcessService - API de Bajo Nivel',
+    'home.processService.description': 'Control manual sobre cada paso. Usa cuando necesitas flexibilidad total o lógica personalizada.',
+    'home.processService.example1.title': 'Process Start',
+    'home.processService.example1.description': 'Iniciar proceso con todos los campos manualmente',
+    'home.processService.example1.methods': 'getParameters(), start()',
+    'home.processService.example2.title': 'Get Instance',
+    'home.processService.example2.description': 'Cargar datos y variables de instancia manualmente',
+    'home.processService.example2.methods': 'getInstance()',
+    'home.processService.example3.title': 'Process Continue',
+    'home.processService.example3.description': 'Continuar proceso con gestión de bloqueos',
+    'home.processService.example3.methods': 'continue(), acquireLock()',
+    'home.processService.example4.title': 'Server-Side SDK',
+    'home.processService.example4.badge': 'SERVER',
+    'home.processService.example4.description': 'Usar SDK desde servidor con Next.js Server Actions',
+    'home.processService.example4.methods': '/core entry point',
+
+    // Home Page - FormService Section
+    'home.formService.title': 'FormService - API de Alto Nivel',
+    'home.formService.description': 'Workflows simplificados para formularios. Conversión automática, field mapping, y menos código.',
+    'home.formService.example1.title': 'Form Dynamic',
+    'home.formService.example1.description': 'Iniciar proceso con conversión automática de campos',
+    'home.formService.example1.methods': 'prepareStartForm(), startProcess()',
+    'home.formService.example2.title': 'Form Continue',
+    'home.formService.example2.description': 'Continuar con gestión automática de bloqueos',
+    'home.formService.example2.methods': 'prepareContinueForm(), releaseLock()',
+    'home.formService.example3.title': 'Field Mapping',
+    'home.formService.example3.badge': 'MEJOR',
+    'home.formService.example3.description': 'Mapeo selectivo + transformaciones + auditoría',
+    'home.formService.example3.methods': 'fieldMapping, additionalParameters',
   }
 }
 
