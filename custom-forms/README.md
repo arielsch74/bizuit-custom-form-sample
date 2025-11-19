@@ -1,6 +1,5 @@
 # Bizuit Custom Forms
 
-Sistema completo de formularios dinámicos para Bizuit BPM con capacidad de hot reload, versionado, y carga dinámica.
 
 **Estado**: 80% completo - Infraestructura funcional con decisión arquitectónica pendiente
 
@@ -10,7 +9,6 @@ Sistema completo de formularios dinámicos para Bizuit BPM con capacidad de hot 
 
 Sistema que permite crear, publicar y cargar formularios customizados para procesos Bizuit de forma dinámica, con soporte para:
 
-- ✅ **Hot Reload**: Detección automática de nuevas versiones cada 10 segundos
 - ✅ **Versionado**: Control de versiones con historial completo en base de datos
 - ✅ **Form Registry**: Registro centralizado con metadata de forms
 - ✅ **Backend API REST**: .NET Core con 6 endpoints
@@ -37,7 +35,6 @@ bizuit-custom-forms/
 ├── docs/                       # Documentación completa
 │   ├── DYNAMIC_FORMS.md        # 🎯 DOCUMENTO PRINCIPAL - Estado y arquitectura
 │   ├── BACKEND_IMPLEMENTATION.md  # Backend y base de datos
-│   ├── HOT_RELOAD.md           # Mecanismo de hot reload
 │   └── RUNTIME_CONFIG.md       # Configuración runtime
 ├── forms-examples/             # Forms de ejemplo (placeholder)
 └── README.md                   # Este archivo
@@ -53,7 +50,6 @@ bizuit-custom-forms/
 - Form Registry con cache y metadata
 - Dynamic routing (`/form/[formName]`)
 - API endpoints con fallbacks CDN
-- Hot reload mechanism (polling cada 10s)
 - Error handling y loading states
 - Mock API para desarrollo
 
@@ -134,7 +130,6 @@ La documentación completa está en el directorio [`/docs/`](docs/):
 
 - **[DYNAMIC_FORMS.md](docs/DYNAMIC_FORMS.md)** - 🎯 **LEER PRIMERO**: Estado actual completo, opciones arquitectónicas, y decisiones pendientes
 - **[BACKEND_IMPLEMENTATION.md](docs/BACKEND_IMPLEMENTATION.md)** - Backend API (.NET Core) y base de datos (SQL Server) con stored procedures
-- **[HOT_RELOAD.md](docs/HOT_RELOAD.md)** - Mecanismo de hot reload detallado
 - **[RUNTIME_CONFIG.md](docs/RUNTIME_CONFIG.md)** - Configuración runtime vs build-time
 
 ### 🎯 Puntos de Entrada de Lectura

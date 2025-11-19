@@ -7,7 +7,6 @@
 
 ## Resumen Ejecutivo
 
-Se implementó la infraestructura completa para un sistema de Custom Forms dinámicos con capacidad de hot reload y versionado. El frontend (UI, registro, APIs), backend (.NET Core), y base de datos (SQL Server) están 100% funcionales.
 
 **Hallazgo crítico**: La carga dinámica de componentes React desde CDN resultó técnicamente inviable debido a problemas de singleton de React. Se recomienda cambiar el approach a formularios pre-bundleados (Opción A) o evaluar Module Federation (Opción B) para el futuro.
 
@@ -118,13 +117,10 @@ interface FormMetadata {
 
 **6. Mock API para Desarrollo**
 - Simula SQL Server endpoints
-- Endpoint `GET /api/custom-forms/versions` - polling para hot reload
 - Endpoint `POST /api/custom-forms/versions` - simula publicación
-- Funcional para testing de hot reload
 
 ---
 
-### ✅ Hot Reload Mechanism - 100% Completo
 
 **Implementación**: Hook `useFormHotReload()`
 
@@ -253,7 +249,6 @@ new ModuleFederationPlugin({
 - ✅ Verdaderamente dinámico
 - ✅ React compartido garantizado
 - ✅ Optimizado para micro-frontends
-- ✅ Hot reload de forms
 
 **Desventajas**:
 - ❌ Requiere Webpack (Next.js usa Turbopack en v15)
@@ -357,7 +352,6 @@ new ModuleFederationPlugin({
 **API Routes**:
 - `app/api/forms/fetch/route.ts` - CDN proxy ✅
 - `app/api/forms/reload/route.ts` - Webhook endpoint ✅
-- `app/api/custom-forms/versions/route.ts` - Mock API para hot reload ✅
 
 **UI Components**:
 - `components/FormContainer.tsx` - Form layout wrapper ✅
@@ -369,7 +363,6 @@ new ModuleFederationPlugin({
 - `app/forms/page.tsx` - Lista de forms disponibles ✅
 
 **Hooks**:
-- `hooks/useFormHotReload.ts` - Hot reload mechanism ✅
 
 ### Backend (`/BIZUITFormsAPI/`)
 
@@ -449,7 +442,6 @@ Developer → npm publish → Forms CDN Server
 
 ## 🔗 Referencias y Documentación Relacionada
 
-- [HOT_RELOAD.md](./HOT_RELOAD.md) - Mecanismo de hot reload en detalle
 - [BACKEND_IMPLEMENTATION.md](./BACKEND_IMPLEMENTATION.md) - Backend API y base de datos
 - [RUNTIME_CONFIG.md](./RUNTIME_CONFIG.md) - Configuración runtime vs build-time
 - [/custom-forms-showcase/README.md](../custom-forms-showcase/README.md) - Documentación del proyecto de ejemplo
@@ -458,7 +450,6 @@ Developer → npm publish → Forms CDN Server
 
 ## 🎬 Conclusión y Próximos Pasos
 
-**El sistema está 80% completo**. Toda la infraestructura (UI, registry, APIs, backend, database, error handling, hot reload) está funcional y bien arquitecturada.
 
 **Decisión crítica pendiente**: Elegir entre:
 - **Opción A (Pre-bundle)** - Implementación inmediata, MVP rápido, excelente DX

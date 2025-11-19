@@ -4,8 +4,7 @@ import { use, useEffect, useState } from 'react'
 import { FormContainer } from '@/components/FormContainer'
 import { FormLoadingState } from '@/components/FormLoadingState'
 import { FormErrorBoundary } from '@/components/FormErrorBoundary'
-import { loadDynamicFormCached, invalidateFormCache } from '@/lib/form-loader'
-import { useFormHotReload } from '@/hooks/useFormHotReload'
+import { loadDynamicFormCached } from '@/lib/form-loader'
 import { getDashboardParameters, DashboardParameters, isFromDashboard } from '@/lib/dashboard-params'
 
 interface Props {
@@ -83,24 +82,6 @@ export default function DynamicFormPage({ params }: Props) {
     loadForm()
   }, [formName])
 
-  // Hot reload: detectar nuevas versiones y recargar automáticamente
-  const { hasUpdate, latestVersion } = useFormHotReload({
-    formName,
-    currentVersion: formMetadata?.currentVersion || '0.0.0',
-    pollingInterval: 10000, // 10 segundos
-    enabled: !!formMetadata, // Solo activar después de cargar metadata inicial
-    onVersionChange: (newVersion) => {
-      console.log(`[Hot Reload] 🔥 Nueva versión detectada: ${formMetadata?.currentVersion} → ${newVersion}`)
-      console.log('[Hot Reload] Invalidando cache y recargando form...')
-
-      // Invalidar cache
-      invalidateFormCache(formName)
-
-      // Recargar form con nueva versión
-      loadForm()
-    }
-  })
-
   // Loading state
   if (loading) {
     return <FormLoadingState formName={formName} />
@@ -123,24 +104,6 @@ export default function DynamicFormPage({ params }: Props) {
       formName={formName}
       formVersion={formMetadata?.currentVersion}
     >
-      {hasUpdate && (
-        <div style={{
-          position: 'fixed',
-          top: '1rem',
-          right: '1rem',
-          padding: '0.75rem 1rem',
-          backgroundColor: '#10b981',
-          color: 'white',
-          borderRadius: '0.5rem',
-          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-          zIndex: 9999,
-          fontSize: '0.875rem',
-          fontWeight: '500'
-        }}>
-          🔥 Nueva versión cargada: {latestVersion}
-        </div>
-      )}
-
       {/* Render form with Dashboard parameters (if any) */}
       <FormComponent dashboardParams={dashboardParams} />
     </FormContainer>

@@ -27,12 +27,7 @@ export default function HomePage() {
           </div>
 
           {/* Features Grid */}
-          <div className="grid md:grid-cols-2 gap-6 mb-12">
-            <FeatureCard
-              icon="🔄"
-              title={t('features.hotReload.title')}
-              description={t('features.hotReload.description')}
-            />
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
             <FeatureCard
               icon="📦"
               title={t('features.versioning.title')}
@@ -85,40 +80,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Documentation Links */}
-          <div className="mt-8 text-center text-sm text-slate-600 dark:text-slate-400">
-            <p className="mb-2">{t('home.documentation')}</p>
-            <div className="flex justify-center gap-4 flex-wrap">
-              <a
-                href="https://github.com/tyconsa/bizuit-custom-forms"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-primary dark:hover:text-primary underline"
-              >
-                GitHub
-              </a>
-              <span>•</span>
-              <Link
-                href="/admin"
-                className="hover:text-primary dark:hover:text-primary underline"
-              >
-                {t('home.adminPanel.link')}
-              </Link>
-              {backendApiUrl && (
-                <>
-                  <span>•</span>
-                  <a
-                    href={`${backendApiUrl}/docs`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-primary dark:hover:text-primary underline"
-                  >
-                    API Docs
-                  </a>
-                </>
-              )}
-            </div>
-          </div>
         </div>
       </div>
     </div>

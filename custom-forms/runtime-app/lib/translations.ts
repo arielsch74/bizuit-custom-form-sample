@@ -10,8 +10,6 @@ export const translations = {
     'home.adminPanel.link': 'Admin Panel',
 
     // Features
-    'features.hotReload.title': 'Hot Reload',
-    'features.hotReload.description': 'Automatic detection of new versions every 10 seconds',
     'features.versioning.title': 'Versioning',
     'features.versioning.description': 'Version control with complete history',
     'features.registry.title': 'Form Registry',
@@ -110,8 +108,6 @@ export const translations = {
     'home.adminPanel.link': 'Panel Admin',
 
     // Features
-    'features.hotReload.title': 'Hot Reload',
-    'features.hotReload.description': 'Detección automática de nuevas versiones cada 10 segundos',
     'features.versioning.title': 'Versionado',
     'features.versioning.description': 'Control de versiones con historial completo',
     'features.registry.title': 'Form Registry',

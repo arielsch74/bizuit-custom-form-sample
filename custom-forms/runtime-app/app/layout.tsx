@@ -12,7 +12,7 @@ const quicksand = Quicksand({
 
 export const metadata: Metadata = {
   title: "BIZUIT Custom Forms - Runtime App",
-  description: "Runtime application for BIZUIT Custom Forms with hot reload support",
+  description: "Runtime application for BIZUIT Custom Forms with dynamic form loading",
 };
 
 export default function RootLayout({

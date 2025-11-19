@@ -398,7 +398,6 @@ public async Task<ActionResult<string>> GetCustomFormCode(string name)
 ```
 
 #### 4. `GET /api/custom-forms/versions`
-Obtiene versiones actuales de todos los forms (usado por hot reload).
 
 ```csharp
 [HttpGet("versions")]
@@ -516,7 +515,6 @@ public async Task<IEnumerable<CustomFormDto>> GetAllCustomFormsAsync()
 3. **`CustomFormVersionDto`** - Versión individual
 4. **`CreateCustomFormDto`** - Crear form
 5. **`PublishVersionDto`** - Publicar versión
-6. **`FormVersionInfo`** - Info de versión para hot reload
 
 ---
 
@@ -611,7 +609,6 @@ curl http://localhost:5000/api/custom-forms \
 # ]
 ```
 
-### Test de Versiones (Hot Reload)
 
 ```bash
 # GET versions (sin auth)
@@ -685,7 +682,6 @@ curl http://localhost:5000/api/custom-forms/versions
 ### Caching
 
 - **Endpoint `/code`**: Cache de 5 minutos
-- **Endpoint `/versions`**: Sin cache (hot reload requiere datos fresh)
 
 ### Índices de Base de Datos
 
@@ -715,7 +711,6 @@ Dapper + SqlConnection utiliza connection pooling por defecto de .NET.
 ### Authentication Issues
 - Verificar atributo `[Authorize]` en controller
 - Verificar token JWT en header: `Authorization: Bearer <token>`
-- Endpoint `/versions` es `[AllowAnonymous]` para hot reload
 
 ---
 
@@ -726,7 +721,6 @@ Dapper + SqlConnection utiliza connection pooling por defecto de .NET.
 | Listar forms disponibles | `/api/custom-forms` | GET |
 | Cargar metadata de form | `/api/custom-forms/{name}/metadata` | GET |
 | Cargar código compilado | `/api/custom-forms/{name}/code` | GET |
-| Hot reload polling | `/api/custom-forms/versions` | GET |
 | Publicar nuevo form | `/api/custom-forms` | POST |
 | Publicar nueva versión | `/api/custom-forms/versions` | POST |
 | Historial de versiones | `/api/custom-forms/{name}/versions` | GET |
