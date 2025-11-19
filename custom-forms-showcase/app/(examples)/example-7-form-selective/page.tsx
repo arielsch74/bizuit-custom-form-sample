@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useBizuitSDK, type IBizuitProcessParameter } from '@tyconsa/bizuit-form-sdk'
 import { DynamicFormField, Button, useBizuitAuth, useTranslation, BizuitCard } from '@tyconsa/bizuit-ui-components'
 import { RequireAuth } from '@/components/require-auth'
+import { LiveCodeEditor } from '@/components/live-code-editor'
 import Link from 'next/link'
 
 /**

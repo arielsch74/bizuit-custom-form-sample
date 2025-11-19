@@ -604,7 +604,7 @@ function FormServiceDemo() {
             <div className="detail-row">
               <span className="label">Total Calculado:</span>
               <span className="value highlight">
-                ${result.calculatedTotal.toFixed(2)}
+                ${result.calculatedTotal?.toFixed(2) || '0.00'}
               </span>
             </div>
             <div className="detail-row">
