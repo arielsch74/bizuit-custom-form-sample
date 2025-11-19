@@ -276,17 +276,53 @@ const I18nProvider = ({ children }) => {
       step3: 'Liberar Lock',
       loadingInstance: 'Cargando instancia...',
       updatingProcess: 'Actualizando proceso...',
+      updatingInstance: 'Actualizando instancia...',
       releasingLock: 'Liberando lock...',
       processUpdated: 'Proceso Actualizado Exitosamente',
+      instanceUpdated: 'Instancia Actualizada',
       lockReleased: 'Lock Liberado',
       submit: 'Actualizar Proceso',
       release: 'Liberar Lock',
       startNew: 'Cargar Nueva Instancia',
       lockInfo: 'Información del Lock',
+      session: 'Session',
+      activity: 'Actividad',
+      duration: 'Duración',
+      instanceId: 'Instance ID',
+      process: 'Proceso',
+      loadWithPrepare: 'Cargar con prepareContinueForm(autoLock: true)',
+      prepareHint: 'prepareContinueForm() adquirirá el lock automáticamente',
+      lockActive: 'Lock activo - Tienes control exclusivo de esta instancia',
+      instanceInfo: 'Información de la Instancia',
+      status: 'Estado',
+      created: 'Creada',
+      addNotes: 'Agregar notas de actualización...',
+      cancelRelease: 'Cancelar (libera lock)',
+      continueProcess: 'Continuar Proceso',
+      nextActivity: 'Siguiente Actividad',
+      fieldsUpdated: 'Campos Actualizados',
+      fields: 'campos',
+      timestamp: 'Timestamp',
+      dataSent: 'Datos enviados',
+      lockStillActive: 'Lock aún activo',
+      lockWarning: 'Debes liberar el lock para que otros usuarios puedan editar esta instancia',
+      releaseLockBtn: 'Liberar Lock con releaseLock()',
+      error: 'Error',
+      retry: 'Reintentar',
       whyLocks: '¿Por qué usar Locks?',
-      preventConflicts: 'Previene conflictos: Solo un usuario puede editar la instancia a la vez',
-      dataConsistency: 'Consistencia de datos: Garantiza que los cambios no se sobrescriban',
-      autoManagement: 'Gestión automática: FormService maneja todo con autoLock: true'
+      preventConflicts: 'Previene conflictos: Solo un usuario puede editar a la vez',
+      consistency: 'Consistencia: Evita sobrescritura de cambios',
+      automatic: 'Automático: FormService maneja acquire/release por ti',
+      secure: 'Seguro: Los locks expiran automáticamente si el usuario se desconecta',
+      workflow: 'Workflow de Lock Management',
+      workflowStep1: 'prepareContinueForm(autoLock: true)',
+      workflowStep1Desc: 'Carga instancia + Adquiere lock',
+      workflowStep2: 'Usuario edita formulario',
+      workflowStep2Desc: 'Lock activo, edición exclusiva',
+      workflowStep3: 'continueProcess(formData)',
+      workflowStep3Desc: 'Actualiza instancia',
+      workflowStep4: 'releaseLock()',
+      workflowStep4Desc: 'Libera para otros usuarios'
     },
     en: {
       title: 'Lock Management Demo',
@@ -296,17 +332,53 @@ const I18nProvider = ({ children }) => {
       step3: 'Release Lock',
       loadingInstance: 'Loading instance...',
       updatingProcess: 'Updating process...',
+      updatingInstance: 'Updating instance...',
       releasingLock: 'Releasing lock...',
       processUpdated: 'Process Updated Successfully',
+      instanceUpdated: 'Instance Updated',
       lockReleased: 'Lock Released',
       submit: 'Update Process',
       release: 'Release Lock',
       startNew: 'Load New Instance',
       lockInfo: 'Lock Information',
+      session: 'Session',
+      activity: 'Activity',
+      duration: 'Duration',
+      instanceId: 'Instance ID',
+      process: 'Process',
+      loadWithPrepare: 'Load with prepareContinueForm(autoLock: true)',
+      prepareHint: 'prepareContinueForm() will acquire the lock automatically',
+      lockActive: 'Lock active - You have exclusive control of this instance',
+      instanceInfo: 'Instance Information',
+      status: 'Status',
+      created: 'Created',
+      addNotes: 'Add update notes...',
+      cancelRelease: 'Cancel (releases lock)',
+      continueProcess: 'Continue Process',
+      nextActivity: 'Next Activity',
+      fieldsUpdated: 'Updated Fields',
+      fields: 'fields',
+      timestamp: 'Timestamp',
+      dataSent: 'Data sent',
+      lockStillActive: 'Lock still active',
+      lockWarning: 'You must release the lock so other users can edit this instance',
+      releaseLockBtn: 'Release Lock with releaseLock()',
+      error: 'Error',
+      retry: 'Retry',
       whyLocks: 'Why Use Locks?',
-      preventConflicts: 'Prevents conflicts: Only one user can edit the instance at a time',
-      dataConsistency: 'Data consistency: Ensures changes are not overwritten',
-      autoManagement: 'Automatic management: FormService handles everything with autoLock: true'
+      preventConflicts: 'Prevents conflicts: Only one user can edit at a time',
+      consistency: 'Consistency: Prevents change overwriting',
+      automatic: 'Automatic: FormService handles acquire/release for you',
+      secure: 'Secure: Locks expire automatically if user disconnects',
+      workflow: 'Lock Management Workflow',
+      workflowStep1: 'prepareContinueForm(autoLock: true)',
+      workflowStep1Desc: 'Load instance + Acquire lock',
+      workflowStep2: 'User edits form',
+      workflowStep2Desc: 'Lock active, exclusive editing',
+      workflowStep3: 'continueProcess(formData)',
+      workflowStep3Desc: 'Update instance',
+      workflowStep4: 'releaseLock()',
+      workflowStep4Desc: 'Release for other users'
     }
   };
 
@@ -632,11 +704,11 @@ function LockManagementDemo() {
             <div>
               <div className="lock-text">{t('lockInfo')}</div>
               <div className="lock-details">
-                Session: {lockInfo.sessionToken?.substr(0, 12)}...
+                {t('session')}: {lockInfo.sessionToken?.substr(0, 12)}...
                 <br />
-                Actividad: {lockInfo.activityName}
+                {t('activity')}: {lockInfo.activityName}
                 <br />
-                Duración: {getLockDuration()}
+                {t('duration')}: {getLockDuration()}
               </div>
             </div>
           </div>
@@ -649,11 +721,11 @@ function LockManagementDemo() {
           <h2>1️⃣ {t('step1')}</h2>
           <div className="instance-info">
             <div className="info-row">
-              <span className="label">Instance ID:</span>
+              <span className="label">{t('instanceId')}:</span>
               <span className="value">{instanceId}</span>
             </div>
             <div className="info-row">
-              <span className="label">Proceso:</span>
+              <span className="label">{t('process')}:</span>
               <span className="value">{processName}</span>
             </div>
           </div>
@@ -662,10 +734,10 @@ function LockManagementDemo() {
             className="btn-primary"
             style={{ background: primaryColor }}
           >
-            Cargar con prepareContinueForm(autoLock: true)
+            {t('loadWithPrepare')}
           </button>
           <p className="hint">
-            ✨ prepareContinueForm() adquirirá el lock automáticamente
+            ✨ {t('prepareHint')}
           </p>
         </div>
       )}
@@ -682,19 +754,19 @@ function LockManagementDemo() {
         <div className="card">
           <h2>2️⃣ {t('step2')}</h2>
           <p className="info">
-            🔒 Lock activo - Tienes control exclusivo de esta instancia
+            🔒 {t('lockActive')}
           </p>
 
           {/* Instance Details */}
           <div className="instance-details">
-            <h3>📋 Información de la Instancia</h3>
+            <h3>📋 {t('instanceInfo')}</h3>
             <div className="detail-grid">
               <div className="detail-item">
-                <span className="label">Estado:</span>
+                <span className="label">{t('status')}:</span>
                 <span className="badge status-pending">{instance?.status}</span>
               </div>
               <div className="detail-item">
-                <span className="label">Creada:</span>
+                <span className="label">{t('created')}:</span>
                 <span className="value">{new Date(instance?.createdDate).toLocaleString()}</span>
               </div>
             </div>
@@ -717,7 +789,7 @@ function LockManagementDemo() {
                       ? parseFloat(e.target.value) || 0
                       : e.target.value
                   )}
-                  placeholder={param.name === 'notes' ? 'Agregar notas de actualización...' : ''}
+                  placeholder={param.name === 'notes' ? t('addNotes') : ''}
                 />
               </div>
             ))}
@@ -725,14 +797,14 @@ function LockManagementDemo() {
 
           <div className="button-group">
             <button onClick={reset} className="btn-secondary">
-              ❌ Cancelar (libera lock)
+              ❌ {t('cancelRelease')}
             </button>
             <button
               onClick={handleContinueProcess}
               className="btn-primary"
               style={{ background: primaryColor }}
             >
-              ✅ Continuar Proceso
+              ✅ {t('continueProcess')}
             </button>
           </div>
         </div>
@@ -741,46 +813,46 @@ function LockManagementDemo() {
       {step === 'submitting' && (
         <div className="card loading">
           <div className="spinner"></div>
-          <p>Actualizando instancia...</p>
+          <p>{t('updatingInstance')}</p>
         </div>
       )}
 
       {/* PASO 3: Éxito - Liberar lock */}
       {step === 'success' && result && (
         <div className="card success">
-          <h2>✅ Instancia Actualizada</h2>
+          <h2>✅ {t('instanceUpdated')}</h2>
 
           <div className="result-details">
             <div className="detail-row">
-              <span className="label">Instance ID:</span>
+              <span className="label">{t('instanceId')}:</span>
               <span className="value">{result.instanceId}</span>
             </div>
             <div className="detail-row">
-              <span className="label">Siguiente Actividad:</span>
+              <span className="label">{t('nextActivity')}:</span>
               <span className="badge status-active">{result.nextActivity}</span>
             </div>
             <div className="detail-row">
-              <span className="label">Campos Actualizados:</span>
-              <span className="value">{result.updatedFields.length} campos</span>
+              <span className="label">{t('fieldsUpdated')}:</span>
+              <span className="value">{result.updatedFields.length} {t('fields')}</span>
             </div>
             <div className="detail-row">
-              <span className="label">Timestamp:</span>
+              <span className="label">{t('timestamp')}:</span>
               <span className="value">{new Date(result.timestamp).toLocaleString()}</span>
             </div>
           </div>
 
           <div className="preview">
-            <h3>📦 Datos enviados:</h3>
+            <h3>📦 {t('dataSent')}:</h3>
             <pre>{JSON.stringify(formData, null, 2)}</pre>
           </div>
 
           <div className="warning-box">
-            <strong>⚠️ Lock aún activo</strong>
-            <p>Debes liberar el lock para que otros usuarios puedan editar esta instancia</p>
+            <strong>⚠️ {t('lockStillActive')}</strong>
+            <p>{t('lockWarning')}</p>
           </div>
 
           <button onClick={handleReleaseLock} className="btn-danger">
-            🔓 Liberar Lock con releaseLock()
+            🔓 {t('releaseLockBtn')}
           </button>
         </div>
       )}
@@ -788,63 +860,63 @@ function LockManagementDemo() {
       {step === 'releasing' && (
         <div className="card loading">
           <div className="spinner"></div>
-          <p>Liberando lock...</p>
+          <p>{t('releasingLock')}</p>
         </div>
       )}
 
       {error && (
         <div className="card error">
-          <h3>❌ Error</h3>
+          <h3>❌ {t('error')}</h3>
           <p>{error}</p>
           <button onClick={reset} className="btn-secondary">
-            Reintentar
+            {t('retry')}
           </button>
         </div>
       )}
 
       {/* Info Cards */}
       <div className="card info-card">
-        <h3>🔒 ¿Por qué usar Locks?</h3>
+        <h3>🔒 {t('whyLocks')}</h3>
         <ul>
-          <li>✅ <strong>Previene conflictos:</strong> Solo un usuario puede editar a la vez</li>
-          <li>✅ <strong>Consistencia:</strong> Evita sobrescritura de cambios</li>
-          <li>✅ <strong>Automático:</strong> FormService maneja acquire/release por ti</li>
-          <li>✅ <strong>Seguro:</strong> Los locks expiran automáticamente si el usuario se desconecta</li>
+          <li>✅ <strong>{t('preventConflicts')}</strong></li>
+          <li>✅ <strong>{t('consistency')}</strong></li>
+          <li>✅ <strong>{t('automatic')}</strong></li>
+          <li>✅ <strong>{t('secure')}</strong></li>
         </ul>
       </div>
 
       <div className="card info-card workflow">
-        <h3>📋 Workflow de Lock Management</h3>
+        <h3>📋 {t('workflow')}</h3>
         <div className="workflow-steps">
           <div className="workflow-step">
             <div className="step-number">1</div>
             <div className="step-content">
-              <strong>prepareContinueForm(autoLock: true)</strong>
-              <p>Carga instancia + Adquiere lock</p>
+              <strong>{t('workflowStep1')}</strong>
+              <p>{t('workflowStep1Desc')}</p>
             </div>
           </div>
           <div className="workflow-arrow">→</div>
           <div className="workflow-step">
             <div className="step-number">2</div>
             <div className="step-content">
-              <strong>Usuario edita formulario</strong>
-              <p>Lock activo, edición exclusiva</p>
+              <strong>{t('workflowStep2')}</strong>
+              <p>{t('workflowStep2Desc')}</p>
             </div>
           </div>
           <div className="workflow-arrow">→</div>
           <div className="workflow-step">
             <div className="step-number">3</div>
             <div className="step-content">
-              <strong>continueProcess(formData)</strong>
-              <p>Actualiza instancia</p>
+              <strong>{t('workflowStep3')}</strong>
+              <p>{t('workflowStep3Desc')}</p>
             </div>
           </div>
           <div className="workflow-arrow">→</div>
           <div className="workflow-step">
             <div className="step-number">4</div>
             <div className="step-content">
-              <strong>releaseLock()</strong>
-              <p>Libera para otros usuarios</p>
+              <strong>{t('workflowStep4')}</strong>
+              <p>{t('workflowStep4Desc')}</p>
             </div>
           </div>
         </div>
