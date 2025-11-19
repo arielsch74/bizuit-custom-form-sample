@@ -1,7 +1,6 @@
 # Bizuit Custom Forms
 
-
-**Estado**: 80% completo - Infraestructura funcional con decisión arquitectónica pendiente
+**Estado**: 85% completo - Pipeline CI/CD configurado con PM2
 
 ---
 
