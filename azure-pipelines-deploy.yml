@@ -161,14 +161,14 @@ stages:
                     $testCmd = "sqlcmd"
                     $testArgs = @(
                         "-S", $dbServer,
-                        "-d", "master",
+                        "-d", $dbDatabase,
                         "-U", $dbUser,
                         "-P", $dbPassword,
-                        "-Q", "SELECT @@VERSION",
+                        "-Q", "SELECT DB_NAME() AS CurrentDatabase, @@VERSION AS SQLVersion",
                         "-b"
                     )
 
-                    Write-Host "Command: sqlcmd -S $dbServer -d master -U $dbUser -P ****** -Q 'SELECT @@VERSION'" -ForegroundColor Gray
+                    Write-Host "Command: sqlcmd -S $dbServer -d $dbDatabase -U $dbUser -P ****** -Q 'SELECT DB_NAME()...'" -ForegroundColor Gray
                     $testOutput = & $testCmd $testArgs 2>&1
 
                     if ($LASTEXITCODE -eq 0) {
