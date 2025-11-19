@@ -78,3 +78,7 @@ htmlcov/
 *.log
 temp-uploads/
 *.sqlite3
+
+# Development automation
+logs/
+.pids/

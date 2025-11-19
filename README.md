@@ -24,7 +24,33 @@ BizuitFormTemplate/
 
 ## 🚀 Inicio Rápido
 
-### 1. Instalar Dependencias de los Paquetes
+### Opción 1: Iniciar Todos los Servicios (Recomendado)
+
+```bash
+# Iniciar todos los servicios en un solo comando
+./start-all.sh
+```
+
+Esto iniciará:
+- **Backend API** (FastAPI): [http://localhost:8000](http://localhost:8000)
+- **Showcase** (Next.js): [http://localhost:3000](http://localhost:3000)
+- **Runtime App** (Next.js): [http://localhost:3001](http://localhost:3001)
+
+Para detener todos los servicios:
+```bash
+./stop-all.sh
+```
+
+**Ver logs en tiempo real:**
+```bash
+tail -f logs/backend-api.log
+tail -f logs/showcase.log
+tail -f logs/runtime-app.log
+```
+
+### Opción 2: Instalación Manual
+
+#### 1. Instalar Dependencias de los Paquetes
 
 ```bash
 # SDK
@@ -41,17 +67,28 @@ npm run build
 cd ../..
 ```
 
-### 2. Ejecutar el Ejemplo
+#### 2. Ejecutar Servicios Individuales
 
+**Backend API:**
 ```bash
-cd example
-npm install
-npm run dev
+cd custom-forms/backend-api
+source venv/bin/activate
+python main.py  # Corre en puerto 8000
 ```
 
-Abre [http://localhost:3000](http://localhost:3000) para ver el ejemplo.
+**Showcase:**
+```bash
+cd custom-forms-showcase
+npm install
+npm run dev  # Corre en puerto 3000
+```
 
-> **Nota**: Si el puerto 3000 está ocupado, Next.js usará automáticamente el siguiente puerto disponible (3001, 3002, etc.). La URL correcta se mostrará en la consola.
+**Runtime App:**
+```bash
+cd custom-forms/runtime-app
+npm install
+PORT=3001 npm run dev  # Corre en puerto 3001
+```
 
 ## 📚 Paquetes
 
