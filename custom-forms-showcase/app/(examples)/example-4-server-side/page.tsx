@@ -353,7 +353,7 @@ function Example4ServerSideContent() {
             <Button
               onClick={handleStartProcess}
               disabled={startLoading}
-              variant="primary"
+              variant="default"
               className="w-full"
             >
               {startLoading ? 'Iniciando...' : 'Iniciar Proceso'}
@@ -389,7 +389,7 @@ function Example4ServerSideContent() {
             <Button
               onClick={handleGetInstance}
               disabled={instanceLoading || !instanceId}
-              variant="primary"
+              variant="default"
               className="w-full"
             >
               {instanceLoading ? 'Consultando...' : 'Obtener Instancia'}
@@ -449,7 +449,7 @@ function Example4ServerSideContent() {
             <Button
               onClick={handleContinueProcess}
               disabled={continueLoading || !continueInstanceId || !continueTaskId}
-              variant="primary"
+              variant="default"
               className="w-full"
             >
               {continueLoading ? 'Continuando...' : 'Continuar Proceso'}

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useBizuitSDK, type IBizuitProcessParameter } from '@tyconsa/bizuit-form-sdk'
+import { useBizuitSDK, type IBizuitProcessParameter, createParameter } from '@tyconsa/bizuit-form-sdk'
 import { DynamicFormField, Button, useBizuitAuth, useTranslation, BizuitCard } from '@tyconsa/bizuit-ui-components'
 import { RequireAuth } from '@/components/require-auth'
 import { LiveCodeEditor } from '@/components/live-code-editor'
@@ -100,9 +100,9 @@ function Example7FormSelectiveContent() {
         // 🎯 Field Mapping: Qué campos enviar y cómo transformarlos
         fieldMapping: {
           // Mapeo simple: campo form → parámetro BPM (mismo nombre)
-          description: 'description',
-          category: 'category',
-          urgent: 'urgent',
+          description: { parameterName: 'description' },
+          category: { parameterName: 'category' },
+          urgent: { parameterName: 'urgent' },
 
           // Mapeo con transformación: string → number
           amountStr: {
@@ -112,19 +112,14 @@ function Example7FormSelectiveContent() {
         },
 
         // 🚀 Additional Parameters: Campos NO en el formulario
-        additionalParameters: sdk.forms.createParameters({
-          // Auditoría automática
-          requestedBy: user?.username || 'system',
-          requestedDate: new Date().toISOString(),
-
-          // Campos calculados
-          status: 'Pending',
-          approvalRequired: parseFloat(formData.amountStr || '0') > 1000,
-
-          // Metadata
-          source: 'CustomFormsShowcase',
-          version: '2.0.0'
-        }),
+        additionalParameters: [
+          createParameter('requestedBy', user?.Username || 'system'),
+          createParameter('requestedDate', new Date().toISOString()),
+          createParameter('status', 'Pending'),
+          createParameter('approvalRequired', parseFloat(formData.amountStr || '0') > 1000),
+          createParameter('source', 'CustomFormsShowcase'),
+          createParameter('version', '2.0.0')
+        ],
 
         token
       })
@@ -137,7 +132,7 @@ function Example7FormSelectiveContent() {
         { name: 'category', value: formData.category, source: 'formData (mapped)' },
         { name: 'urgent', value: formData.urgent, source: 'formData (mapped)' },
         { name: 'amount', value: parseFloat(formData.amountStr) || 0, source: 'formData (transformed from amountStr)' },
-        { name: 'requestedBy', value: user?.username || 'system', source: 'additionalParameters' },
+        { name: 'requestedBy', value: user?.Username || 'system', source: 'additionalParameters' },
         { name: 'requestedDate', value: new Date().toISOString(), source: 'additionalParameters' },
         { name: 'status', value: 'Pending', source: 'additionalParameters' },
         { name: 'approvalRequired', value: parseFloat(formData.amountStr || '0') > 1000, source: 'additionalParameters (calculated)' },
@@ -276,7 +271,7 @@ function Example7FormSelectiveContent() {
             <Button
               onClick={handlePrepareForm}
               disabled={status === 'loading' || status === 'ready' || !processName}
-              variant="primary"
+              variant="default"
               className="w-full"
             >
               {status === 'loading' ? 'Cargando...' : 'Cargar Parámetros'}
@@ -291,7 +286,7 @@ function Example7FormSelectiveContent() {
         </BizuitCard>
 
         {/* Paso 2: Formulario SIMPLIFICADO (solo 4 campos) */}
-        {status === 'ready' && (
+        {(status === 'ready' || status === 'submitting') && (
           <BizuitCard
             title="2️⃣ Completar Formulario (Solo 4 Campos)"
             description="Nota: El formulario tiene SOLO 4 campos, pero enviaremos 10 parámetros al proceso"
@@ -367,7 +362,7 @@ function Example7FormSelectiveContent() {
                 <h4 className="font-semibold text-sm mb-2">🚀 Parámetros que se agregarán automáticamente:</h4>
                 <div className="text-xs space-y-1 text-gray-700 dark:text-gray-300">
                   <div className="grid grid-cols-2 gap-2">
-                    <div><code className="bg-muted px-1 rounded">requestedBy</code>: {user?.username || 'system'}</div>
+                    <div><code className="bg-muted px-1 rounded">requestedBy</code>: {user?.Username || 'system'}</div>
                     <div><code className="bg-muted px-1 rounded">requestedDate</code>: {new Date().toISOString().substring(0, 19)}</div>
                     <div><code className="bg-muted px-1 rounded">status</code>: Pending</div>
                     <div><code className="bg-muted px-1 rounded">approvalRequired</code>: {parseFloat(formData.amountStr || '0') > 1000 ? 'true' : 'false'}</div>
@@ -381,7 +376,7 @@ function Example7FormSelectiveContent() {
                 <Button
                   onClick={handleSubmit}
                   disabled={status === 'submitting'}
-                  variant="primary"
+                  variant="default"
                   className="w-full"
                 >
                   {status === 'submitting' ? 'Enviando...' : 'Iniciar Proceso'}
@@ -474,7 +469,7 @@ const response = await sdk.forms.startProcess({
   // 🚀 Additional Parameters: NO están en el formulario
   additionalParameters: sdk.forms.createParameters({
     // Auditoría
-    requestedBy: user?.username || 'system',
+    requestedBy: user?.Username || 'system',
     requestedDate: new Date().toISOString(),
 
     // Campos calculados
@@ -521,7 +516,7 @@ const response = await sdk.forms.startProcess({
   },
 
   additionalParameters: sdk.forms.createParameters({
-    requestedBy: user?.username,
+    requestedBy: user?.Username,
     requestedDate: new Date().toISOString(),
     status: 'Pending',
     // ...
@@ -551,7 +546,7 @@ const parameters = [
   { name: 'amount', value: parseFloat(formData.amountStr) || 0 },
   { name: 'category', value: formData.category },
   { name: 'urgent', value: formData.urgent },
-  { name: 'requestedBy', value: user?.username || 'system' },
+  { name: 'requestedBy', value: user?.Username || 'system' },
   { name: 'requestedDate', value: new Date().toISOString() },
   { name: 'status', value: 'Pending' },
   { name: 'approvalRequired', value: parseFloat(formData.amountStr) > 1000 },
@@ -1063,7 +1058,7 @@ function FieldMappingDemo() {
         <div className="comparison-grid">
           <div className="comparison-side">
             <h4>❌ Sin Field Mapping</h4>
-            <pre className="code-block">{\\`// Construcción manual
+            <pre className="code-block">{\\\`// Construcción manual
 const params = [
   { name: 'description',
     value: formData.description },
@@ -1074,7 +1069,7 @@ const params = [
   { name: 'urgent',
     value: formData.urgent },
   { name: 'requestedBy',
-    value: user.username },
+    value: user.Username },
   { name: 'requestedDate',
     value: new Date().toISOString() },
   { name: 'status',
@@ -1090,13 +1085,13 @@ const params = [
 await sdk.process.start({
   processName,
   parameters: params
-}, token)\\`}</pre>
+}, token)\\\`}</pre>
             <p className="code-note">~25 líneas, propenso a errores</p>
           </div>
 
           <div className="comparison-side">
             <h4>✅ Con Field Mapping</h4>
-            <pre className="code-block">{\\`// Declarativo y conciso
+            <pre className="code-block">{\\\`// Declarativo y conciso
 await sdk.forms.startProcess({
   processName,
   formData,
@@ -1113,7 +1108,7 @@ await sdk.forms.startProcess({
 
   additionalParameters:
     sdk.forms.createParameters({
-      requestedBy: user.username,
+      requestedBy: user.Username,
       requestedDate: new Date().toISOString(),
       status: 'Pending',
       approvalRequired:
@@ -1123,7 +1118,7 @@ await sdk.forms.startProcess({
     }),
 
   token
-})\\`}</pre>
+})\\\`}</pre>
             <p className="code-note">~15 líneas, más legible</p>
           </div>
         </div>

@@ -194,7 +194,7 @@ function Example5FormDynamicContent() {
             <Button
               onClick={handlePrepareForm}
               disabled={status === 'loading' || status === 'ready' || !processName}
-              variant="primary"
+              variant="default"
               className="w-full"
             >
               {status === 'loading' ? 'Cargando...' : 'Cargar Formulario'}
@@ -209,7 +209,7 @@ function Example5FormDynamicContent() {
         </BizuitCard>
 
         {/* Paso 2: Formulario dinámico */}
-        {status === 'ready' && parameters.length > 0 && (
+        {(status === 'ready' || status === 'submitting') && parameters.length > 0 && (
           <BizuitCard
             title="2️⃣ Completar Formulario"
             description={`${parameters.length} campos cargados dinámicamente desde el proceso`}
@@ -228,7 +228,7 @@ function Example5FormDynamicContent() {
                 <Button
                   onClick={handleSubmit}
                   disabled={status === 'submitting'}
-                  variant="primary"
+                  variant="default"
                   className="w-full"
                 >
                   {status === 'submitting' ? 'Enviando...' : 'Iniciar Proceso'}

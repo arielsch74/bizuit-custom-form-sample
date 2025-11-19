@@ -216,7 +216,7 @@ function Example6FormContinueContent() {
             <Button
               onClick={handlePrepareForm}
               disabled={status === 'loading' || status === 'ready' || !instanceId || !processName}
-              variant="primary"
+              variant="default"
               className="w-full"
             >
               {status === 'loading' ? 'Cargando...' : 'Cargar Formulario'}
@@ -240,7 +240,7 @@ function Example6FormContinueContent() {
         </BizuitCard>
 
         {/* Paso 2: Formulario */}
-        {status === 'ready' && parameters.length > 0 && (
+        {(status === 'ready' || status === 'submitting') && parameters.length > 0 && (
           <BizuitCard
             title="2️⃣ Editar Datos"
             description={`${parameters.length} campos cargados con valores actuales de la instancia`}
@@ -259,7 +259,7 @@ function Example6FormContinueContent() {
                 <Button
                   onClick={handleSubmit}
                   disabled={status === 'submitting'}
-                  variant="primary"
+                  variant="default"
                   className="flex-1"
                 >
                   {status === 'submitting' ? 'Continuando...' : 'Continuar Proceso'}

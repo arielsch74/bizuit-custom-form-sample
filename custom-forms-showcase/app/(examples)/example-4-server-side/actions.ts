@@ -1,6 +1,6 @@
 'use server'
 
-import { BizuitSDK } from '@tyconsa/bizuit-form-sdk/core'
+import { BizuitSDK, formDataToParameters } from '@tyconsa/bizuit-form-sdk/core'
 
 /**
  * Server Actions para demostrar el uso del SDK del lado del servidor
@@ -30,18 +30,18 @@ const credentials = {
 export async function startProcess(processName: string, parameters: Record<string, any>) {
   try {
     // 1. Autenticar
-    const authResponse = await sdk.auth.login(credentials.username, credentials.password)
+    const authResponse = await sdk.auth.login(credentials)
 
-    if (!authResponse.success || !authResponse.data?.token) {
+    if (!authResponse.Token) {
       throw new Error('Authentication failed')
     }
 
-    const token = authResponse.data.token
+    const token = authResponse.Token
 
     // 2. Iniciar el proceso
     const response = await sdk.process.start({
       processName,
-      parameters
+      parameters: formDataToParameters(parameters)
     }, undefined, token)
 
     return {
@@ -63,16 +63,16 @@ export async function startProcess(processName: string, parameters: Record<strin
 export async function getInstance(instanceId: string) {
   try {
     // 1. Autenticar
-    const authResponse = await sdk.auth.login(credentials.username, credentials.password)
+    const authResponse = await sdk.auth.login(credentials)
 
-    if (!authResponse.success || !authResponse.data?.token) {
+    if (!authResponse.Token) {
       throw new Error('Authentication failed')
     }
 
-    const token = authResponse.data.token
+    const token = authResponse.Token
 
     // 2. Obtener datos de la instancia
-    const instance = await sdk.process.getInstance(instanceId, token)
+    const instance = await sdk.process.getInstanceData(instanceId, token)
 
     return {
       success: true,
@@ -97,20 +97,20 @@ export async function continueProcess(
 ) {
   try {
     // 1. Autenticar
-    const authResponse = await sdk.auth.login(credentials.username, credentials.password)
+    const authResponse = await sdk.auth.login(credentials)
 
-    if (!authResponse.success || !authResponse.data?.token) {
+    if (!authResponse.Token) {
       throw new Error('Authentication failed')
     }
 
-    const token = authResponse.data.token
+    const token = authResponse.Token
 
     // 2. Continuar el proceso
     const response = await sdk.process.continue({
       instanceId,
-      taskId,
-      parameters
-    }, token)
+      processName: '', // Required by IStartProcessParams
+      parameters: formDataToParameters(parameters)
+    }, undefined, token)
 
     return {
       success: true,
@@ -131,13 +131,13 @@ export async function continueProcess(
 export async function getProcessParameters(processName: string) {
   try {
     // 1. Autenticar
-    const authResponse = await sdk.auth.login(credentials.username, credentials.password)
+    const authResponse = await sdk.auth.login(credentials)
 
-    if (!authResponse.success || !authResponse.data?.token) {
+    if (!authResponse.Token) {
       throw new Error('Authentication failed')
     }
 
-    const token = authResponse.data.token
+    const token = authResponse.Token
 
     // 2. Obtener parámetros
     const params = await sdk.process.getParameters(processName, '', token)
