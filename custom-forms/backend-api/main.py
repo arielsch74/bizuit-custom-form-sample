@@ -107,13 +107,33 @@ app = FastAPI(
 )
 
 # CORS configuration
-cors_origins = os.getenv("CORS_ORIGINS", "*").split(",")
+# SECURITY: CORS_ORIGINS environment variable is REQUIRED
+# Never use wildcard (*) with allow_credentials=True
+cors_origins_env = os.getenv("CORS_ORIGINS")
+
+if not cors_origins_env:
+    raise ValueError(
+        "CORS_ORIGINS environment variable is required. "
+        "Specify allowed origins as comma-separated list (e.g., http://localhost:3000,http://localhost:3001). "
+        "Never use '*' in production with credentials enabled."
+    )
+
+cors_origins = [origin.strip() for origin in cors_origins_env.split(",")]
+
+# Validate that wildcard is not used with credentials
+if "*" in cors_origins:
+    raise ValueError(
+        "SECURITY ERROR: Cannot use wildcard '*' in CORS_ORIGINS with allow_credentials=True. "
+        "This is a critical security vulnerability. "
+        "Specify explicit origins instead (e.g., http://localhost:3000,http://localhost:3001)"
+    )
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins if cors_origins != ["*"] else ["*"],
+    allow_origins=cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
 )
 
 # Authentication middleware

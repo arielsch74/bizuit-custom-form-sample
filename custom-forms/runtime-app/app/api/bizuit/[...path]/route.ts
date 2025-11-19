@@ -8,6 +8,59 @@ if (!BIZUIT_API_BASE) {
   throw new Error('BIZUIT_API_BASE_URL environment variable is not configured')
 }
 
+/**
+ * SECURITY: Validates path segments to prevent SSRF attacks
+ *
+ * Blocks:
+ * - Path traversal attempts (../, ..\)
+ * - Absolute URLs (http://, https://, //)
+ * - Special characters that could bypass filters
+ * - Null bytes and control characters
+ *
+ * @param pathSegments - Array of path segments from Next.js dynamic route
+ * @returns true if path is safe, false otherwise
+ */
+function isValidProxyPath(pathSegments: string[]): boolean {
+  // Empty path is invalid
+  if (!pathSegments || pathSegments.length === 0) {
+    return false
+  }
+
+  for (const segment of pathSegments) {
+    // Block empty segments
+    if (!segment || segment.trim() === '') {
+      return false
+    }
+
+    // Block path traversal attempts
+    if (segment.includes('..') || segment.includes('..\\')) {
+      console.warn(`[Security] Blocked path traversal attempt: ${segment}`)
+      return false
+    }
+
+    // Block absolute URLs or protocol-relative URLs
+    if (segment.match(/^(https?:\/\/|\/\/)/i)) {
+      console.warn(`[Security] Blocked absolute URL in path: ${segment}`)
+      return false
+    }
+
+    // Block null bytes and control characters
+    if (segment.match(/[\x00-\x1F\x7F]/)) {
+      console.warn(`[Security] Blocked control characters in path: ${segment}`)
+      return false
+    }
+
+    // Block suspicious characters that could be used for injection
+    // Allow: alphanumeric, dash, underscore, dot, forward slash
+    if (!segment.match(/^[a-zA-Z0-9._\/-]+$/)) {
+      console.warn(`[Security] Blocked invalid characters in path segment: ${segment}`)
+      return false
+    }
+  }
+
+  return true
+}
+
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ path: string[] }> }
@@ -46,6 +99,15 @@ async function handleRequest(
   method: string
 ) {
   try {
+    // SECURITY: Validate path segments to prevent SSRF
+    if (!isValidProxyPath(params.path)) {
+      console.error(`[Bizuit Proxy] SECURITY: Invalid path rejected:`, params.path)
+      return NextResponse.json(
+        { error: 'Invalid path: potential security risk detected' },
+        { status: 400 }
+      )
+    }
+
     const path = params.path.join('/')
     const url = new URL(request.url)
     const queryString = url.search

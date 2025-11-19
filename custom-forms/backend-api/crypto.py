@@ -6,12 +6,30 @@ encrypted tokens sent from the Bizuit Dashboard.
 """
 
 import base64
+import os
 from Crypto.Cipher import DES3
 from Crypto.Util.Padding import unpad
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
 
 # Encryption key used by Bizuit Dashboard (C# _EncryptionTokenKey)
-ENCRYPTION_TOKEN_KEY = "Vq2ixrmV6oUGhQfIPWiCBk0S"
+# SECURITY: Key must be provided via environment variable
+ENCRYPTION_TOKEN_KEY = os.getenv("ENCRYPTION_TOKEN_KEY")
+
+if not ENCRYPTION_TOKEN_KEY:
+    raise ValueError(
+        "ENCRYPTION_TOKEN_KEY environment variable is required. "
+        "This key must match the encryption key used by Bizuit Dashboard. "
+        "Set it in your .env file."
+    )
+
+if len(ENCRYPTION_TOKEN_KEY) != 24:
+    raise ValueError(
+        f"ENCRYPTION_TOKEN_KEY must be exactly 24 characters for TripleDES. "
+        f"Current length: {len(ENCRYPTION_TOKEN_KEY)}"
+    )
 
 
 def decrypt_triple_des(encrypted_string: str) -> str:

@@ -4,6 +4,15 @@ from datetime import datetime
 from typing import Optional, List, Dict, Any
 from dotenv import load_dotenv
 from crypto import decrypt_triple_des
+from validators import (
+    validate_form_name,
+    validate_username,
+    validate_version,
+    validate_process_name,
+    validate_token_id,
+    validate_commit_hash,
+    sanitize_for_logging
+)
 
 load_dotenv()
 
@@ -69,7 +78,39 @@ def upsert_custom_form(
 
     Returns:
         dict con 'success' y 'action' ('inserted' o 'updated')
+
+    Raises:
+        ValueError: If any parameter has invalid format
     """
+    # SECURITY: Validate all inputs to prevent SQL injection
+    if not validate_form_name(form_name):
+        raise ValueError(f"Invalid form_name format: {sanitize_for_logging(form_name)}")
+
+    if not validate_process_name(process_name):
+        raise ValueError(f"Invalid process_name format: {sanitize_for_logging(process_name)}")
+
+    if not validate_version(version):
+        raise ValueError(f"Invalid version format: {sanitize_for_logging(version)}")
+
+    if not validate_username(author):  # author uses same validation as username
+        raise ValueError(f"Invalid author format: {sanitize_for_logging(author)}")
+
+    if not validate_version(package_version):
+        raise ValueError(f"Invalid package_version format: {sanitize_for_logging(package_version)}")
+
+    if not validate_commit_hash(commit_hash):
+        raise ValueError(f"Invalid commit_hash format: {sanitize_for_logging(commit_hash)}")
+
+    # Description and compiled_code are large text fields - validate length only
+    if not description or len(description) > 1000:
+        raise ValueError("Description must be 1-1000 characters")
+
+    if not compiled_code or len(compiled_code) > 10_000_000:  # 10MB limit
+        raise ValueError("Compiled code must be non-empty and less than 10MB")
+
+    if not isinstance(size_bytes, int) or size_bytes < 0:
+        raise ValueError("size_bytes must be a positive integer")
+
     conn = None
     cursor = None
 
@@ -223,7 +264,17 @@ def get_form_compiled_code(form_name: str, version: str = None):
     Returns:
         dict with 'compiled_code', 'version', 'published_at', 'size_bytes'
         or None if form not found
+
+    Raises:
+        ValueError: If form_name or version have invalid format
     """
+    # SECURITY: Validate inputs to prevent SQL injection
+    if not validate_form_name(form_name):
+        raise ValueError(f"Invalid form_name format: {sanitize_for_logging(form_name)}")
+
+    if version and not validate_version(version):
+        raise ValueError(f"Invalid version format: {sanitize_for_logging(version)}")
+
     conn = None
     cursor = None
     try:
@@ -294,7 +345,14 @@ def validate_admin_roles(username: str, allowed_roles: List[str]) -> Dict[str, A
 
     Returns:
         dict con 'has_access' (bool) y 'user_roles' (list)
+
+    Raises:
+        ValueError: If username has invalid format
     """
+    # SECURITY: Validate username to prevent SQL injection
+    if not validate_username(username):
+        raise ValueError(f"Invalid username format: {sanitize_for_logging(username)}")
+
     conn = None
     cursor = None
     try:
@@ -349,7 +407,14 @@ def get_user_info(username: str) -> Optional[Dict[str, Any]]:
 
     Returns:
         dict con información del usuario o None si no existe
+
+    Raises:
+        ValueError: If username has invalid format
     """
+    # SECURITY: Validate username to prevent SQL injection
+    if not validate_username(username):
+        raise ValueError(f"Invalid username format: {sanitize_for_logging(username)}")
+
     conn = None
     cursor = None
     try:
@@ -401,7 +466,14 @@ def validate_security_token(token_id: str) -> Optional[Dict[str, Any]]:
 
     Returns:
         dict con información del token o None si no existe o expiró
+
+    Raises:
+        ValueError: If token_id has invalid format
     """
+    # SECURITY: Validate token_id to prevent SQL injection
+    if not validate_token_id(token_id):
+        raise ValueError(f"Invalid token_id format: {sanitize_for_logging(token_id)}")
+
     conn = None
     cursor = None
     try:
@@ -470,7 +542,14 @@ def delete_security_token(token_id: str) -> bool:
 
     Returns:
         True si se eliminó, False si no existía
+
+    Raises:
+        ValueError: If token_id has invalid format
     """
+    # SECURITY: Validate token_id to prevent SQL injection
+    if not validate_token_id(token_id):
+        raise ValueError(f"Invalid token_id format: {sanitize_for_logging(token_id)}")
+
     conn = None
     cursor = None
     try:
