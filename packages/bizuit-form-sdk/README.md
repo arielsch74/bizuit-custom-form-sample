@@ -9,7 +9,8 @@ Core SDK for Bizuit BPM form integration. Provides authentication, process manag
 - ✅ **Instance Locking** - Pessimistic locking for concurrent access control
 - ✅ **TypeScript Support** - Full type safety with TypeScript definitions
 - ✅ **React Hooks** - Easy integration with React applications
-- ✅ **Server-Side Support** - Works in Next.js API routes, server components, and Node.js (NEW in v1.5.0)
+- ✅ **Server-Side Support** - Works in Next.js API routes, server components, and Node.js (v1.5.0+)
+- ✅ **Simplified Configuration** - Single `apiUrl` parameter instead of separate endpoints (v2.0.0+)
 - ✅ **Complex Parameters** - Handle scalar and complex (JSON/XML) parameters
 - ✅ **Error Handling** - Comprehensive error handling and logging
 

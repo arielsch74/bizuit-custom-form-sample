@@ -3,8 +3,8 @@
 Template completo para desarrollo de formularios web integrados con Bizuit BPMS.
 
 **🎉 Paquetes publicados en npm:**
-- [@tyconsa/bizuit-form-sdk](https://www.npmjs.com/package/@tyconsa/bizuit-form-sdk) - SDK para integración con Bizuit BPM (v1.4.2+)
-- [@tyconsa/bizuit-ui-components](https://www.npmjs.com/package/@tyconsa/bizuit-ui-components) - Componentes UI personalizables
+- [@tyconsa/bizuit-form-sdk](https://www.npmjs.com/package/@tyconsa/bizuit-form-sdk) - SDK para integración con Bizuit BPM (v2.0.0+)
+- [@tyconsa/bizuit-ui-components](https://www.npmjs.com/package/@tyconsa/bizuit-ui-components) - Componentes UI personalizables (v1.7.0+)
 
 **✅ Testing:** 77 tests unitarios (100% passing) con Vitest
 
