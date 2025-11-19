@@ -41,7 +41,8 @@ lerna-debug.log*
 # Misc
 .turbo/
 .vercel/
-.claude/
+.claude/*
+!.claude/CLAUDE.md
 
 # Package manager lock files (ignorados para reducir tamaño de commits)
 package-lock.json
