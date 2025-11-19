@@ -823,12 +823,13 @@ function FieldMappingDemo() {
                   onClick={() => setMode(themeMode)}
                   style={{
                     padding: '6px 12px',
-                    background: mode === themeMode ? (isDark ? '#4b5563' : '#e5e7eb') : 'transparent',
-                    color: isDark ? '#f9fafb' : '#111827',
-                    border: \`1px solid \${isDark ? '#4b5563' : '#d1d5db'}\`,
+                    background: mode === themeMode ? primaryColor : (isDark ? '#374151' : '#f3f4f6'),
+                    color: mode === themeMode ? 'white' : (isDark ? '#f9fafb' : '#111827'),
+                    border: \`1px solid \${mode === themeMode ? primaryColor : (isDark ? '#4b5563' : '#d1d5db')}\`,
                     borderRadius: '6px',
                     cursor: 'pointer',
-                    fontSize: '12px'
+                    fontSize: '12px',
+                    fontWeight: '500'
                   }}
                 >
                   {themeMode === 'light' ? '☀️' : themeMode === 'dark' ? '🌙' : '💻'}
@@ -836,27 +837,19 @@ function FieldMappingDemo() {
               ))}
             </div>
 
-            <div style={{ display: 'flex', gap: '4px' }}>
-              {[
-                { name: 'orange', color: '#f97316' },
-                { name: 'blue', color: '#3b82f6' },
-                { name: 'purple', color: '#a855f7' }
-              ].map(({ name, color }) => (
-                <button
-                  key={name}
-                  type="button"
-                  onClick={() => setPrimaryColor(color)}
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    background: color,
-                    border: primaryColor === color ? '2px solid ' + (isDark ? '#fff' : '#000') : '1px solid ' + (isDark ? '#4b5563' : '#d1d5db'),
-                    borderRadius: '6px',
-                    cursor: 'pointer'
-                  }}
-                />
-              ))}
-            </div>
+            <input
+              type="color"
+              value={primaryColor}
+              onChange={(e) => setPrimaryColor(e.target.value)}
+              style={{
+                width: '32px',
+                height: '32px',
+                border: \`2px solid \${isDark ? '#4b5563' : '#d1d5db'}\`,
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+              title="Primary Color"
+            />
           </div>
         </div>
 
@@ -869,7 +862,7 @@ function FieldMappingDemo() {
         <div className="card">
           <h2>1️⃣ {t('step1')}</h2>
           <p>Proceso: <strong>{processName}</strong></p>
-          <button onClick={handlePrepareForm} className="btn-primary">
+          <button onClick={handlePrepareForm} className="btn-primary" style={{ background: primaryColor }}>
             {t('step1')}
           </button>
         </div>
@@ -989,7 +982,7 @@ function FieldMappingDemo() {
             <button onClick={reset} className="btn-secondary">
               {t('back')}
             </button>
-            <button onClick={handleSubmit} className="btn-primary">
+            <button onClick={handleSubmit} className="btn-primary" style={{ background: primaryColor }}>
               {t('submit')}
             </button>
           </div>
@@ -1050,7 +1043,7 @@ function FieldMappingDemo() {
             </div>
           </div>
 
-          <button onClick={reset} className="btn-primary">
+          <button onClick={reset} className="btn-primary" style={{ background: primaryColor }}>
             {t('newProcess')}
           </button>
         </div>
