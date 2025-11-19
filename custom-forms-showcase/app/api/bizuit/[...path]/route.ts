@@ -123,9 +123,18 @@ async function handleRequest(
       }
     })
 
+    // SECURITY: Sanitize authorization header in logs
+    const sanitizeAuthHeader = (header: string | undefined) => {
+      if (!header) return 'NOT PRESENT'
+      const parts = header.split(' ')
+      if (parts.length === 2) {
+        return `${parts[0]} ***REDACTED***`
+      }
+      return '***REDACTED***'
+    }
+
     console.log(`[Bizuit Proxy] Headers being sent:`, {
-      authorization: headers['Authorization'] || 'NOT PRESENT',
-      authStartsWith: headers['Authorization'] ? `Starts with: "${headers['Authorization'].substring(0, 12)}"` : 'N/A',
+      authorization: sanitizeAuthHeader(headers['Authorization']),
       contentType: headers['content-type'],
       allHeaders: Object.keys(headers)
     })

@@ -242,7 +242,9 @@ async def admin_login(credentials: AdminLoginRequest):
     ```
     """
     try:
-        print(f"[Auth API] Login attempt for user '{credentials.username}'")
+        # SECURITY: Sanitize username in logs (only show first 3 chars)
+        sanitized_username = f"{credentials.username[:3]}***" if len(credentials.username) > 3 else "***"
+        print(f"[Auth API] Login attempt for user '{sanitized_username}'")
 
         # 1. Login to Bizuit API
         bizuit_login = login_to_bizuit(credentials.username, credentials.password)
@@ -260,7 +262,7 @@ async def admin_login(credentials: AdminLoginRequest):
         validation = validate_admin_user(credentials.username, bizuit_login["token"])
 
         if not validation["has_access"]:
-            print(f"[Auth API] User '{credentials.username}' lacks admin permissions")
+            print(f"[Auth API] User '{sanitized_username}' lacks admin permissions")
             return AdminLoginResponse(
                 success=False,
                 token=None,
@@ -282,7 +284,7 @@ async def admin_login(credentials: AdminLoginRequest):
             **validation["user_info"]
         }
 
-        print(f"[Auth API] Login successful for '{credentials.username}'")
+        print(f"[Auth API] Login successful for '{sanitized_username}'")
 
         return AdminLoginResponse(
             success=True,
@@ -449,6 +451,61 @@ async def close_form_token(token_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+def validate_dashboard_params(request: ValidateDashboardTokenRequest):
+    """
+    SECURITY: Valida parámetros del Dashboard antes de procesarlos
+
+    Validates:
+    - instanceId: Numeric, max 20 chars
+    - userName: Alphanumeric + @._-, max 100 chars
+    - eventName: Alphanumeric + _- and spaces, max 100 chars
+    - activityName: Alphanumeric + _- and spaces, max 100 chars
+    - token: Base64 format, max 500 chars
+
+    Args:
+        request: ValidateDashboardTokenRequest with parameters to validate
+
+    Raises:
+        HTTPException: If validation fails
+    """
+    import re
+
+    # SECURITY: Validar instanceId es numérico
+    if request.instanceId:
+        if not str(request.instanceId).isdigit():
+            raise HTTPException(status_code=400, detail="Invalid instanceId format: must be numeric")
+        if len(str(request.instanceId)) > 20:
+            raise HTTPException(status_code=400, detail="instanceId too long: max 20 characters")
+
+    # SECURITY: Validar userName no contiene caracteres peligrosos
+    if request.userName:
+        if not re.match(r'^[a-zA-Z0-9_@.\-]+$', request.userName):
+            raise HTTPException(status_code=400, detail="Invalid userName format: only alphanumeric, @, ., _, - allowed")
+        if len(request.userName) > 100:
+            raise HTTPException(status_code=400, detail="userName too long: max 100 characters")
+
+    # SECURITY: Validar eventName
+    if request.eventName:
+        if not re.match(r'^[a-zA-Z0-9_\-\s]+$', request.eventName):
+            raise HTTPException(status_code=400, detail="Invalid eventName format")
+        if len(request.eventName) > 100:
+            raise HTTPException(status_code=400, detail="eventName too long: max 100 characters")
+
+    # SECURITY: Validar activityName
+    if request.activityName:
+        if not re.match(r'^[a-zA-Z0-9_\-\s]+$', request.activityName):
+            raise HTTPException(status_code=400, detail="Invalid activityName format")
+        if len(request.activityName) > 100:
+            raise HTTPException(status_code=400, detail="activityName too long: max 100 characters")
+
+    # SECURITY: Validar format de token (Base64)
+    if request.token:
+        if not re.match(r'^[a-zA-Z0-9+/=]+$', request.token):
+            raise HTTPException(status_code=400, detail="Invalid token format: must be Base64")
+        if len(request.token) > 500:
+            raise HTTPException(status_code=400, detail="token too long: max 500 characters")
+
+
 @app.post("/api/dashboard/validate-token", response_model=ValidateDashboardTokenResponse, tags=["Form Tokens"])
 async def validate_dashboard_token_endpoint(request: ValidateDashboardTokenRequest):
     """
@@ -512,6 +569,9 @@ async def validate_dashboard_token_endpoint(request: ValidateDashboardTokenReque
     ```
     """
     try:
+        # SECURITY: Validate all dashboard parameters FIRST
+        validate_dashboard_params(request)
+
         print(f"[Dashboard Token API] Validating encrypted token with parameters:")
         print(f"  - Encrypted token: '{request.encryptedToken[:20]}...'")
         print(f"  - InstanceId: {request.instanceId}")
