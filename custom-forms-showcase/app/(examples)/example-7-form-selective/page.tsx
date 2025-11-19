@@ -101,9 +101,9 @@ function Example7FormSelectiveContent() {
         // 🎯 Field Mapping: Qué campos enviar y cómo transformarlos
         fieldMapping: {
           // Mapeo simple: campo form → parámetro BPM (mismo nombre)
-          description: 'description',
-          category: 'category',
-          urgent: 'urgent',
+          description: { parameterName: 'description' },
+          category: { parameterName: 'category' },
+          urgent: { parameterName: 'urgent' },
 
           // Mapeo con transformación: string → number
           amountStr: {
@@ -113,19 +113,19 @@ function Example7FormSelectiveContent() {
         },
 
         // 🚀 Additional Parameters: Campos NO en el formulario
-        additionalParameters: sdk.forms.createParameters({
+        additionalParameters: sdk.forms.createParameters([
           // Auditoría automática
-          requestedBy: user?.username || 'system',
-          requestedDate: new Date().toISOString(),
+          { name: 'requestedBy', value: user?.Username || 'system' },
+          { name: 'requestedDate', value: new Date().toISOString() },
 
           // Campos calculados
-          status: 'Pending',
-          approvalRequired: parseFloat(formData.amountStr || '0') > 1000,
+          { name: 'status', value: 'Pending' },
+          { name: 'approvalRequired', value: parseFloat(formData.amountStr || '0') > 1000 },
 
           // Metadata
-          source: 'CustomFormsShowcase',
-          version: '2.0.0'
-        }),
+          { name: 'source', value: 'CustomFormsShowcase' },
+          { name: 'version', value: '2.0.0' }
+        ]),
 
         token
       })
@@ -138,7 +138,7 @@ function Example7FormSelectiveContent() {
         { name: 'category', value: formData.category, source: 'formData (mapped)' },
         { name: 'urgent', value: formData.urgent, source: 'formData (mapped)' },
         { name: 'amount', value: parseFloat(formData.amountStr) || 0, source: 'formData (transformed from amountStr)' },
-        { name: 'requestedBy', value: user?.username || 'system', source: 'additionalParameters' },
+        { name: 'requestedBy', value: user?.Username || 'system', source: 'additionalParameters' },
         { name: 'requestedDate', value: new Date().toISOString(), source: 'additionalParameters' },
         { name: 'status', value: 'Pending', source: 'additionalParameters' },
         { name: 'approvalRequired', value: parseFloat(formData.amountStr || '0') > 1000, source: 'additionalParameters (calculated)' },
@@ -276,9 +276,9 @@ const response = await sdk.forms.startProcess({
 
   // 🎯 Field Mapping: Qué enviar y cómo transformar
   fieldMapping: {
-    description: 'description',    // Mapeo simple
-    category: 'category',          // Mapeo simple
-    urgent: 'urgent',              // Mapeo simple
+    description: { parameterName: 'description' },    // Mapeo simple
+    category: { parameterName: 'category' },          // Mapeo simple
+    urgent: { parameterName: 'urgent' },              // Mapeo simple
 
     // Mapeo con transformación
     amountStr: {
@@ -288,19 +288,19 @@ const response = await sdk.forms.startProcess({
   },
 
   // 🚀 Additional Parameters: NO están en el formulario
-  additionalParameters: sdk.forms.createParameters({
+  additionalParameters: sdk.forms.createParameters([
     // Auditoría
-    requestedBy: user?.username || 'system',
-    requestedDate: new Date().toISOString(),
+    { name: 'requestedBy', value: user?.Username || 'system' },
+    { name: 'requestedDate', value: new Date().toISOString() },
 
     // Campos calculados
-    status: 'Pending',
-    approvalRequired: parseFloat(formData.amountStr) > 1000,
+    { name: 'status', value: 'Pending' },
+    { name: 'approvalRequired', value: parseFloat(formData.amountStr) > 1000 },
 
     // Metadata
-    source: 'CustomFormsShowcase',
-    version: '2.0.0'
-  }),
+    { name: 'source', value: 'CustomFormsShowcase' },
+    { name: 'version', value: '2.0.0' }
+  ]),
 
   token
 })
@@ -337,7 +337,7 @@ const response = await sdk.forms.startProcess({
   },
 
   additionalParameters: sdk.forms.createParameters({
-    requestedBy: user?.username,
+    requestedBy: user?.Username,
     requestedDate: new Date().toISOString(),
     status: 'Pending',
     // ...
@@ -367,7 +367,7 @@ const parameters = [
   { name: 'amount', value: parseFloat(formData.amountStr) || 0 },
   { name: 'category', value: formData.category },
   { name: 'urgent', value: formData.urgent },
-  { name: 'requestedBy', value: user?.username || 'system' },
+  { name: 'requestedBy', value: user?.Username || 'system' },
   { name: 'requestedDate', value: new Date().toISOString() },
   { name: 'status', value: 'Pending' },
   { name: 'approvalRequired', value: parseFloat(formData.amountStr) > 1000 },

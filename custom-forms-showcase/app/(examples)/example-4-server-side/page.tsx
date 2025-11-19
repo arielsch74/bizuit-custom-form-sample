@@ -158,7 +158,7 @@ function Example4ServerSideContent() {
         {/* Sección informativa: ¿Cuándo usar Server-Side SDK? */}
         <BizuitCard
           title={`📖 ${t('example4.infoTitle')}`}
-          description={t('example4.infoSubtitle')}
+          description={t('example4.infoSubtitle') as string}
         >
           <div className="space-y-6">
             {/* ¿Qué es? */}
@@ -184,7 +184,7 @@ function Example4ServerSideContent() {
                     <span>🔒</span> {t('example4.security')}
                   </h4>
                   <ul className="text-sm space-y-1 text-gray-700 dark:text-gray-300">
-                    {(t('example4.securityItems') as string[]).map((item: string, i: number) => (
+                    {(t('example4.securityItems') as unknown as string[]).map((item: string, i: number) => (
                       <li key={i}>• {item}</li>
                     ))}
                   </ul>
@@ -195,7 +195,7 @@ function Example4ServerSideContent() {
                     <span>⚙️</span> {t('example4.automations')}
                   </h4>
                   <ul className="text-sm space-y-1 text-gray-700 dark:text-gray-300">
-                    {(t('example4.automationsItems') as string[]).map((item: string, i: number) => (
+                    {(t('example4.automationsItems') as unknown as string[]).map((item: string, i: number) => (
                       <li key={i}>• {item}</li>
                     ))}
                   </ul>
@@ -206,7 +206,7 @@ function Example4ServerSideContent() {
                     <span>🔗</span> {t('example4.integrations')}
                   </h4>
                   <ul className="text-sm space-y-1 text-gray-700 dark:text-gray-300">
-                    {(t('example4.integrationsItems') as string[]).map((item: string, i: number) => (
+                    {(t('example4.integrationsItems') as unknown as string[]).map((item: string, i: number) => (
                       <li key={i}>• {item}</li>
                     ))}
                   </ul>
@@ -217,7 +217,7 @@ function Example4ServerSideContent() {
                     <span>⚡</span> {t('example4.performance')}
                   </h4>
                   <ul className="text-sm space-y-1 text-gray-700 dark:text-gray-300">
-                    {(t('example4.performanceItems') as string[]).map((item: string, i: number) => (
+                    {(t('example4.performanceItems') as unknown as string[]).map((item: string, i: number) => (
                       <li key={i}>• {item}</li>
                     ))}
                   </ul>
@@ -323,7 +323,7 @@ function Example4ServerSideContent() {
         {/* Sección 1: Iniciar Proceso */}
         <BizuitCard
           title={`1️⃣ ${t('example4.demo1Title')}`}
-          description={t('example4.demo1Subtitle')}
+           description={t('example4.demo1Subtitle') as string}
         >
           <div className="space-y-4">
             <div>
@@ -372,7 +372,7 @@ function Example4ServerSideContent() {
         {/* Sección 2: Obtener Instancia */}
         <BizuitCard
           title={`2️⃣ ${t('example4.demo2Title')}`}
-          description={t('example4.demo2Subtitle')}
+           description={t('example4.demo2Subtitle') as string}
         >
           <div className="space-y-4">
             <div>
@@ -408,7 +408,7 @@ function Example4ServerSideContent() {
         {/* Sección 3: Continuar Proceso */}
         <BizuitCard
           title={`3️⃣ ${t('example4.demo3Title')}`}
-          description={t('example4.demo3Subtitle')}
+           description={t('example4.demo3Subtitle') as string}
         >
           <div className="space-y-4">
             <div>
@@ -468,12 +468,13 @@ function Example4ServerSideContent() {
         {/* Código de ejemplo - Server Actions */}
         <BizuitCard
           title={`💻 ${t('example4.serverSideCode')}`}
-          description={t('example4.codeSubtitle')}
+           description={t('example4.codeSubtitle') as string}
         >
           <div className="bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto">
             <pre className="text-sm"><code>{`'use server'
 
 import { BizuitSDK } from '@tyconsa/bizuit-form-sdk/core'
+import { IParameter } from '@tyconsa/bizuit-form-sdk'
 
 // Inicializar SDK con configuración del servidor
 const sdk = new BizuitSDK({
@@ -486,20 +487,27 @@ const credentials = {
   password: process.env.BIZUIT_PASSWORD || 'admin123'
 }
 
+// Helper: Convert Record to IParameter[]
+function toParams(obj: Record<string, any>): IParameter[] {
+  return Object.entries(obj).map(([name, value]) => ({
+    name,
+    value: String(value),
+    type: 'SingleValue' as const,
+    direction: 'In' as const
+  }))
+}
+
 // 1️⃣ Iniciar un proceso
 export async function startProcess(
   processName: string,
   parameters: Record<string, any>
 ) {
-  const authResponse = await sdk.auth.login(
-    credentials.username,
-    credentials.password
-  )
-  const token = authResponse.data?.token
+  const authResponse = await sdk.auth.login(credentials)
+  const token = authResponse.Token
 
   const response = await sdk.process.start({
     processName,
-    parameters
+    parameters: toParams(parameters)
   }, undefined, token)
 
   return { success: true, data: response }
@@ -507,13 +515,10 @@ export async function startProcess(
 
 // 2️⃣ Obtener datos de una instancia
 export async function getInstance(instanceId: string) {
-  const authResponse = await sdk.auth.login(
-    credentials.username,
-    credentials.password
-  )
-  const token = authResponse.data?.token
+  const authResponse = await sdk.auth.login(credentials)
+  const token = authResponse.Token
 
-  const instance = await sdk.process.getInstance(instanceId, token)
+  const instance = await sdk.process.getInstanceData(instanceId, token)
 
   return { success: true, data: instance }
 }
@@ -524,17 +529,14 @@ export async function continueProcess(
   taskId: string,
   parameters: Record<string, any>
 ) {
-  const authResponse = await sdk.auth.login(
-    credentials.username,
-    credentials.password
-  )
-  const token = authResponse.data?.token
+  const authResponse = await sdk.auth.login(credentials)
+  const token = authResponse.Token
 
   const response = await sdk.process.continue({
+    processName: '',
     instanceId,
-    taskId,
-    parameters
-  }, token)
+    parameters: toParams(parameters)
+  }, undefined, token)
 
   return { success: true, data: response }
 }`}</code></pre>
@@ -544,7 +546,7 @@ export async function continueProcess(
         {/* Código de ejemplo - Cliente */}
         <BizuitCard
           title={`💻 ${t('example4.clientSideCode')}`}
-          description={t('example4.codeSubtitle')}
+           description={t('example4.codeSubtitle') as string}
         >
           <div className="bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto">
             <pre className="text-sm"><code>{`'use client'
@@ -589,7 +591,7 @@ export default function ServerSideExample() {
         {/* Ventajas del Server-Side SDK */}
         <BizuitCard
           title={`🎯 ${t('example4.keyPointsTitle')}`}
-          description={t('example4.keyPointsTitle')}
+           description={t('example4.keyPointsTitle') as string}
         >
           <div className="space-y-4">
             <div className="flex items-start gap-3">
