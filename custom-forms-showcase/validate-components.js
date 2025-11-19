@@ -7,7 +7,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const componentsDir = path.join(__dirname, 'example/app/(examples)/components-demo/components');
+const componentsDir = path.join(__dirname, 'app/(examples)/components-demo/components');
 
 // Lista de todos los componentes
 const components = [
