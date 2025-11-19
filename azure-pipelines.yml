@@ -1,0 +1,324 @@
+# Azure DevOps Pipeline - Build Deployment Package
+# Equivalente al workflow de GitHub Actions
+
+trigger:
+  branches:
+    include:
+      - main
+      - release/*
+  paths:
+    include:
+      - '*/src/**'           # Cambios en source de cualquier form
+      - '*/package.json'     # Cambios en package.json de forms
+      - 'build-form.js'      # Cambios en script de build compartido
+
+# No trigger on PR
+pr: none
+
+# Variables globales
+variables:
+  nodeVersion: '18.x'
+  artifactName: 'deployment-package'
+
+# Pool de agentes
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+  - stage: Build
+    displayName: 'Build Deployment Package'
+    jobs:
+      - job: BuildForms
+        displayName: 'Build and Package Forms'
+        steps:
+          # Checkout del código
+          - checkout: self
+            fetchDepth: 0  # Necesario para git log
+            displayName: 'Checkout code'
+
+          # Setup Node.js
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(nodeVersion)
+            displayName: 'Setup Node.js $(nodeVersion)'
+
+          # Instalar dependencias
+          - script: |
+              npm install
+            displayName: 'Install dependencies'
+
+          # Obtener información de versión
+          - task: PowerShell@2
+            name: GetVersionInfo
+            displayName: 'Get version info'
+            inputs:
+              targetType: 'inline'
+              script: |
+                # Generar versión basada en timestamp
+                $timestamp = Get-Date -Format "yyyyMMddHHmm"
+                $version = "1.0.$timestamp"
+
+                # Obtener commit info
+                $commitHash = git rev-parse --short HEAD
+                $buildDate = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.000Z")
+
+                Write-Host "📦 Package Version: $version"
+                Write-Host "🔖 Commit: $commitHash"
+                Write-Host "📅 Build Date: $buildDate"
+
+                # Exportar variables para próximos pasos
+                Write-Host "##vso[task.setvariable variable=packageVersion;isOutput=true]$version"
+                Write-Host "##vso[task.setvariable variable=commitHash;isOutput=true]$commitHash"
+                Write-Host "##vso[task.setvariable variable=buildDate;isOutput=true]$buildDate"
+
+          # Detectar formularios modificados
+          - task: Bash@3
+            name: DetectChangedForms
+            displayName: 'Detect changed forms'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "🔍 Detecting changed forms..."
+
+                # Obtener lista de forms modificados desde el último commit
+                CHANGED_FORMS=$(git diff --name-only HEAD~1 HEAD | grep -E '^[^/]+/(src/|package\.json)' | cut -d'/' -f1 | sort -u || true)
+
+                if [ -z "$CHANGED_FORMS" ]; then
+                  echo "⚠️  No forms changed, building all forms"
+                  # Si no hay cambios, buscar todos los forms
+                  CHANGED_FORMS=$(find . -type f -name "package.json" -not -path "*/node_modules/*" -not -path "./package.json" | xargs dirname | xargs -n1 basename)
+                fi
+
+                # Convertir a array para Azure DevOps
+                FORMS_ARRAY=$(echo "$CHANGED_FORMS" | tr '\n' ' ')
+                echo "##vso[task.setvariable variable=changedForms;isOutput=true]$FORMS_ARRAY"
+
+                echo "📝 Forms to build:"
+                echo "$CHANGED_FORMS"
+
+          # Compilar formularios
+          - task: Bash@3
+            displayName: 'Build changed forms'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "🔨 Building forms..."
+
+                FORMS_TO_BUILD="$(DetectChangedForms.changedForms)"
+
+                for form_name in $FORMS_TO_BUILD; do
+                  if [ -d "$form_name" ] && [ -f "$form_name/package.json" ]; then
+                    echo "  📝 Building: $form_name"
+                    cd "$form_name"
+
+                    # Verificar que existe el script de build
+                    if npm run | grep -q "build"; then
+                      npm run build
+
+                      if [ -f "dist/form.js" ]; then
+                        echo "  ✅ Built successfully: $form_name ($(wc -c < dist/form.js) bytes)"
+                      else
+                        echo "  ❌ Build failed: $form_name (no dist/form.js)"
+                        exit 1
+                      fi
+                    else
+                      echo "  ⚠️  No build script found for: $form_name"
+                    fi
+
+                    cd ..
+                  fi
+                done
+
+          # Extraer Release Notes
+          - task: Bash@3
+            name: ExtractReleaseNotes
+            displayName: 'Extract release notes'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "📝 Extracting release notes..."
+
+                # Obtener release notes del último commit
+                COMMIT_MESSAGE=$(git log -1 --pretty=format:"%B")
+
+                # Si el mensaje del commit tiene formato especial (conventional commits), extraerlo
+                if echo "$COMMIT_MESSAGE" | grep -qE "^(feat|fix|chore|docs|refactor|perf|test):"; then
+                  # Extraer todo después del título (primera línea)
+                  RELEASE_NOTES=$(echo "$COMMIT_MESSAGE" | tail -n +2 | sed '/^$/d')
+
+                  if [ -z "$RELEASE_NOTES" ]; then
+                    # Si no hay cuerpo, usar solo el título
+                    RELEASE_NOTES=$(echo "$COMMIT_MESSAGE" | head -n 1)
+                  fi
+                else
+                  # Usar el mensaje del commit completo
+                  RELEASE_NOTES="$COMMIT_MESSAGE"
+                fi
+
+                # Si está vacío, usar mensaje por defecto
+                if [ -z "$RELEASE_NOTES" ]; then
+                  RELEASE_NOTES="Version $(GetVersionInfo.packageVersion) - Build automático desde Azure DevOps"
+                fi
+
+                # Guardar en archivo temporal
+                echo "$RELEASE_NOTES" > /tmp/release_notes.txt
+
+                echo "✅ Release notes extracted:"
+                echo "$RELEASE_NOTES"
+
+          # Generar manifest.json
+          - task: Bash@3
+            name: GenerateManifest
+            displayName: 'Generate manifest.json'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "📋 Generating manifest.json..."
+
+                # Crear manifest.json dinámicamente
+                cat > manifest.json << EOF
+                {
+                  "packageVersion": "$(GetVersionInfo.packageVersion)",
+                  "buildDate": "$(GetVersionInfo.buildDate)",
+                  "commitHash": "$(GetVersionInfo.commitHash)",
+                  "forms": [
+                EOF
+
+                # Leer release notes del archivo temporal
+                RELEASE_NOTES=$(cat /tmp/release_notes.txt)
+
+                # Agregar SOLO los forms compilados al manifest
+                FORMS_TO_MANIFEST="$(DetectChangedForms.changedForms)"
+                first=true
+
+                for form_name in $FORMS_TO_MANIFEST; do
+                  # Verificar que exista el form compilado
+                  if [ -d "$form_name" ] && [ -f "$form_name/package.json" ] && [ -f "$form_name/dist/form.js" ]; then
+                    version=$(jq -r '.version // "1.0.0"' "$form_name/package.json")
+                    description=$(jq -r '.description // "Custom form"' "$form_name/package.json")
+                    author=$(jq -r '.author // "Bizuit Team"' "$form_name/package.json")
+
+                    # ProcessName = FormName con capitalización (AprobacionGastos)
+                    process_name=$(echo "$form_name" | sed -r 's/(^|-)([a-z])/\U\2/g')
+
+                    size=$(wc -c < "$form_name/dist/form.js")
+
+                    # Escapar release notes para JSON
+                    release_notes_json=$(echo "$RELEASE_NOTES" | jq -Rs .)
+
+                    # Agregar coma si no es el primero
+                    if [ "$first" = false ]; then
+                      echo "," >> manifest.json
+                    fi
+                    first=false
+
+                    # Agregar form al manifest con releaseNotes
+                    cat >> manifest.json << FORM_EOF
+                    {
+                      "formName": "$form_name",
+                      "processName": "$process_name",
+                      "version": "$version",
+                      "author": "$author",
+                      "description": "$description",
+                      "sizeBytes": $size,
+                      "path": "forms/$form_name/form.js",
+                      "releaseNotes": $release_notes_json
+                    }
+                FORM_EOF
+                  fi
+                done
+
+                # Cerrar manifest.json
+                cat >> manifest.json << EOF
+                  ]
+                }
+                EOF
+
+                # Pretty print
+                jq '.' manifest.json > manifest.tmp && mv manifest.tmp manifest.json
+
+                echo "✅ Manifest generated:"
+                cat manifest.json
+
+                # Contar forms
+                form_count=$(jq '.forms | length' manifest.json)
+                echo "##vso[task.setvariable variable=formCount;isOutput=true]$form_count"
+
+          # Crear estructura del paquete
+          - task: Bash@3
+            displayName: 'Create deployment package structure'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "📦 Creating deployment package structure..."
+
+                mkdir -p deployment-package/forms
+
+                # Copiar manifest.json
+                cp manifest.json deployment-package/
+
+                # Copiar SOLO los forms que fueron compilados
+                FORMS_TO_PACKAGE="$(DetectChangedForms.changedForms)"
+
+                for form_name in $FORMS_TO_PACKAGE; do
+                  if [ -d "$form_name" ] && [ -f "$form_name/dist/form.js" ]; then
+                    mkdir -p "deployment-package/forms/$form_name"
+                    cp "$form_name/dist/form.js" "deployment-package/forms/$form_name/"
+                    echo "  ✅ Copied: $form_name"
+                  fi
+                done
+
+                echo "📂 Package structure:"
+                find deployment-package -type f
+
+          # Verificar estructura
+          - task: Bash@3
+            displayName: 'Verify deployment package'
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "📋 Package structure:"
+                find deployment-package -type f
+
+                echo ""
+                echo "📊 Package stats:"
+                du -sh deployment-package
+                echo "Forms: $(GenerateManifest.formCount)"
+
+          # Crear ZIP del paquete
+          - task: ArchiveFiles@2
+            displayName: 'Create deployment ZIP'
+            inputs:
+              rootFolderOrFile: '$(Build.SourcesDirectory)/deployment-package'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/bizuit-custom-forms-deployment-$(GetVersionInfo.packageVersion).zip'
+              replaceExistingArchive: true
+
+          # Publicar artefacto
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish deployment package'
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: '$(artifactName)'
+              publishLocation: 'Container'
+
+          # Resumen del build
+          - task: PowerShell@2
+            displayName: 'Build summary'
+            inputs:
+              targetType: 'inline'
+              script: |
+                Write-Host "## 🎉 Deployment Package Built Successfully"
+                Write-Host ""
+                Write-Host "**Version**: $(GetVersionInfo.packageVersion)"
+                Write-Host "**Commit**: $(GetVersionInfo.commitHash)"
+                Write-Host "**Forms**: $(GenerateManifest.formCount)"
+                Write-Host ""
+                Write-Host "### 📥 Download"
+                Write-Host "El paquete está disponible en los artefactos del build"
+                Write-Host ""
+                Write-Host "### 📤 Upload Instructions"
+                Write-Host "1. Descarga el ZIP desde los artefactos"
+                Write-Host "2. Transfiere al servidor offline"
+                Write-Host "3. Sube vía: /admin/upload-forms"
