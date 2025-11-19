@@ -595,27 +595,27 @@ function FormServiceDemo() {
           <div className="result-details">
             <div className="detail-row">
               <span className="label">Instance ID:</span>
-              <span className="value">{result.instanceId}</span>
+              <span className="value">{result?.instanceId || 'N/A'}</span>
             </div>
             <div className="detail-row">
               <span className="label">Proceso:</span>
-              <span className="value">{result.processName}</span>
+              <span className="value">{result?.processName || 'N/A'}</span>
             </div>
             <div className="detail-row">
               <span className="label">Total Calculado:</span>
               <span className="value highlight">
-                ${result.calculatedTotal?.toFixed(2) || '0.00'}
+                ${result?.calculatedTotal?.toFixed(2) || '0.00'}
               </span>
             </div>
             <div className="detail-row">
               <span className="label">Timestamp:</span>
-              <span className="value">{new Date(result.timestamp).toLocaleString()}</span>
+              <span className="value">{result?.timestamp ? new Date(result.timestamp).toLocaleString() : 'N/A'}</span>
             </div>
           </div>
 
           <div className="preview">
             <h3>📦 Datos enviados:</h3>
-            <pre>{JSON.stringify(result.submittedData, null, 2)}</pre>
+            <pre>{JSON.stringify(result?.submittedData || {}, null, 2)}</pre>
           </div>
 
           <button onClick={reset} className="btn-primary">
