@@ -155,8 +155,39 @@ stages:
 
                 Write-Host "Target Database: $dbServer\$dbDatabase" -ForegroundColor Gray
 
-                # Build connection string
-                $connectionString = "Server=$dbServer;Database=$dbDatabase;User Id=$dbUser;Password=$dbPassword;TrustServerCertificate=True;Encrypt=True;"
+                # Test SQL Server connection first
+                Write-Host "`nTesting SQL Server connection..." -ForegroundColor Yellow
+                try {
+                    $testCmd = "sqlcmd"
+                    $testArgs = @(
+                        "-S", $dbServer,
+                        "-d", "master",
+                        "-U", $dbUser,
+                        "-P", $dbPassword,
+                        "-Q", "SELECT @@VERSION",
+                        "-b"
+                    )
+
+                    Write-Host "Command: sqlcmd -S $dbServer -d master -U $dbUser -P ****** -Q 'SELECT @@VERSION'" -ForegroundColor Gray
+                    $testOutput = & $testCmd $testArgs 2>&1
+
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Host "✓ SQL Server connection successful" -ForegroundColor Green
+                        Write-Host $testOutput -ForegroundColor Gray
+                    } else {
+                        Write-Error "❌ Cannot connect to SQL Server"
+                        Write-Host "Error output:" -ForegroundColor Red
+                        Write-Host $testOutput -ForegroundColor Red
+                        Write-Host "`nTroubleshooting:" -ForegroundColor Yellow
+                        Write-Host "1. Verify SQL Server is accessible from this agent" -ForegroundColor Gray
+                        Write-Host "2. Check credentials in .env.local" -ForegroundColor Gray
+                        Write-Host "3. Ensure sqlcmd is installed on the agent" -ForegroundColor Gray
+                        exit 1
+                    }
+                } catch {
+                    Write-Error "❌ Error testing connection: $_"
+                    exit 1
+                }
 
                 # Execute each migration file
                 foreach ($file in $sqlFiles) {
@@ -174,14 +205,19 @@ stages:
                             "-b"  # Exit with error code on SQL errors
                         )
 
+                        Write-Host "Executing: sqlcmd -S $dbServer -d $dbDatabase -U $dbUser -i $($file.Name)" -ForegroundColor Gray
                         $output = & $sqlcmd $arguments 2>&1
 
                         if ($LASTEXITCODE -eq 0) {
                             Write-Host "✓ Migration executed successfully" -ForegroundColor Green
-                            Write-Host $output -ForegroundColor Gray
+                            if ($output) {
+                                Write-Host $output -ForegroundColor Gray
+                            }
                         } else {
                             Write-Error "❌ Migration failed with exit code: $LASTEXITCODE"
-                            Write-Error $output
+                            Write-Host "`nSQL Error Output:" -ForegroundColor Red
+                            Write-Host $output -ForegroundColor Red
+                            Write-Host "`nMigration file: $($file.FullName)" -ForegroundColor Yellow
                             exit 1
                         }
                     } catch {
