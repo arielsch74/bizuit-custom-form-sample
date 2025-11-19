@@ -35,14 +35,13 @@ stages:
               versionSpec: '$(nodeVersion)'
             displayName: 'Install Node.js $(nodeVersion)'
 
-          # Cache disabled - causes tar errors on Windows and we want latest packages anyway
-          # - task: Cache@2
-          #   inputs:
-          #     key: 'npm | "$(Agent.OS)" | custom-forms-showcase/package.json'
-          #     restoreKeys: |
-          #       npm | "$(Agent.OS)"
-          #     path: '$(Build.SourcesDirectory)/custom-forms-showcase/node_modules'
-          #   displayName: 'Cache npm dependencies'
+          - task: Cache@2
+            inputs:
+              key: 'npm | "$(Agent.OS)" | custom-forms-showcase/package-lock.json'
+              restoreKeys: |
+                npm | "$(Agent.OS)"
+              path: '$(Build.SourcesDirectory)/custom-forms-showcase/node_modules'
+            displayName: 'Cache npm dependencies'
 
           - script: |
               cd custom-forms-showcase
@@ -84,14 +83,13 @@ stages:
                 }
             displayName: 'Create Environment Configuration for Build'
 
-          # Cache disabled - causes tar errors on Windows
-          # - task: Cache@2
-          #   inputs:
-          #     key: 'nextjs | "$(Agent.OS)" | custom-forms-showcase/package.json'
-          #     restoreKeys: |
-          #       nextjs | "$(Agent.OS)"
-          #     path: '$(Build.SourcesDirectory)/custom-forms-showcase/.next/cache'
-          #   displayName: 'Cache Next.js build'
+          - task: Cache@2
+            inputs:
+              key: 'nextjs | "$(Agent.OS)" | custom-forms-showcase/package-lock.json'
+              restoreKeys: |
+                nextjs | "$(Agent.OS)"
+              path: '$(Build.SourcesDirectory)/custom-forms-showcase/.next/cache'
+            displayName: 'Cache Next.js build'
 
           - script: |
               cd custom-forms-showcase
