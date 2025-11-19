@@ -316,18 +316,58 @@ const I18nProvider = ({ children }) => {
     es: {
       title: 'Demo de FormService',
       subtitle: 'API de alto nivel para formularios dinámicos',
-      step1: 'Preparar Formulario',
-      loading: 'Cargando parámetros...',
-      submit: 'Enviar Solicitud',
-      success: 'Proceso Iniciado Exitosamente'
+      step1Title: 'Preparar Formulario',
+      process: 'Proceso',
+      prepareBtn: 'Preparar Formulario con prepareStartForm()',
+      loadingParams: 'Cargando parámetros del proceso...',
+      step2Title: 'Completar Formulario',
+      preparedFields: 'FormService preparó {count} campos automáticamente',
+      enterValue: 'Ingrese',
+      formDataCurrent: 'FormData actual',
+      back: 'Volver',
+      startProcessBtn: 'Iniciar Proceso con startProcess()',
+      startingProcess: 'Iniciando proceso...',
+      processStarted: 'Proceso Iniciado Exitosamente',
+      instanceId: 'Instance ID',
+      calculatedTotal: 'Total Calculado',
+      timestamp: 'Timestamp',
+      dataSent: 'Datos enviados',
+      startNewProcess: 'Iniciar Nuevo Proceso',
+      error: 'Error',
+      retry: 'Reintentar',
+      advantages: 'Ventajas de FormService',
+      lessCode: 'Menos código: prepareStartForm() hace todo en una llamada',
+      autoConversion: 'Conversión automática: formData → parámetros automático',
+      lessErrors: 'Menos errores: No necesitas filtrar ni transformar manualmente',
+      moreProductive: 'Más productivo: Enfócate en la lógica de negocio, no en boilerplate'
     },
     en: {
       title: 'FormService Demo',
       subtitle: 'High-level API for dynamic forms',
-      step1: 'Prepare Form',
-      loading: 'Loading parameters...',
-      submit: 'Submit Request',
-      success: 'Process Started Successfully'
+      step1Title: 'Prepare Form',
+      process: 'Process',
+      prepareBtn: 'Prepare Form with prepareStartForm()',
+      loadingParams: 'Loading process parameters...',
+      step2Title: 'Complete Form',
+      preparedFields: 'FormService prepared {count} fields automatically',
+      enterValue: 'Enter',
+      formDataCurrent: 'Current FormData',
+      back: 'Back',
+      startProcessBtn: 'Start Process with startProcess()',
+      startingProcess: 'Starting process...',
+      processStarted: 'Process Started Successfully',
+      instanceId: 'Instance ID',
+      calculatedTotal: 'Calculated Total',
+      timestamp: 'Timestamp',
+      dataSent: 'Data sent',
+      startNewProcess: 'Start New Process',
+      error: 'Error',
+      retry: 'Retry',
+      advantages: 'FormService Advantages',
+      lessCode: 'Less code: prepareStartForm() does everything in one call',
+      autoConversion: 'Automatic conversion: formData → parameters automatic',
+      lessErrors: 'Fewer errors: No need to manually filter or transform',
+      moreProductive: 'More productive: Focus on business logic, not boilerplate'
     }
   };
 
@@ -563,14 +603,14 @@ function FormServiceDemo() {
       {/* PASO 1: Preparar Formulario */}
       {step === 'idle' && (
         <div className="card">
-          <h2>1️⃣ Preparar Formulario</h2>
-          <p>Proceso: <strong>{processName}</strong></p>
+          <h2>1️⃣ {t('step1Title')}</h2>
+          <p>{t('process')}: <strong>{processName}</strong></p>
           <button
             onClick={handlePrepareForm}
             className="btn-primary"
             style={{ background: primaryColor }}
           >
-            Preparar Formulario con prepareStartForm()
+            {t('prepareBtn')}
           </button>
         </div>
       )}
@@ -578,16 +618,16 @@ function FormServiceDemo() {
       {step === 'loading' && (
         <div className="card loading">
           <div className="spinner"></div>
-          <p>Cargando parámetros del proceso...</p>
+          <p>{t('loadingParams')}</p>
         </div>
       )}
 
       {/* PASO 2: Completar Formulario */}
       {step === 'ready' && (
         <div className="card">
-          <h2>2️⃣ Completar Formulario</h2>
+          <h2>2️⃣ {t('step2Title')}</h2>
           <p className="info">
-            ✨ FormService preparó {parameters.length} campos automáticamente
+            ✨ {t('preparedFields').replace('{count}', parameters.length)}
           </p>
 
           <div className="form-grid">
@@ -606,7 +646,7 @@ function FormServiceDemo() {
                       ? parseFloat(e.target.value) || 0
                       : e.target.value
                   )}
-                  placeholder={\`Ingrese \${param.name}\`}
+                  placeholder={\`\${t('enterValue')} \${param.name}\`}
                 />
               </div>
             ))}
@@ -614,20 +654,20 @@ function FormServiceDemo() {
 
           {/* Preview de los datos */}
           <div className="preview">
-            <h3>📝 FormData actual:</h3>
+            <h3>📝 {t('formDataCurrent')}:</h3>
             <pre>{JSON.stringify(formData, null, 2)}</pre>
           </div>
 
           <div className="button-group">
             <button onClick={reset} className="btn-secondary">
-              ← Volver
+              ← {t('back')}
             </button>
             <button
               onClick={handleStartProcess}
               className="btn-primary"
               style={{ background: primaryColor }}
             >
-              Iniciar Proceso con startProcess()
+              {t('startProcessBtn')}
             </button>
           </div>
         </div>
@@ -636,65 +676,65 @@ function FormServiceDemo() {
       {step === 'submitting' && (
         <div className="card loading">
           <div className="spinner"></div>
-          <p>Iniciando proceso...</p>
+          <p>{t('startingProcess')}</p>
         </div>
       )}
 
       {/* PASO 3: Resultado */}
       {step === 'success' && result && (
         <div className="card success">
-          <h2>✅ Proceso Iniciado Exitosamente</h2>
+          <h2>✅ {t('processStarted')}</h2>
 
           <div className="result-details">
             <div className="detail-row">
-              <span className="label">Instance ID:</span>
+              <span className="label">{t('instanceId')}:</span>
               <span className="value">{result?.instanceId || 'N/A'}</span>
             </div>
             <div className="detail-row">
-              <span className="label">Proceso:</span>
+              <span className="label">{t('process')}:</span>
               <span className="value">{result?.processName || 'N/A'}</span>
             </div>
             <div className="detail-row">
-              <span className="label">Total Calculado:</span>
+              <span className="label">{t('calculatedTotal')}:</span>
               <span className="value highlight">
                 ${result?.calculatedTotal?.toFixed(2) || '0.00'}
               </span>
             </div>
             <div className="detail-row">
-              <span className="label">Timestamp:</span>
+              <span className="label">{t('timestamp')}:</span>
               <span className="value">{result?.timestamp ? new Date(result.timestamp).toLocaleString() : 'N/A'}</span>
             </div>
           </div>
 
           <div className="preview">
-            <h3>📦 Datos enviados:</h3>
+            <h3>📦 {t('dataSent')}:</h3>
             <pre>{JSON.stringify(result?.submittedData || {}, null, 2)}</pre>
           </div>
 
           <button onClick={reset} className="btn-primary" style={{ background: primaryColor }}>
-            🔄 Iniciar Nuevo Proceso
+            🔄 {t('startNewProcess')}
           </button>
         </div>
       )}
 
       {error && (
         <div className="card error">
-          <h3>❌ Error</h3>
+          <h3>❌ {t('error')}</h3>
           <p>{error}</p>
           <button onClick={reset} className="btn-secondary">
-            Reintentar
+            {t('retry')}
           </button>
         </div>
       )}
 
       {/* Ventajas de FormService */}
       <div className="card info-card">
-        <h3>✨ Ventajas de FormService</h3>
+        <h3>✨ {t('advantages')}</h3>
         <ul>
-          <li>✅ <strong>Menos código:</strong> prepareStartForm() hace todo en una llamada</li>
-          <li>✅ <strong>Conversión automática:</strong> formData → parámetros automático</li>
-          <li>✅ <strong>Menos errores:</strong> No necesitas filtrar ni transformar manualmente</li>
-          <li>✅ <strong>Más productivo:</strong> Enfócate en la lógica de negocio, no en boilerplate</li>
+          <li>✅ <strong>{t('lessCode')}</strong></li>
+          <li>✅ <strong>{t('autoConversion')}</strong></li>
+          <li>✅ <strong>{t('lessErrors')}</strong></li>
+          <li>✅ <strong>{t('moreProductive')}</strong></li>
         </ul>
       </div>
     </div>
