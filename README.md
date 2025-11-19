@@ -417,3 +417,5 @@ Para preguntas o problemas, abre un issue en el repositorio.
 ---
 
 **Creado con ❤️ para el ecosistema Bizuit BPM**
+
+_Última actualización: 2025-11-19_
