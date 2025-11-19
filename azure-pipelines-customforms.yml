@@ -47,6 +47,14 @@ stages:
               versionSpec: '$(nodeVersion)'
             displayName: 'Install Node.js $(nodeVersion)'
 
+          - task: Cache@2
+            inputs:
+              key: 'npm | "$(Agent.OS)" | custom-forms/runtime-app/package-lock.json'
+              restoreKeys: |
+                npm | "$(Agent.OS)"
+              path: '$(Build.SourcesDirectory)/custom-forms/runtime-app/node_modules'
+            displayName: 'Cache npm dependencies'
+
           - script: |
               cd custom-forms/runtime-app
               npm ci
@@ -71,6 +79,14 @@ stages:
 
                 Write-Host "✓ .env.local created successfully"
             displayName: 'Create Build Environment Configuration'
+
+          - task: Cache@2
+            inputs:
+              key: 'nextjs | "$(Agent.OS)" | custom-forms/runtime-app/package-lock.json'
+              restoreKeys: |
+                nextjs | "$(Agent.OS)"
+              path: '$(Build.SourcesDirectory)/custom-forms/runtime-app/.next/cache'
+            displayName: 'Cache Next.js build'
 
           - script: |
               cd custom-forms/runtime-app
