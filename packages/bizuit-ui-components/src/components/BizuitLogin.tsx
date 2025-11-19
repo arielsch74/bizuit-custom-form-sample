@@ -84,7 +84,7 @@ export function BizuitLogin({
               placeholder={t('login.username.placeholder')}
               required
               disabled={isLoading}
-              className="w-full px-3 py-2 border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+              className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 placeholder:text-muted-foreground"
             />
           </div>
 
@@ -100,7 +100,7 @@ export function BizuitLogin({
               placeholder={t('login.password.placeholder')}
               required
               disabled={isLoading}
-              className="w-full px-3 py-2 border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
+              className="w-full px-3 py-2 border border-input bg-background text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 placeholder:text-muted-foreground"
             />
           </div>
 

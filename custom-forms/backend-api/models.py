@@ -130,6 +130,7 @@ class FormDeployment(BaseModel):
     description: str
     sizeBytes: int
     path: str
+    releaseNotes: Optional[str] = ""
 
 
 class DeploymentManifest(BaseModel):

@@ -1,7 +1,165 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Search, FileText, Calendar, Database, Trash2, Eye, Download, Loader2, AlertCircle, Filter, RefreshCw } from 'lucide-react'
+import { Search, FileText, Calendar, Database, Trash2, Eye, Download, Loader2, AlertCircle, Filter, RefreshCw, History, X, Check, AlertTriangle, CheckCircle } from 'lucide-react'
+
+// Confirmation Dialog Component
+interface ConfirmDialogProps {
+  isOpen: boolean
+  title: string
+  message: string
+  confirmText?: string
+  cancelText?: string
+  onConfirm: () => void
+  onCancel: () => void
+  type?: 'warning' | 'danger' | 'info'
+}
+
+function ConfirmDialog({
+  isOpen,
+  title,
+  message,
+  confirmText = 'Confirmar',
+  cancelText = 'Cancelar',
+  onConfirm,
+  onCancel,
+  type = 'warning'
+}: ConfirmDialogProps) {
+  if (!isOpen) return null
+
+  const colors = {
+    warning: {
+      icon: AlertTriangle,
+      iconColor: 'text-orange-600 dark:text-orange-400',
+      bgColor: 'bg-orange-50 dark:bg-orange-900/20',
+      borderColor: 'border-orange-200 dark:border-orange-800',
+      buttonColor: 'bg-orange-600 hover:bg-orange-700'
+    },
+    danger: {
+      icon: AlertTriangle,
+      iconColor: 'text-red-600 dark:text-red-400',
+      bgColor: 'bg-red-50 dark:bg-red-900/20',
+      borderColor: 'border-red-200 dark:border-red-800',
+      buttonColor: 'bg-red-600 hover:bg-red-700'
+    },
+    info: {
+      icon: AlertCircle,
+      iconColor: 'text-blue-600 dark:text-blue-400',
+      bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+      borderColor: 'border-blue-200 dark:border-blue-800',
+      buttonColor: 'bg-blue-600 hover:bg-blue-700'
+    }
+  }
+
+  const config = colors[type]
+  const Icon = config.icon
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[60]">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-md w-full">
+        <div className="p-6">
+          <div className="flex items-start gap-4">
+            <div className={`w-12 h-12 rounded-full ${config.bgColor} flex items-center justify-center flex-shrink-0`}>
+              <Icon className={`w-6 h-6 ${config.iconColor}`} />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+                {title}
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                {message}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-3 p-6 pt-0">
+          <button
+            onClick={onCancel}
+            className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition-colors"
+          >
+            {cancelText}
+          </button>
+          <button
+            onClick={onConfirm}
+            className={`flex-1 px-4 py-2 ${config.buttonColor} text-white rounded-lg font-medium transition-colors`}
+          >
+            {confirmText}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Alert Dialog Component
+interface AlertDialogProps {
+  isOpen: boolean
+  title: string
+  message: string
+  type?: 'success' | 'error' | 'info'
+  onClose: () => void
+}
+
+function AlertDialog({ isOpen, title, message, type = 'info', onClose }: AlertDialogProps) {
+  if (!isOpen) return null
+
+  const colors = {
+    success: {
+      icon: CheckCircle,
+      iconColor: 'text-green-600 dark:text-green-400',
+      bgColor: 'bg-green-50 dark:bg-green-900/20',
+      borderColor: 'border-green-200 dark:border-green-800',
+      buttonColor: 'bg-green-600 hover:bg-green-700'
+    },
+    error: {
+      icon: AlertCircle,
+      iconColor: 'text-red-600 dark:text-red-400',
+      bgColor: 'bg-red-50 dark:bg-red-900/20',
+      borderColor: 'border-red-200 dark:border-red-800',
+      buttonColor: 'bg-red-600 hover:bg-red-700'
+    },
+    info: {
+      icon: AlertCircle,
+      iconColor: 'text-blue-600 dark:text-blue-400',
+      bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+      borderColor: 'border-blue-200 dark:border-blue-800',
+      buttonColor: 'bg-blue-600 hover:bg-blue-700'
+    }
+  }
+
+  const config = colors[type]
+  const Icon = config.icon
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[60]">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-md w-full">
+        <div className="p-6">
+          <div className="flex items-start gap-4">
+            <div className={`w-12 h-12 rounded-full ${config.bgColor} flex items-center justify-center flex-shrink-0`}>
+              <Icon className={`w-6 h-6 ${config.iconColor}`} />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
+                {title}
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                {message}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="p-6 pt-0">
+          <button
+            onClick={onClose}
+            className={`w-full px-4 py-2 ${config.buttonColor} text-white rounded-lg font-medium transition-colors`}
+          >
+            Aceptar
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 interface CustomForm {
   name: string
@@ -15,6 +173,17 @@ interface CustomForm {
   createdAt: string
 }
 
+interface FormVersion {
+  version: string
+  publishedAt: string
+  sizeBytes: number
+  isCurrent: boolean
+  releaseNotes?: string
+  packageVersion?: string
+  commitHash?: string
+  buildDate?: string
+}
+
 export default function FormsManagementPage() {
   const [forms, setForms] = useState<CustomForm[]>([])
   const [filteredForms, setFilteredForms] = useState<CustomForm[]>([])
@@ -22,6 +191,38 @@ export default function FormsManagementPage() {
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<'name' | 'date' | 'size'>('date')
+
+  // Version modal state
+  const [showVersionsModal, setShowVersionsModal] = useState(false)
+  const [selectedForm, setSelectedForm] = useState<CustomForm | null>(null)
+  const [versions, setVersions] = useState<FormVersion[]>([])
+  const [loadingVersions, setLoadingVersions] = useState(false)
+  const [settingVersion, setSettingVersion] = useState<string | null>(null)
+
+  // Dialog state
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean
+    title: string
+    message: string
+    onConfirm: () => void
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  })
+
+  const [alertDialog, setAlertDialog] = useState<{
+    isOpen: boolean
+    title: string
+    message: string
+    type: 'success' | 'error' | 'info'
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info'
+  })
 
   useEffect(() => {
     loadForms()
@@ -107,6 +308,87 @@ export default function FormsManagementPage() {
 
   const handleViewForm = (formName: string) => {
     window.open(`/form/${formName}`, '_blank')
+  }
+
+  const handleShowVersions = async (form: CustomForm) => {
+    setSelectedForm(form)
+    setShowVersionsModal(true)
+    setLoadingVersions(true)
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+      const response = await fetch(`${apiUrl}/api/custom-forms/${form.name}/versions`)
+
+      if (!response.ok) {
+        throw new Error('Error al cargar versiones')
+      }
+
+      const data = await response.json()
+      setVersions(data)
+    } catch (err: any) {
+      console.error('Error loading versions:', err)
+      setAlertDialog({
+        isOpen: true,
+        title: 'Error al Cargar Versiones',
+        message: err.message || 'Ocurrió un error inesperado al cargar el historial de versiones',
+        type: 'error'
+      })
+    } finally {
+      setLoadingVersions(false)
+    }
+  }
+
+  const handleSetVersion = async (version: string) => {
+    if (!selectedForm) return
+
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Confirmar Cambio de Versión',
+      message: `¿Está seguro de que desea activar la versión ${version}? Esta acción cambiará la versión actual del formulario "${selectedForm.displayName}".`,
+      onConfirm: async () => {
+        setConfirmDialog({ ...confirmDialog, isOpen: false })
+        setSettingVersion(version)
+
+        try {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+          const response = await fetch(
+            `${apiUrl}/api/custom-forms/${selectedForm.name}/set-version?version=${version}`,
+            { method: 'POST' }
+          )
+
+          if (!response.ok) {
+            throw new Error('Error al cambiar versión')
+          }
+
+          setAlertDialog({
+            isOpen: true,
+            title: 'Versión Activada',
+            message: `La versión ${version} ha sido activada exitosamente`,
+            type: 'success'
+          })
+
+          // Reload versions and forms
+          await handleShowVersions(selectedForm)
+          await loadForms()
+        } catch (err: any) {
+          console.error('Error setting version:', err)
+          setAlertDialog({
+            isOpen: true,
+            title: 'Error al Cambiar Versión',
+            message: err.message || 'Ocurrió un error al intentar cambiar la versión',
+            type: 'error'
+          })
+        } finally {
+          setSettingVersion(null)
+        }
+      }
+    })
+  }
+
+  const closeVersionsModal = () => {
+    setShowVersionsModal(false)
+    setSelectedForm(null)
+    setVersions([])
   }
 
   if (loading) {
@@ -255,6 +537,14 @@ export default function FormsManagementPage() {
                   {/* Actions */}
                   <div className="flex gap-2">
                     <button
+                      onClick={() => handleShowVersions(form)}
+                      className="flex items-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
+                      title="Ver historial de versiones"
+                    >
+                      <History className="w-4 h-4" />
+                      Versiones
+                    </button>
+                    <button
                       onClick={() => handleViewForm(form.name)}
                       className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
                       title="Ver formulario"
@@ -277,6 +567,156 @@ export default function FormsManagementPage() {
           ))}
         </div>
       )}
+
+      {/* Versions Modal */}
+      {showVersionsModal && selectedForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                  Historial de Versiones
+                </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                  {selectedForm.displayName}
+                </p>
+              </div>
+              <button
+                onClick={closeVersionsModal}
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6 text-slate-600 dark:text-slate-400" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {loadingVersions ? (
+                <div className="flex items-center justify-center h-64">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+              ) : versions.length === 0 ? (
+                <div className="text-center py-12">
+                  <History className="w-16 h-16 text-slate-400 mx-auto mb-4" />
+                  <p className="text-slate-600 dark:text-slate-400">
+                    No se encontraron versiones para este formulario
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {versions.map((version, idx) => (
+                    <div
+                      key={idx}
+                      className={`border rounded-lg p-4 ${
+                        version.isCurrent
+                          ? 'border-primary bg-primary/5'
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-6">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                              v{version.version}
+                            </h3>
+                            {version.isCurrent && (
+                              <span className="px-2 py-1 bg-primary text-white text-xs font-semibold rounded-full flex items-center gap-1">
+                                <Check className="w-3 h-3" />
+                                ACTUAL
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Release Notes */}
+                          {version.releaseNotes && version.releaseNotes.trim() !== "" && (
+                            <div className="mb-4 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                              <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                📝 Cambios en esta versión:
+                              </div>
+                              <div className="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
+                                {version.releaseNotes}
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div className="text-slate-600 dark:text-slate-400">
+                              <strong>Publicado:</strong> {formatDate(version.publishedAt)}
+                            </div>
+                            <div className="text-slate-600 dark:text-slate-400">
+                              <strong>Tamaño:</strong> {formatSize(version.sizeBytes / 1024)}
+                            </div>
+                            {version.packageVersion && (
+                              <div className="text-slate-600 dark:text-slate-400">
+                                <strong>SDK:</strong> v{version.packageVersion}
+                              </div>
+                            )}
+                            {version.commitHash && (
+                              <div className="text-slate-600 dark:text-slate-400">
+                                <strong>Commit:</strong>{' '}
+                                <code className="text-xs bg-slate-100 dark:bg-slate-700 px-1 py-0.5 rounded">
+                                  {version.commitHash.substring(0, 7)}
+                                </code>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex gap-2 flex-shrink-0">
+                          <button
+                            onClick={() => handleDownload(selectedForm.name, version.version)}
+                            className="flex items-center gap-2 px-3 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition-colors"
+                            title="Descargar esta versión"
+                          >
+                            <Download className="w-4 h-4" />
+                            Descargar
+                          </button>
+                          {!version.isCurrent && (
+                            <button
+                              onClick={() => handleSetVersion(version.version)}
+                              disabled={settingVersion !== null}
+                              className="flex items-center gap-2 px-3 py-2 bg-primary hover:bg-primary/90 disabled:bg-slate-400 text-white rounded-lg text-sm font-medium transition-colors disabled:cursor-wait"
+                              title="Activar esta versión"
+                            >
+                              {settingVersion === version.version ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Check className="w-4 h-4" />
+                              )}
+                              Activar
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        confirmText="Aceptar"
+        cancelText="Cancelar"
+        type="warning"
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+      />
+
+      {/* Alert Dialog */}
+      <AlertDialog
+        isOpen={alertDialog.isOpen}
+        title={alertDialog.title}
+        message={alertDialog.message}
+        type={alertDialog.type}
+        onClose={() => setAlertDialog({ ...alertDialog, isOpen: false })}
+      />
     </div>
   )
 }

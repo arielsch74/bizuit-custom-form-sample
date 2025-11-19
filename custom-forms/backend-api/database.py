@@ -71,7 +71,8 @@ def upsert_custom_form(
     size_bytes: int,
     package_version: str,
     commit_hash: str,
-    build_date  # datetime object
+    build_date,  # datetime object
+    release_notes: str = ""
 ) -> dict:
     """
     Ejecuta el stored procedure para insertar/actualizar un form
@@ -131,7 +132,8 @@ def upsert_custom_form(
                 @SizeBytes = ?,
                 @PackageVersion = ?,
                 @CommitHash = ?,
-                @BuildDate = ?
+                @BuildDate = ?,
+                @ReleaseNotes = ?
         """, (
             form_name,
             process_name,
@@ -142,7 +144,8 @@ def upsert_custom_form(
             size_bytes,
             package_version,
             commit_hash,
-            build_date
+            build_date,
+            release_notes
         ))
 
         # Obtener resultado del SP (asumiendo que retorna un recordset)
@@ -322,6 +325,159 @@ def get_form_compiled_code(form_name: str, version: str = None):
 
     except Exception as e:
         print(f"[Database] Error fetching form code: {str(e)}")
+        raise
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+
+def get_form_versions(form_name: str):
+    """
+    Get all versions for a specific form
+
+    Args:
+        form_name: Name of the form
+
+    Returns:
+        list of dicts with version history
+
+    Raises:
+        ValueError: If form_name has invalid format
+    """
+    # SECURITY: Validate input to prevent SQL injection
+    if not validate_form_name(form_name):
+        raise ValueError(f"Invalid form_name format: {sanitize_for_logging(form_name)}")
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        query = """
+        SELECT
+            cfv.Version,
+            cfv.PublishedAt,
+            cfv.SizeBytes,
+            cfv.IsCurrent,
+            cfv.ReleaseNotes
+        FROM CustomFormVersions cfv
+        INNER JOIN CustomForms cf ON cfv.FormId = cf.FormId
+        WHERE cf.FormName = ?
+        ORDER BY cfv.PublishedAt DESC
+        """
+
+        cursor.execute(query, (form_name,))
+        rows = cursor.fetchall()
+
+        versions = []
+        for row in rows:
+            versions.append({
+                "version": row[0],
+                "publishedAt": row[1].isoformat() if row[1] else None,
+                "sizeBytes": row[2] or 0,
+                "isCurrent": bool(row[3]),
+                "releaseNotes": row[4] or ""
+            })
+
+        print(f"[Database] Retrieved {len(versions)} versions for form '{form_name}'")
+        return versions
+
+    except Exception as e:
+        print(f"[Database] Error fetching form versions: {str(e)}")
+        raise
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+
+def set_current_form_version(form_name: str, version: str):
+    """
+    Set a specific version as the current version for a form
+
+    Args:
+        form_name: Name of the form
+        version: Version to set as current
+
+    Returns:
+        dict with 'success' and 'message'
+
+    Raises:
+        ValueError: If form_name or version have invalid format
+    """
+    # SECURITY: Validate inputs to prevent SQL injection
+    if not validate_form_name(form_name):
+        raise ValueError(f"Invalid form_name format: {sanitize_for_logging(form_name)}")
+
+    if not validate_version(version):
+        raise ValueError(f"Invalid version format: {sanitize_for_logging(version)}")
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # First, verify the version exists
+        check_query = """
+        SELECT COUNT(*)
+        FROM CustomFormVersions cfv
+        INNER JOIN CustomForms cf ON cfv.FormId = cf.FormId
+        WHERE cf.FormName = ? AND cfv.Version = ?
+        """
+        cursor.execute(check_query, (form_name, version))
+        exists = cursor.fetchone()[0] > 0
+
+        if not exists:
+            raise ValueError(f"Version '{version}' not found for form '{form_name}'")
+
+        # Update: Set all versions of this form to IsCurrent = 0
+        update_query1 = """
+        UPDATE cfv
+        SET cfv.IsCurrent = 0
+        FROM CustomFormVersions cfv
+        INNER JOIN CustomForms cf ON cfv.FormId = cf.FormId
+        WHERE cf.FormName = ?
+        """
+        cursor.execute(update_query1, (form_name,))
+
+        # Update: Set the specific version to IsCurrent = 1
+        update_query2 = """
+        UPDATE cfv
+        SET cfv.IsCurrent = 1
+        FROM CustomFormVersions cfv
+        INNER JOIN CustomForms cf ON cfv.FormId = cf.FormId
+        WHERE cf.FormName = ? AND cfv.Version = ?
+        """
+        cursor.execute(update_query2, (form_name, version))
+
+        # Update: Set CurrentVersion in CustomForms table
+        update_query3 = """
+        UPDATE cf
+        SET cf.CurrentVersion = ?
+        FROM CustomForms cf
+        WHERE cf.FormName = ?
+        """
+        cursor.execute(update_query3, (version, form_name))
+
+        conn.commit()
+
+        print(f"[Database] Set version '{version}' as current for form '{form_name}'")
+        return {
+            "success": True,
+            "message": f"Version {version} set as current"
+        }
+
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print(f"[Database] Error setting current version: {str(e)}")
         raise
 
     finally:
