@@ -22,7 +22,10 @@ export default function AdminLayout({
 
   useEffect(() => {
     // Verificar autenticación (excepto en la página de login)
-    if (pathname !== '/admin/login') {
+    // Normalizar pathname removiendo barra final para comparación
+    const normalizedPath = pathname?.replace(/\/$/, '') || ''
+
+    if (normalizedPath !== '/admin/login') {
       checkAuth()
     } else {
       setLoading(false)
@@ -69,7 +72,10 @@ export default function AdminLayout({
   }
 
   // Si estamos en login, no mostrar el layout
-  if (pathname === '/admin/login') {
+  // Normalizar pathname removiendo barra final para comparación
+  const normalizedPath = pathname?.replace(/\/$/, '') || ''
+
+  if (normalizedPath === '/admin/login') {
     return <>{children}</>
   }
 

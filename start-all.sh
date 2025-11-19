@@ -6,6 +6,10 @@ set -e
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Create necessary directories
+mkdir -p "$PROJECT_ROOT/logs"
+mkdir -p "$PROJECT_ROOT/.pids"
+
 echo "🚀 Starting BizuitFormTemplate - All Projects"
 echo "=============================================="
 echo ""
@@ -61,8 +65,8 @@ else
     source venv/bin/activate
 fi
 
-# Start FastAPI in background
-python3 main.py > "$PROJECT_ROOT/logs/backend-api.log" 2>&1 &
+# Start FastAPI in background using venv Python directly
+venv/bin/python main.py > "$PROJECT_ROOT/logs/backend-api.log" 2>&1 &
 BACKEND_PID=$!
 echo "      PID: $BACKEND_PID"
 echo ""
