@@ -116,17 +116,16 @@
 
     <!-- ===================================== -->
     <!-- Application Request Routing (ARR)     -->
+    <!-- Note: Requires ARR module installed   -->
+    <!-- Commented out until ARR is enabled    -->
     <!-- ===================================== -->
+    <!--
     <proxy>
-      <!-- Don't preserve host header (let backend see its own host) -->
       <preserveHostHeader>false</preserveHostHeader>
-
-      <!-- Timeout for proxy requests: 10 minutes -->
       <timeout value="00:10:00" />
-
-      <!-- Buffer threshold: 64 KB -->
       <bufferSize>65536</bufferSize>
     </proxy>
+    -->
 
     <!-- ===================================== -->
     <!-- Error Pages                           -->
