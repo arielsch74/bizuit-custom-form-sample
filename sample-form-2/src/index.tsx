@@ -27,8 +27,8 @@ interface FormProps {
   dashboardParams?: DashboardParameters | null;
 }
 
-const FORM_VERSION = "1.0.2";
-const FORM_NAME = "Material Design Sample v3";
+const FORM_VERSION = "1.0.3";
+const FORM_NAME = "Material Design Sample v4";
 
 export default function SampleForm2({ dashboardParams }: FormProps) {
   const [showModal, setShowModal] = useState(false);
@@ -45,7 +45,7 @@ export default function SampleForm2({ dashboardParams }: FormProps) {
 
   return (
     <div className="min-h-screen" style={{
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
       fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif'
     }}>
       {/* App Bar */}
@@ -105,7 +105,7 @@ export default function SampleForm2({ dashboardParams }: FormProps) {
           onMouseOut={(e) => e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08)'}
           >
             <div style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
               padding: '16px',
               color: 'white'
             }}>
@@ -378,11 +378,11 @@ export default function SampleForm2({ dashboardParams }: FormProps) {
 
         {/* Footer */}
         <div style={{ textAlign: 'center', marginTop: '32px', color: 'white', opacity: 0.9 }}>
-          <p style={{ fontSize: '14px', margin: 0 }}>
+          <p style={{ fontSize: '14px', margin: 0, fontWeight: '500' }}>
             BIZUIT Custom Forms © {new Date().getFullYear()} - Material Design by Google ✨💎
           </p>
           <p style={{ fontSize: '12px', margin: '8px 0 0 0', opacity: 0.8 }}>
-            Last Updated: {new Date().toLocaleDateString('es-ES')} • Powered by React 18
+            Last Updated: {new Date().toLocaleDateString('es-ES')} • Powered by React 18 🚀
           </p>
         </div>
       </div>
@@ -448,7 +448,7 @@ export default function SampleForm2({ dashboardParams }: FormProps) {
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
               padding: '24px',
               color: 'white',
               borderRadius: '8px 8px 0 0'
@@ -465,7 +465,7 @@ export default function SampleForm2({ dashboardParams }: FormProps) {
               <div style={{
                 textAlign: 'center',
                 padding: '32px',
-                background: 'linear-gradient(135deg, #667eea20 0%, #764ba220 100%)',
+                background: 'linear-gradient(135deg, #11998e20 0%, #38ef7d20 100%)',
                 borderRadius: '8px',
                 marginBottom: '24px'
               }}>
