@@ -14,7 +14,8 @@
 const getBasePath = (): string => {
   // During build time, process.env.NEXT_PUBLIC_BASE_PATH will be available
   // During runtime (client-side), it's available via process.env
-  return process.env.NEXT_PUBLIC_BASE_PATH || ''
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH
+  return basePath && basePath !== 'undefined' ? basePath : ''
 }
 
 /**
