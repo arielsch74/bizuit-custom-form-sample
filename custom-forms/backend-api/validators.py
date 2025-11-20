@@ -169,16 +169,18 @@ def validate_email(email: str) -> bool:
 
 def validate_token_id(token_id: str) -> bool:
     """
-    Valida formato de TokenId (GUID).
+    Valida formato de TokenId (GUID o número entero).
 
     Args:
-        token_id: Token ID a validar (formato GUID)
+        token_id: Token ID a validar (formato GUID o número entero)
 
     Returns:
-        True si es GUID válido, False si no
+        True si es GUID válido o número entero, False si no
 
     Examples:
         >>> validate_token_id("550e8400-e29b-41d4-a716-446655440000")
+        True
+        >>> validate_token_id("141191")
         True
         >>> validate_token_id("invalid-guid")
         False
@@ -190,7 +192,11 @@ def validate_token_id(token_id: str) -> bool:
 
     # Formato GUID: 8-4-4-4-12 caracteres hexadecimales
     guid_pattern = r'^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$'
-    return bool(re.match(guid_pattern, token_id))
+
+    # Formato número entero (para tokens del Dashboard)
+    integer_pattern = r'^\d+$'
+
+    return bool(re.match(guid_pattern, token_id) or re.match(integer_pattern, token_id))
 
 
 def validate_commit_hash(commit_hash: str) -> bool:

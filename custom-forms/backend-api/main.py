@@ -113,34 +113,32 @@ app = FastAPI(
 )
 
 # CORS configuration
-# SECURITY: CORS_ORIGINS environment variable is REQUIRED
-# Never use wildcard (*) with allow_credentials=True
-cors_origins_env = os.getenv("CORS_ORIGINS")
+# DEVELOPMENT MODE: Allow all origins
+# WARNING: This should be restricted in production!
+cors_origins_env = os.getenv("CORS_ORIGINS", "*")
 
-if not cors_origins_env:
-    raise ValueError(
-        "CORS_ORIGINS environment variable is required. "
-        "Specify allowed origins as comma-separated list (e.g., http://localhost:3000,http://localhost:3001). "
-        "Never use '*' in production with credentials enabled."
+# For development: allow all origins by using regex pattern
+# For production: use specific origins from environment variable
+if cors_origins_env == "*":
+    print("⚠️  WARNING: CORS is allowing ALL origins (*) - Use only for development!")
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=False,  # Must be False when using wildcard
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
     )
-
-cors_origins = [origin.strip() for origin in cors_origins_env.split(",")]
-
-# Validate that wildcard is not used with credentials
-if "*" in cors_origins:
-    raise ValueError(
-        "SECURITY ERROR: Cannot use wildcard '*' in CORS_ORIGINS with allow_credentials=True. "
-        "This is a critical security vulnerability. "
-        "Specify explicit origins instead (e.g., http://localhost:3000,http://localhost:3001)"
+else:
+    # Production mode: use specific origins
+    cors_origins = [origin.strip() for origin in cors_origins_env.split(",")]
+    print(f"✅ CORS configured for specific origins: {cors_origins}")
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=cors_origins,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
     )
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=cors_origins,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
-)
 
 # Authentication middleware
 app.add_middleware(AuthMiddleware)
@@ -514,17 +512,18 @@ def validate_dashboard_params(request: ValidateDashboardTokenRequest):
         if len(request.activityName) > 100:
             raise HTTPException(status_code=400, detail="activityName too long: max 100 characters")
 
-    # SECURITY: Validar format de token (Base64)
+    # SECURITY: Validar format de token (Base64, Bearer, Basic, etc.)
+    # Allow spaces for "Basic xyz", "Bearer xyz", etc.
     if request.token:
-        if not re.match(r'^[a-zA-Z0-9+/=]+$', request.token):
-            raise HTTPException(status_code=400, detail="Invalid token format: must be Base64")
+        if not re.match(r'^[a-zA-Z0-9+/=\s]+$', request.token):
+            raise HTTPException(status_code=400, detail="Invalid token format: only alphanumeric, +, /, =, and spaces allowed")
         if len(request.token) > 500:
             raise HTTPException(status_code=400, detail="token too long: max 500 characters")
 
 
 @app.post("/api/dashboard/validate-token", response_model=ValidateDashboardTokenResponse, tags=["Form Tokens"])
 @limiter.limit("20/minute")  # SECURITY: 20 dashboard token validations per minute per IP
-async def validate_dashboard_token_endpoint(http_request: Request, request: ValidateDashboardTokenRequest):
+async def validate_dashboard_token_endpoint(request: Request, data: ValidateDashboardTokenRequest):
     """
     Validate encrypted token from Bizuit Dashboard and return all parameters for the form
 
@@ -587,18 +586,18 @@ async def validate_dashboard_token_endpoint(http_request: Request, request: Vali
     """
     try:
         # SECURITY: Validate all dashboard parameters FIRST
-        validate_dashboard_params(request)
+        validate_dashboard_params(data)
 
         print(f"[Dashboard Token API] Validating encrypted token with parameters:")
-        print(f"  - Encrypted token: '{request.encryptedToken[:20]}...'")
-        print(f"  - InstanceId: {request.instanceId}")
-        print(f"  - UserName: {request.userName}")
-        print(f"  - EventName: {request.eventName}")
-        print(f"  - ActivityName: {request.activityName}")
-        print(f"  - Token: {'present' if request.token else 'not provided'}")
+        print(f"  - Encrypted token: '{data.encryptedToken[:20]}...'")
+        print(f"  - InstanceId: {data.instanceId}")
+        print(f"  - UserName: {data.userName}")
+        print(f"  - EventName: {data.eventName}")
+        print(f"  - ActivityName: {data.activityName}")
+        print(f"  - Token: {'present' if data.token else 'not provided'}")
 
         # 1. Validate encrypted token against SecurityTokens table
-        token_info = validate_dashboard_token(request.encryptedToken)
+        token_info = validate_dashboard_token(data.encryptedToken)
 
         if not token_info:
             return ValidateDashboardTokenResponse(
@@ -610,11 +609,11 @@ async def validate_dashboard_token_endpoint(http_request: Request, request: Vali
         # 2. Merge parameters from query string + SecurityTokens table
         parameters = DashboardParameters(
             # From Dashboard query string
-            instanceId=request.instanceId,
-            userName=request.userName,
-            eventName=request.eventName,
-            activityName=request.activityName,
-            token=request.token,
+            instanceId=data.instanceId,
+            userName=data.userName,
+            eventName=data.eventName,
+            activityName=data.activityName,
+            token=data.token,
             # From SecurityTokens table
             tokenId=str(token_info.get("tokenId")),
             operation=token_info.get("operation"),
