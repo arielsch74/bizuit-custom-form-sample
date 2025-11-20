@@ -46,7 +46,10 @@ from auth_service import (
 from middleware import AuthMiddleware
 from dependencies import get_current_admin_user
 
-load_dotenv()
+# Load environment variables from .env.local (if exists) or .env
+# .env.local takes precedence (Next.js convention)
+load_dotenv('.env.local', override=True)
+load_dotenv('.env')
 
 app = FastAPI(
     title="BIZUIT Custom Forms API",

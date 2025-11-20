@@ -17,7 +17,9 @@ from dotenv import load_dotenv
 
 from database import validate_admin_roles, get_user_info
 
-load_dotenv()
+# Load environment variables from .env.local (if exists) or .env
+load_dotenv('.env.local', override=True)
+load_dotenv('.env')
 
 # Configuration
 BIZUIT_DASHBOARD_API_URL = os.getenv("BIZUIT_DASHBOARD_API_URL")

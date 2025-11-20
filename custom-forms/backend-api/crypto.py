@@ -11,8 +11,10 @@ from Crypto.Cipher import DES3
 from Crypto.Util.Padding import unpad
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from .env.local (if exists) or .env
+# .env.local takes precedence over .env (Next.js convention)
+load_dotenv('.env.local', override=True)
+load_dotenv('.env')
 
 # Encryption key used by Bizuit Dashboard (C# _EncryptionTokenKey)
 # SECURITY: Key must be provided via environment variable

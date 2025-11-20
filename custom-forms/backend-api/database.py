@@ -14,7 +14,9 @@ from validators import (
     sanitize_for_logging
 )
 
-load_dotenv()
+# Load environment variables from .env.local (if exists) or .env
+load_dotenv('.env.local', override=True)
+load_dotenv('.env')
 
 
 # ==============================================================================
