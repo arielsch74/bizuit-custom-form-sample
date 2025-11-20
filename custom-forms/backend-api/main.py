@@ -131,7 +131,7 @@ if cors_origins_env == "*":
 else:
     # Production mode: use specific origins
     cors_origins = [origin.strip() for origin in cors_origins_env.split(",")]
-    print(f"✅ CORS configured for specific origins: {cors_origins}")
+    print(f"[CORS] Configured for specific origins: {cors_origins}")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=cors_origins,
@@ -621,7 +621,7 @@ async def validate_dashboard_token_endpoint(request: Request, data: ValidateDash
             expirationDate=token_info.get("expirationDate")
         )
 
-        print(f"[Dashboard Token API] ✅ Token validated successfully")
+        print(f"[Dashboard Token API] Token validated successfully")
         print(f"  - TokenId: {parameters.tokenId}")
         print(f"  - User from DB: {token_info.get('userName')}")
         print(f"  - User from query: {parameters.userName}")
@@ -633,7 +633,7 @@ async def validate_dashboard_token_endpoint(request: Request, data: ValidateDash
         )
 
     except ValueError as e:
-        print(f"[Dashboard Token API] ❌ Decryption error: {str(e)}")
+        print(f"[Dashboard Token API] ERROR - Decryption error: {str(e)}")
         return ValidateDashboardTokenResponse(
             valid=False,
             parameters=None,
@@ -641,7 +641,7 @@ async def validate_dashboard_token_endpoint(request: Request, data: ValidateDash
         )
 
     except Exception as e:
-        print(f"[Dashboard Token API] ❌ Validation error: {str(e)}")
+        print(f"[Dashboard Token API] ERROR - Validation error: {str(e)}")
         return ValidateDashboardTokenResponse(
             valid=False,
             parameters=None,
