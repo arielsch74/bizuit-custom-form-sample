@@ -27,7 +27,7 @@ interface FormProps {
 }
 
 const FORM_VERSION = "1.1.2";
-const FORM_NAME = "Dashboard Integration Demo - Enhanced";
+const FORM_NAME = "Dashboard Integration Demo - Enhanced v2";
 
 export default function DashboardIntegrationDemoForm({ dashboardParams }: FormProps) {
   const [showModal, setShowModal] = useState(false);
