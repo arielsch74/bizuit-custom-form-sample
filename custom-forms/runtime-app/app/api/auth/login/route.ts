@@ -43,14 +43,16 @@ export async function POST(request: NextRequest) {
     // HttpOnly = prevents JavaScript access (XSS protection)
     // Secure = only sent over HTTPS in production
     // SameSite = CSRF protection
+    // Path = basePath for production (IIS virtual directory) or '/' for development
     const cookieStore = await cookies()
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/'
 
     cookieStore.set('admin_token', data.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24, // 24 hours
-      path: '/',
+      path: basePath,
     })
 
     // Store user data in a separate cookie (not HttpOnly so client can read it)
@@ -59,7 +61,7 @@ export async function POST(request: NextRequest) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24,
-      path: '/',
+      path: basePath,
     })
 
     return NextResponse.json({
