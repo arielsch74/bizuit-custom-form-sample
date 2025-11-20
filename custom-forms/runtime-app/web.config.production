@@ -24,13 +24,13 @@
     <rewrite>
       <rules>
 
-        <!-- Rule 1: Proxy Backend API (FastAPI) -->
-        <rule name="Backend API (FastAPI)" stopProcessing="true">
-          <match url="^api/(.*)" />
-          <action type="Rewrite" url="http://localhost:8000/api/{R:1}" />
+        <!-- Rule 1: Proxy Deployment API only (FastAPI) -->
+        <rule name="Deployment API (FastAPI)" stopProcessing="true">
+          <match url="^api/deployment/(.*)" />
+          <action type="Rewrite" url="http://localhost:8000/api/deployment/{R:1}" />
         </rule>
 
-        <!-- Rule 2: Proxy Frontend (Next.js) -->
+        <!-- Rule 2: Proxy Frontend including Next.js API routes (Next.js) -->
         <rule name="Frontend (Next.js)" stopProcessing="true">
           <match url="(.*)" />
           <action type="Rewrite" url="http://localhost:3001/{R:0}" />
