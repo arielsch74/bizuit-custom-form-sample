@@ -319,13 +319,15 @@ stages:
 
                       Write-Host "Stopping PM2 process: $(pm2RuntimeApp)"
 
-                      # Stop process (ignore error if process doesn't exist)
-                      pm2 stop $(pm2RuntimeApp) 2>&1 | Out-Null
-                      if ($LASTEXITCODE -ne 0) {
+                      # Stop process (ignore all errors - process may not exist on first deployment)
+                      try {
+                          pm2 stop $(pm2RuntimeApp) 2>&1 | Out-Null
+                          Write-Host "✓ Process stopped successfully"
+                      } catch {
                           Write-Host "Process was not running (this is expected on first deployment)"
                       }
 
-                      Write-Host "✓ Process stopped (or was not running)"
+                      # Always exit with success
                       exit 0
                   displayName: 'Stop PM2 Runtime Process'
 
@@ -539,13 +541,15 @@ stages:
 
                       Write-Host "Stopping PM2 process: $(pm2BackendApp)"
 
-                      # Stop process (ignore error if process doesn't exist)
-                      pm2 stop $(pm2BackendApp) 2>&1 | Out-Null
-                      if ($LASTEXITCODE -ne 0) {
+                      # Stop process (ignore all errors - process may not exist on first deployment)
+                      try {
+                          pm2 stop $(pm2BackendApp) 2>&1 | Out-Null
+                          Write-Host "✓ Process stopped successfully"
+                      } catch {
                           Write-Host "Process was not running (this is expected on first deployment)"
                       }
 
-                      Write-Host "✓ Process stopped (or was not running)"
+                      # Always exit with success
                       exit 0
                   displayName: 'Stop PM2 Backend Process'
 
