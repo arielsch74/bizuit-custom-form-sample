@@ -686,7 +686,7 @@ stages:
                           Start-Sleep -Seconds 5
 
                           try {
-                              $response = Invoke-WebRequest -Uri "http://localhost:8000/api/health" -UseBasicParsing -TimeoutSec 10
+                              $response = Invoke-WebRequest -Uri "http://localhost:8000/health" -UseBasicParsing -TimeoutSec 10
                               if ($response.StatusCode -eq 200) {
                                   Write-Host "✅ Backend API is healthy!" -ForegroundColor Green
                                   $success = true
