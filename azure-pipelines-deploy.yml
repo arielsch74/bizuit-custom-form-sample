@@ -327,7 +327,12 @@ stages:
                       $env:Path = "$npmBin;$env:Path"
 
                       Write-Host "Stopping PM2 process: $(pm2RuntimeApp)"
+
+                      # Stop process (ignore error if process doesn't exist)
+                      $ErrorActionPreference = 'SilentlyContinue'
                       pm2 stop $(pm2RuntimeApp) 2>&1 | Out-Null
+                      $ErrorActionPreference = 'Stop'
+
                       Write-Host "✓ Process stopped (or was not running)"
                   displayName: 'Stop PM2 Runtime Process'
 
@@ -537,7 +542,12 @@ stages:
                       $env:Path = "$npmBin;$env:Path"
 
                       Write-Host "Stopping PM2 process: $(pm2BackendApp)"
+
+                      # Stop process (ignore error if process doesn't exist)
+                      $ErrorActionPreference = 'SilentlyContinue'
                       pm2 stop $(pm2BackendApp) 2>&1 | Out-Null
+                      $ErrorActionPreference = 'Stop'
+
                       Write-Host "✓ Process stopped (or was not running)"
                   displayName: 'Stop PM2 Backend Process'
 
