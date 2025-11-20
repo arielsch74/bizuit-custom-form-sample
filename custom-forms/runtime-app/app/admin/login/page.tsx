@@ -8,7 +8,8 @@ import { apiFetch } from '@/lib/api-client'
 export default function AdminLoginPage() {
   const router = useRouter()
   const [checking, setChecking] = useState(true)
-  const { username, password, loading, error, setUsername, setPassword, handleLogin } = useLoginForm('/admin')
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+  const { username, password, loading, error, setUsername, setPassword, handleLogin } = useLoginForm(`${basePath}/admin`)
 
   useEffect(() => {
     // Check if already authenticated
@@ -22,7 +23,8 @@ export default function AdminLoginPage() {
           const data = await response.json()
           if (data.authenticated) {
             // Already logged in, redirect to admin
-            router.push('/admin')
+            const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+            router.push(`${basePath}/admin`)
             return
           }
         }
