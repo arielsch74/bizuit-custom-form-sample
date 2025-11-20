@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 
 const FASTAPI_URL = process.env.FASTAPI_URL || 'http://127.0.0.1:8000'
 
@@ -44,30 +43,27 @@ export async function POST(request: NextRequest) {
     // Secure = only sent over HTTPS in production
     // SameSite = CSRF protection
     // Path = basePath for production (IIS virtual directory) or '/' for development
-    const cookieStore = await cookies()
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/'
+    const isProduction = process.env.NODE_ENV === 'production'
+    const maxAge = 60 * 60 * 24 // 24 hours in seconds
 
-    cookieStore.set('admin_token', data.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24, // 24 hours
-      path: basePath,
-    })
+    // Build Set-Cookie headers manually (IIS reverse proxy compatibility)
+    const cookieOptions = `Path=${basePath}; Max-Age=${maxAge}; SameSite=Lax${isProduction ? '; Secure' : ''}`
 
-    // Store user data in a separate cookie (not HttpOnly so client can read it)
-    cookieStore.set('admin_user_data', JSON.stringify(data.user), {
-      httpOnly: false, // Allow client to read user info
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24,
-      path: basePath,
-    })
+    const adminTokenCookie = `admin_token=${data.token}; HttpOnly; ${cookieOptions}`
+    const adminUserDataCookie = `admin_user_data=${encodeURIComponent(JSON.stringify(data.user))}; ${cookieOptions}`
 
-    return NextResponse.json({
+    // Create response with Set-Cookie headers
+    const response = NextResponse.json({
       success: true,
       user: data.user,
     })
+
+    // Set cookies via response headers (works better with IIS reverse proxy)
+    response.headers.append('Set-Cookie', adminTokenCookie)
+    response.headers.append('Set-Cookie', adminUserDataCookie)
+
+    return response
 
   } catch (error: any) {
     console.error('[Auth API] Login error:', error)
