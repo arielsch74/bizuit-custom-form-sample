@@ -148,6 +148,7 @@ stages:
               Contents: |
                 **/*.py
                 requirements.txt
+                web.config.production
                 libs/**
                 migrations/**
                 !venv/**

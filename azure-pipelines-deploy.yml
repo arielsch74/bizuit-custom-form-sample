@@ -672,6 +672,25 @@ stages:
                     script: |
                       Write-Host "Configuring backend API for production..."
 
+                      # Copy production web.config for IIS reverse proxy
+                      if (Test-Path "web.config.production") {
+                          Copy-Item "web.config.production" "web.config" -Force
+                          Write-Host "✓ web.config.production copied as web.config"
+
+                          # Validate web.config is valid XML
+                          try {
+                              [xml]$webConfig = Get-Content "web.config"
+                              Write-Host "✓ web.config is valid XML"
+                          } catch {
+                              Write-Error "❌ web.config is not valid XML: $($_.Exception.Message)"
+                              Write-Host "`nweb.config content:"
+                              Get-Content "web.config" | Select-Object -First 20
+                              exit 1
+                          }
+                      } else {
+                          Write-Warning "⚠️  web.config.production not found for backend"
+                      }
+
                       # Verify .env.local exists (should be manually created on server)
                       if (-not (Test-Path ".env.local")) {
                           Write-Warning "⚠️  .env.local not found!"

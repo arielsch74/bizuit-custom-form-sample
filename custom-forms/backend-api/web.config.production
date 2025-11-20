@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  IIS Reverse Proxy Configuration for BIZUIT Custom Forms Backend API
+
+  This web.config configures IIS as a reverse proxy to PM2-managed FastAPI process:
+  - Backend (FastAPI): http://localhost:8000
+
+  Prerequisites:
+  - URL Rewrite Module installed in IIS
+  - PM2 running backend process (see ecosystem.config.js)
+
+  Deployment:
+  - This file should be copied as web.config to the backend deployment directory
+-->
+<configuration>
+  <system.webServer>
+
+    <!-- ===================================== -->
+    <!-- URL Rewrite Rules (Reverse Proxy)    -->
+    <!-- ===================================== -->
+    <rewrite>
+      <rules>
+
+        <!-- Proxy all requests to FastAPI on localhost:8000 -->
+        <rule name="Proxy to FastAPI" stopProcessing="true">
+          <match url="(.*)" />
+          <conditions logicalGrouping="MatchAll" trackAllCaptures="false">
+            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+          </conditions>
+          <action type="Rewrite" url="http://localhost:8000/{R:1}" />
+          <serverVariables>
+            <set name="HTTP_X_ORIGINAL_HOST" value="{HTTP_HOST}" />
+            <set name="HTTP_X_FORWARDED_FOR" value="{REMOTE_ADDR}" />
+            <set name="HTTP_X_FORWARDED_PROTO" value="https" />
+          </serverVariables>
+        </rule>
+
+      </rules>
+    </rewrite>
+
+    <!-- ===================================== -->
+    <!-- Security Settings                     -->
+    <!-- ===================================== -->
+    <security>
+      <requestFiltering>
+        <!-- Allow all HTTP verbs (GET, POST, PUT, DELETE, PATCH, etc.) -->
+        <verbs allowUnlisted="true" />
+
+        <!-- Max upload size: 100 MB -->
+        <requestLimits maxAllowedContentLength="104857600" />
+
+        <!-- Hide sensitive files -->
+        <hiddenSegments>
+          <add segment=".env.local" />
+          <add segment=".env.production" />
+          <add segment="logs" />
+          <add segment="temp-uploads" />
+        </hiddenSegments>
+      </requestFiltering>
+    </security>
+
+    <!-- ===================================== -->
+    <!-- HTTP Headers                          -->
+    <!-- ===================================== -->
+    <httpProtocol>
+      <customHeaders>
+        <!-- Remove default headers -->
+        <remove name="X-Powered-By" />
+
+        <!-- Add custom headers -->
+        <add name="X-Powered-By" value="BIZUIT Backend API" />
+
+        <!-- Security headers -->
+        <add name="X-Content-Type-Options" value="nosniff" />
+        <add name="X-Frame-Options" value="SAMEORIGIN" />
+        <add name="X-XSS-Protection" value="1; mode=block" />
+      </customHeaders>
+    </httpProtocol>
+
+    <!-- ===================================== -->
+    <!-- Compression                           -->
+    <!-- ===================================== -->
+    <urlCompression
+      doStaticCompression="true"
+      doDynamicCompression="true"
+    />
+
+    <!-- ===================================== -->
+    <!-- Error Pages                           -->
+    <!-- ===================================== -->
+    <httpErrors errorMode="DetailedLocalOnly" />
+
+  </system.webServer>
+</configuration>
