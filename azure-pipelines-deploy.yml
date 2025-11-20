@@ -389,7 +389,7 @@ stages:
 
                       # Install production dependencies
                       Write-Host "Installing production dependencies..."
-                      npm ci --production
+                      npm install --omit=dev
 
                       Write-Host "✓ Runtime app configured"
                   displayName: 'Configure Runtime App'
