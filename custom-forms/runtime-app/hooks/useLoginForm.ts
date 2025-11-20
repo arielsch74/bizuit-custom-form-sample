@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { apiFetch } from '@/lib/api-client'
 
 interface LoginFormState {
   username: string
@@ -37,7 +38,7 @@ export function useLoginForm(redirectPath: string = '/admin'): UseLoginFormRetur
     try {
       // Use Next.js API route instead of calling backend directly
       // This allows the server to set HttpOnly cookies
-      const response = await fetch('/api/auth/login', {
+      const response = await apiFetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

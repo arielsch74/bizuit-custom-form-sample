@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { BizuitCard, Button } from '@tyconsa/bizuit-ui-components'
 import { formRegistry, initializeFormRegistry, FormMetadata } from '@/lib/form-registry'
+import { apiFetch } from '@/lib/api-client'
 
 export default function FormsListPage() {
   const [forms, setForms] = useState<FormMetadata[]>([])
@@ -15,7 +16,7 @@ export default function FormsListPage() {
       setLoading(true)
 
       // Fetch forms from API (which queries SQL Server via FastAPI)
-      const response = await fetch('/api/custom-forms')
+      const response = await apiFetch('/api/custom-forms')
 
       if (!response.ok) {
         throw new Error(`Failed to fetch forms: ${response.statusText}`)

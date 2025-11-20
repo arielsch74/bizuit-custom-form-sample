@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Upload, CheckCircle, XCircle, AlertCircle, FileArchive, Loader2 } from 'lucide-react'
 import { useAppTranslation } from '@/lib/useAppTranslation'
+import { apiFetch } from '@/lib/api-client'
 
 interface UploadResult {
   success: boolean
@@ -62,7 +63,7 @@ export default function UploadFormsPage() {
       console.log('[Upload] Uploading deployment package:', file.name)
 
       // Use Next.js API route to forward the request with HttpOnly cookies
-      const response = await fetch('/api/deployment/upload', {
+      const response = await apiFetch('/api/deployment/upload', {
         method: 'POST',
         body: formData,
         credentials: 'include', // Important: include HttpOnly cookies
