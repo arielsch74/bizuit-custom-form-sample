@@ -254,17 +254,7 @@ stages:
           runOnce:
             deploy:
               steps:
-                - task: DownloadBuildArtifacts@0
-                  inputs:
-                    buildType: 'specific'
-                    project: '$(System.TeamProject)'
-                    pipeline: 'BIZUIT Custom Forms - Build'
-                    buildVersionToDownload: 'latest'
-                    downloadType: 'single'
-                    artifactName: 'runtime-drop'
-                    downloadPath: '$(System.ArtifactsDirectory)'
-                  displayName: 'Download Runtime Artifacts'
-
+                # Step 1: Check/Install PM2 FIRST (fast, fails early)
                 - task: PowerShell@2
                   inputs:
                     targetType: 'inline'
@@ -314,6 +304,7 @@ stages:
                       }
                   displayName: 'Ensure PM2 is Installed'
 
+                # Step 2: Stop PM2 process BEFORE downloading (fast, fails early)
                 - task: PowerShell@2
                   inputs:
                     targetType: 'inline'
@@ -337,6 +328,18 @@ stages:
                       Write-Host "✓ Process stopped (or was not running)"
                       exit 0
                   displayName: 'Stop PM2 Runtime Process'
+
+                # Step 3: Download artifacts AFTER PM2 is ready
+                - task: DownloadBuildArtifacts@0
+                  inputs:
+                    buildType: 'specific'
+                    project: '$(System.TeamProject)'
+                    pipeline: 'BIZUIT Custom Forms - Build'
+                    buildVersionToDownload: 'latest'
+                    downloadType: 'single'
+                    artifactName: 'runtime-drop'
+                    downloadPath: '$(System.ArtifactsDirectory)'
+                  displayName: 'Download Runtime Artifacts'
 
                 - task: PowerShell@2
                   inputs:
@@ -471,17 +474,7 @@ stages:
           runOnce:
             deploy:
               steps:
-                - task: DownloadBuildArtifacts@0
-                  inputs:
-                    buildType: 'specific'
-                    project: '$(System.TeamProject)'
-                    pipeline: 'BIZUIT Custom Forms - Build'
-                    buildVersionToDownload: 'latest'
-                    downloadType: 'single'
-                    artifactName: 'backend-drop'
-                    downloadPath: '$(System.ArtifactsDirectory)'
-                  displayName: 'Download Backend Artifacts'
-
+                # Step 1: Check/Install PM2 FIRST (fast, fails early)
                 - task: PowerShell@2
                   inputs:
                     targetType: 'inline'
@@ -531,6 +524,7 @@ stages:
                       }
                   displayName: 'Ensure PM2 is Installed'
 
+                # Step 2: Stop PM2 process BEFORE downloading (fast, fails early)
                 - task: PowerShell@2
                   inputs:
                     targetType: 'inline'
@@ -554,6 +548,18 @@ stages:
                       Write-Host "✓ Process stopped (or was not running)"
                       exit 0
                   displayName: 'Stop PM2 Backend Process'
+
+                # Step 3: Download artifacts AFTER PM2 is ready
+                - task: DownloadBuildArtifacts@0
+                  inputs:
+                    buildType: 'specific'
+                    project: '$(System.TeamProject)'
+                    pipeline: 'BIZUIT Custom Forms - Build'
+                    buildVersionToDownload: 'latest'
+                    downloadType: 'single'
+                    artifactName: 'backend-drop'
+                    downloadPath: '$(System.ArtifactsDirectory)'
+                  displayName: 'Download Backend Artifacts'
 
                 - task: PowerShell@2
                   inputs:
