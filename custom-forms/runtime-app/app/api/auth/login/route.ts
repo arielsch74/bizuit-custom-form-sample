@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Authenticate with backend
-    const response = await fetch(`${FASTAPI_URL}/api/auth/login`, {
+    const backendResponse = await fetch(`${FASTAPI_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({ username, password }),
     })
 
-    const data = await response.json()
+    const data = await backendResponse.json()
 
     if (!data.success || !data.token) {
       return NextResponse.json(
