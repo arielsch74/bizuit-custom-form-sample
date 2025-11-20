@@ -1,28 +1,20 @@
 /**
- * Dashboard Integration Demo Form
+ * Dashboard Integration Demo Form - Simple Version
  *
- * Este formulario demuestra la integración completa con Bizuit Dashboard:
- * 1. Recibe parámetros del Dashboard via props (dashboardParams)
- * 2. Obtiene parámetros del proceso 'samplewebpages' dinámicamente
- * 3. Renderiza campos usando DynamicFormField
- * 4. Inicia el proceso usando el SDK con los parámetros del Dashboard
+ * Versión simplificada con:
+ * - Información básica del formulario
+ * - Botón para mostrar modal con versión
+ * - Fondo color naranja
  */
 
-import { useState, useEffect } from 'react';
-
-// Obtener referencias globales del SDK y componentes
-const { BizuitSDK, formDataToParameters } = window.BizuitFormSDK || {};
-const { DynamicFormField } = window.BizuitUIComponents || {};
+import { useState } from 'react';
 
 interface DashboardParameters {
-  // From Dashboard query string
   instanceId?: string;
   userName?: string;
   eventName?: string;
   activityName?: string;
   token?: string;
-
-  // From SecurityTokens table (after validation)
   tokenId?: string;
   operation?: number;
   requesterAddress?: string;
@@ -33,384 +25,254 @@ interface FormProps {
   dashboardParams?: DashboardParameters | null;
 }
 
+const FORM_VERSION = "1.1.0";
+const FORM_NAME = "Dashboard Integration Demo";
+
 export default function DashboardIntegrationDemoForm({ dashboardParams }: FormProps) {
-  // Crear instancia del SDK directamente (sin hook)
-  const [sdk] = useState(() => {
-    if (!BizuitSDK) return null;
+  const [showModal, setShowModal] = useState(false);
 
-    // SDK v2.0.0+: Usar apiUrl único en lugar de formsApiUrl/dashboardApiUrl
-    // El proxy /api/bizuit se encarga de rutear a la URL correcta según el endpoint
-    return new BizuitSDK({
-      apiUrl: '/api/bizuit',
-      timeout: 120000
-    });
-  });
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-orange-400 to-orange-600 p-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Card Principal */}
+        <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="inline-block p-4 bg-orange-100 rounded-full mb-4">
+              <svg className="w-16 h-16 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
 
-  const [parameters, setParameters] = useState<any[]>([]);
-  const [formData, setFormData] = useState<Record<string, any>>({});
-  const [loadingParams, setLoadingParams] = useState(true);
-  const [processStarted, setProcessStarted] = useState(false);
-  const [processResult, setProcessResult] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
+              {FORM_NAME}
+            </h1>
 
-  const hasParams = dashboardParams && Object.keys(dashboardParams).length > 0;
-  const processName = dashboardParams?.eventName || 'samplewebpages';
-  const authToken = dashboardParams?.token ? `Bearer ${dashboardParams.token}` : undefined;
+            <p className="text-lg text-gray-600 mb-2">
+              Formulario de demostración para BIZUIT Custom Forms
+            </p>
 
-  // Log dashboard params on mount
-  useEffect(() => {
-    console.log('[Dashboard Integration Demo] Form mounted with params:', dashboardParams);
-    console.log('[Dashboard Integration Demo] SDK available:', !!sdk);
-    console.log('[Dashboard Integration Demo] DynamicFormField available:', !!DynamicFormField);
-  }, [dashboardParams]);
+            <div className="inline-block px-4 py-2 bg-orange-50 border-2 border-orange-200 rounded-full">
+              <span className="text-sm font-semibold text-orange-700">
+                Versión {FORM_VERSION}
+              </span>
+            </div>
+          </div>
 
-  // Load process parameters from API
-  useEffect(() => {
-    async function loadParameters() {
-      if (!sdk || !hasParams) {
-        setLoadingParams(false);
-        return;
-      }
+          {/* Información del Formulario */}
+          <div className="space-y-6 mb-8">
+            <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-6 border-l-4 border-orange-500">
+              <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center">
+                <svg className="w-6 h-6 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Información del Formulario
+              </h2>
 
-      try {
-        setLoadingParams(true);
-        console.log(`[Dashboard Integration Demo] Loading parameters for process: ${processName}`);
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+                <div className="flex items-start">
+                  <span className="text-orange-600 mr-2">•</span>
+                  <div>
+                    <strong>Nombre:</strong> {FORM_NAME}
+                  </div>
+                </div>
 
-        // Obtener parámetros del proceso
-        const params = await sdk.process.getParameters(processName, '', authToken);
+                <div className="flex items-start">
+                  <span className="text-orange-600 mr-2">•</span>
+                  <div>
+                    <strong>Versión:</strong> {FORM_VERSION}
+                  </div>
+                </div>
 
-        console.log('[Dashboard Integration Demo] Raw parameters from API:', params);
+                <div className="flex items-start">
+                  <span className="text-orange-600 mr-2">•</span>
+                  <div>
+                    <strong>Tipo:</strong> Formulario de Demostración
+                  </div>
+                </div>
 
-        // Filtrar solo parámetros de entrada (no variables del sistema)
-        // parameterDirection: 1 = In, 2 = Out, 3 = InOut
-        // Excluir variables (isVariable: true) que son de salida
-        const inputParams = params.filter((p: any) =>
-          !p.isSystemParameter &&
-          !p.isVariable &&
-          (p.parameterDirection === 1 || p.parameterDirection === 3)
-        );
+                <div className="flex items-start">
+                  <span className="text-orange-600 mr-2">•</span>
+                  <div>
+                    <strong>Estado:</strong> Activo
+                  </div>
+                </div>
+              </div>
+            </div>
 
-        console.log('[Dashboard Integration Demo] Loaded parameters:', inputParams, { length: inputParams.length });
-        setParameters(inputParams);
+            {/* Información de Dashboard Params si existen */}
+            {dashboardParams && Object.keys(dashboardParams).length > 0 && (
+              <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-6 border-l-4 border-green-500">
+                <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center">
+                  <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Cargado desde Dashboard
+                </h3>
+                <div className="text-sm text-gray-700 space-y-1">
+                  {dashboardParams.userName && (
+                    <div><strong>Usuario:</strong> {dashboardParams.userName}</div>
+                  )}
+                  {dashboardParams.eventName && (
+                    <div><strong>Evento:</strong> {dashboardParams.eventName}</div>
+                  )}
+                  {dashboardParams.instanceId && (
+                    <div><strong>Instancia:</strong> {dashboardParams.instanceId}</div>
+                  )}
+                </div>
+              </div>
+            )}
 
-        // Inicializar formData con valores por defecto
-        const initialData: Record<string, any> = {};
-        inputParams.forEach((param: any) => {
-          if (param.value !== null && param.value !== undefined) {
-            initialData[param.name] = param.value;
-          }
-        });
-        setFormData(initialData);
+            {/* Características */}
+            <div className="bg-gray-50 rounded-xl p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">
+                📋 Características
+              </h3>
+              <ul className="space-y-2 text-gray-700">
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 mr-2 text-green-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Integración con BIZUIT Dashboard
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 mr-2 text-green-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Carga dinámica desde base de datos
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 mr-2 text-green-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Control de versiones integrado
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 mr-2 text-green-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  React 18 + TypeScript
+                </li>
+              </ul>
+            </div>
+          </div>
 
-      } catch (err: any) {
-        console.error('[Dashboard Integration Demo] Error loading parameters:', err);
-        setError(`Error cargando parámetros: ${err.message}`);
-      } finally {
-        setLoadingParams(false);
-      }
-    }
+          {/* Botón para Mostrar Versión */}
+          <div className="text-center">
+            <button
+              onClick={() => setShowModal(true)}
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+            >
+              <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Ver Información de Versión
+            </button>
+          </div>
+        </div>
 
-    loadParameters();
-  }, [sdk, hasParams, processName, authToken]);
-
-  const handleStartProcess = async () => {
-    if (!sdk) {
-      setError('SDK no está disponible');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      console.log('[Dashboard Integration Demo] Starting process with form data:', formData);
-
-      // Filtrar solo los parámetros que deben enviarse (IN e InOut/Opcionales, no variables)
-      const paramsToSend = parameters.filter((p: any) =>
-        !p.isVariable && (p.parameterDirection === 1 || p.parameterDirection === 3)
-      );
-
-      // Crear formData solo con los parámetros que vamos a enviar
-      const filteredFormData: Record<string, any> = {};
-      paramsToSend.forEach((param: any) => {
-        if (formData[param.name] !== undefined) {
-          filteredFormData[param.name] = formData[param.name];
-        }
-      });
-
-      // Convertir formData filtrado a parámetros de Bizuit
-      const processParameters = formDataToParameters(filteredFormData);
-
-      console.log('[Dashboard Integration Demo] Process parameters to send:', processParameters);
-
-      // Iniciar el proceso usando el SDK
-      const result = await sdk.process.start({
-        processName: processName,
-        parameters: processParameters,
-        instanceId: dashboardParams?.instanceId // Si existe, continuar instancia
-      }, undefined, authToken);
-
-      setProcessResult(result);
-      setProcessStarted(true);
-
-      console.log('[Dashboard Integration Demo] Process started successfully:', result);
-
-    } catch (err: any) {
-      console.error('[Dashboard Integration Demo] Error starting process:', err);
-      setError(err.message || 'Error starting process');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFieldChange = (paramName: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [paramName]: value
-    }));
-  };
-
-  // Si no hay SDK o componentes disponibles, mostrar error
-  if (!sdk || !DynamicFormField) {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
-          <p className="text-red-800 dark:text-red-200 font-semibold mb-2">
-            ❌ Error: SDK o componentes UI no disponibles
-          </p>
-          <p className="text-sm text-red-700 dark:text-red-300">
-            SDK: {sdk ? '✅' : '❌'} | DynamicFormField: {DynamicFormField ? '✅' : '❌'}
+        {/* Footer */}
+        <div className="text-center mt-6 text-white">
+          <p className="text-sm opacity-90">
+            BIZUIT Custom Forms © {new Date().getFullYear()} - Tycon S.A.
           </p>
         </div>
       </div>
-    );
-  }
 
-  return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-            Dashboard Integration Demo
-          </h1>
-          <p className="text-slate-600 dark:text-slate-400">
-            🔗 Formulario de demostración - Integración con Bizuit Dashboard
-          </p>
-          <p className="text-sm text-slate-500 dark:text-slate-500 mt-2">
-            Versión 1.0.0 - Inicia proceso '{processName}' con parámetros dinámicos del Dashboard
-          </p>
-        </div>
-
-        {/* Status Badge */}
-        <div className="mb-6">
-          {hasParams ? (
-            <div className="inline-flex items-center px-4 py-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-              <span className="text-green-600 dark:text-green-400 font-semibold">
-                ✅ Cargado desde Dashboard
-              </span>
-            </div>
-          ) : (
-            <div className="inline-flex items-center px-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-              <span className="text-yellow-600 dark:text-yellow-400 font-semibold">
-                ⚠️ Acceso directo (sin parámetros del Dashboard)
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Dashboard Parameters Display */}
-        {hasParams && (
-          <details className="mb-8">
-            <summary className="cursor-pointer text-lg font-semibold text-slate-900 dark:text-white mb-4 hover:text-blue-600">
-              📋 Ver Parámetros del Dashboard (click para expandir)
-            </summary>
-
-            <div className="bg-slate-50 dark:bg-slate-900 rounded-lg p-6 space-y-4 mt-2">
-              {/* Query String Parameters */}
-              <div>
-                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-                  De Query String:
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <ParamItem label="Instance ID" value={dashboardParams?.instanceId} />
-                  <ParamItem label="User Name" value={dashboardParams?.userName} />
-                  <ParamItem label="Event Name" value={dashboardParams?.eventName} />
-                  <ParamItem label="Activity Name" value={dashboardParams?.activityName} />
-                  <ParamItem label="Auth Token" value={dashboardParams?.token} sensitive />
-                </div>
-              </div>
-
-              {/* SecurityTokens Parameters */}
-              <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
-                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-                  De SecurityTokens (validado):
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <ParamItem label="Token ID" value={dashboardParams?.tokenId} />
-                  <ParamItem label="Operation" value={dashboardParams?.operation?.toString()} />
-                  <ParamItem label="Requester Address" value={dashboardParams?.requesterAddress} />
-                  <ParamItem label="Expiration Date" value={dashboardParams?.expirationDate} />
-                </div>
-              </div>
-            </div>
-          </details>
-        )}
-
-        {/* Dynamic Form Fields */}
-        {hasParams && (
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">
-              📝 Completar Formulario
-            </h2>
-
-            {loadingParams ? (
-              <div className="text-center py-8">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <p className="mt-2 text-slate-600 dark:text-slate-400">
-                  Cargando parámetros del proceso...
-                </p>
-              </div>
-            ) : parameters.length > 0 ? (
-              <form className="space-y-4">
-                {parameters.map((param, index) => (
-                  <DynamicFormField
-                    key={param.name || `param-${index}`}
-                    parameter={param}
-                    value={formData[param.name]}
-                    onChange={(value) => handleFieldChange(param.name, value)}
-                  />
-                ))}
-              </form>
-            ) : (
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                <p className="text-sm text-blue-800 dark:text-blue-200">
-                  ℹ️ El proceso '{processName}' no tiene parámetros de entrada configurados.
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Error Display */}
-        {error && (
-          <div className="mb-8 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <p className="text-sm text-red-800 dark:text-red-200">
-              ❌ Error: {error}
-            </p>
-          </div>
-        )}
-
-        {/* Action Section */}
-        {!processStarted && hasParams && (
-          <div className="mb-8">
+      {/* Modal de Versión */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative animate-fadeIn">
+            {/* Botón Cerrar */}
             <button
-              onClick={handleStartProcess}
-              disabled={loading || loadingParams}
-              className={`
-                w-full px-6 py-4 rounded-lg font-semibold text-lg transition-colors
-                ${!loading && !loadingParams
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer shadow-lg hover:shadow-xl'
-                  : 'bg-slate-300 dark:bg-slate-600 text-slate-500 dark:text-slate-400 cursor-not-allowed'
-                }
-              `}
+              onClick={() => setShowModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
             >
-              {loading ? '⏳ Iniciando proceso...' : `🚀 Iniciar Proceso '${processName}'`}
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
-          </div>
-        )}
 
-        {/* Success Display */}
-        {processStarted && (
-          <div className="mb-8">
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
-              <div className="flex items-center mb-4">
-                <span className="text-3xl mr-3">✅</span>
-                <div>
-                  <h3 className="text-lg font-semibold text-green-800 dark:text-green-200">
-                    Proceso iniciado exitosamente
-                  </h3>
-                  <p className="text-sm text-green-700 dark:text-green-300">
-                    Instance ID: {processResult?.instanceId || 'N/A'}
-                  </p>
-                </div>
+            {/* Contenido del Modal */}
+            <div className="text-center">
+              <div className="inline-block p-4 bg-orange-100 rounded-full mb-4">
+                <svg className="w-12 h-12 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
               </div>
 
-              <details className="mt-4">
-                <summary className="cursor-pointer text-sm font-semibold text-green-700 dark:text-green-300 hover:text-green-600">
-                  Ver resultado completo
-                </summary>
-                <pre className="mt-2 text-xs text-green-800 dark:text-green-200 overflow-x-auto bg-white dark:bg-slate-800 p-4 rounded">
-                  {JSON.stringify(processResult, null, 2)}
-                </pre>
-              </details>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                Información de Versión
+              </h2>
+
+              <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-6 mb-6">
+                <div className="text-6xl font-bold text-orange-600 mb-2">
+                  v{FORM_VERSION}
+                </div>
+                <p className="text-gray-700 font-semibold">
+                  {FORM_NAME}
+                </p>
+              </div>
+
+              <div className="text-left space-y-3 mb-6">
+                <div className="flex items-start">
+                  <svg className="w-5 h-5 mr-2 text-orange-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <strong className="text-gray-900">Estado:</strong>
+                    <span className="text-gray-700 ml-2">Activo</span>
+                  </div>
+                </div>
+
+                <div className="flex items-start">
+                  <svg className="w-5 h-5 mr-2 text-orange-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <strong className="text-gray-900">Fecha:</strong>
+                    <span className="text-gray-700 ml-2">{new Date().toLocaleDateString('es-ES')}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-start">
+                  <svg className="w-5 h-5 mr-2 text-orange-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                    <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <strong className="text-gray-900">Tipo:</strong>
+                    <span className="text-gray-700 ml-2">Demostración</span>
+                  </div>
+                </div>
+              </div>
 
               <button
-                onClick={() => {
-                  setProcessStarted(false);
-                  setProcessResult(null);
-                }}
-                className="mt-4 px-4 py-2 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg"
+                onClick={() => setShowModal(false)}
+                className="w-full px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
               >
-                Reiniciar Formulario
+                Cerrar
               </button>
             </div>
           </div>
-        )}
-
-        {/* No Dashboard Params Message */}
-        {!hasParams && (
-          <div className="mb-8 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
-            <p className="text-yellow-800 dark:text-yellow-200 mb-2">
-              ⚠️ Este formulario debe ser cargado desde el Dashboard de Bizuit.
-            </p>
-            <p className="text-sm text-yellow-700 dark:text-yellow-300">
-              Para probarlo, accede desde un proceso en el Dashboard que use este formulario.
-            </p>
-          </div>
-        )}
-
-        {/* Footer */}
-        <div className="mt-8 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
-          <p className="text-sm text-slate-700 dark:text-slate-300">
-            <strong>🔍 Debug Info:</strong>
-          </p>
-          <ul className="text-sm text-slate-600 dark:text-slate-400 mt-2 space-y-1">
-            <li>• Form cargado dinámicamente desde BD</li>
-            <li>• React compartido globalmente (window.React)</li>
-            <li>• SDK disponible: {sdk ? '✅' : '❌'}</li>
-            <li>• DynamicFormField disponible: {DynamicFormField ? '✅' : '❌'}</li>
-            <li>• Proceso: {processName}</li>
-            <li>• Parámetros cargados: {parameters.length}</li>
-          </ul>
         </div>
-      </div>
+      )}
+
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.2s ease-out;
+        }
+      `}} />
     </div>
   );
-}
-
-// Helper component for displaying parameters
-function ParamItem({ label, value, sensitive = false }: { label: string; value?: string; sensitive?: boolean }) {
-  const displayValue = value
-    ? (sensitive ? maskSensitiveValue(value) : value)
-    : <span className="text-slate-400 dark:text-slate-500 italic">no proporcionado</span>;
-
-  return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg p-3 border border-slate-200 dark:border-slate-700">
-      <div className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
-        {label}
-      </div>
-      <div className="text-sm font-mono text-slate-900 dark:text-white break-all">
-        {displayValue}
-      </div>
-    </div>
-  );
-}
-
-function maskSensitiveValue(value: string): string {
-  if (value.length <= 10) {
-    return '***' + value.slice(-4);
-  }
-  return value.slice(0, 10) + '...' + value.slice(-4);
 }
