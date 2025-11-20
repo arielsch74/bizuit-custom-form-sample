@@ -49,8 +49,41 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             VERSION="${{ github.event.inputs.version }}"
           else
-            # Versión basada en timestamp para pushes automáticos
-            VERSION="1.0.$(date +'%Y%m%d%H%M')"
+            # Autoincremento semántico basado en tags git
+            echo "🔍 Detecting version from git tags..."
+
+            # Obtener último tag (formato vX.Y.Z)
+            LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
+            echo "Last tag: $LAST_TAG"
+
+            # Extraer versión sin 'v' prefix
+            LAST_VERSION=${LAST_TAG#v}
+
+            # Separar major.minor.patch
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$LAST_VERSION"
+
+            # Detectar tipo de cambio basado en mensaje del commit
+            COMMIT_MSG=$(git log -1 --pretty=%B)
+
+            if echo "$COMMIT_MSG" | grep -qiE "^(BREAKING CHANGE|major):"; then
+              # Major version bump (breaking changes)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              BUMP_TYPE="major"
+            elif echo "$COMMIT_MSG" | grep -qiE "^(feat|feature|minor):"; then
+              # Minor version bump (new features)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              BUMP_TYPE="minor"
+            else
+              # Patch version bump (bug fixes, chore, docs, etc.)
+              PATCH=$((PATCH + 1))
+              BUMP_TYPE="patch"
+            fi
+
+            VERSION="$MAJOR.$MINOR.$PATCH"
+            echo "🔼 Auto-increment ($BUMP_TYPE): $LAST_VERSION → $VERSION"
           fi
 
           COMMIT_HASH="${{ github.sha }}"
@@ -162,12 +195,17 @@ jobs:
         run: |
           echo "📋 Generating manifest.json..."
 
-          # Crear manifest.json dinámicamente
+          # Crear manifest.json dinámicamente con info extendida
           cat > manifest.json << EOF
           {
             "packageVersion": "${{ steps.version.outputs.version }}",
             "buildDate": "${{ steps.version.outputs.build_date }}",
             "commitHash": "${{ steps.version.outputs.commit_hash }}",
+            "commitShortHash": "${{ steps.version.outputs.short_hash }}",
+            "gitTag": "v${{ steps.version.outputs.version }}",
+            "repositoryUrl": "${{ github.server_url }}/${{ github.repository }}",
+            "commitUrl": "${{ github.server_url }}/${{ github.repository }}/commit/${{ steps.version.outputs.commit_hash }}",
+            "workflowRunUrl": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
             "forms": [
           EOF
 
@@ -240,6 +278,43 @@ jobs:
           # Copiar manifest.json
           cp manifest.json deployment-package/
 
+          # Crear VERSION.txt con información completa
+          cat > deployment-package/VERSION.txt << EOF
+          ═══════════════════════════════════════════════════════════════
+          BIZUIT CUSTOM FORMS DEPLOYMENT PACKAGE
+          ═══════════════════════════════════════════════════════════════
+
+          Package Version:     ${{ steps.version.outputs.version }}
+          Git Tag:             v${{ steps.version.outputs.version }}
+          Build Date:          ${{ steps.version.outputs.build_date }}
+
+          Git Commit:          ${{ steps.version.outputs.commit_hash }}
+          Short Hash:          ${{ steps.version.outputs.short_hash }}
+
+          Repository:          ${{ github.repository }}
+          Branch:              ${{ github.ref_name }}
+          Workflow Run:        #${{ github.run_number }}
+
+          ───────────────────────────────────────────────────────────────
+          LINKS
+          ───────────────────────────────────────────────────────────────
+
+          View Commit:         ${{ github.server_url }}/${{ github.repository }}/commit/${{ steps.version.outputs.commit_hash }}
+          View Tag:            ${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}
+          View Workflow:       ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          ───────────────────────────────────────────────────────────────
+          FORMS IN THIS PACKAGE
+          ───────────────────────────────────────────────────────────────
+
+          EOF
+
+          # Listar forms en VERSION.txt
+          jq -r '.forms[] | "  • \(.formName) (\(.processName)) - v\(.version)"' manifest.json >> deployment-package/VERSION.txt
+
+          echo "" >> deployment-package/VERSION.txt
+          echo "═══════════════════════════════════════════════════════════════" >> deployment-package/VERSION.txt
+
           # Copiar SOLO los forms que fueron compilados
           FORMS_TO_PACKAGE="${{ steps.changed_forms.outputs.changed_forms }}"
 
@@ -264,43 +339,127 @@ jobs:
           du -sh deployment-package
           echo "Forms: ${{ steps.manifest.outputs.form_count }}"
 
-      - name: Upload deployment package as artifact
+      - name: Prepare and upload individual form artifacts
+        run: |
+          echo "📤 Creating individual artifacts for each form..."
+
+          FORMS_TO_UPLOAD="${{ steps.changed_forms.outputs.changed_forms }}"
+
+          for form_name in $FORMS_TO_UPLOAD; do
+            if [ -d "$form_name" ] && [ -f "$form_name/dist/form.js" ]; then
+              echo ""
+              echo "📦 Preparing artifact for: $form_name"
+
+              # Crear directorio temporal para artifact de este form
+              ARTIFACT_DIR="artifact-$form_name"
+              mkdir -p "$ARTIFACT_DIR"
+
+              # Copiar manifest y VERSION
+              cp deployment-package/manifest.json "$ARTIFACT_DIR/"
+              cp deployment-package/VERSION.txt "$ARTIFACT_DIR/"
+
+              # Copiar solo este form
+              mkdir -p "$ARTIFACT_DIR/forms/$form_name"
+              cp "$form_name/dist/form.js" "$ARTIFACT_DIR/forms/$form_name/"
+
+              echo "  ✅ Artifact structure prepared for: $form_name"
+              echo "  📁 Directory: $ARTIFACT_DIR"
+            fi
+          done
+
+      # Upload artifacts individually (GitHub Actions will create separate artifacts)
+      - name: Upload sample-form-2 artifact
+        if: contains(steps.changed_forms.outputs.changed_forms, 'sample-form-2')
         uses: actions/upload-artifact@v4
         with:
-          name: bizuit-custom-forms-deployment-${{ steps.version.outputs.version }}
-          path: deployment-package/
-          retention-days: 90  # 3 meses
+          name: sample-form-2-deployment-${{ steps.version.outputs.version }}-${{ steps.version.outputs.short_hash }}
+          path: artifact-sample-form-2/
+          retention-days: 90
 
-      - name: Create deployment ZIP in upload directories
+      - name: Upload dashboard-integration-demo artifact
+        if: contains(steps.changed_forms.outputs.changed_forms, 'dashboard-integration-demo')
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-integration-demo-deployment-${{ steps.version.outputs.version }}-${{ steps.version.outputs.short_hash }}
+          path: artifact-dashboard-integration-demo/
+          retention-days: 90
+
+      - name: Upload aprobacion-gastos artifact
+        if: contains(steps.changed_forms.outputs.changed_forms, 'aprobacion-gastos')
+        uses: actions/upload-artifact@v4
+        with:
+          name: aprobacion-gastos-deployment-${{ steps.version.outputs.version }}-${{ steps.version.outputs.short_hash }}
+          path: artifact-aprobacion-gastos/
+          retention-days: 90
+
+      - name: Upload solicitud-vacaciones artifact
+        if: contains(steps.changed_forms.outputs.changed_forms, 'solicitud-vacaciones')
+        uses: actions/upload-artifact@v4
+        with:
+          name: solicitud-vacaciones-deployment-${{ steps.version.outputs.version }}-${{ steps.version.outputs.short_hash }}
+          path: artifact-solicitud-vacaciones/
+          retention-days: 90
+
+      - name: Upload solicitud-soporte artifact
+        if: contains(steps.changed_forms.outputs.changed_forms, 'solicitud-soporte')
+        uses: actions/upload-artifact@v4
+        with:
+          name: solicitud-soporte-deployment-${{ steps.version.outputs.version }}-${{ steps.version.outputs.short_hash }}
+          path: artifact-solicitud-soporte/
+          retention-days: 90
+
+      - name: Create deployment ZIPs (one per form)
         run: |
-          echo "📦 Creating deployment package ZIP..."
+          echo "📦 Creating individual deployment ZIPs for each form..."
 
-          # Crear ZIP del deployment package (mismo que el artifact)
-          cd deployment-package
-          PACKAGE_NAME="bizuit-custom-forms-deployment-${{ steps.version.outputs.version }}.zip"
-          zip -r "../$PACKAGE_NAME" .
-          cd ..
+          FORMS_TO_PACKAGE="${{ steps.changed_forms.outputs.changed_forms }}"
 
-          echo "✅ Created: $PACKAGE_NAME ($(wc -c < "$PACKAGE_NAME") bytes)"
+          for form_name in $FORMS_TO_PACKAGE; do
+            if [ -d "$form_name" ] && [ -f "$form_name/dist/form.js" ]; then
+              echo ""
+              echo "📝 Creating ZIP for: $form_name"
 
-          # Copiar el ZIP a directorio upload/ de cada form compilado
-          echo ""
-          echo "📋 Copying deployment ZIP to form upload directories..."
+              # Crear estructura temporal para este form
+              mkdir -p "temp-package-$form_name"
 
-          FORMS_TO_COPY="${{ steps.changed_forms.outputs.changed_forms }}"
+              # Copiar manifest.json y VERSION.txt
+              cp deployment-package/manifest.json "temp-package-$form_name/"
+              cp deployment-package/VERSION.txt "temp-package-$form_name/"
 
-          for form_name in $FORMS_TO_COPY; do
-            if [ -d "$form_name" ]; then
+              # Copiar solo este form
+              mkdir -p "temp-package-$form_name/forms/$form_name"
+              cp "$form_name/dist/form.js" "temp-package-$form_name/forms/$form_name/"
+
+              # Nombre del ZIP específico para este form
+              PACKAGE_NAME="${form_name}-deployment-${{ steps.version.outputs.version }}-${{ steps.version.outputs.short_hash }}.zip"
+
+              # Crear ZIP
+              cd "temp-package-$form_name"
+              zip -r "../$PACKAGE_NAME" .
+              cd ..
+
+              # Copiar a directorio upload/ del form
               mkdir -p "$form_name/upload"
               cp "$PACKAGE_NAME" "$form_name/upload/"
-              echo "  ✅ Copied to: $form_name/upload/$PACKAGE_NAME"
+
+              # Limpiar directorio temporal
+              rm -rf "temp-package-$form_name"
+
+              echo "  ✅ Created: $PACKAGE_NAME ($(wc -c < "$PACKAGE_NAME") bytes)"
+              echo "  📁 Copied to: $form_name/upload/"
             fi
           done
 
           echo ""
-          echo "📊 Deployment ZIP available in:"
-          echo "  - Root: $PACKAGE_NAME (for releases)"
-          echo "  - Each form's upload/ directory (for custom-forms admin)"
+          echo "📊 Deployment ZIPs created:"
+          ls -lh *-deployment-*.zip 2>/dev/null || echo "  (check individual form upload/ directories)"
+
+          echo ""
+          echo "🔗 Traceability:"
+          echo "  - Each ZIP is named: {form-name}-deployment-{version}-{hash}.zip"
+          echo "  - ZIP filename includes version + commit hash"
+          echo "  - VERSION.txt inside ZIP has full git information"
+          echo "  - manifest.json has commit URLs for direct navigation"
 
       - name: Commit and push deployment ZIPs to repository
         run: |
@@ -331,6 +490,33 @@ jobs:
             echo "✅ Deployment ZIPs committed and pushed to repository"
           fi
 
+      - name: Create and push version tag
+        if: github.event_name != 'workflow_dispatch'
+        run: |
+          echo "🏷️  Creating version tag..."
+
+          # Configurar git (si no está configurado)
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          TAG_NAME="v${{ steps.version.outputs.version }}"
+
+          # Verificar si el tag ya existe
+          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+            echo "⚠️  Tag $TAG_NAME already exists, skipping tag creation"
+          else
+            # Crear tag anotado
+            git tag -a "$TAG_NAME" -m "Release $TAG_NAME" \
+                                    -m "Auto-generated by workflow run #${{ github.run_number }}" \
+                                    -m "Build date: ${{ steps.version.outputs.build_date }}" \
+                                    -m "Commit: ${{ steps.version.outputs.commit_hash }}"
+
+            # Push del tag
+            git push origin "$TAG_NAME"
+
+            echo "✅ Tag $TAG_NAME created and pushed"
+          fi
+
       - name: Create release (if manual trigger)
         if: github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v1
@@ -341,27 +527,35 @@ jobs:
             ## 📦 Deployment Package - Offline Installation
 
             **Version**: ${{ steps.version.outputs.version }}
-            **Commit**: ${{ steps.version.outputs.commit_hash }}
+            **Commit**: [`${{ steps.version.outputs.short_hash }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ steps.version.outputs.commit_hash }})
             **Build Date**: ${{ steps.version.outputs.build_date }}
             **Forms included**: ${{ steps.manifest.outputs.form_count }}
 
+            ### 🔗 Traceability
+
+            This package is directly linked to git:
+            - **Package filename**: Contains version + commit hash for easy identification
+            - **VERSION.txt**: Full git information inside the ZIP
+            - **manifest.json**: Direct URLs to commit, tag, and workflow run
+
             ### 📥 Installation Instructions
 
-            1. Download `bizuit-custom-forms-deployment-${{ steps.version.outputs.version }}.zip`
-            2. Transfer to offline server (USB, network share, etc.)
-            3. Access: `https://your-server.com/BIZUITCustomForms/admin/upload-forms`
-            4. Upload the ZIP file directly (no need to extract first)
-            5. Verify deployment success
+            Each form has its own deployment ZIP:
+            - Download `{form-name}-deployment-${{ steps.version.outputs.version }}-${{ steps.version.outputs.short_hash }}.zip`
+            - Transfer to offline server (USB, network share, etc.)
+            - Access: `https://your-server.com/BIZUITCustomForms/admin/upload-forms`
+            - Upload the ZIP file directly (no need to extract first)
+            - Verify deployment success
 
             ### 📋 Forms in this package
 
-            Check `manifest.json` inside the ZIP for complete list.
+            Check `manifest.json` or `VERSION.txt` inside each ZIP for complete information.
 
             ---
 
-            🤖 Generated automatically by GitHub Actions
+            🤖 Generated automatically by GitHub Actions - [View workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
           files: |
-            bizuit-custom-forms-deployment-${{ steps.version.outputs.version }}.zip
+            *-deployment-${{ steps.version.outputs.version }}-${{ steps.version.outputs.short_hash }}.zip
           draft: false
           prerelease: false
         env:

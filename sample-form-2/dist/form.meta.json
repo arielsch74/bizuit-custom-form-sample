@@ -1,0 +1,11 @@
+{
+  "formName": "sample-form-2",
+  "version": "1.0.0",
+  "builtAt": "2025-11-20T22:42:19.636Z",
+  "sizeBytes": 15727,
+  "entryPoint": "./src/index.tsx",
+  "externals": [
+    "react",
+    "react-dom"
+  ]
+}

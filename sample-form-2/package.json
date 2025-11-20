@@ -1,0 +1,29 @@
+{
+  "name": "@tyconsa/bizuit-form-sample-2",
+  "version": "1.0.0",
+  "description": "Formulario de ejemplo con Material Design de Google",
+  "main": "dist/form.js",
+  "scripts": {
+    "build": "node ../build-form.js ./src/index.tsx ./dist/form.js sample-form-2",
+    "dev": "node ../build-form.js ./src/index.tsx ./dist/form.js sample-form-2 --watch"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.26",
+    "@types/react-dom": "^18.3.7",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "bizuit",
+    "custom-form",
+    "material-design",
+    "google",
+    "sample"
+  ],
+  "author": "Tyconsa",
+  "license": "MIT"
+}
