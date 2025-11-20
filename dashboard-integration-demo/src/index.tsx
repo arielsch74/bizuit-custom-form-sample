@@ -26,8 +26,8 @@ interface FormProps {
   dashboardParams?: DashboardParameters | null;
 }
 
-const FORM_VERSION = "1.1.1";
-const FORM_NAME = "Dashboard Integration Demo - Updated";
+const FORM_VERSION = "1.1.2";
+const FORM_NAME = "Dashboard Integration Demo - Enhanced";
 
 export default function DashboardIntegrationDemoForm({ dashboardParams }: FormProps) {
   const [showModal, setShowModal] = useState(false);
@@ -50,7 +50,7 @@ export default function DashboardIntegrationDemoForm({ dashboardParams }: FormPr
             </h1>
 
             <p className="text-lg text-gray-600 mb-2">
-              Formulario de demostración para BIZUIT Custom Forms - Version 2 🚀
+              Formulario de demostración para BIZUIT Custom Forms - Enhanced Edition 🎯
             </p>
 
             <div className="inline-block px-4 py-2 bg-cyan-50 border-2 border-cyan-200 rounded-full">
@@ -127,7 +127,7 @@ export default function DashboardIntegrationDemoForm({ dashboardParams }: FormPr
             {/* Características */}
             <div className="bg-gray-50 rounded-xl p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">
-                📋 Características
+                📋 Características Principales
               </h3>
               <ul className="space-y-2 text-gray-700">
                 <li className="flex items-start">
@@ -153,6 +153,12 @@ export default function DashboardIntegrationDemoForm({ dashboardParams }: FormPr
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                   React 18 + TypeScript
+                </li>
+                <li className="flex items-start">
+                  <svg className="w-5 h-5 mr-2 text-cyan-500 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Despliegue automático con versionado semántico
                 </li>
               </ul>
             </div>
