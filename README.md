@@ -396,6 +396,95 @@ export default {
 - Firefox (última versión)
 - Navegadores móviles (iOS Safari, Chrome Mobile)
 
+## 🚀 Deployment en Producción
+
+Este proyecto incluye pipelines de Azure DevOps completamente configurados para deployment automático en Windows Server con IIS + PM2.
+
+### Arquitectura de Deployment
+
+```
+Internet (test.bizuit.com)
+         ↓
+    IIS (Puerto 80/443)
+         ↓
+    ┌────┴─────────────────────┐
+    ↓                          ↓
+Frontend                    Backend
+PM2 (localhost:3001)       PM2 (localhost:8000)
+Next.js Runtime            FastAPI
+```
+
+### Pipelines Disponibles
+
+1. **Build Pipeline** (`azure-pipelines-build.yml`)
+   - Compila Runtime App (Next.js) y Backend API (FastAPI)
+   - Genera artifacts optimizados para producción
+   - Triggers: Cambios en `custom-forms/**`
+
+2. **Deploy Pipeline** (`azure-pipelines-deploy.yml`)
+   - Despliega a Windows Server con PM2
+   - Configura IIS como reverse proxy
+   - Ejecuta health checks automáticos
+   - Triggers: Completación exitosa del Build
+
+3. **Showcase Pipeline** (`azure-pipelines.yml`)
+   - Despliega app de showcase con IISNode
+   - Triggers: Cambios en `custom-forms-showcase/**` o `packages/**`
+
+### Documentación de Deployment
+
+**📋 Para administradores del servidor:**
+- **[CHECKLIST_SERVIDOR.md](./CHECKLIST_SERVIDOR.md)** ⭐ - Checklist imprimible con pasos de configuración (~10 min)
+- **[SERVIDOR_PASOS_FINALES.md](./SERVIDOR_PASOS_FINALES.md)** - Guía paso a paso en español
+- **[COMANDOS_SERVIDOR.md](./COMANDOS_SERVIDOR.md)** - Referencia rápida de comandos PowerShell
+
+**🔧 Para DevOps y desarrolladores:**
+- **[RESUMEN_CONFIGURACION.md](./RESUMEN_CONFIGURACION.md)** - Estado completo del proyecto y problemas resueltos
+- **[IIS_CONFIGURATION_GUIDE.md](./IIS_CONFIGURATION_GUIDE.md)** - Guía técnica de arquitectura IIS + PM2
+- **[custom-forms/DEPLOYMENT.md](./custom-forms/DEPLOYMENT.md)** - Documentación detallada de deployment
+- **[custom-forms/PM2_WINDOWS_SETUP.md](./custom-forms/PM2_WINDOWS_SETUP.md)** - Setup de PM2 en Windows
+
+### Inicio Rápido - Configuración del Servidor
+
+Después de que el pipeline complete exitosamente, el administrador del servidor debe ejecutar estos pasos **una sola vez**:
+
+1. **Crear IIS application para backend** (3 min)
+2. **Crear `.env.local` para runtime app** (3 min)
+3. **Reiniciar PM2 runtime** (2 min)
+4. **Reciclar IIS application pool** (1 min)
+
+**Ver:** [CHECKLIST_SERVIDOR.md](./CHECKLIST_SERVIDOR.md) para instrucciones detalladas.
+
+### Deployments Futuros
+
+Después de la configuración inicial, los deployments futuros son **completamente automáticos**:
+
+1. Hacer push a `main` branch
+2. Azure DevOps ejecuta build y deploy automáticamente
+3. PM2 reinicia los procesos
+4. ✅ Deployment completo
+
+No se requiere intervención manual.
+
+### URLs de Producción
+
+- **Showcase:** `http://test.bizuit.com/BIZUITCustomForms`
+- **Runtime App:** `http://test.bizuit.com/arielschBIZUITCustomForms`
+- **Backend API:** `http://test.bizuit.com/arielschBIZUITCustomFormsbackend`
+
+### Verificación de Deployment
+
+```powershell
+# Backend health check
+curl http://test.bizuit.com/arielschBIZUITCustomFormsbackend/health
+
+# PM2 status
+pm2 list
+
+# Ver logs
+pm2 logs --lines 50
+```
+
 ## 📄 Licencia
 
 MIT
