@@ -14,7 +14,8 @@ CREATE OR ALTER PROCEDURE sp_UpsertCustomForm
     @SizeBytes INT,
     @PackageVersion NVARCHAR(20),
     @CommitHash NVARCHAR(100),
-    @BuildDate DATETIME
+    @BuildDate DATETIME,
+    @ReleaseNotes NVARCHAR(MAX) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -106,7 +107,8 @@ BEGIN
                 IsCurrent = 1,
                 PublishedBy = @Author,
                 PublishedAt = GETUTCDATE(),
-                Metadata = @MetadataJson
+                Metadata = @MetadataJson,
+                ReleaseNotes = @ReleaseNotes
             WHERE VersionId = @ExistingVersionId;
         END
         ELSE
@@ -122,7 +124,8 @@ BEGIN
                 IsCurrent,
                 PublishedBy,
                 PublishedAt,
-                Metadata
+                Metadata,
+                ReleaseNotes
             )
             VALUES (
                 @FormId,
@@ -134,7 +137,8 @@ BEGIN
                 1,
                 @Author,
                 GETUTCDATE(),
-                @MetadataJson
+                @MetadataJson,
+                @ReleaseNotes
             );
         END
 
