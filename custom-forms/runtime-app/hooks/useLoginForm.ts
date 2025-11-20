@@ -37,21 +37,29 @@ export function useLoginForm(redirectPath: string = '/admin'): UseLoginFormRetur
 
     try {
       // Use Next.js API route instead of calling backend directly
-      // This allows the server to set HttpOnly cookies
       const response = await apiFetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
-        credentials: 'include', // Important: include cookies in request
+        credentials: 'include',
       })
 
       const data = await response.json()
 
-      if (data.success) {
-        // No need to store tokens in localStorage - they're in HttpOnly cookies!
-        // Cookies are automatically sent with future requests
+      if (data.success && data.token) {
+        // Store cookies client-side (IIS reverse proxy strips Set-Cookie headers)
+        const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/'
+        const maxAge = 60 * 60 * 24 // 24 hours in seconds
+        const expires = new Date(Date.now() + maxAge * 1000).toUTCString()
+
+        // Set admin_token cookie (not HttpOnly because we can't set that from JS)
+        document.cookie = `admin_token=${data.token}; path=${basePath}; expires=${expires}; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`
+
+        // Set admin_user_data cookie
+        document.cookie = `admin_user_data=${encodeURIComponent(JSON.stringify(data.user))}; path=${basePath}; expires=${expires}; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`
+
         router.push(redirectPath)
       } else {
         setError(data.error || 'Credenciales inválidas')

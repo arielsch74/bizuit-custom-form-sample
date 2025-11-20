@@ -38,32 +38,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Set HttpOnly cookie with the JWT token
-    // HttpOnly = prevents JavaScript access (XSS protection)
-    // Secure = only sent over HTTPS in production
-    // SameSite = CSRF protection
-    // Path = basePath for production (IIS virtual directory) or '/' for development
-    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/'
-    const isProduction = process.env.NODE_ENV === 'production'
-    const maxAge = 60 * 60 * 24 // 24 hours in seconds
-
-    // Build Set-Cookie headers manually (IIS reverse proxy compatibility)
-    const cookieOptions = `Path=${basePath}; Max-Age=${maxAge}; SameSite=Lax${isProduction ? '; Secure' : ''}`
-
-    const adminTokenCookie = `admin_token=${data.token}; HttpOnly; ${cookieOptions}`
-    const adminUserDataCookie = `admin_user_data=${encodeURIComponent(JSON.stringify(data.user))}; ${cookieOptions}`
-
-    // Create response with Set-Cookie headers
-    const response = NextResponse.json({
+    // Return token and user data to client
+    // Client will store in cookies (IIS strips Set-Cookie headers in reverse proxy mode)
+    return NextResponse.json({
       success: true,
+      token: data.token,
       user: data.user,
     })
-
-    // Set cookies via response headers (works better with IIS reverse proxy)
-    response.headers.append('Set-Cookie', adminTokenCookie)
-    response.headers.append('Set-Cookie', adminUserDataCookie)
-
-    return response
 
   } catch (error: any) {
     console.error('[Auth API] Login error:', error)

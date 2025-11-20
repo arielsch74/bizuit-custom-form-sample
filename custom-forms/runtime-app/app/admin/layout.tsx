@@ -69,6 +69,12 @@ export default function AdminLayout({
     } catch (error) {
       console.error('Logout error:', error)
     }
+
+    // Delete cookies client-side (IIS compatibility)
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/'
+    document.cookie = `admin_token=; path=${basePath}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+    document.cookie = `admin_user_data=; path=${basePath}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+
     router.push('/')
   }
 
