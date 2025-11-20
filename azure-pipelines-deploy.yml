@@ -628,6 +628,32 @@ stages:
                     OverWrite: true
                   displayName: 'Copy Backend Files'
 
+                # Install Python dependencies
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    workingDirectory: '$(backendDeployPath)'
+                    script: |
+                      Write-Host "Installing Python dependencies..."
+
+                      # Check if requirements.txt exists
+                      if (-not (Test-Path "requirements.txt")) {
+                          Write-Error "❌ requirements.txt not found in $(backendDeployPath)"
+                          exit 1
+                      }
+
+                      # Install dependencies with pip
+                      Write-Host "Running: python -m pip install -r requirements.txt"
+                      python -m pip install -r requirements.txt --upgrade
+
+                      if ($LASTEXITCODE -ne 0) {
+                          Write-Error "❌ Failed to install Python dependencies"
+                          exit 1
+                      }
+
+                      Write-Host "✓ Python dependencies installed successfully"
+                  displayName: 'Install Python Dependencies'
+
                 - task: PowerShell@2
                   inputs:
                     targetType: 'inline'
