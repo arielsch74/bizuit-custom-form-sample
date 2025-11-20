@@ -409,9 +409,14 @@ stages:
                       Write-Host "Starting PM2 process: $(pm2RuntimeApp)"
 
                       # Try to restart (if exists) or start (if new)
-                      pm2 restart $(pm2RuntimeApp) 2>&1 | Out-Null
-
-                      if ($LASTEXITCODE -ne 0) {
+                      try {
+                          pm2 restart $(pm2RuntimeApp) 2>&1 | Out-Null
+                          if ($LASTEXITCODE -eq 0) {
+                              Write-Host "✓ Process restarted successfully"
+                          } else {
+                              throw "Restart failed, will start new instance"
+                          }
+                      } catch {
                           Write-Host "Process not found, starting new instance..."
                           pm2 start E:\BIZUITSites\arielsch\ecosystem.config.js --only $(pm2RuntimeApp)
                       }
@@ -637,9 +642,14 @@ stages:
                       $env:PYTHON_ENV = "production"
 
                       # Try to restart (if exists) or start (if new)
-                      pm2 restart $(pm2BackendApp) 2>&1 | Out-Null
-
-                      if ($LASTEXITCODE -ne 0) {
+                      try {
+                          pm2 restart $(pm2BackendApp) 2>&1 | Out-Null
+                          if ($LASTEXITCODE -eq 0) {
+                              Write-Host "✓ Process restarted successfully"
+                          } else {
+                              throw "Restart failed, will start new instance"
+                          }
+                      } catch {
                           Write-Host "Process not found, starting new instance..."
                           pm2 start E:\BIZUITSites\arielsch\ecosystem.config.js --only $(pm2BackendApp)
                       }
