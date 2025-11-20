@@ -7,6 +7,7 @@ import { LayoutDashboard, Upload, FileText, LogOut, User, Menu, X } from 'lucide
 import { SettingsToolbar } from '@/components/settings-toolbar'
 import { useAppTranslation } from '@/lib/useAppTranslation'
 import { apiFetch } from '@/lib/api-client'
+import { withBasePath } from '@/lib/navigation'
 
 export default function AdminLayout({
   children,
@@ -40,7 +41,7 @@ export default function AdminLayout({
       })
 
       if (!response.ok) {
-        router.push('/admin/login')
+        router.push(withBasePath('/admin/login'))
         setLoading(false)
         return
       }
@@ -51,11 +52,11 @@ export default function AdminLayout({
         setUser(data.user)
         setLoading(false)
       } else {
-        router.push('/admin/login')
+        router.push(withBasePath('/admin/login'))
         setLoading(false)
       }
     } catch (error) {
-      router.push('/admin/login')
+      router.push(withBasePath('/admin/login'))
       setLoading(false)
     }
   }
@@ -75,7 +76,7 @@ export default function AdminLayout({
     document.cookie = `admin_token=; path=${basePath}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
     document.cookie = `admin_user_data=; path=${basePath}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
 
-    router.push('/')
+    router.push(withBasePath('/'))
   }
 
   // Si estamos en login, no mostrar el layout
@@ -123,7 +124,7 @@ export default function AdminLayout({
               >
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
-              <Link href="/admin" className="flex items-center gap-3">
+              <Link href={withBasePath('/admin')} className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
                   <span className="text-primary-foreground font-bold text-xl">B</span>
                 </div>

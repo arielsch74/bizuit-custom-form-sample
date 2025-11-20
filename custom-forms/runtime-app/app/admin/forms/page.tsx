@@ -311,7 +311,8 @@ export default function FormsManagementPage() {
   }
 
   const handleViewForm = (formName: string) => {
-    window.open(`/form/${formName}`, '_blank')
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+    window.open(`${basePath}/form/${formName}`, '_blank')
   }
 
   const handleShowVersions = async (form: CustomForm) => {
