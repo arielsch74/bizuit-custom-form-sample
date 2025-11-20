@@ -1,7 +1,6 @@
 'use client'
 
 import { use, useEffect, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { FormContainer } from '@/components/FormContainer'
 import { FormLoadingState } from '@/components/FormLoadingState'
 import { FormErrorBoundary } from '@/components/FormErrorBoundary'
@@ -16,7 +15,6 @@ interface Props {
 
 export default function DynamicFormPage({ params }: Props) {
   const { formName } = use(params)
-  const searchParams = useSearchParams()
   const [FormComponent, setFormComponent] = useState<React.ComponentType<any> | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -28,10 +26,7 @@ export default function DynamicFormPage({ params }: Props) {
       setLoading(true)
       setError(null)
 
-      // Get version from URL query parameter (e.g., ?version=1.1.5)
-      const versionParam = searchParams.get('version')
-
-      console.log(`[Dynamic Form Page] Loading form: ${formName}${versionParam ? ` (version: ${versionParam})` : ''}`)
+      console.log(`[Dynamic Form Page] Loading form: ${formName}`)
 
       // 0. Security: Check if loaded from Dashboard with token 's'
       const fromDashboard = isFromDashboard()
@@ -82,12 +77,8 @@ export default function DynamicFormPage({ params }: Props) {
       }
 
       // 3. Cargar form dinámicamente desde mock API (simula BD)
-      // Use version from URL query param if provided, otherwise use currentVersion from metadata
-      const versionToLoad = versionParam || metadata.currentVersion
-      console.log(`[Dynamic Form Page] Loading version: ${versionToLoad} (from ${versionParam ? 'URL param' : 'metadata'})`)
-
       const component = await loadDynamicFormCached(formName, {
-        version: versionToLoad
+        version: metadata.currentVersion
       })
 
       setFormComponent(() => component)
@@ -104,8 +95,7 @@ export default function DynamicFormPage({ params }: Props) {
 
   useEffect(() => {
     loadForm()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formName, searchParams])
+  }, [formName])
 
   // Loading state
   if (loading) {

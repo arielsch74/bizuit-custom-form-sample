@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useLoginForm } from '@/hooks/useLoginForm'
+import { apiFetch } from '@/lib/api-client'
+
 export default function AdminLoginPage() {
   const router = useRouter()
   const [checking, setChecking] = useState(true)
@@ -13,8 +15,8 @@ export default function AdminLoginPage() {
     // Check if already authenticated
     const checkAuth = async () => {
       try {
-        // Use fetch() directly for Next.js API routes (basePath handled automatically)
-        const response = await fetch('/api/auth/session', {
+        // Use apiFetch to ensure basePath is added (Next.js doesn't add it for client fetch)
+        const response = await apiFetch('/api/auth/session', {
           credentials: 'include',
         })
 

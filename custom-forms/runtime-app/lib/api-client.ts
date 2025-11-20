@@ -44,16 +44,18 @@ export function getApiUrl(path: string): string {
 /**
  * Fetch wrapper that automatically adds basePath to API routes
  *
+ * IMPORTANT: This MUST be used for ALL fetch() calls (both internal Next.js API routes
+ * and external backend calls) because Next.js does NOT automatically add basePath
+ * to client-side fetch() calls.
+ *
  * @param path - The API route path (e.g., '/api/auth/login')
  * @param options - Standard fetch options
  * @returns Promise<Response>
  *
  * @example
- * // Instead of:
- * fetch('/api/auth/login', { method: 'POST' })
- *
- * // Use:
+ * // ALWAYS use apiFetch for API calls:
  * apiFetch('/api/auth/login', { method: 'POST' })
+ * apiFetch('/api/custom-forms')
  */
 export async function apiFetch(
   path: string,

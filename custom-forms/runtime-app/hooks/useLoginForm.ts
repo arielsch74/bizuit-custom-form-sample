@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { apiFetch } from '@/lib/api-client'
 
 interface LoginFormState {
   username: string
@@ -35,8 +36,8 @@ export function useLoginForm(redirectPath: string = '/admin'): UseLoginFormRetur
     setError('')
 
     try {
-      // Use fetch() directly for Next.js API routes (basePath handled automatically)
-      const response = await fetch('/api/auth/login', {
+      // Use apiFetch to ensure basePath is added (Next.js doesn't add it for client fetch)
+      const response = await apiFetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

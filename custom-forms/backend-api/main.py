@@ -674,17 +674,22 @@ def get_custom_forms():
 
 
 @app.get("/api/custom-forms/{form_name}/code", tags=["Custom Forms"])
-def get_form_compiled_code(form_name: str, version: str = None):
+def get_form_compiled_code_endpoint(form_name: str, version: str = None):
     """
     Get compiled code for a specific form
 
     Returns the compiled JavaScript for the form.
     If version not specified, returns current (most recent) version.
+
+    Args:
+        form_name: Name of the form (path parameter)
+        version: Optional version string (query parameter, e.g., ?version=1.1.5)
     """
     from database import get_form_compiled_code
     from fastapi.responses import Response
 
     try:
+        print(f"[Form Code API] Request for '{form_name}' version: {version or 'current'}")
         result = get_form_compiled_code(form_name, version)
 
         if not result:

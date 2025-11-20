@@ -121,6 +121,20 @@ def upsert_custom_form(
         conn = get_db_connection()
         cursor = conn.cursor()
 
+        # DEBUG: Log parameters
+        print(f"[DB] Executing sp_UpsertCustomForm with parameters:")
+        print(f"  FormName: {form_name}")
+        print(f"  ProcessName: {process_name}")
+        print(f"  Version: {version}")
+        print(f"  Description: {description[:50]}...")
+        print(f"  Author: {author}")
+        print(f"  CompiledCode length: {len(compiled_code)}")
+        print(f"  SizeBytes: {size_bytes}")
+        print(f"  PackageVersion: {package_version}")
+        print(f"  CommitHash: {commit_hash}")
+        print(f"  BuildDate: {build_date} (type: {type(build_date).__name__})")
+        print(f"  ReleaseNotes: {release_notes[:100] if release_notes else 'None'}...")
+
         # Ejecutar stored procedure
         # NOTA: El SP debe retornar un resultado indicando si fue INSERT o UPDATE
         cursor.execute("""
@@ -150,11 +164,15 @@ def upsert_custom_form(
             release_notes
         ))
 
+        print(f"[DB] Stored procedure executed, fetching result...")
+
         # Obtener resultado del SP (asumiendo que retorna un recordset)
         row = cursor.fetchone()
+        print(f"[DB] Result row: {row}")
         action = row[0] if row else "unknown"  # 'inserted' o 'updated'
 
         conn.commit()
+        print(f"[DB] Transaction committed, action: {action}")
 
         return {
             "success": True,
@@ -162,8 +180,14 @@ def upsert_custom_form(
         }
 
     except Exception as e:
+        print(f"[DB] ERROR in upsert_custom_form: {type(e).__name__}: {str(e)}")
+        print(f"[DB] Error details: {repr(e)}")
         if conn:
-            conn.rollback()
+            try:
+                conn.rollback()
+                print(f"[DB] Transaction rolled back")
+            except Exception as rollback_error:
+                print(f"[DB] Rollback failed: {rollback_error}")
         raise e
 
     finally:

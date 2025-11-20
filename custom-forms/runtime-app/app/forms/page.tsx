@@ -15,8 +15,8 @@ export default function FormsListPage() {
     try {
       setLoading(true)
 
-      // Use fetch() directly for Next.js API routes (basePath handled automatically)
-      const response = await fetch('/api/custom-forms')
+      // Use apiFetch to ensure basePath is added (Next.js doesn't add it for client fetch)
+      const response = await apiFetch('/api/custom-forms')
 
       if (!response.ok) {
         throw new Error(`Failed to fetch forms: ${response.statusText}`)
