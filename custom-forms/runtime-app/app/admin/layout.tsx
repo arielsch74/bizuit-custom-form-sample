@@ -7,7 +7,6 @@ import { LayoutDashboard, Upload, FileText, LogOut, User, Menu, X } from 'lucide
 import { SettingsToolbar } from '@/components/settings-toolbar'
 import { useAppTranslation } from '@/lib/useAppTranslation'
 import { apiFetch } from '@/lib/api-client'
-import { withBasePath } from '@/lib/navigation'
 
 export default function AdminLayout({
   children,
@@ -41,7 +40,7 @@ export default function AdminLayout({
       })
 
       if (!response.ok) {
-        router.push(withBasePath('/admin/login'))
+        router.push('/admin/login')
         setLoading(false)
         return
       }
@@ -52,11 +51,11 @@ export default function AdminLayout({
         setUser(data.user)
         setLoading(false)
       } else {
-        router.push(withBasePath('/admin/login'))
+        router.push('/admin/login')
         setLoading(false)
       }
     } catch (error) {
-      router.push(withBasePath('/admin/login'))
+      router.push('/admin/login')
       setLoading(false)
     }
   }
@@ -76,7 +75,7 @@ export default function AdminLayout({
     document.cookie = `admin_token=; path=${basePath}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
     document.cookie = `admin_user_data=; path=${basePath}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
 
-    router.push(withBasePath('/'))
+    router.push('/')
   }
 
   // Si estamos en login, no mostrar el layout

@@ -2,14 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useLoginForm } from '@/hooks/useLoginForm'
 import { apiFetch } from '@/lib/api-client'
-import { withBasePath } from '@/lib/navigation'
-
 export default function AdminLoginPage() {
   const router = useRouter()
   const [checking, setChecking] = useState(true)
-  const { username, password, loading, error, setUsername, setPassword, handleLogin } = useLoginForm(withBasePath('/admin'))
+  const { username, password, loading, error, setUsername, setPassword, handleLogin } = useLoginForm('/admin')
 
   useEffect(() => {
     // Check if already authenticated
@@ -23,7 +22,7 @@ export default function AdminLoginPage() {
           const data = await response.json()
           if (data.authenticated) {
             // Already logged in, redirect to admin
-            router.push(withBasePath('/admin'))
+            router.push('/admin')
             return
           }
         }
@@ -110,9 +109,9 @@ export default function AdminLoginPage() {
         </div>
 
         <div className="text-center mt-6">
-          <a href={withBasePath('/')} className="text-sm text-slate-400 hover:text-orange-500 underline">
+          <Link href="/" className="text-sm text-slate-400 hover:text-orange-500 underline">
             ← Volver al inicio
-          </a>
+          </Link>
         </div>
       </div>
     </div>
