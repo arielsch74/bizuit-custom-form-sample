@@ -406,6 +406,10 @@ stages:
                               Get-Content "web.config" | Select-Object -First 20
                               exit 1
                           }
+
+                          # Remove web.config.production from deployment directory
+                          Remove-Item "web.config.production" -Force
+                          Write-Host "✓ web.config.production removed (no longer needed)"
                       } else {
                           Write-Warning "⚠️  web.config.production not found"
                       }
@@ -722,6 +726,10 @@ stages:
                               Get-Content "web.config" | Select-Object -First 20
                               exit 1
                           }
+
+                          # Remove web.config.production from deployment directory
+                          Remove-Item "web.config.production" -Force
+                          Write-Host "✓ web.config.production removed (no longer needed)"
                       } else {
                           Write-Warning "⚠️  web.config.production not found for backend"
                       }
