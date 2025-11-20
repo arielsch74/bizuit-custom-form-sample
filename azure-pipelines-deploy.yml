@@ -69,15 +69,16 @@ stages:
                 # Read or create .env.local
                 $envPath = "$(backendDeployPath)\.env.local"
 
-                # Always recreate .env.local to ensure latest configuration
-                Write-Host "Creating/updating .env.local with production configuration..." -ForegroundColor Yellow
-
                 # Create backend deploy directory if it doesn't exist
                 $backendDir = "$(backendDeployPath)"
                 if (-not (Test-Path $backendDir)) {
                     New-Item -ItemType Directory -Path $backendDir -Force | Out-Null
                     Write-Host "✓ Created backend directory: $backendDir" -ForegroundColor Green
                 }
+
+                # Check if .env.local exists, create only if missing
+                if (-not (Test-Path $envPath)) {
+                    Write-Host "⚠️  .env.local not found, creating with default configuration..." -ForegroundColor Yellow
 
                     # Create .env.local with production configuration (use array to avoid YAML heredoc issues)
                     $envLines = @(
@@ -116,10 +117,13 @@ stages:
                       "ENVIRONMENT=production"
                     )
 
-                $envLines | Out-File -FilePath $envPath -Encoding utf8
+                    $envLines | Out-File -FilePath $envPath -Encoding utf8
 
-                Write-Host "✓ Created/updated $envPath" -ForegroundColor Green
-                Write-Host ""
+                    Write-Host "✓ Created $envPath" -ForegroundColor Green
+                    Write-Host ""
+                } else {
+                    Write-Host "✓ .env.local already exists, preserving existing configuration" -ForegroundColor Green
+                }
 
                 Write-Host "Reading database configuration from .env.local..." -ForegroundColor Gray
 
@@ -131,17 +135,25 @@ stages:
                     }
                 }
 
-                # Use PERSISTENCE_DB_* variables (for CustomForms tables)
-                $dbServer = $envVars['PERSISTENCE_DB_SERVER']
-                $dbDatabase = $envVars['PERSISTENCE_DB_DATABASE']
-                $dbUser = $envVars['PERSISTENCE_DB_USER']
-                $dbPassword = $envVars['PERSISTENCE_DB_PASSWORD']
+                # Use DB_* variables (for CustomForms tables in Dashboard DB)
+                $dbServer = $envVars['DB_SERVER']
+                $dbDatabase = $envVars['DB_DATABASE']
+                $dbUser = $envVars['DB_USER']
+                $dbPassword = $envVars['DB_PASSWORD']
 
-                # Fallback to DB_* if PERSISTENCE_DB_* not found
-                if (-not $dbServer) { $dbServer = $envVars['DB_SERVER'] }
-                if (-not $dbDatabase) { $dbDatabase = $envVars['DB_DATABASE'] }
-                if (-not $dbUser) { $dbUser = $envVars['DB_USER'] }
-                if (-not $dbPassword) { $dbPassword = $envVars['DB_PASSWORD'] }
+                # Validate database configuration
+                if ($dbDatabase -ne "arielschBIZUITDashboard") {
+                    Write-Host "`n========================================" -ForegroundColor Red
+                    Write-Host "⚠️  WARNING: Incorrect Database Configuration" -ForegroundColor Red
+                    Write-Host "========================================" -ForegroundColor Red
+                    Write-Host "Current database: $dbDatabase" -ForegroundColor Yellow
+                    Write-Host "Expected database: arielschBIZUITDashboard" -ForegroundColor Yellow
+                    Write-Host "`nPlease update $envPath manually:" -ForegroundColor Yellow
+                    Write-Host "  DB_DATABASE=arielschBIZUITDashboard" -ForegroundColor Gray
+                    Write-Host "  PERSISTENCE_DB_DATABASE=arielschBIZUITDashboard" -ForegroundColor Gray
+                    Write-Host "========================================`n" -ForegroundColor Red
+                    throw "Database configuration is incorrect. Please fix .env.local and re-run deployment."
+                }
 
                 if (-not $dbServer -or -not $dbDatabase) {
                     Write-Error "❌ Missing database configuration in .env.local"
