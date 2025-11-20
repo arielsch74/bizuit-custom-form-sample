@@ -1,9 +1,52 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useLoginForm } from '@/hooks/useLoginForm'
+import { apiFetch } from '@/lib/api-client'
 
 export default function AdminLoginPage() {
+  const router = useRouter()
+  const [checking, setChecking] = useState(true)
   const { username, password, loading, error, setUsername, setPassword, handleLogin } = useLoginForm('/admin')
+
+  useEffect(() => {
+    // Check if already authenticated
+    const checkAuth = async () => {
+      try {
+        const response = await apiFetch('/api/auth/session', {
+          credentials: 'include',
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.authenticated) {
+            // Already logged in, redirect to admin
+            router.push('/admin')
+            return
+          }
+        }
+      } catch (error) {
+        // Not authenticated, show login form
+      } finally {
+        setChecking(false)
+      }
+    }
+
+    checkAuth()
+  }, [router])
+
+  // Show loading while checking auth
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-400 dark:text-slate-400">Verificando sesión...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
