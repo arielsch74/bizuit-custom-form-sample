@@ -355,7 +355,214 @@ console.log('[Auth API] Session check:', { authenticated, userId })
 
 ---
 
-## 12. Referencias
+## 12. Form Access Control (Dashboard Token Validation)
+
+### 🔒 Critical Security: Two Operating Modes
+
+El runtime app tiene **DOS MODOS** de operación controlados por `NEXT_PUBLIC_ALLOW_DEV_MODE`:
+
+#### 🛡️ Production Mode (Secure by Default)
+
+**Configuration:**
+```bash
+# .env.local (production)
+NEXT_PUBLIC_ALLOW_DEV_MODE=false
+
+# OR leave undefined → secure by default
+```
+
+**Behavior:**
+- ✅ Forms **MUST** be accessed through Bizuit Dashboard with token `s`
+- ✅ Direct URL access is **BLOCKED**
+- ✅ Token validation is **REQUIRED**
+
+**Example:**
+```
+✅ ALLOWED (with token):
+https://test.bizuit.com/arielschBIZUITCustomForms/form/aprobacion-gastos?s=aAAV/9xqhAE=&InstanceId=123
+
+❌ BLOCKED (direct access):
+https://test.bizuit.com/arielschBIZUITCustomForms/form/aprobacion-gastos
+→ Error: "🚫 Access Denied: This form must be accessed through Bizuit Dashboard"
+```
+
+#### 🧪 Development Mode (Local Testing Only)
+
+**Configuration:**
+```bash
+# .env.local (development)
+NEXT_PUBLIC_ALLOW_DEV_MODE=true
+```
+
+**Behavior:**
+- ⚠️ Forms can be accessed **WITHOUT** Dashboard token
+- ⚠️ Direct URL access is **ALLOWED**
+- ℹ️ Console warning: "DEVELOPMENT MODE: Direct access allowed"
+
+**⚠️ CRITICAL WARNING:**
+```
+NEVER deploy to production with NEXT_PUBLIC_ALLOW_DEV_MODE=true
+This creates a CRITICAL SECURITY VULNERABILITY
+Anyone can access forms without authorization
+```
+
+### 🎯 Security Decision Logic
+
+```typescript
+// app/form/[formName]/page.tsx
+const fromDashboard = isFromDashboard()  // Check if 's' parameter exists
+const allowDevMode = process.env.NEXT_PUBLIC_ALLOW_DEV_MODE === 'true'
+
+// 🔒 PRODUCTION SECURITY: Require Dashboard token
+if (!fromDashboard && !allowDevMode) {
+  throw new Error('🚫 Access Denied: This form must be accessed through Bizuit Dashboard')
+}
+
+// Validate Dashboard token if present
+if (fromDashboard) {
+  const validation = await getDashboardParameters()
+
+  if (!validation.valid) {
+    throw new Error(`Dashboard token validation failed: ${validation.error}`)
+  }
+
+  // ✅ Token validated, proceed with secured parameters
+  setDashboardParams(validation.parameters)
+}
+```
+
+### 🔐 Token Validation Flow
+
+#### 1. URL Parameters (from Dashboard)
+
+```
+?s=aAAV/9xqhAE=              ← Encrypted TokenId (TripleDES)
+&InstanceId=12345            ← Process instance ID
+&UserName=admin              ← User executing the form
+&eventName=MyProcess         ← Process name
+&activityName=Task1          ← Activity name
+&token=Basic123              ← Auth token (optional)
+```
+
+#### 2. Frontend Validation
+
+```typescript
+// lib/dashboard-params.ts
+export async function getDashboardParameters() {
+  // Extract 's' parameter
+  const queryParams = extractDashboardParams()
+
+  if (!queryParams || !queryParams.s) {
+    return { valid: false, error: 'Missing encrypted token' }
+  }
+
+  // Send to backend for validation
+  const response = await fetch('/api/dashboard/validate-token', {
+    method: 'POST',
+    body: JSON.stringify({
+      encryptedToken: queryParams.s,
+      instanceId: queryParams.InstanceId,
+      userName: queryParams.UserName,
+      // ...
+    })
+  })
+
+  return await response.json()
+}
+```
+
+#### 3. Backend Validation (FastAPI)
+
+```python
+# backend/api/dashboard.py
+@app.post("/api/dashboard/validate-token")
+async def validate_token(request: TokenValidationRequest):
+    # 1. Decrypt token 's' using TripleDES
+    decrypted_token_id = decrypt_triple_des(request.encryptedToken)
+
+    # 2. Query SecurityTokens table
+    token = db.query(SecurityTokens).filter_by(
+        token_id=decrypted_token_id
+    ).first()
+
+    # 3. Validate expiration
+    if not token or token.expiration_date < datetime.now():
+        return {"valid": False, "error": "Invalid or expired token"}
+
+    # 4. Validate operation (1=edit, 2=view)
+    # 5. Validate IP (optional)
+    # 6. Mark as used (one-time token)
+
+    # 7. Return validated parameters
+    return {
+        "valid": True,
+        "parameters": {
+            "instanceId": request.instanceId,
+            "operation": token.operation,
+            "tokenId": token.token_id,
+            # ...
+        }
+    }
+```
+
+### 📋 Production Deployment Checklist
+
+**CRITICAL - Must Verify Before Production:**
+
+- [ ] **Set `NEXT_PUBLIC_ALLOW_DEV_MODE=false`** in production `.env.local`
+- [ ] **OR** remove the variable entirely (secure by default)
+- [ ] Verify Azure pipeline sets `NEXT_PUBLIC_ALLOW_DEV_MODE=false`
+- [ ] Test that direct URL access is **BLOCKED**
+- [ ] Test that Dashboard access with token `s` **WORKS**
+- [ ] Verify console shows **NO** "DEVELOPMENT MODE" warnings
+- [ ] Verify `SecurityTokens` table exists in database
+- [ ] Test token expiration validation
+- [ ] Test one-time token usage (cannot reuse)
+
+### 🚨 Security Events to Monitor
+
+```typescript
+// Failed token validation
+console.error('[Security] Token validation failed:', {
+  error: validation.error,
+  timestamp: new Date().toISOString()
+})
+
+// Direct access attempt in production
+console.error('[Security] Unauthorized direct access attempt:', {
+  formName: formName,
+  allowDevMode: allowDevMode,
+  fromDashboard: fromDashboard,
+  timestamp: new Date().toISOString()
+})
+
+// Successful validation (info level)
+console.log('[Security] Token validated successfully:', {
+  instanceId: params.instanceId,
+  userName: params.userName,
+  operation: params.operation
+})
+```
+
+### 🛡️ Best Practices
+
+**✅ DO:**
+- Always set `NEXT_PUBLIC_ALLOW_DEV_MODE=false` in production
+- Always validate token on backend (never trust client)
+- Always check token expiration
+- Always use one-time tokens (mark as used after validation)
+- Always log security events
+
+**❌ DON'T:**
+- NEVER deploy with `NEXT_PUBLIC_ALLOW_DEV_MODE=true` to production
+- NEVER skip token validation
+- NEVER trust URL parameters without backend validation
+- NEVER expose backend validation errors in detail to client
+- NEVER reuse tokens
+
+---
+
+## 13. Referencias
 
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [MDN Web Security](https://developer.mozilla.org/en-US/docs/Web/Security)
