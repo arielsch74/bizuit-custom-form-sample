@@ -123,7 +123,7 @@ export default function AdminLayout({
               >
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
-              <Link href={withBasePath('/admin')} className="flex items-center gap-3">
+              <Link href="/admin" className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
                   <span className="text-primary-foreground font-bold text-xl">B</span>
                 </div>
