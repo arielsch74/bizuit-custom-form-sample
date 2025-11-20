@@ -135,17 +135,11 @@ stages:
                     }
                 }
 
-                # Use PERSISTENCE_DB_* variables (for CustomForms tables)
-                $dbServer = $envVars['PERSISTENCE_DB_SERVER']
-                $dbDatabase = $envVars['PERSISTENCE_DB_DATABASE']
-                $dbUser = $envVars['PERSISTENCE_DB_USER']
-                $dbPassword = $envVars['PERSISTENCE_DB_PASSWORD']
-
-                # Fallback to DB_* if PERSISTENCE_DB_* not found
-                if (-not $dbServer) { $dbServer = $envVars['DB_SERVER'] }
-                if (-not $dbDatabase) { $dbDatabase = $envVars['DB_DATABASE'] }
-                if (-not $dbUser) { $dbUser = $envVars['DB_USER'] }
-                if (-not $dbPassword) { $dbPassword = $envVars['DB_PASSWORD'] }
+                # Use DB_* variables (for CustomForms tables in Dashboard DB)
+                $dbServer = $envVars['DB_SERVER']
+                $dbDatabase = $envVars['DB_DATABASE']
+                $dbUser = $envVars['DB_USER']
+                $dbPassword = $envVars['DB_PASSWORD']
 
                 # Validate database configuration
                 if ($dbDatabase -ne "arielschBIZUITDashboard") {
