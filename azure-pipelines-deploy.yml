@@ -431,9 +431,13 @@ stages:
                   inputs:
                     targetType: 'inline'
                     script: |
-                      # Set HOMEPATH for PM2 if not set
+                      # Set HOMEPATH for PM2 (required on Windows)
                       if (-not $env:HOMEPATH) { $env:HOMEPATH = $env:USERPROFILE }
                       if (-not $env:HOME) { $env:HOME = $env:USERPROFILE }
+
+                      # Add npm global bin to PATH for pm2 logs command
+                      $npmBin = npm config get prefix
+                      $env:Path = "$npmBin;$env:Path"
 
                       Write-Host "Health check: Testing runtime app..."
 
@@ -664,9 +668,13 @@ stages:
                   inputs:
                     targetType: 'inline'
                     script: |
-                      # Set HOMEPATH for PM2 if not set
+                      # Set HOMEPATH for PM2 (required on Windows)
                       if (-not $env:HOMEPATH) { $env:HOMEPATH = $env:USERPROFILE }
                       if (-not $env:HOME) { $env:HOME = $env:USERPROFILE }
+
+                      # Add npm global bin to PATH for pm2 logs command
+                      $npmBin = npm config get prefix
+                      $env:Path = "$npmBin;$env:Path"
 
                       Write-Host "Health check: Testing backend API..."
 
