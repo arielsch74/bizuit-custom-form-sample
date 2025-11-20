@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Search, FileText, Calendar, Database, Trash2, Eye, Download, Loader2, AlertCircle, Filter, RefreshCw, History, X, Check, AlertTriangle, CheckCircle } from 'lucide-react'
 import { useAppTranslation } from '@/lib/useAppTranslation'
+import { withBasePath } from '@/lib/navigation'
 
 // Confirmation Dialog Component
 interface ConfirmDialogProps {
@@ -310,9 +311,10 @@ export default function FormsManagementPage() {
     window.open(url, '_blank')
   }
 
-  const handleViewForm = (formName: string) => {
-    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
-    window.open(`${basePath}/form/${formName}`, '_blank')
+  const handleViewForm = (formName: string, version?: string) => {
+    const versionParam = version ? `?version=${version}` : ''
+    const url = withBasePath(`/form/${formName}${versionParam}`)
+    window.open(url, '_blank')
   }
 
   const handleShowVersions = async (form: CustomForm) => {
@@ -673,6 +675,14 @@ export default function FormsManagementPage() {
                           </div>
                         </div>
                         <div className="flex gap-2 flex-shrink-0">
+                          <button
+                            onClick={() => handleViewForm(selectedForm.name, version.version)}
+                            className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                            title={t('versions.view')}
+                          >
+                            <Eye className="w-4 h-4" />
+                            {t('versions.view')}
+                          </button>
                           <button
                             onClick={() => handleDownload(selectedForm.name, version.version)}
                             className="flex items-center gap-2 px-3 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition-colors"
