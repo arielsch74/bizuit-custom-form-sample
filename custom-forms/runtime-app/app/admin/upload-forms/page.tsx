@@ -62,8 +62,8 @@ export default function UploadFormsPage() {
 
       console.log('[Upload] Uploading deployment package:', file.name)
 
-      // Use Next.js API route to forward the request with HttpOnly cookies
-      const response = await apiFetch('/api/deployment/upload', {
+      // Use fetch() directly for Next.js API routes (basePath handled automatically)
+      const response = await fetch('/api/deployment/upload', {
         method: 'POST',
         body: formData,
         credentials: 'include', // Important: include HttpOnly cookies

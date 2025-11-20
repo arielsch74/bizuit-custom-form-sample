@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { LayoutDashboard, Upload, FileText, LogOut, User, Menu, X } from 'lucide-react'
 import { SettingsToolbar } from '@/components/settings-toolbar'
 import { useAppTranslation } from '@/lib/useAppTranslation'
-import { apiFetch } from '@/lib/api-client'
 
 export default function AdminLayout({
   children,
@@ -35,7 +34,8 @@ export default function AdminLayout({
 
   const checkAuth = async () => {
     try {
-      const response = await apiFetch('/api/auth/session', {
+      // Use fetch() directly for Next.js API routes (basePath handled automatically)
+      const response = await fetch('/api/auth/session', {
         credentials: 'include', // Include cookies
       })
 
@@ -62,7 +62,8 @@ export default function AdminLayout({
 
   const handleLogout = async () => {
     try {
-      await apiFetch('/api/auth/logout', {
+      // Use fetch() directly for Next.js API routes (basePath handled automatically)
+      await fetch('/api/auth/logout', {
         method: 'POST',
         credentials: 'include',
       })

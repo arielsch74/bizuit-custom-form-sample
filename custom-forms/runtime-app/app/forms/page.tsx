@@ -15,8 +15,8 @@ export default function FormsListPage() {
     try {
       setLoading(true)
 
-      // Fetch forms from API (which queries SQL Server via FastAPI)
-      const response = await apiFetch('/api/custom-forms')
+      // Use fetch() directly for Next.js API routes (basePath handled automatically)
+      const response = await fetch('/api/custom-forms')
 
       if (!response.ok) {
         throw new Error(`Failed to fetch forms: ${response.statusText}`)
