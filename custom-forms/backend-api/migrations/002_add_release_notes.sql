@@ -3,6 +3,10 @@
 -- Date: 2025-11-19
 -- Note: Database is selected via sqlcmd -d parameter, not USE statement
 
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_NULLS ON;
+GO
+
 -- Add ReleaseNotes column if it doesn't exist
 IF NOT EXISTS (
     SELECT * FROM sys.columns

@@ -20,10 +20,8 @@ BEGIN
     ALTER TABLE CustomForms
     ADD DisplayName NVARCHAR(255) NULL;
 
-    -- Populate with FormName as default
-    UPDATE CustomForms
-    SET DisplayName = FormName
-    WHERE DisplayName IS NULL;
+    -- Populate with FormName as default (using dynamic SQL to avoid parse errors)
+    EXEC sp_executesql N'UPDATE CustomForms SET DisplayName = FormName WHERE DisplayName IS NULL';
 
     PRINT '✓ DisplayName column added successfully';
 END
@@ -44,10 +42,8 @@ BEGIN
     ALTER TABLE CustomForms
     ADD CreatedBy NVARCHAR(255) NULL;
 
-    -- Populate with Author as default
-    UPDATE CustomForms
-    SET CreatedBy = Author
-    WHERE CreatedBy IS NULL;
+    -- Populate with Author as default (using dynamic SQL to avoid parse errors)
+    EXEC sp_executesql N'UPDATE CustomForms SET CreatedBy = Author WHERE CreatedBy IS NULL';
 
     PRINT '✓ CreatedBy column added successfully';
 END
@@ -68,10 +64,8 @@ BEGIN
     ALTER TABLE CustomForms
     ADD UpdatedBy NVARCHAR(255) NULL;
 
-    -- Populate with Author as default
-    UPDATE CustomForms
-    SET UpdatedBy = Author
-    WHERE UpdatedBy IS NULL;
+    -- Populate with Author as default (using dynamic SQL to avoid parse errors)
+    EXEC sp_executesql N'UPDATE CustomForms SET UpdatedBy = Author WHERE UpdatedBy IS NULL';
 
     PRINT '✓ UpdatedBy column added successfully';
 END
