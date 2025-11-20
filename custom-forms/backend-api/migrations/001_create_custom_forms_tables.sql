@@ -97,6 +97,10 @@ IF OBJECT_ID('dbo.sp_UpsertCustomForm', 'P') IS NOT NULL
     DROP PROCEDURE dbo.sp_UpsertCustomForm;
 GO
 
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_NULLS ON;
+GO
+
 CREATE PROCEDURE dbo.sp_UpsertCustomForm
     @FormName NVARCHAR(255),
     @ProcessName NVARCHAR(255),
@@ -134,6 +138,9 @@ BEGIN
                 CurrentVersion,
                 Description,
                 Author,
+                DisplayName,
+                CreatedBy,
+                UpdatedBy,
                 CreatedAt,
                 UpdatedAt
             )
@@ -144,6 +151,9 @@ BEGIN
                 @Version,
                 @Description,
                 @Author,
+                @FormName, -- DisplayName defaults to FormName
+                @Author, -- CreatedBy
+                @Author, -- UpdatedBy
                 GETDATE(),
                 GETDATE()
             );
@@ -159,6 +169,7 @@ BEGIN
                 CurrentVersion = @Version,
                 Description = @Description,
                 Author = @Author,
+                UpdatedBy = @Author,
                 UpdatedAt = GETDATE()
             WHERE FormId = @FormId;
 
@@ -177,6 +188,7 @@ BEGIN
             CompiledCode,
             SizeBytes,
             PublishedAt,
+            PublishedBy,
             IsCurrent,
             ReleaseNotes,
             PackageVersion,
@@ -189,6 +201,7 @@ BEGIN
             @CompiledCode,
             @SizeBytes,
             GETDATE(),
+            @Author, -- PublishedBy
             1, -- Current version
             @ReleaseNotes,
             @PackageVersion,
