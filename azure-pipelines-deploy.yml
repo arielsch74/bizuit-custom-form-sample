@@ -69,15 +69,15 @@ stages:
                 # Read or create .env.local
                 $envPath = "$(backendDeployPath)\.env.local"
 
-                if (-not (Test-Path $envPath)) {
-                    Write-Host "⚠️  .env.local not found, creating with default values..." -ForegroundColor Yellow
+                # Always recreate .env.local to ensure latest configuration
+                Write-Host "Creating/updating .env.local with production configuration..." -ForegroundColor Yellow
 
-                    # Create backend deploy directory if it doesn't exist
-                    $backendDir = "$(backendDeployPath)"
-                    if (-not (Test-Path $backendDir)) {
-                        New-Item -ItemType Directory -Path $backendDir -Force | Out-Null
-                        Write-Host "✓ Created backend directory: $backendDir" -ForegroundColor Green
-                    }
+                # Create backend deploy directory if it doesn't exist
+                $backendDir = "$(backendDeployPath)"
+                if (-not (Test-Path $backendDir)) {
+                    New-Item -ItemType Directory -Path $backendDir -Force | Out-Null
+                    Write-Host "✓ Created backend directory: $backendDir" -ForegroundColor Green
+                }
 
                     # Create .env.local with production configuration (use array to avoid YAML heredoc issues)
                     $envLines = @(
@@ -116,14 +116,10 @@ stages:
                       "ENVIRONMENT=production"
                     )
 
-                    $envLines | Out-File -FilePath $envPath -Encoding utf8
+                $envLines | Out-File -FilePath $envPath -Encoding utf8
 
-                    Write-Host "✓ Created $envPath" -ForegroundColor Green
-                    Write-Host ""
-                    Write-Host "⚠️  IMPORTANT: Update database credentials in .env.local before production use!" -ForegroundColor Yellow
-                    Write-Host "   File location: $envPath" -ForegroundColor Gray
-                    Write-Host ""
-                }
+                Write-Host "✓ Created/updated $envPath" -ForegroundColor Green
+                Write-Host ""
 
                 Write-Host "Reading database configuration from .env.local..." -ForegroundColor Gray
 
