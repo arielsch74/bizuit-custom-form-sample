@@ -42,60 +42,17 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Get version info
-        id: version
+      - name: Get build metadata (commit hash and date)
+        id: build_metadata
         run: |
-          # Usar input manual o generar automáticamente
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            VERSION="${{ github.event.inputs.version }}"
-          else
-            # Autoincremento semántico basado en tags git
-            echo "🔍 Detecting version from git tags..."
-
-            # Obtener último tag (formato vX.Y.Z)
-            LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
-            echo "Last tag: $LAST_TAG"
-
-            # Extraer versión sin 'v' prefix
-            LAST_VERSION=${LAST_TAG#v}
-
-            # Separar major.minor.patch
-            IFS='.' read -r MAJOR MINOR PATCH <<< "$LAST_VERSION"
-
-            # Detectar tipo de cambio basado en mensaje del commit
-            COMMIT_MSG=$(git log -1 --pretty=%B)
-
-            if echo "$COMMIT_MSG" | grep -qiE "^(BREAKING CHANGE|major):"; then
-              # Major version bump (breaking changes)
-              MAJOR=$((MAJOR + 1))
-              MINOR=0
-              PATCH=0
-              BUMP_TYPE="major"
-            elif echo "$COMMIT_MSG" | grep -qiE "^(feat|feature|minor):"; then
-              # Minor version bump (new features)
-              MINOR=$((MINOR + 1))
-              PATCH=0
-              BUMP_TYPE="minor"
-            else
-              # Patch version bump (bug fixes, chore, docs, etc.)
-              PATCH=$((PATCH + 1))
-              BUMP_TYPE="patch"
-            fi
-
-            VERSION="$MAJOR.$MINOR.$PATCH"
-            echo "🔼 Auto-increment ($BUMP_TYPE): $LAST_VERSION → $VERSION"
-          fi
-
           COMMIT_HASH="${{ github.sha }}"
           SHORT_HASH="${COMMIT_HASH:0:7}"
           BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
 
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "commit_hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
           echo "short_hash=$SHORT_HASH" >> $GITHUB_OUTPUT
           echo "build_date=$BUILD_DATE" >> $GITHUB_OUTPUT
 
-          echo "📦 Package Version: $VERSION"
           echo "🔖 Commit: $SHORT_HASH"
           echo "📅 Build Date: $BUILD_DATE"
 
@@ -120,6 +77,115 @@ jobs:
 
           echo "📝 Forms to build:"
           echo "$CHANGED_FORMS"
+
+      - name: Calculate per-form versions (independent versioning)
+        id: form_versions
+        run: |
+          echo "🔢 Calculating independent versions for each form..."
+          echo ""
+
+          CHANGED_FORMS="${{ steps.changed_forms.outputs.changed_forms }}"
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+
+          # Detectar tipo de cambio para todas las formas
+          if echo "$COMMIT_MSG" | grep -qiE "^(BREAKING CHANGE|major):"; then
+            BUMP_TYPE="major"
+            echo "🔼 Bump type detected: MAJOR (breaking changes)"
+          elif echo "$COMMIT_MSG" | grep -qiE "^(feat|feature|minor):"; then
+            BUMP_TYPE="minor"
+            echo "🔼 Bump type detected: MINOR (new features)"
+          else
+            BUMP_TYPE="patch"
+            echo "🔼 Bump type detected: PATCH (fixes/chores)"
+          fi
+          echo ""
+
+          # Procesar cada form individualmente
+          for form_name in $CHANGED_FORMS; do
+            echo "════════════════════════════════════════════════════════════════"
+            echo "📦 Processing: $form_name"
+            echo "────────────────────────────────────────────────────────────────"
+
+            # 1. Buscar último tag git de este form (source of truth)
+            LAST_TAG=$(git describe --tags --match "${form_name}-v*" --abbrev=0 2>/dev/null || echo "")
+
+            if [ -n "$LAST_TAG" ]; then
+              LAST_DEPLOYED_VERSION=${LAST_TAG#${form_name}-v}
+              echo "✅ Last deployed version (git tag): $LAST_DEPLOYED_VERSION"
+            else
+              LAST_DEPLOYED_VERSION="0.0.0"
+              echo "ℹ️  No previous deployment found, starting from 0.0.0"
+            fi
+
+            # 2. Leer package.json actual
+            if [ -f "$form_name/package.json" ]; then
+              PACKAGE_VERSION=$(jq -r '.version // "1.0.0"' "$form_name/package.json")
+              echo "📄 Current package.json version: $PACKAGE_VERSION"
+            else
+              echo "❌ ERROR: package.json not found for $form_name"
+              exit 1
+            fi
+
+            # 3. Validar si coinciden (auto-correction check)
+            if [ "$PACKAGE_VERSION" != "$LAST_DEPLOYED_VERSION" ]; then
+              echo ""
+              echo "⚠️  ═══════════════════════════════════════════════════════════"
+              echo "⚠️  VERSION MISMATCH DETECTED!"
+              echo "⚠️  ═══════════════════════════════════════════════════════════"
+              echo "⚠️  Expected (last deployed): $LAST_DEPLOYED_VERSION"
+              echo "⚠️  Found in package.json:    $PACKAGE_VERSION"
+              echo "⚠️  "
+              echo "⚠️  This means a developer manually changed package.json"
+              echo "⚠️  Git tags are the source of truth for versioning"
+              echo "⚠️  "
+              echo "🔧 AUTO-CORRECTING to maintain semantic versioning..."
+              echo "⚠️  ═══════════════════════════════════════════════════════════"
+              echo ""
+            fi
+
+            # 4. Calcular nueva versión basada en el último tag (SOURCE OF TRUTH)
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$LAST_DEPLOYED_VERSION"
+
+            if [ "$BUMP_TYPE" = "major" ]; then
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+            elif [ "$BUMP_TYPE" = "minor" ]; then
+              MINOR=$((MINOR + 1))
+              PATCH=0
+            else
+              PATCH=$((PATCH + 1))
+            fi
+
+            NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+
+            echo "🔼 Version calculation ($BUMP_TYPE bump):"
+            echo "   $LAST_DEPLOYED_VERSION → $NEW_VERSION"
+            echo ""
+
+            # 5. Actualizar package.json con versión correcta
+            echo "💾 Updating $form_name/package.json to version $NEW_VERSION..."
+            jq --arg version "$NEW_VERSION" '.version = $version' "$form_name/package.json" > "$form_name/package.tmp.json"
+            mv "$form_name/package.tmp.json" "$form_name/package.json"
+
+            echo "✅ package.json updated successfully"
+            echo ""
+
+            # 6. Guardar versión en output (usando nombre de form como clave)
+            # GitHub Actions no permite outputs dinámicos, así que los guardamos en archivo
+            echo "${form_name}_version=$NEW_VERSION" >> /tmp/form_versions.txt
+
+            echo "════════════════════════════════════════════════════════════════"
+            echo ""
+          done
+
+          echo "✅ All form versions calculated and package.json files updated"
+          echo ""
+          echo "📋 Summary of versions:"
+          cat /tmp/form_versions.txt
+
+          # También guardar en GITHUB_OUTPUT para referencia
+          cat /tmp/form_versions.txt >> $GITHUB_OUTPUT
 
       - name: Build changed forms
         run: |
@@ -198,13 +264,11 @@ jobs:
           # Crear manifest.json dinámicamente con info extendida
           cat > manifest.json << EOF
           {
-            "packageVersion": "${{ steps.version.outputs.version }}",
-            "buildDate": "${{ steps.version.outputs.build_date }}",
-            "commitHash": "${{ steps.version.outputs.commit_hash }}",
-            "commitShortHash": "${{ steps.version.outputs.short_hash }}",
-            "gitTag": "v${{ steps.version.outputs.version }}",
+            "buildDate": "${{ steps.build_metadata.outputs.build_date }}",
+            "commitHash": "${{ steps.build_metadata.outputs.commit_hash }}",
+            "commitShortHash": "${{ steps.build_metadata.outputs.short_hash }}",
             "repositoryUrl": "${{ github.server_url }}/${{ github.repository }}",
-            "commitUrl": "${{ github.server_url }}/${{ github.repository }}/commit/${{ steps.version.outputs.commit_hash }}",
+            "commitUrl": "${{ github.server_url }}/${{ github.repository }}/commit/${{ steps.build_metadata.outputs.commit_hash }}",
             "workflowRunUrl": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
             "forms": [
           EOF
@@ -237,12 +301,13 @@ jobs:
               fi
               first=false
 
-              # Agregar form al manifest con releaseNotes
+              # Agregar form al manifest con releaseNotes y git tag
               cat >> manifest.json << FORM_EOF
               {
                 "formName": "$form_name",
                 "processName": "$process_name",
                 "version": "$version",
+                "gitTag": "${form_name}-v${version}",
                 "author": "$author",
                 "description": "$description",
                 "sizeBytes": $size,
@@ -284,12 +349,10 @@ jobs:
           BIZUIT CUSTOM FORMS DEPLOYMENT PACKAGE
           ═══════════════════════════════════════════════════════════════
 
-          Package Version:     ${{ steps.version.outputs.version }}
-          Git Tag:             v${{ steps.version.outputs.version }}
-          Build Date:          ${{ steps.version.outputs.build_date }}
+          Build Date:          ${{ steps.build_metadata.outputs.build_date }}
 
-          Git Commit:          ${{ steps.version.outputs.commit_hash }}
-          Short Hash:          ${{ steps.version.outputs.short_hash }}
+          Git Commit:          ${{ steps.build_metadata.outputs.commit_hash }}
+          Short Hash:          ${{ steps.build_metadata.outputs.short_hash }}
 
           Repository:          ${{ github.repository }}
           Branch:              ${{ github.ref_name }}
@@ -299,19 +362,21 @@ jobs:
           LINKS
           ───────────────────────────────────────────────────────────────
 
-          View Commit:         ${{ github.server_url }}/${{ github.repository }}/commit/${{ steps.version.outputs.commit_hash }}
-          View Tag:            ${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ steps.version.outputs.version }}
+          View Commit:         ${{ github.server_url }}/${{ github.repository }}/commit/${{ steps.build_metadata.outputs.commit_hash }}
           View Workflow:       ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
           ───────────────────────────────────────────────────────────────
-          FORMS IN THIS PACKAGE
+          FORMS IN THIS PACKAGE (INDEPENDENT VERSIONS)
           ───────────────────────────────────────────────────────────────
 
           EOF
 
-          # Listar forms en VERSION.txt
-          jq -r '.forms[] | "  • \(.formName) (\(.processName)) - v\(.version)"' manifest.json >> deployment-package/VERSION.txt
+          # Listar forms en VERSION.txt con sus versiones individuales y git tags
+          jq -r '.forms[] | "  • \(.formName) (\(.processName)) - v\(.version)\n    Git Tag: \(.gitTag)"' manifest.json >> deployment-package/VERSION.txt
 
+          echo "" >> deployment-package/VERSION.txt
+          echo "ℹ️  NOTE: Each form has independent versioning." >> deployment-package/VERSION.txt
+          echo "   Git tags format: {form-name}-v{version}" >> deployment-package/VERSION.txt
           echo "" >> deployment-package/VERSION.txt
           echo "═══════════════════════════════════════════════════════════════" >> deployment-package/VERSION.txt
 
@@ -370,45 +435,80 @@ jobs:
       # Upload artifacts individually (GitHub Actions will create separate artifacts)
       - name: Upload sample-form-2 artifact
         if: contains(steps.changed_forms.outputs.changed_forms, 'sample-form-2')
+        run: |
+          FORM_VERSION=$(jq -r '.version' sample-form-2/package.json)
+          echo "form_version=$FORM_VERSION" >> $GITHUB_OUTPUT
+        id: sample_form_2_version
+
+      - name: Upload sample-form-2 artifact (with version)
+        if: contains(steps.changed_forms.outputs.changed_forms, 'sample-form-2')
         uses: actions/upload-artifact@v4
         with:
-          name: sample-form-2-deployment-${{ steps.version.outputs.version }}-${{ steps.version.outputs.short_hash }}
+          name: sample-form-2-deployment-${{ steps.sample_form_2_version.outputs.form_version }}-${{ steps.build_metadata.outputs.short_hash }}
           path: artifact-sample-form-2/
           retention-days: 90
 
       - name: Upload dashboard-integration-demo artifact
         if: contains(steps.changed_forms.outputs.changed_forms, 'dashboard-integration-demo')
+        run: |
+          FORM_VERSION=$(jq -r '.version' dashboard-integration-demo/package.json)
+          echo "form_version=$FORM_VERSION" >> $GITHUB_OUTPUT
+        id: dashboard_integration_demo_version
+
+      - name: Upload dashboard-integration-demo artifact (with version)
+        if: contains(steps.changed_forms.outputs.changed_forms, 'dashboard-integration-demo')
         uses: actions/upload-artifact@v4
         with:
-          name: dashboard-integration-demo-deployment-${{ steps.version.outputs.version }}-${{ steps.version.outputs.short_hash }}
+          name: dashboard-integration-demo-deployment-${{ steps.dashboard_integration_demo_version.outputs.form_version }}-${{ steps.build_metadata.outputs.short_hash }}
           path: artifact-dashboard-integration-demo/
           retention-days: 90
 
       - name: Upload aprobacion-gastos artifact
         if: contains(steps.changed_forms.outputs.changed_forms, 'aprobacion-gastos')
+        run: |
+          FORM_VERSION=$(jq -r '.version' aprobacion-gastos/package.json)
+          echo "form_version=$FORM_VERSION" >> $GITHUB_OUTPUT
+        id: aprobacion_gastos_version
+
+      - name: Upload aprobacion-gastos artifact (with version)
+        if: contains(steps.changed_forms.outputs.changed_forms, 'aprobacion-gastos')
         uses: actions/upload-artifact@v4
         with:
-          name: aprobacion-gastos-deployment-${{ steps.version.outputs.version }}-${{ steps.version.outputs.short_hash }}
+          name: aprobacion-gastos-deployment-${{ steps.aprobacion_gastos_version.outputs.form_version }}-${{ steps.build_metadata.outputs.short_hash }}
           path: artifact-aprobacion-gastos/
           retention-days: 90
 
       - name: Upload solicitud-vacaciones artifact
         if: contains(steps.changed_forms.outputs.changed_forms, 'solicitud-vacaciones')
+        run: |
+          FORM_VERSION=$(jq -r '.version' solicitud-vacaciones/package.json)
+          echo "form_version=$FORM_VERSION" >> $GITHUB_OUTPUT
+        id: solicitud_vacaciones_version
+
+      - name: Upload solicitud-vacaciones artifact (with version)
+        if: contains(steps.changed_forms.outputs.changed_forms, 'solicitud-vacaciones')
         uses: actions/upload-artifact@v4
         with:
-          name: solicitud-vacaciones-deployment-${{ steps.version.outputs.version }}-${{ steps.version.outputs.short_hash }}
+          name: solicitud-vacaciones-deployment-${{ steps.solicitud_vacaciones_version.outputs.form_version }}-${{ steps.build_metadata.outputs.short_hash }}
           path: artifact-solicitud-vacaciones/
           retention-days: 90
 
       - name: Upload solicitud-soporte artifact
         if: contains(steps.changed_forms.outputs.changed_forms, 'solicitud-soporte')
+        run: |
+          FORM_VERSION=$(jq -r '.version' solicitud-soporte/package.json)
+          echo "form_version=$FORM_VERSION" >> $GITHUB_OUTPUT
+        id: solicitud_soporte_version
+
+      - name: Upload solicitud-soporte artifact (with version)
+        if: contains(steps.changed_forms.outputs.changed_forms, 'solicitud-soporte')
         uses: actions/upload-artifact@v4
         with:
-          name: solicitud-soporte-deployment-${{ steps.version.outputs.version }}-${{ steps.version.outputs.short_hash }}
+          name: solicitud-soporte-deployment-${{ steps.solicitud_soporte_version.outputs.form_version }}-${{ steps.build_metadata.outputs.short_hash }}
           path: artifact-solicitud-soporte/
           retention-days: 90
 
-      - name: Create deployment ZIPs (one per form)
+      - name: Create deployment ZIPs (one per form with independent versions)
         run: |
           echo "📦 Creating individual deployment ZIPs for each form..."
 
@@ -418,6 +518,10 @@ jobs:
             if [ -d "$form_name" ] && [ -f "$form_name/dist/form.js" ]; then
               echo ""
               echo "📝 Creating ZIP for: $form_name"
+
+              # Leer versión de package.json (ya actualizado en step anterior)
+              FORM_VERSION=$(jq -r '.version' "$form_name/package.json")
+              echo "  Version: $FORM_VERSION"
 
               # Crear estructura temporal para este form
               mkdir -p "temp-package-$form_name"
@@ -430,8 +534,8 @@ jobs:
               mkdir -p "temp-package-$form_name/forms/$form_name"
               cp "$form_name/dist/form.js" "temp-package-$form_name/forms/$form_name/"
 
-              # Nombre del ZIP específico para este form
-              PACKAGE_NAME="${form_name}-deployment-${{ steps.version.outputs.version }}-${{ steps.version.outputs.short_hash }}.zip"
+              # Nombre del ZIP específico para este form CON SU VERSIÓN INDIVIDUAL
+              PACKAGE_NAME="${form_name}-deployment-${FORM_VERSION}-${{ steps.build_metadata.outputs.short_hash }}.zip"
 
               # Crear ZIP
               cd "temp-package-$form_name"
@@ -456,66 +560,95 @@ jobs:
 
           echo ""
           echo "🔗 Traceability:"
-          echo "  - Each ZIP is named: {form-name}-deployment-{version}-{hash}.zip"
-          echo "  - ZIP filename includes version + commit hash"
+          echo "  - Each ZIP is named: {form-name}-deployment-{form-version}-{hash}.zip"
+          echo "  - ZIP filename includes INDEPENDENT version per form + commit hash"
           echo "  - VERSION.txt inside ZIP has full git information"
-          echo "  - manifest.json has commit URLs for direct navigation"
+          echo "  - manifest.json has per-form git tags and commit URLs"
 
-      - name: Commit and push deployment ZIPs to repository
+      - name: Commit and push deployment ZIPs and updated package.json files
         run: |
-          echo "📝 Committing deployment ZIPs to repository..."
+          echo "📝 Committing deployment ZIPs and updated package.json files..."
 
           # Configurar git
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Agregar archivos ZIP y directorio upload/
+          # Agregar archivos ZIP, directorio upload/, y package.json actualizados
           git add */upload/*.zip || true
           git add */upload/ || true
+          git add */package.json || true
 
           # Verificar si hay cambios
           if git diff --staged --quiet; then
-            echo "⚠️  No deployment ZIPs to commit"
+            echo "⚠️  No changes to commit"
           else
+            # Obtener lista de forms con versiones para el commit message
+            FORMS_WITH_VERSIONS=""
+            CHANGED_FORMS="${{ steps.changed_forms.outputs.changed_forms }}"
+            for form_name in $CHANGED_FORMS; do
+              if [ -f "$form_name/package.json" ]; then
+                FORM_VERSION=$(jq -r '.version' "$form_name/package.json")
+                FORMS_WITH_VERSIONS="${FORMS_WITH_VERSIONS}\n  - $form_name: v$FORM_VERSION"
+              fi
+            done
+
             # Crear commit
-            git commit -m "chore: add deployment package ZIPs [skip ci]" \
+            git commit -m "chore: update versions and add deployment ZIPs [skip ci]" \
                        -m "Generated by workflow run #${{ github.run_number }}" \
-                       -m "Version: ${{ steps.version.outputs.version }}" \
-                       -m "Commit: ${{ steps.version.outputs.commit_hash }}" \
+                       -m "Commit: ${{ steps.build_metadata.outputs.commit_hash }}" \
+                       -m "" \
+                       -m "Updated forms:${FORMS_WITH_VERSIONS}" \
+                       -m "" \
                        -m "🤖 Automated commit by GitHub Actions"
 
             # Push usando el token del workflow
             git push origin HEAD:main
 
-            echo "✅ Deployment ZIPs committed and pushed to repository"
+            echo "✅ Changes committed and pushed to repository"
           fi
 
-      - name: Create and push version tag
+      - name: Create and push per-form version tags
         if: github.event_name != 'workflow_dispatch'
         run: |
-          echo "🏷️  Creating version tag..."
+          echo "🏷️  Creating per-form version tags..."
 
           # Configurar git (si no está configurado)
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          TAG_NAME="v${{ steps.version.outputs.version }}"
+          CHANGED_FORMS="${{ steps.changed_forms.outputs.changed_forms }}"
 
-          # Verificar si el tag ya existe
-          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
-            echo "⚠️  Tag $TAG_NAME already exists, skipping tag creation"
-          else
-            # Crear tag anotado
-            git tag -a "$TAG_NAME" -m "Release $TAG_NAME" \
-                                    -m "Auto-generated by workflow run #${{ github.run_number }}" \
-                                    -m "Build date: ${{ steps.version.outputs.build_date }}" \
-                                    -m "Commit: ${{ steps.version.outputs.commit_hash }}"
+          for form_name in $CHANGED_FORMS; do
+            if [ -f "$form_name/package.json" ]; then
+              FORM_VERSION=$(jq -r '.version' "$form_name/package.json")
+              TAG_NAME="${form_name}-v${FORM_VERSION}"
 
-            # Push del tag
-            git push origin "$TAG_NAME"
+              echo ""
+              echo "📦 Form: $form_name"
+              echo "   Version: $FORM_VERSION"
+              echo "   Tag: $TAG_NAME"
 
-            echo "✅ Tag $TAG_NAME created and pushed"
-          fi
+              # Verificar si el tag ya existe
+              if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+                echo "   ⚠️  Tag $TAG_NAME already exists, skipping"
+              else
+                # Crear tag anotado
+                git tag -a "$TAG_NAME" \
+                        -m "Release $form_name v$FORM_VERSION" \
+                        -m "Auto-generated by workflow run #${{ github.run_number }}" \
+                        -m "Build date: ${{ steps.build_metadata.outputs.build_date }}" \
+                        -m "Commit: ${{ steps.build_metadata.outputs.commit_hash }}"
+
+                # Push del tag
+                git push origin "$TAG_NAME"
+
+                echo "   ✅ Tag $TAG_NAME created and pushed"
+              fi
+            fi
+          done
+
+          echo ""
+          echo "✅ All form-specific tags processed"
 
       - name: Create release (if manual trigger)
         if: github.event_name == 'workflow_dispatch'
@@ -565,14 +698,31 @@ jobs:
         run: |
           echo "## 🎉 Deployment Package Built Successfully" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Version**: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit**: ${{ steps.version.outputs.commit_hash }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Forms**: ${{ steps.manifest.outputs.form_count }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Date**: ${{ steps.build_metadata.outputs.build_date }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit**: ${{ steps.build_metadata.outputs.commit_hash }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Forms Built**: ${{ steps.manifest.outputs.form_count }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Forms with Independent Versions" >> $GITHUB_STEP_SUMMARY
+
+          # Listar forms con sus versiones y tags
+          CHANGED_FORMS="${{ steps.changed_forms.outputs.changed_forms }}"
+          for form_name in $CHANGED_FORMS; do
+            if [ -f "$form_name/package.json" ]; then
+              FORM_VERSION=$(jq -r '.version' "$form_name/package.json")
+              echo "- **$form_name**: v$FORM_VERSION (tag: \`${form_name}-v${FORM_VERSION}\`)" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📥 Download" >> $GITHUB_STEP_SUMMARY
-          echo "Go to **Actions** → **Artifacts** to download the deployment package" >> $GITHUB_STEP_SUMMARY
+          echo "Go to **Actions** → **Artifacts** to download individual form deployment packages" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📤 Upload Instructions" >> $GITHUB_STEP_SUMMARY
-          echo "1. Download the ZIP from artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "1. Download the form-specific ZIP from artifacts" >> $GITHUB_STEP_SUMMARY
           echo "2. Transfer to offline server" >> $GITHUB_STEP_SUMMARY
           echo "3. Upload via: \`/admin/upload-forms\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ℹ️ Versioning System" >> $GITHUB_STEP_SUMMARY
+          echo "- Each form has **independent versioning**" >> $GITHUB_STEP_SUMMARY
+          echo "- Git tags are the **source of truth** (format: \`{form-name}-v{version}\`)" >> $GITHUB_STEP_SUMMARY
+          echo "- package.json versions are auto-corrected if manually changed" >> $GITHUB_STEP_SUMMARY
