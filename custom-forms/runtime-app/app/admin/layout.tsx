@@ -69,7 +69,7 @@ export default function AdminLayout({
     } catch (error) {
       console.error('Logout error:', error)
     }
-    router.push('/admin/login')
+    router.push('/')
   }
 
   // Si estamos en login, no mostrar el layout
