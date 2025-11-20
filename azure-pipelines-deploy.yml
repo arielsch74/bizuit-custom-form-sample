@@ -261,21 +261,19 @@ stages:
                     script: |
                       Write-Host "Checking PM2 installation..." -ForegroundColor Cyan
 
-                      $pm2Path = (Get-Command pm2 -ErrorAction SilentlyContinue).Path
+                      # Get npm global bin path
+                      $npmBin = npm config get prefix
+                      $pm2CmdPath = Join-Path $npmBin "pm2.cmd"
 
-                      if ($pm2Path) {
-                          Write-Host "✓ PM2 is already installed at: $pm2Path" -ForegroundColor Green
-                          pm2 --version
+                      # Check if PM2 exists in npm global directory (more reliable than Get-Command)
+                      if (Test-Path $pm2CmdPath) {
+                          Write-Host "✓ PM2 is already installed" -ForegroundColor Green
+                          $version = & $pm2CmdPath --version 2>&1
+                          Write-Host "Version: $version" -ForegroundColor Gray
                       } else {
-                          Write-Host "⚠️  PM2 not found. Installing globally..." -ForegroundColor Yellow
+                          Write-Host "⚠️  PM2 not found at $pm2CmdPath" -ForegroundColor Yellow
+                          Write-Host "Installing PM2 globally..." -ForegroundColor Yellow
                           npm install -g pm2
-
-                          # Refresh PATH environment variable
-                          $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-
-                          # Get npm global bin path
-                          $npmBin = npm config get prefix
-                          Write-Host "npm global prefix: $npmBin" -ForegroundColor Gray
 
                           # Set HOMEPATH for PM2 BEFORE running any PM2 command (required on Windows)
                           if (-not $env:HOMEPATH) {
@@ -289,18 +287,20 @@ stages:
                               Write-Host "Set HOME to: $env:HOME" -ForegroundColor Gray
                           }
 
-                          # Verify installation by checking if pm2 command works
-                          $testPm2 = & "$npmBin\pm2.cmd" --version 2>&1
-                          if ($LASTEXITCODE -eq 0) {
+                          # Verify installation
+                          if (Test-Path $pm2CmdPath) {
+                              $version = & $pm2CmdPath --version 2>&1
                               Write-Host "✓ PM2 installed successfully" -ForegroundColor Green
-                              Write-Host "Version: $testPm2" -ForegroundColor Gray
-
-                              # Add npm bin to PATH for current session
-                              $env:Path = "$npmBin;$env:Path"
+                              Write-Host "Version: $version" -ForegroundColor Gray
                           } else {
-                              Write-Host "PM2 installation output: $testPm2" -ForegroundColor Red
-                              throw "Failed to install PM2"
+                              throw "Failed to install PM2 - file not found at $pm2CmdPath"
                           }
+                      }
+
+                      # Ensure npm bin is in PATH for subsequent tasks
+                      if ($env:Path -notlike "*$npmBin*") {
+                          $env:Path = "$npmBin;$env:Path"
+                          Write-Host "Added npm global bin to PATH: $npmBin" -ForegroundColor Gray
                       }
                   displayName: 'Ensure PM2 is Installed'
 
@@ -501,21 +501,19 @@ stages:
                     script: |
                       Write-Host "Checking PM2 installation..." -ForegroundColor Cyan
 
-                      $pm2Path = (Get-Command pm2 -ErrorAction SilentlyContinue).Path
+                      # Get npm global bin path
+                      $npmBin = npm config get prefix
+                      $pm2CmdPath = Join-Path $npmBin "pm2.cmd"
 
-                      if ($pm2Path) {
-                          Write-Host "✓ PM2 is already installed at: $pm2Path" -ForegroundColor Green
-                          pm2 --version
+                      # Check if PM2 exists in npm global directory (more reliable than Get-Command)
+                      if (Test-Path $pm2CmdPath) {
+                          Write-Host "✓ PM2 is already installed" -ForegroundColor Green
+                          $version = & $pm2CmdPath --version 2>&1
+                          Write-Host "Version: $version" -ForegroundColor Gray
                       } else {
-                          Write-Host "⚠️  PM2 not found. Installing globally..." -ForegroundColor Yellow
+                          Write-Host "⚠️  PM2 not found at $pm2CmdPath" -ForegroundColor Yellow
+                          Write-Host "Installing PM2 globally..." -ForegroundColor Yellow
                           npm install -g pm2
-
-                          # Refresh PATH environment variable
-                          $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-
-                          # Get npm global bin path
-                          $npmBin = npm config get prefix
-                          Write-Host "npm global prefix: $npmBin" -ForegroundColor Gray
 
                           # Set HOMEPATH for PM2 BEFORE running any PM2 command (required on Windows)
                           if (-not $env:HOMEPATH) {
@@ -529,18 +527,20 @@ stages:
                               Write-Host "Set HOME to: $env:HOME" -ForegroundColor Gray
                           }
 
-                          # Verify installation by checking if pm2 command works
-                          $testPm2 = & "$npmBin\pm2.cmd" --version 2>&1
-                          if ($LASTEXITCODE -eq 0) {
+                          # Verify installation
+                          if (Test-Path $pm2CmdPath) {
+                              $version = & $pm2CmdPath --version 2>&1
                               Write-Host "✓ PM2 installed successfully" -ForegroundColor Green
-                              Write-Host "Version: $testPm2" -ForegroundColor Gray
-
-                              # Add npm bin to PATH for current session
-                              $env:Path = "$npmBin;$env:Path"
+                              Write-Host "Version: $version" -ForegroundColor Gray
                           } else {
-                              Write-Host "PM2 installation output: $testPm2" -ForegroundColor Red
-                              throw "Failed to install PM2"
+                              throw "Failed to install PM2 - file not found at $pm2CmdPath"
                           }
+                      }
+
+                      # Ensure npm bin is in PATH for subsequent tasks
+                      if ($env:Path -notlike "*$npmBin*") {
+                          $env:Path = "$npmBin;$env:Path"
+                          Write-Host "Added npm global bin to PATH: $npmBin" -ForegroundColor Gray
                       }
                   displayName: 'Ensure PM2 is Installed'
 
