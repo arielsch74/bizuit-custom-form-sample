@@ -32,11 +32,7 @@
             <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
           </conditions>
           <action type="Rewrite" url="http://localhost:8000/api/{R:1}" />
-          <serverVariables>
-            <set name="HTTP_X_ORIGINAL_HOST" value="{HTTP_HOST}" />
-            <set name="HTTP_X_FORWARDED_FOR" value="{REMOTE_ADDR}" />
-            <set name="HTTP_X_FORWARDED_PROTO" value="https" />
-          </serverVariables>
+          <!-- Note: Server variables removed - require allowedServerVariables in IIS configuration -->
         </rule>
 
         <!-- Rule 2: Proxy Frontend (Next.js) -->
@@ -47,11 +43,7 @@
             <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
           </conditions>
           <action type="Rewrite" url="http://localhost:3001/{R:1}" />
-          <serverVariables>
-            <set name="HTTP_X_ORIGINAL_HOST" value="{HTTP_HOST}" />
-            <set name="HTTP_X_FORWARDED_FOR" value="{REMOTE_ADDR}" />
-            <set name="HTTP_X_FORWARDED_PROTO" value="https" />
-          </serverVariables>
+          <!-- Note: Server variables removed - require allowedServerVariables in IIS configuration -->
         </rule>
 
       </rules>

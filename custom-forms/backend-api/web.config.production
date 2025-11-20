@@ -29,11 +29,8 @@
             <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
           </conditions>
           <action type="Rewrite" url="http://localhost:8000/{R:1}" />
-          <serverVariables>
-            <set name="HTTP_X_ORIGINAL_HOST" value="{HTTP_HOST}" />
-            <set name="HTTP_X_FORWARDED_FOR" value="{REMOTE_ADDR}" />
-            <set name="HTTP_X_FORWARDED_PROTO" value="https" />
-          </serverVariables>
+          <!-- Note: Server variables removed - require allowedServerVariables in IIS configuration -->
+          <!-- To enable X-Forwarded headers, configure in IIS Manager → URL Rewrite → View Server Variables -->
         </rule>
 
       </rules>
