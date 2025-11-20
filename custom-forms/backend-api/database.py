@@ -389,7 +389,10 @@ def get_form_versions(form_name: str):
             cfv.PublishedAt,
             cfv.SizeBytes,
             cfv.IsCurrent,
-            cfv.ReleaseNotes
+            cfv.ReleaseNotes,
+            cfv.PackageVersion,
+            cfv.CommitHash,
+            cfv.BuildDate
         FROM CustomFormVersions cfv
         INNER JOIN CustomForms cf ON cfv.FormId = cf.FormId
         WHERE cf.FormName = ?
@@ -401,13 +404,23 @@ def get_form_versions(form_name: str):
 
         versions = []
         for row in rows:
-            versions.append({
+            version_data = {
                 "version": row[0],
                 "publishedAt": row[1].isoformat() if row[1] else None,
                 "sizeBytes": row[2] or 0,
                 "isCurrent": bool(row[3]),
                 "releaseNotes": row[4] or ""
-            })
+            }
+
+            # Add git traceability fields if available
+            if row[5]:  # PackageVersion
+                version_data["packageVersion"] = row[5]
+            if row[6]:  # CommitHash
+                version_data["commitHash"] = row[6]
+            if row[7]:  # BuildDate
+                version_data["buildDate"] = row[7].isoformat() if row[7] else None
+
+            versions.append(version_data)
 
         print(f"[Database] Retrieved {len(versions)} versions for form '{form_name}'")
         return versions
