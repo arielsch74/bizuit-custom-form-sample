@@ -343,6 +343,15 @@ stages:
                     downloadPath: '$(System.ArtifactsDirectory)'
                   displayName: 'Download Runtime Artifacts'
 
+                # Copy PM2 ecosystem.config.js to server
+                - task: CopyFiles@2
+                  inputs:
+                    SourceFolder: '$(Build.SourcesDirectory)/custom-forms'
+                    Contents: 'ecosystem.config.js'
+                    TargetFolder: 'E:\BIZUITSites\arielsch'
+                    OverWrite: true
+                  displayName: 'Copy PM2 Ecosystem Config'
+
                 - task: PowerShell@2
                   inputs:
                     targetType: 'inline'
@@ -573,6 +582,15 @@ stages:
                     artifactName: 'backend-drop'
                     downloadPath: '$(System.ArtifactsDirectory)'
                   displayName: 'Download Backend Artifacts'
+
+                # Copy PM2 ecosystem.config.js to server (if not already there from runtime deployment)
+                - task: CopyFiles@2
+                  inputs:
+                    SourceFolder: '$(Build.SourcesDirectory)/custom-forms'
+                    Contents: 'ecosystem.config.js'
+                    TargetFolder: 'E:\BIZUITSites\arielsch'
+                    OverWrite: true
+                  displayName: 'Copy PM2 Ecosystem Config'
 
                 - task: PowerShell@2
                   inputs:
