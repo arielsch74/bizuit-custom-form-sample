@@ -75,9 +75,9 @@ module.exports = {
       // Working directory
       cwd: 'E:\\BIZUITSites\\arielsch\\arielschBIZUITCustomFormsBackEnd',
 
-      // Python/uvicorn command
+      // Python main.py (loads .env.local and starts uvicorn)
       script: 'C:\\Python312\\python.exe',
-      args: '-m uvicorn main:app --host 0.0.0.0 --port 8000 --workers 1',
+      args: 'main.py',
 
       // Important: Use 'none' as interpreter for non-Node.js scripts
       interpreter: 'none',
@@ -89,6 +89,7 @@ module.exports = {
       // Environment variables
       env: {
         PYTHONUNBUFFERED: '1',
+        PYTHON_ENV: 'production',
         PORT: '8000'
       },
 
@@ -149,12 +150,13 @@ module.exports = {
       name: 'cliente2-backend',
       cwd: 'E:\\BIZUITSites\\cliente2\\cliente2BIZUITCustomFormsBackEnd',
       script: 'C:\\Python312\\python.exe',
-      args: '-m uvicorn main:app --host 0.0.0.0 --port 8001 --workers 1',
+      args: 'main.py',
       interpreter: 'none',
       instances: 1,
       exec_mode: 'fork',
       env: {
         PYTHONUNBUFFERED: '1',
+        PYTHON_ENV: 'production',
         PORT: '8001'
       },
       error_file: 'logs/backend-error.log',
