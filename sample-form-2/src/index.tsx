@@ -28,7 +28,7 @@ interface FormProps {
 }
 
 const FORM_VERSION = "1.0.3";
-const FORM_NAME = "Material Design Sample v4";
+const FORM_NAME = "Material Design Sample v5";
 
 export default function SampleForm2({ dashboardParams }: FormProps) {
   const [showModal, setShowModal] = useState(false);
