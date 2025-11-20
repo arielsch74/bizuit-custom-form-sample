@@ -287,6 +287,12 @@ stages:
                           $npmBin = npm config get prefix
                           Write-Host "npm global prefix: $npmBin" -ForegroundColor Gray
 
+                          # Set HOMEPATH for PM2 (required on Windows)
+                          if (-not $env:HOMEPATH) {
+                              $env:HOMEPATH = $env:USERPROFILE
+                              Write-Host "Set HOMEPATH to: $env:HOMEPATH" -ForegroundColor Gray
+                          }
+
                           # Verify installation by checking if pm2 command works
                           $testPm2 = & "$npmBin\pm2.cmd" --version 2>&1
                           if ($LASTEXITCODE -eq 0) {
@@ -296,6 +302,7 @@ stages:
                               # Add npm bin to PATH for current session
                               $env:Path = "$npmBin;$env:Path"
                           } else {
+                              Write-Host "PM2 installation output: $testPm2" -ForegroundColor Red
                               throw "Failed to install PM2"
                           }
                       }
@@ -305,6 +312,9 @@ stages:
                   inputs:
                     targetType: 'inline'
                     script: |
+                      # Set HOMEPATH for PM2 if not set
+                      if (-not $env:HOMEPATH) { $env:HOMEPATH = $env:USERPROFILE }
+
                       Write-Host "Stopping PM2 process: $(pm2RuntimeApp)"
                       pm2 stop $(pm2RuntimeApp) 2>&1 | Out-Null
                       Write-Host "✓ Process stopped (or was not running)"
@@ -365,6 +375,9 @@ stages:
                   inputs:
                     targetType: 'inline'
                     script: |
+                      # Set HOMEPATH for PM2 if not set
+                      if (-not $env:HOMEPATH) { $env:HOMEPATH = $env:USERPROFILE }
+
                       Write-Host "Starting PM2 process: $(pm2RuntimeApp)"
 
                       # Try to restart (if exists) or start (if new)
@@ -464,6 +477,12 @@ stages:
                           $npmBin = npm config get prefix
                           Write-Host "npm global prefix: $npmBin" -ForegroundColor Gray
 
+                          # Set HOMEPATH for PM2 (required on Windows)
+                          if (-not $env:HOMEPATH) {
+                              $env:HOMEPATH = $env:USERPROFILE
+                              Write-Host "Set HOMEPATH to: $env:HOMEPATH" -ForegroundColor Gray
+                          }
+
                           # Verify installation by checking if pm2 command works
                           $testPm2 = & "$npmBin\pm2.cmd" --version 2>&1
                           if ($LASTEXITCODE -eq 0) {
@@ -473,6 +492,7 @@ stages:
                               # Add npm bin to PATH for current session
                               $env:Path = "$npmBin;$env:Path"
                           } else {
+                              Write-Host "PM2 installation output: $testPm2" -ForegroundColor Red
                               throw "Failed to install PM2"
                           }
                       }
@@ -482,6 +502,9 @@ stages:
                   inputs:
                     targetType: 'inline'
                     script: |
+                      # Set HOMEPATH for PM2 if not set
+                      if (-not $env:HOMEPATH) { $env:HOMEPATH = $env:USERPROFILE }
+
                       Write-Host "Stopping PM2 process: $(pm2BackendApp)"
                       pm2 stop $(pm2BackendApp) 2>&1 | Out-Null
                       Write-Host "✓ Process stopped (or was not running)"
@@ -545,6 +568,9 @@ stages:
                   inputs:
                     targetType: 'inline'
                     script: |
+                      # Set HOMEPATH for PM2 if not set
+                      if (-not $env:HOMEPATH) { $env:HOMEPATH = $env:USERPROFILE }
+
                       Write-Host "Starting PM2 process: $(pm2BackendApp)"
 
                       # Set environment variable for production mode
