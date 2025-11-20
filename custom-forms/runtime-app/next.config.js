@@ -16,9 +16,6 @@ const nextConfig = {
     assetPrefix: BASE_PATH,
   }),
 
-  // Trailing slash for consistent routing
-  trailingSlash: true,
-
   // Output standalone server for IISNode deployment
   output: 'standalone',
 

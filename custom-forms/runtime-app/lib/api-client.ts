@@ -35,13 +35,7 @@ export function getApiUrl(path: string): string {
   const basePath = getBasePath()
 
   // Remove leading slash from path if it exists
-  let normalizedPath = path.startsWith('/') ? path.slice(1) : path
-
-  // Add trailing slash to API routes to prevent IIS redirect issues
-  // IIS redirects POST requests without trailing slash, losing basePath
-  if (!normalizedPath.endsWith('/')) {
-    normalizedPath += '/'
-  }
+  const normalizedPath = path.startsWith('/') ? path.slice(1) : path
 
   // Combine basePath (which already has leading slash if set) with path
   return basePath ? `${basePath}/${normalizedPath}` : `/${normalizedPath}`
