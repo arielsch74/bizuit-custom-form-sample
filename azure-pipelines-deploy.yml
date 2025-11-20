@@ -430,6 +430,11 @@ stages:
                               "NEXT_PUBLIC_BIZUIT_TIMEOUT=30000",
                               "NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES=1440",
                               "",
+                              "# 🔒 CRITICAL SECURITY: Form Access Control",
+                              "# MUST be 'false' in production - only Dashboard can open forms with token 's'",
+                              "# If undefined or false, direct access to forms is BLOCKED (secure by default)",
+                              "NEXT_PUBLIC_ALLOW_DEV_MODE=false",
+                              "",
                               "# Environment",
                               "NODE_ENV=production"
                           )

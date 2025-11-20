@@ -446,14 +446,19 @@ Next.js Runtime            FastAPI
 
 ### Inicio Rápido - Configuración del Servidor
 
-Después de que el pipeline complete exitosamente, el administrador del servidor debe ejecutar estos pasos **una sola vez**:
+**El pipeline automatiza TODO excepto:**
 
-1. **Crear IIS application para backend** (3 min)
-2. **Crear `.env.local` para runtime app** (3 min)
-3. **Reiniciar PM2 runtime** (2 min)
-4. **Reciclar IIS application pool** (1 min)
+**UN SOLO PASO MANUAL** después de que el pipeline complete (~5 minutos):
 
-**Ver:** [CHECKLIST_SERVIDOR.md](./CHECKLIST_SERVIDOR.md) para instrucciones detalladas.
+1. **Crear IIS application para backend** en IIS Manager
+2. **Reciclar IIS application pool**
+
+**El pipeline configura automáticamente:**
+- ✅ web.config files (runtime y backend)
+- ✅ .env.local files (runtime y backend)
+- ✅ PM2 processes (restart automático)
+
+**Ver:** [CHECKLIST_SERVIDOR.md](./CHECKLIST_SERVIDOR.md) para instrucciones paso a paso.
 
 ### Deployments Futuros
 

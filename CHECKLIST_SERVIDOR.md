@@ -1,8 +1,10 @@
 # ✅ Checklist de Configuración del Servidor
 
-**Tiempo estimado total:** ~10 minutos
+**Tiempo estimado total:** ~5 minutos (UN SOLO PASO MANUAL)
 **Servidor:** Windows Server con IIS
 **Usuario:** Administrador del servidor
+
+**IMPORTANTE:** El pipeline ahora automatiza TODO excepto crear la IIS Application para el backend.
 
 ---
 
@@ -18,7 +20,21 @@ Antes de empezar, verificar que estos componentes están instalados:
 
 ---
 
-## Paso 1: Crear IIS Application para Backend (3 min)
+## ✅ Configuración Automática (Ya hecha por el pipeline)
+
+El pipeline automáticamente configura:
+- ✅ web.config para runtime (copiado de web.config.production)
+- ✅ web.config para backend (copiado de web.config.production)
+- ✅ .env.local para runtime (creado con URLs correctas)
+- ✅ .env.local para backend (creado con configuración de DB)
+- ✅ PM2 runtime reiniciado
+- ✅ PM2 backend reiniciado
+
+**No necesitas hacer NADA de lo anterior manualmente.**
+
+---
+
+## PASO ÚNICO: Crear IIS Application para Backend (5 min)
 
 - [ ] Abrir **IIS Manager**
 - [ ] Expandir: Server → Sites → Default Web Site
@@ -30,83 +46,28 @@ Antes de empezar, verificar que estos componentes están instalados:
 - [ ] Click **OK**
 - [ ] Verificar que aparece en la lista de aplicaciones
 
-**Verificación:**
+**Verificación de archivos creados automáticamente:**
 ```powershell
-# Verificar que web.config existe en el directorio
+# Verificar web.config del backend (creado automáticamente)
 cd E:\BIZUITSites\arielsch\arielschBIZUITCustomFormsBackEnd
 dir web.config
-# Debe mostrar el archivo (creado automáticamente por el pipeline)
-```
 
----
+# Verificar .env.local del backend (creado automáticamente)
+dir .env.local
 
-## Paso 2: Crear .env.local para Runtime (3 min)
-
-- [ ] Abrir PowerShell como administrador
-- [ ] Ejecutar:
-```powershell
+# Verificar web.config del runtime (creado automáticamente)
 cd E:\BIZUITSites\arielsch\arielschBIZUITCustomForms
-notepad .env.local
-```
-- [ ] Pegar el siguiente contenido **exacto** en Notepad:
+dir web.config
 
-```env
-NEXT_PUBLIC_BASE_PATH=/arielschBIZUITCustomForms
-NEXT_PUBLIC_BIZUIT_FORMS_API_URL=/arielschBIZUITCustomFormsbackend
-NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=/arielschBIZUITCustomFormsbackend
-NEXT_PUBLIC_BIZUIT_TIMEOUT=30000
-NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES=1440
-NODE_ENV=production
+# Verificar .env.local del runtime (creado automáticamente)
+dir .env.local
 ```
 
-- [ ] Guardar archivo (File → Save)
-- [ ] Cerrar Notepad
-
-**Verificación:**
-```powershell
-# Verificar que el archivo se creó correctamente
-type .env.local
-# Debe mostrar el contenido que pegaste
-```
+- [ ] Todos los archivos existen (creados por el pipeline)
 
 ---
 
-## Paso 3: Reiniciar PM2 Runtime (2 min)
-
-- [ ] En PowerShell, ejecutar:
-```powershell
-cd E:\BIZUITSites\arielsch
-pm2 restart arielsch-runtime
-```
-
-- [ ] Esperar ~5 segundos
-- [ ] Verificar que arrancó correctamente:
-```powershell
-pm2 list
-```
-
-**Resultado esperado:**
-```
-┌─────┬────────────────────────┬─────────┬─────────┬───────┐
-│ id  │ name                   │ status  │ cpu     │ memory│
-├─────┼────────────────────────┼─────────┼─────────┼───────┤
-│ 0   │ arielsch-runtime       │ online  │ 0%      │ 150MB │
-│ 1   │ arielsch-backend       │ online  │ 0%      │ 80MB  │
-└─────┴────────────────────────┴─────────┴─────────┴───────┘
-```
-
-- [ ] Ambos procesos deben estar en estado **online**
-
-**Ver logs para confirmar:**
-```powershell
-pm2 logs arielsch-runtime --lines 20
-```
-
-- [ ] Buscar línea que diga: `✓ Ready in XXXXms` (sin errores)
-
----
-
-## Paso 4: Reciclar IIS Application Pool (1 min)
+## Reciclar IIS Application Pool (1 min)
 
 - [ ] En PowerShell, ejecutar:
 ```powershell
@@ -124,7 +85,7 @@ Restart-WebAppPool -Name "DefaultAppPool"
 
 ---
 
-## Paso 5: Verificación Final (5 min)
+## Verificación Final (2 min)
 
 ### Test 1: Backend Health Check
 
@@ -201,12 +162,16 @@ pm2 logs arielsch-backend --lines 50
 
 Si todos los checks anteriores pasaron:
 
-- [ ] ✅ IIS Application para backend creada
-- [ ] ✅ .env.local para runtime configurado
-- [ ] ✅ PM2 procesos corriendo correctamente
+- [ ] ✅ IIS Application para backend creada (ÚNICO paso manual)
+- [ ] ✅ IIS Application Pool reciclado
 - [ ] ✅ Backend responde vía IIS
 - [ ] ✅ Frontend carga sin errores
-- [ ] ✅ Environment variables correctas
+- [ ] ✅ PM2 procesos corriendo correctamente
+
+**Todo lo demás fue configurado automáticamente por el pipeline:**
+- ✅ web.config files
+- ✅ .env.local files
+- ✅ PM2 processes restarted
 
 **¡Configuración exitosa!** 🎉
 

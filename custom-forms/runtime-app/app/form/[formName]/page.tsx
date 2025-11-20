@@ -28,8 +28,20 @@ export default function DynamicFormPage({ params }: Props) {
 
       console.log(`[Dynamic Form Page] Loading form: ${formName}`)
 
-      // 0. Check if loaded from Dashboard and validate token
-      if (isFromDashboard()) {
+      // 0. Security: Check if loaded from Dashboard with token 's'
+      const fromDashboard = isFromDashboard()
+      const allowDevMode = process.env.NEXT_PUBLIC_ALLOW_DEV_MODE === 'true'
+
+      // 🔒 PRODUCTION SECURITY: Require Dashboard token
+      if (!fromDashboard && !allowDevMode) {
+        throw new Error(
+          '🚫 Access Denied: This form must be accessed through Bizuit Dashboard. ' +
+          'Direct access is not allowed in production mode.'
+        )
+      }
+
+      // Validate Dashboard token if present
+      if (fromDashboard) {
         console.log('[Dynamic Form Page] 🎫 Detected Dashboard parameters')
 
         const validation = await getDashboardParameters()
@@ -41,7 +53,10 @@ export default function DynamicFormPage({ params }: Props) {
         console.log('[Dynamic Form Page] ✅ Dashboard token validated:', validation.parameters)
         setDashboardParams(validation.parameters || null)
       } else {
-        console.log('[Dynamic Form Page] ℹ️ Not loaded from Dashboard (direct access)')
+        console.warn(
+          '[Dynamic Form Page] ⚠️ DEVELOPMENT MODE: Direct access allowed. ' +
+          'This should NEVER happen in production!'
+        )
       }
 
       // 1. Fetch metadata from API (simula consulta a BD)

@@ -38,27 +38,22 @@
 
 ### ⚠️ Pendiente (Configuración manual en servidor)
 
+**UN SOLO PASO MANUAL:**
+
 1. **Crear IIS application para Backend** (5 minutos)
    - Abrir IIS Manager
    - Add Application: `arielschBIZUITCustomFormsbackend`
    - Physical path: `E:\BIZUITSites\arielsch\arielschBIZUITCustomFormsBackEnd`
+   - Reciclar Application Pool
 
-2. **Crear .env.local para Runtime** (2 minutos)
-   - Crear archivo en: `E:\BIZUITSites\arielsch\arielschBIZUITCustomForms\.env.local`
-   - Copiar contenido de `.env.production.example`
-   - **Clave:** `NEXT_PUBLIC_BIZUIT_FORMS_API_URL=/arielschBIZUITCustomFormsbackend`
+**NOTA:** El pipeline ahora crea automáticamente:
+- ✅ web.config para runtime (copiado de web.config.production)
+- ✅ web.config para backend (copiado de web.config.production)
+- ✅ .env.local para runtime (con URLs correctas)
+- ✅ .env.local para backend (con configuración de DB)
+- ✅ Reinicia PM2 processes automáticamente
 
-3. **Reiniciar PM2 Runtime** (1 minuto)
-   ```powershell
-   pm2 restart arielsch-runtime
-   ```
-
-4. **Reciclar IIS Application Pool** (1 minuto)
-   ```powershell
-   Restart-WebAppPool -Name "DefaultAppPool"
-   ```
-
-**Tiempo total estimado: ~10 minutos**
+**Tiempo total estimado: ~5 minutos** (reducido de 10 minutos)
 
 ---
 

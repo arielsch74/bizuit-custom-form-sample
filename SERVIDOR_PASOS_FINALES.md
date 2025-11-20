@@ -3,21 +3,24 @@
 ## Estado Actual ✅
 
 **Pipeline de deployment:** ✅ Funcionando correctamente
-**PM2 Procesos:** ✅ Ambos servicios corriendo
+**PM2 Procesos:** ✅ Ambos servicios corriendo automáticamente
 - `arielsch-runtime` en puerto 3001
 - `arielsch-backend` en puerto 8000
 
-**Verificado directamente:**
-- ✅ Backend: `http://localhost:8000/health` → OK
-- ✅ Frontend: `http://localhost:3001` → Corre pero busca basePath
+**Configuración automática del pipeline:**
+- ✅ web.config del runtime: Copiado automáticamente
+- ✅ web.config del backend: Copiado automáticamente
+- ✅ .env.local del backend: Creado automáticamente con configuración de DB
+- ✅ .env.local del runtime: Creado automáticamente con URLs correctas
+- ✅ PM2 runtime: Reiniciado automáticamente
+- ✅ PM2 backend: Reiniciado automáticamente
 
-**Pendiente de configuración:**
-- ❌ Backend vía IIS: `test.bizuit.com/arielschBIZUITCustomFormsbackend` → 404
-- ⚠️  Frontend vía IIS: `test.bizuit.com/arielschBIZUITCustomForms` → Carga pero API incorrecta
+**Pendiente de configuración MANUAL:**
+- ❌ IIS Application para backend: Necesita crearse en IIS Manager (5 minutos)
 
 ---
 
-## PASO 1: Crear aplicación IIS para Backend
+## PASO ÚNICO: Crear aplicación IIS para Backend (5 minutos)
 
 Abre **IIS Manager** en el servidor:
 
@@ -31,74 +34,26 @@ Abre **IIS Manager** en el servidor:
    ```
 4. Click **OK**
 
-### Verificar que web.config existe:
+### Verificar archivos creados automáticamente:
+
 ```powershell
+# Verificar web.config (creado por el pipeline)
 cd E:\BIZUITSites\arielsch\arielschBIZUITCustomFormsBackEnd
 dir web.config
-```
 
-Si NO existe, el deployment debería haberlo creado. Si no está, ejecuta el pipeline de deploy nuevamente.
+# Verificar .env.local del backend (creado por el pipeline)
+dir .env.local
 
----
-
-## PASO 2: Crear .env.local para Runtime App
-
-### Ubicación:
-```
-E:\BIZUITSites\arielsch\arielschBIZUITCustomForms\.env.local
-```
-
-### Contenido:
-```env
-# Base path para IIS deployment
-NEXT_PUBLIC_BASE_PATH=/arielschBIZUITCustomForms
-
-# Backend API URL (ruta relativa, el browser la resuelve a test.bizuit.com/arielschBIZUITCustomFormsbackend)
-NEXT_PUBLIC_BIZUIT_FORMS_API_URL=/arielschBIZUITCustomFormsbackend
-NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=/arielschBIZUITCustomFormsbackend
-
-# Timeouts y configuración
-NEXT_PUBLIC_BIZUIT_TIMEOUT=30000
-NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES=1440
-
-# Environment
-NODE_ENV=production
-```
-
-### Crear el archivo:
-```powershell
+# Verificar .env.local del runtime (creado por el pipeline)
 cd E:\BIZUITSites\arielsch\arielschBIZUITCustomForms
-
-# Crear .env.local con el contenido de arriba
-notepad .env.local
+dir .env.local
 ```
 
-**⚠️ IMPORTANTE:** Pega el contenido exacto de arriba y guarda el archivo.
+**Todos estos archivos son creados automáticamente por el pipeline.** Si no existen, ejecuta el pipeline de deploy nuevamente.
 
 ---
 
-## PASO 3: Reiniciar PM2 Runtime
-
-El proceso de Next.js necesita reiniciar para leer el nuevo `.env.local`:
-
-```powershell
-cd E:\BIZUITSites\arielsch
-
-# Reiniciar solo el runtime (frontend)
-pm2 restart arielsch-runtime
-
-# Verificar que arrancó correctamente
-pm2 list
-pm2 logs arielsch-runtime --lines 30
-```
-
-**Busca en los logs que diga:**
-- `✓ Ready in XXms`
-- Sin errores de "Missing environment variable"
-
----
-
-## PASO 4: Reciclar Application Pool en IIS
+## Reciclar Application Pool en IIS (1 minuto)
 
 Para que IIS reconozca la nueva aplicación backend:
 
@@ -115,7 +70,7 @@ Restart-WebAppPool -Name "DefaultAppPool"
 
 ---
 
-## PASO 5: Verificación Final
+## Verificación Final (Después de reciclar IIS)
 
 ### 1. Backend vía IIS:
 Abre en el browser:
@@ -163,32 +118,33 @@ Si tienes acceso a un formulario, prueba:
 3. Verifica que PM2 está corriendo: `pm2 list` → `arielsch-backend` debe estar `online`
 
 ### ❌ Frontend sigue mostrando errores de environment variables
-**Causa:** PM2 no reinició o `.env.local` no está bien creado
+**Causa:** `.env.local` no fue creado por el pipeline o tiene contenido incorrecto
 
 **Solución:**
-1. Verifica que `.env.local` existe:
+1. Verifica que `.env.local` existe y tiene el contenido correcto:
    ```powershell
    cd E:\BIZUITSites\arielsch\arielschBIZUITCustomForms
    type .env.local
    ```
-2. Verifica el contenido (debe tener `NEXT_PUBLIC_BIZUIT_FORMS_API_URL=/arielschBIZUITCustomFormsbackend`)
-3. Reinicia PM2 de nuevo:
+2. Debe mostrar: `NEXT_PUBLIC_BIZUIT_FORMS_API_URL=/arielschBIZUITCustomFormsbackend`
+3. Si no existe o está mal, ejecuta el pipeline de deploy de nuevo (lo creará automáticamente)
+4. Si existe y está bien, verifica logs de PM2:
    ```powershell
-   pm2 restart arielsch-runtime
    pm2 logs arielsch-runtime --lines 50
    ```
 
 ### ❌ Frontend carga pero requests van a localhost:8000
-**Causa:** `.env.local` no tiene la configuración correcta o PM2 no reinició
+**Causa:** `.env.local` no fue creado correctamente o PM2 no leyó el archivo
 
 **Solución:**
-1. Verifica que en `.env.local` dice:
+1. Verifica el contenido de `.env.local`:
+   ```powershell
+   cd E:\BIZUITSites\arielsch\arielschBIZUITCustomForms
+   type .env.local
    ```
-   NEXT_PUBLIC_BIZUIT_FORMS_API_URL=/arielschBIZUITCustomFormsbackend
-   ```
-   NO debe decir `http://localhost:8000`
-2. Reinicia PM2: `pm2 restart arielsch-runtime`
-3. Recarga la página en el browser (Ctrl+F5 para hard refresh)
+2. Debe decir: `NEXT_PUBLIC_BIZUIT_FORMS_API_URL=/arielschBIZUITCustomFormsbackend` (NO `http://localhost:8000`)
+3. Si está mal, ejecuta el pipeline de deploy de nuevo
+4. Recarga la página en el browser (Ctrl+F5 para hard refresh)
 
 ### ❌ Error 500.19 en IIS (Configuration error)
 **Causa:** `web.config` tiene errores de XML o requiere módulos no instalados
