@@ -186,6 +186,8 @@ interface FormVersion {
   packageVersion?: string
   commitHash?: string
   buildDate?: string
+  commitUrl?: string
+  repositoryUrl?: string
 }
 
 export default function FormsManagementPage() {
@@ -667,9 +669,24 @@ export default function FormsManagementPage() {
                             {version.commitHash && (
                               <div className="text-slate-600 dark:text-slate-400">
                                 <strong>{t('versions.commit')}</strong>{' '}
-                                <code className="text-xs bg-slate-100 dark:bg-slate-700 px-1 py-0.5 rounded">
-                                  {version.commitHash.substring(0, 7)}
-                                </code>
+                                {version.commitUrl ? (
+                                  <a
+                                    href={version.commitUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 text-xs bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded hover:bg-primary hover:text-white transition-colors font-mono"
+                                    title={`View commit ${version.commitHash}`}
+                                  >
+                                    {version.commitHash.substring(0, 7)}
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                  </a>
+                                ) : (
+                                  <code className="text-xs bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded font-mono">
+                                    {version.commitHash.substring(0, 7)}
+                                  </code>
+                                )}
                               </div>
                             )}
                           </div>

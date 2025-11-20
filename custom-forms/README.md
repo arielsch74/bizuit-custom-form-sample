@@ -1,6 +1,8 @@
 # Bizuit Custom Forms
 
-**Estado**: 90% completo - Pipelines separados: Build y Deploy independientes
+**Estado**: 95% completo - Migraciones SQL y deployment funcionales
+
+**Última actualización**: 2024-11-20 - Migraciones SQL corregidas, PM2 configurado
 
 ---
 
