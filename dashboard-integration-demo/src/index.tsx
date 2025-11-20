@@ -26,8 +26,8 @@ interface FormProps {
   dashboardParams?: DashboardParameters | null;
 }
 
-const FORM_VERSION = "1.1.0";
-const FORM_NAME = "Dashboard Integration Demo";
+const FORM_VERSION = "1.1.1";
+const FORM_NAME = "Dashboard Integration Demo - Updated";
 
 export default function DashboardIntegrationDemoForm({ dashboardParams }: FormProps) {
   const [showModal, setShowModal] = useState(false);
@@ -50,7 +50,7 @@ export default function DashboardIntegrationDemoForm({ dashboardParams }: FormPr
             </h1>
 
             <p className="text-lg text-gray-600 mb-2">
-              Formulario de demostración para BIZUIT Custom Forms MODIFICADO
+              Formulario de demostración para BIZUIT Custom Forms - Version 2 🚀
             </p>
 
             <div className="inline-block px-4 py-2 bg-cyan-50 border-2 border-cyan-200 rounded-full">

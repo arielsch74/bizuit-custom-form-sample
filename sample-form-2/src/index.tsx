@@ -27,8 +27,8 @@ interface FormProps {
   dashboardParams?: DashboardParameters | null;
 }
 
-const FORM_VERSION = "1.0.0";
-const FORM_NAME = "Material Design Sample";
+const FORM_VERSION = "1.0.1";
+const FORM_NAME = "Material Design Sample v2";
 
 export default function SampleForm2({ dashboardParams }: FormProps) {
   const [showModal, setShowModal] = useState(false);
@@ -379,7 +379,10 @@ export default function SampleForm2({ dashboardParams }: FormProps) {
         {/* Footer */}
         <div style={{ textAlign: 'center', marginTop: '32px', color: 'white', opacity: 0.9 }}>
           <p style={{ fontSize: '14px', margin: 0 }}>
-            BIZUIT Custom Forms © {new Date().getFullYear()} - Material Design by Google
+            BIZUIT Custom Forms © {new Date().getFullYear()} - Material Design by Google ✨
+          </p>
+          <p style={{ fontSize: '12px', margin: '8px 0 0 0', opacity: 0.8 }}>
+            Last Updated: {new Date().toLocaleDateString('es-ES')}
           </p>
         </div>
       </div>
