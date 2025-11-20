@@ -329,11 +329,13 @@ stages:
                       Write-Host "Stopping PM2 process: $(pm2RuntimeApp)"
 
                       # Stop process (ignore error if process doesn't exist)
-                      $ErrorActionPreference = 'SilentlyContinue'
                       pm2 stop $(pm2RuntimeApp) 2>&1 | Out-Null
-                      $ErrorActionPreference = 'Stop'
+                      if ($LASTEXITCODE -ne 0) {
+                          Write-Host "Process was not running (this is expected on first deployment)"
+                      }
 
                       Write-Host "✓ Process stopped (or was not running)"
+                      exit 0
                   displayName: 'Stop PM2 Runtime Process'
 
                 - task: PowerShell@2
@@ -544,11 +546,13 @@ stages:
                       Write-Host "Stopping PM2 process: $(pm2BackendApp)"
 
                       # Stop process (ignore error if process doesn't exist)
-                      $ErrorActionPreference = 'SilentlyContinue'
                       pm2 stop $(pm2BackendApp) 2>&1 | Out-Null
-                      $ErrorActionPreference = 'Stop'
+                      if ($LASTEXITCODE -ne 0) {
+                          Write-Host "Process was not running (this is expected on first deployment)"
+                      }
 
                       Write-Host "✓ Process stopped (or was not running)"
+                      exit 0
                   displayName: 'Stop PM2 Backend Process'
 
                 - task: PowerShell@2
