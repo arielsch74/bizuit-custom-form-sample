@@ -287,10 +287,16 @@ stages:
                           $npmBin = npm config get prefix
                           Write-Host "npm global prefix: $npmBin" -ForegroundColor Gray
 
-                          # Set HOMEPATH for PM2 (required on Windows)
+                          # Set HOMEPATH for PM2 BEFORE running any PM2 command (required on Windows)
                           if (-not $env:HOMEPATH) {
                               $env:HOMEPATH = $env:USERPROFILE
                               Write-Host "Set HOMEPATH to: $env:HOMEPATH" -ForegroundColor Gray
+                          }
+
+                          # Also set HOME as fallback (PM2 checks both)
+                          if (-not $env:HOME) {
+                              $env:HOME = $env:USERPROFILE
+                              Write-Host "Set HOME to: $env:HOME" -ForegroundColor Gray
                           }
 
                           # Verify installation by checking if pm2 command works
@@ -398,6 +404,10 @@ stages:
                   inputs:
                     targetType: 'inline'
                     script: |
+                      # Set HOMEPATH for PM2 if not set
+                      if (-not $env:HOMEPATH) { $env:HOMEPATH = $env:USERPROFILE }
+                      if (-not $env:HOME) { $env:HOME = $env:USERPROFILE }
+
                       Write-Host "Health check: Testing runtime app..."
 
                       $maxAttempts = 10
@@ -477,10 +487,16 @@ stages:
                           $npmBin = npm config get prefix
                           Write-Host "npm global prefix: $npmBin" -ForegroundColor Gray
 
-                          # Set HOMEPATH for PM2 (required on Windows)
+                          # Set HOMEPATH for PM2 BEFORE running any PM2 command (required on Windows)
                           if (-not $env:HOMEPATH) {
                               $env:HOMEPATH = $env:USERPROFILE
                               Write-Host "Set HOMEPATH to: $env:HOMEPATH" -ForegroundColor Gray
+                          }
+
+                          # Also set HOME as fallback (PM2 checks both)
+                          if (-not $env:HOME) {
+                              $env:HOME = $env:USERPROFILE
+                              Write-Host "Set HOME to: $env:HOME" -ForegroundColor Gray
                           }
 
                           # Verify installation by checking if pm2 command works
@@ -594,6 +610,10 @@ stages:
                   inputs:
                     targetType: 'inline'
                     script: |
+                      # Set HOMEPATH for PM2 if not set
+                      if (-not $env:HOMEPATH) { $env:HOMEPATH = $env:USERPROFILE }
+                      if (-not $env:HOME) { $env:HOME = $env:USERPROFILE }
+
                       Write-Host "Health check: Testing backend API..."
 
                       $maxAttempts = 10
