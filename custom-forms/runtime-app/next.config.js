@@ -3,14 +3,19 @@ const path = require('path')
 // Determine if we're in production (Azure DevOps deployment)
 const isProduction = process.env.NODE_ENV === 'production' || process.env.DEPLOY_ENV === 'production'
 
-// IMPORTANT: We do NOT set basePath here anymore
-// Instead, we handle it at runtime with IIS URL Rewrite
-// This allows changing the basePath without rebuilding
+// IMPORTANT: basePath MUST be set at build time for static assets
+// The basePath is required for Next.js to generate correct asset URLs
+// Navigation paths are handled dynamically via RuntimeConfigProvider
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // NO basePath configuration - handled at runtime via IIS
-  // This allows the app to work at any path without rebuilding
+  // Set basePath for static assets (CSS, JS, etc.)
+  // This is REQUIRED at build time for proper asset loading
+  ...(basePath && { basePath }),
+
+  // Also set assetPrefix to ensure assets are served from correct path
+  ...(basePath && { assetPrefix: basePath }),
 
   // Remove trailing slashes to prevent redirect issues with basePath
   // Without this, /admin/ redirects to /admin but loses basePath
