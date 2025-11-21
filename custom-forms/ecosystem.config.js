@@ -27,9 +27,9 @@ module.exports = {
       // Working directory
       cwd: 'E:\\BIZUITSites\\arielsch\\arielschBIZUITCustomForms',
 
-      // Next.js standalone server
-      script: 'node_modules/next/dist/bin/next',
-      args: 'start -p 3001',
+      // Next.js standalone server (uses server.js wrapper)
+      script: 'server.js',
+      args: '',
 
       // Single instance (Next.js handles concurrency internally)
       instances: 1,
