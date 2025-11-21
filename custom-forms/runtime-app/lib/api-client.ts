@@ -62,5 +62,15 @@ export async function apiFetch(
   options?: RequestInit
 ): Promise<Response> {
   const url = getApiUrl(path)
-  return fetch(url, options)
+
+  // ALWAYS include credentials to ensure cookies are sent
+  const fetchOptions: RequestInit = {
+    ...options,
+    credentials: 'include', // This ensures cookies are always sent with the request
+    headers: {
+      ...options?.headers,
+    }
+  }
+
+  return fetch(url, fetchOptions)
 }

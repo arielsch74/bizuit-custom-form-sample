@@ -335,8 +335,7 @@ export default function FormsManagementPage() {
         onConfirm: async () => {
           try {
             const deleteResponse = await apiFetch(`/api/custom-forms/${form.name}/delete`, {
-              method: 'DELETE',
-              credentials: 'include'
+              method: 'DELETE'
             })
 
             if (!deleteResponse.ok) {
@@ -474,7 +473,7 @@ export default function FormsManagementPage() {
         try {
           const response = await apiFetch(
             `/api/custom-forms/${selectedForm.name}/versions/${version}/delete`,
-            { method: 'DELETE', credentials: 'include' }
+            { method: 'DELETE' }
           )
 
           const result = await response.json()
