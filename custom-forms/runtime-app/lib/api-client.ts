@@ -21,8 +21,8 @@ const getBasePath = (): string => {
   // Next.js exposes the basePath in __NEXT_DATA__ which is set at runtime
   try {
     // @ts-ignore - __NEXT_DATA__ is Next.js internal
-    const nextData = window.__NEXT_DATA__
-    if (nextData?.basePath) {
+    const nextData = (window as any).__NEXT_DATA__
+    if (nextData && nextData.basePath) {
       return nextData.basePath
     }
   } catch {}
