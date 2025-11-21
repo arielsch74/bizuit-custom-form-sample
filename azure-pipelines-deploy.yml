@@ -18,6 +18,9 @@ variables:
   pm2RuntimeApp: 'arielsch-runtime'
   pm2BackendApp: 'arielsch-backend'
 
+  # Runtime basePath configuration
+  runtimeBasePath: '/arielschBIZUITCustomForms'
+
 stages:
   # ==========================================================================
   # STAGE 3: Run Database Migrations
@@ -401,6 +404,17 @@ stages:
                     OverWrite: true
                   displayName: 'Copy Static Assets'
 
+                # Copy prepare-deployment scripts
+                - task: CopyFiles@2
+                  inputs:
+                    SourceFolder: '$(System.ArtifactsDirectory)/runtime-drop/runtime-app/scripts'
+                    Contents: |
+                      prepare-deployment.js
+                      prepare-deployment.ps1
+                    TargetFolder: '$(runtimeDeployPath)/scripts'
+                    OverWrite: true
+                  displayName: 'Copy Deployment Scripts'
+
                 # Copy web.config for IIS
                 - task: CopyFiles@2
                   inputs:
@@ -409,6 +423,45 @@ stages:
                     TargetFolder: '$(runtimeDeployPath)'
                     OverWrite: true
                   displayName: 'Copy Web Config'
+
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    workingDirectory: '$(runtimeDeployPath)'
+                    script: |
+                      Write-Host "=== Applying Runtime basePath Configuration ===" -ForegroundColor Cyan
+
+                      # Execute prepare-deployment script to replace placeholder with actual basePath
+                      $env:RUNTIME_BASEPATH = "$(runtimeBasePath)"
+                      Write-Host "Setting RUNTIME_BASEPATH to: $env:RUNTIME_BASEPATH" -ForegroundColor Yellow
+
+                      # Check if Node.js script exists
+                      if (Test-Path "scripts\prepare-deployment.js") {
+                          Write-Host "Executing Node.js prepare-deployment script..." -ForegroundColor Gray
+                          node scripts\prepare-deployment.js
+
+                          if ($LASTEXITCODE -ne 0) {
+                              Write-Error "❌ Failed to execute prepare-deployment.js"
+                              exit 1
+                          }
+                          Write-Host "✓ basePath replacement completed successfully" -ForegroundColor Green
+                      } elseif (Test-Path "scripts\prepare-deployment.ps1") {
+                          Write-Host "Executing PowerShell prepare-deployment script..." -ForegroundColor Gray
+                          & .\scripts\prepare-deployment.ps1 -RuntimeBasePath "$(runtimeBasePath)"
+
+                          if ($LASTEXITCODE -ne 0) {
+                              Write-Error "❌ Failed to execute prepare-deployment.ps1"
+                              exit 1
+                          }
+                          Write-Host "✓ basePath replacement completed successfully" -ForegroundColor Green
+                      } else {
+                          Write-Error "❌ No prepare-deployment script found in scripts directory"
+                          Write-Host "Expected: scripts\prepare-deployment.js or scripts\prepare-deployment.ps1"
+                          exit 1
+                      }
+
+                      Write-Host ""
+                  displayName: 'Apply Runtime basePath Configuration'
 
                 - task: PowerShell@2
                   inputs:
