@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Search, FileText, Calendar, Database, Trash2, Eye, Download, Loader2, AlertCircle, Filter, RefreshCw, History, X, Check, AlertTriangle, CheckCircle } from 'lucide-react'
 import { useAppTranslation } from '@/lib/useAppTranslation'
 import { withBasePath } from '@/lib/navigation'
-import { apiFetch } from '@/lib/api-client'
+import { apiFetch, getApiUrl } from '@/lib/api-client'
 
 // Confirmation Dialog Component
 interface ConfirmDialogProps {
@@ -312,7 +312,7 @@ export default function FormsManagementPage() {
 
   const handleDownload = (formName: string, version: string) => {
     // Use Next.js API route (proxies to FastAPI backend)
-    const url = `/api/custom-forms/${formName}/code?version=${version}`
+    const url = getApiUrl(`/api/custom-forms/${formName}/code?version=${version}`)
     window.open(url, '_blank')
   }
 

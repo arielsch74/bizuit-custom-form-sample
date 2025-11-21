@@ -1,4 +1,5 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { requireAdminAuth } from '@/lib/auth-server'
 
 const FASTAPI_URL = process.env.FASTAPI_URL
 if (!FASTAPI_URL) {
@@ -9,12 +10,17 @@ if (!FASTAPI_URL) {
  * DELETE /api/custom-forms/[formName]/delete
  *
  * Proxy to FastAPI backend to delete a form and all its versions
+ *
+ * **⚠️ Requires admin authentication** - Cookie-based session
  */
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ formName: string }> }
 ) {
   try {
+    // Validate admin authentication
+    await requireAdminAuth(request)
+
     const { formName } = await params
 
     const response = await fetch(`${FASTAPI_URL}/api/custom-forms/${formName}`, {
@@ -40,6 +46,15 @@ export async function DELETE(
 
   } catch (error) {
     console.error('[Custom Forms API] Error deleting form:', error)
+
+    // Check if it's an auth error
+    if (error instanceof Error && error.message.includes('Unauthorized')) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 401 }
+      )
+    }
+
     return NextResponse.json(
       {
         error: 'Failed to delete form',

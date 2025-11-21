@@ -767,9 +767,14 @@ def set_form_version_api(form_name: str, version: str):
 
 
 @app.delete("/api/custom-forms/{form_name}", tags=["Custom Forms"])
-def delete_form_api(form_name: str):
+def delete_form_api(
+    form_name: str,
+    current_user: dict = Depends(get_current_admin_user)
+):
     """
     Delete a form and all its versions
+
+    **⚠️ Requires admin authentication** - Header: `Authorization: Bearer <token>`
 
     Args:
         form_name: Name of the form to delete
@@ -792,9 +797,15 @@ def delete_form_api(form_name: str):
 
 
 @app.delete("/api/custom-forms/{form_name}/versions/{version}", tags=["Custom Forms"])
-def delete_form_version_api(form_name: str, version: str):
+def delete_form_version_api(
+    form_name: str,
+    version: str,
+    current_user: dict = Depends(get_current_admin_user)
+):
     """
     Delete a specific version of a form
+
+    **⚠️ Requires admin authentication** - Header: `Authorization: Bearer <token>`
 
     Args:
         form_name: Name of the form
