@@ -235,7 +235,7 @@ export default function SampleForm2({ dashboardParams }: FormProps) {
             color: 'white'
           }}>
             <h2 style={{ fontSize: '18px', fontWeight: '500', margin: 0 }}>
-              ✉️ Formulario de Contacto (Demo)
+              ✉️ Formulario de Contacto ARIEL (Demo)
             </h2>
           </div>
           <form onSubmit={handleSubmit} style={{ padding: '24px' }}>
