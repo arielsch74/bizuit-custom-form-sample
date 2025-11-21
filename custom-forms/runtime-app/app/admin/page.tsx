@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { FileText, Upload, Clock, Database, TrendingUp, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
 import { useAppTranslation } from '@/lib/useAppTranslation'
+import { apiFetch } from '@/lib/api-client'
 
 interface DashboardStats {
   totalForms: number
@@ -38,7 +39,7 @@ export default function AdminDashboard() {
       setError(null)
 
       // Use Next.js API route (proxies to FastAPI backend)
-      const response = await fetch('/api/custom-forms')
+      const response = await apiFetch('/api/custom-forms')
 
       if (!response.ok) {
         throw new Error('Error al cargar los forms')
