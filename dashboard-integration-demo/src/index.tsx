@@ -28,14 +28,14 @@ interface FormProps {
   dashboardParams?: DashboardParameters | null;
 }
 
-const FORM_NAME = "Dashboard Integration Demo - Enhanced v3";
+const FORM_NAME = "Dashboard Integration Demo - Workflow Test";
 const LAST_UPDATED = new Date().toISOString().replace('T', ' ').slice(0, 19);
 
 export default function DashboardIntegrationDemoForm({ dashboardParams }: FormProps) {
   const [showModal, setShowModal] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-400 to-cyan-600 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-purple-400 to-purple-600 p-6">
       <div className="max-w-4xl mx-auto">
         {/* Card Principal */}
         <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12">
