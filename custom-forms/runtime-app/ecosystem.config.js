@@ -16,16 +16,8 @@ module.exports = {
       // App configuration
       name: 'arielsch-runtime',
 
-      // Execute prepare-deployment script before starting server
-      // Windows: Use PowerShell script
-      // Linux/Mac: Use Node.js script
-      script: process.platform === 'win32'
-        ? 'powershell.exe'
-        : 'node',
-
-      args: process.platform === 'win32'
-        ? '-ExecutionPolicy Bypass -File scripts/prepare-deployment.ps1 && node server.js'
-        : 'scripts/prepare-deployment.js && node server.js',
+      // Simply start the server - the replacement script should be run separately by the pipeline
+      script: 'server.js',
 
       // Working directory
       cwd: 'E:\\BIZUITSites\\arielsch\\arielschBIZUITCustomForms',
