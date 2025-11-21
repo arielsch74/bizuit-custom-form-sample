@@ -38,7 +38,7 @@
         <!-- Rule 1: Deployment API - Strip basePath and proxy to FastAPI -->
         <rule name="Deployment API with basePath (FastAPI)" stopProcessing="true">
           <match url="^api/deployment/(.*)" />
-          <action type="Rewrite" url="http://localhost:8000/api/deployment/{R:1}" />
+          <action type="Rewrite" url="http://localhost:__BACKEND_PORT__/api/deployment/{R:1}" />
         </rule>
 
         <!-- Rule 2: Root path - Add basePath when proxying to Next.js -->
@@ -115,16 +115,12 @@
 
     <!-- ===================================== -->
     <!-- Application Request Routing (ARR)     -->
-    <!-- Note: Requires ARR module installed   -->
-    <!-- Commented out until ARR is enabled    -->
     <!-- ===================================== -->
-    <!--
     <proxy>
       <preserveHostHeader>false</preserveHostHeader>
       <timeout value="00:10:00" />
       <bufferSize>65536</bufferSize>
     </proxy>
-    -->
 
     <!-- ===================================== -->
     <!-- Error Pages                           -->
