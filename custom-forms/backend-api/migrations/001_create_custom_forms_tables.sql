@@ -88,10 +88,12 @@ END
 GO
 
 -- ==============================================================================
--- Stored Procedure: sp_UpsertCustomForm
--- Description: Inserts a new form or updates existing form with new version
+-- NOTE: Stored Procedure sp_UpsertCustomForm
+-- Moved to migration 004_update_sp_upsert_custom_form.sql
+-- Reason: Requires columns added in migration 003 (DisplayName, CreatedBy, UpdatedBy)
 -- ==============================================================================
 
+/*
 -- Drop existing procedure if it exists
 IF OBJECT_ID('dbo.sp_UpsertCustomForm', 'P') IS NOT NULL
     DROP PROCEDURE dbo.sp_UpsertCustomForm;
@@ -230,6 +232,7 @@ GO
 
 PRINT 'Stored procedure sp_UpsertCustomForm created successfully';
 GO
+*/
 
 -- ==============================================================================
 -- Verification
@@ -240,10 +243,10 @@ PRINT '=== Migration 001 Completed Successfully ===';
 PRINT 'Tables created:';
 PRINT '  - CustomForms';
 PRINT '  - CustomFormVersions';
-PRINT 'Stored procedures created:';
-PRINT '  - sp_UpsertCustomForm';
+PRINT 'Stored procedures:';
+PRINT '  - sp_UpsertCustomForm (will be created in migration 004)';
 PRINT '';
 PRINT 'You can verify with:';
 PRINT '  SELECT * FROM sys.tables WHERE name LIKE ''CustomForm%''';
-PRINT '  SELECT * FROM sys.procedures WHERE name = ''sp_UpsertCustomForm''';
+PRINT '';
 GO
