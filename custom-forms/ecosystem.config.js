@@ -35,6 +35,9 @@ module.exports = {
       instances: 1,
       exec_mode: 'fork',
 
+      // Load environment variables from .env.local
+      env_file: '.env.local',
+
       // Environment variables
       env: {
         NODE_ENV: 'production',
@@ -85,6 +88,9 @@ module.exports = {
       // Single instance
       instances: 1,
       exec_mode: 'fork',
+
+      // Load environment variables from .env.local
+      env_file: '.env.local',
 
       // Environment variables
       env: {
