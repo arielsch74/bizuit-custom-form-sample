@@ -30,6 +30,7 @@ module.exports = {
         // CRITICAL: Set the runtime basePath here
         // This will be used by prepare-deployment script
         RUNTIME_BASEPATH: '/arielschBIZUITCustomForms',
+        BASE_PATH: '/arielschBIZUITCustomForms',
 
         // Other environment variables from .env.local will be loaded by Next.js
       },

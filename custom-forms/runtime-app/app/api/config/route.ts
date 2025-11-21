@@ -7,9 +7,10 @@ import { NextResponse } from 'next/server'
  * This allows basePath to be configured at runtime instead of build time
  */
 export async function GET() {
-  // Get basePath from server-side environment variable (not NEXT_PUBLIC_)
-  // This can be changed in .env.local without rebuilding
-  const basePath = process.env.BASE_PATH || ''
+  // Get basePath from Next.js configuration
+  // In production, this will be the replaced value from __RUNTIME_BASEPATH__
+  // @ts-ignore - __basePath is set by Next.js
+  const basePath = process.env.__NEXT_ROUTER_BASEPATH || process.env.BASE_PATH || ''
 
   return NextResponse.json({
     basePath,

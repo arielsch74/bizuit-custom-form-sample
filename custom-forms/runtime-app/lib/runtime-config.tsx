@@ -27,32 +27,35 @@ export function RuntimeConfigProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     // Always fetch fresh config from API on mount
     // This ensures we get the latest basePath if it changed
-    fetch('/api/config')
-      .then((res) => res.json())
-      .then((data) => {
-        setConfig({
-          ...data,
-          isLoading: false,
-        })
-
-        // Update sessionStorage with fresh config
-        sessionStorage.setItem('runtime-config', JSON.stringify(data))
-      })
-      .catch((error) => {
-        console.error('Failed to load runtime config:', error)
-
-        // Only use cached config as fallback if API fails
-        const cached = sessionStorage.getItem('runtime-config')
-        if (cached) {
-          console.warn('Using cached runtime config due to API error')
+    // Import apiFetch dynamically to avoid circular dependency
+    import('./api-client').then(({ apiFetch }) => {
+      apiFetch('/api/config')
+        .then((res) => res.json())
+        .then((data) => {
           setConfig({
-            ...JSON.parse(cached),
+            ...data,
             isLoading: false,
           })
-        } else {
-          setConfig((prev) => ({ ...prev, isLoading: false }))
-        }
-      })
+
+          // Update sessionStorage with fresh config
+          sessionStorage.setItem('runtime-config', JSON.stringify(data))
+        })
+        .catch((error) => {
+          console.error('Failed to load runtime config:', error)
+
+          // Only use cached config as fallback if API fails
+          const cached = sessionStorage.getItem('runtime-config')
+          if (cached) {
+            console.warn('Using cached runtime config due to API error')
+            setConfig({
+              ...JSON.parse(cached),
+              isLoading: false,
+            })
+          } else {
+            setConfig((prev) => ({ ...prev, isLoading: false }))
+          }
+        })
+    })
   }, [])
 
   return (

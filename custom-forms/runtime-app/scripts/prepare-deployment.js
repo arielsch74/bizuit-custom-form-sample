@@ -123,9 +123,9 @@ function main() {
   console.log(`  Build directory: ${colors.blue}${path.relative(process.cwd(), targetDir)}${colors.reset}`);
   console.log();
 
-  // Find all JS and HTML files
+  // Find all JS, HTML and CSS files
   console.log(`${colors.bright}Searching for files...${colors.reset}`);
-  const files = findFiles(targetDir, ['.js', '.html']);
+  const files = findFiles(targetDir, ['.js', '.html', '.css']);
   console.log(`  Found ${colors.yellow}${files.length}${colors.reset} files to process`);
   console.log();
 
