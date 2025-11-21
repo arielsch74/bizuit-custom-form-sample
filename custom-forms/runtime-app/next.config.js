@@ -13,7 +13,8 @@ const nextConfig = {
   // e.g., test.bizuit.com/BIZUITCustomForms
   ...(isProduction && BASE_PATH && {
     basePath: BASE_PATH,
-    assetPrefix: BASE_PATH,
+    // CRITICAL: assetPrefix must have trailing slash for dynamic imports
+    assetPrefix: BASE_PATH + '/',
   }),
 
   // Remove trailing slashes to prevent redirect issues with basePath
@@ -25,6 +26,13 @@ const nextConfig = {
 
   // Fix workspace root for file tracing
   outputFileTracingRoot: path.join(__dirname, '../'),
+
+  // Force unique build ID in production for cache busting
+  ...(isProduction && {
+    generateBuildId: async () => {
+      return 'production-build-' + Date.now()
+    }
+  })
 }
 
 module.exports = nextConfig

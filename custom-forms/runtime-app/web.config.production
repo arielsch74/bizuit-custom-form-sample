@@ -24,19 +24,36 @@
     <rewrite>
       <rules>
 
-        <!-- Rule 1: Deployment API with basePath - Strip basePath before proxying -->
+        <!-- Rule 0: Remove trailing slashes to prevent basePath loss -->
+        <rule name="Remove Trailing Slash" stopProcessing="false">
+          <match url="(.*)/$" />
+          <conditions logicalGrouping="MatchAll">
+            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+            <add input="{REQUEST_URI}" pattern="^/pm2" negate="true" />
+          </conditions>
+          <action type="Redirect" url="{R:1}" redirectType="Permanent" />
+        </rule>
+
+        <!-- Rule 1: Next.js Static Assets (handle _next without basePath) -->
+        <rule name="Next.js Static Assets" stopProcessing="true">
+          <match url="^_next/(.*)" />
+          <action type="Rewrite" url="http://localhost:3001/_next/{R:1}" />
+        </rule>
+
+        <!-- Rule 2: Deployment API with basePath - Strip basePath before proxying -->
         <rule name="Deployment API with basePath (FastAPI)" stopProcessing="true">
           <match url="^arielschBIZUITCustomForms/api/deployment/(.*)" />
           <action type="Rewrite" url="http://localhost:8000/api/deployment/{R:1}" />
         </rule>
 
-        <!-- Rule 2: All requests with basePath - Strip basePath before proxying to Next.js -->
+        <!-- Rule 3: All requests with basePath - Strip basePath before proxying to Next.js -->
         <rule name="Next.js with basePath" stopProcessing="true">
           <match url="^arielschBIZUITCustomForms/(.*)" />
           <action type="Rewrite" url="http://localhost:3001/{R:1}" />
         </rule>
 
-        <!-- Rule 3: Fallback for requests without basePath (backwards compatibility) -->
+        <!-- Rule 4: Fallback for requests without basePath (backwards compatibility) -->
         <rule name="Next.js without basePath (Fallback)" stopProcessing="true">
           <match url="(.*)" />
           <action type="Rewrite" url="http://localhost:3001/{R:0}" />
