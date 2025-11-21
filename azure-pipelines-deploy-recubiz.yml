@@ -1,5 +1,9 @@
 # Azure DevOps Pipeline - RecuBiz Deployment
 # Deploys to E:\DevSites\RecuBiz\recubizBIZUITCustomForms (runtime) and recubizBIZUITCustomFormsBackEnd (backend)
+#
+# IMPORTANT: This pipeline must be triggered MANUALLY
+# It uses the same build artifacts as arielsch (from 'BIZUIT Custom Forms - Build')
+# but applies different runtime configuration for RecuBiz
 
 trigger: none  # Manual only
 
@@ -7,7 +11,8 @@ resources:
   pipelines:
     - pipeline: buildPipeline
       source: 'BIZUIT Custom Forms - Build'
-      # No trigger - manual execution only (arielsch pipeline has auto-trigger)
+      trigger:
+        enabled: false  # Manual only - arielsch has auto-trigger
 
 variables:
   # Deployment paths
