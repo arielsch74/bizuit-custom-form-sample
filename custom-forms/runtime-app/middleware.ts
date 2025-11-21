@@ -2,21 +2,15 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
-
-  // Only apply in production
-  if (process.env.NODE_ENV !== 'production' || !basePath) {
-    return NextResponse.next()
-  }
-
-  // Fix for _next/static assets without basePath
-  if (request.nextUrl.pathname.startsWith('/_next/')) {
-    return NextResponse.next()
-  }
+  // Get runtime basePath from server environment (not NEXT_PUBLIC_)
+  const basePath = process.env.BASE_PATH || ''
 
   // Add basePath to response headers for client-side code
   const response = NextResponse.next()
-  response.headers.set('x-base-path', basePath)
+
+  if (basePath) {
+    response.headers.set('x-base-path', basePath)
+  }
 
   return response
 }

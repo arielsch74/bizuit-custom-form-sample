@@ -83,3 +83,8 @@ temp-uploads/
 # Development automation
 logs/
 .pids/
+
+# Test files
+custom-forms/backend-api/create_orphan_test.py
+custom-forms/backend-api/*.db
+

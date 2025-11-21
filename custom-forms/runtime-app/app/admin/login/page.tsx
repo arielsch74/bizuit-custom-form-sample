@@ -71,7 +71,8 @@ export default function AdminLoginPage() {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="admin"
               required
-              className="w-full px-4 py-3 bg-slate-700 dark:bg-slate-700 border border-slate-600 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-white dark:text-white placeholder:text-slate-400"
+              disabled={loading}
+              className="w-full px-4 py-3 bg-slate-700 dark:bg-slate-700 border border-slate-600 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-white dark:text-white placeholder:text-slate-400 disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 
@@ -85,7 +86,8 @@ export default function AdminLoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full px-4 py-3 bg-slate-700 dark:bg-slate-700 border border-slate-600 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-white dark:text-white placeholder:text-slate-400"
+              disabled={loading}
+              className="w-full px-4 py-3 bg-slate-700 dark:bg-slate-700 border border-slate-600 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-white dark:text-white placeholder:text-slate-400 disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 

@@ -266,7 +266,8 @@ export default function FormsManagementPage() {
       setError(null)
 
       // Use Next.js API route (proxies to FastAPI backend)
-      const response = await apiFetch('/api/custom-forms')
+      // Add timestamp to prevent caching
+      const response = await apiFetch(`/api/custom-forms?t=${Date.now()}`)
 
       if (!response.ok) {
         throw new Error('Error al cargar los formularios')
@@ -317,20 +318,45 @@ export default function FormsManagementPage() {
   }
 
   const handleDeleteForm = async (form: CustomForm) => {
-    // First, get the number of versions to show in confirmation
+    // First, try to get the number of versions to show in confirmation
     try {
-      const response = await apiFetch(`/api/custom-forms/${form.name}/versions`)
-      if (!response.ok) {
-        throw new Error('Failed to get form versions')
+      let versionCount = 0
+      let hasVersions = false
+
+      // Try to get versions, but don't fail if they don't exist (orphaned form case)
+      try {
+        const response = await apiFetch(`/api/custom-forms/${form.name}/versions`)
+        if (response.ok) {
+          const versionsData: FormVersion[] = await response.json()
+          versionCount = versionsData.length
+          hasVersions = true
+        } else if (response.status === 404) {
+          // Form exists but has no versions (orphaned record)
+          console.warn(`Form '${form.name}' has no versions - likely an orphaned record`)
+          versionCount = 0
+          hasVersions = false
+        } else {
+          // Other error - throw to outer catch
+          throw new Error('Failed to get form versions')
+        }
+      } catch (versionError) {
+        // Network error or other issue - let user decide if they want to proceed
+        console.error('Error fetching versions:', versionError)
+        versionCount = 0
+        hasVersions = false
       }
-      const versionsData: FormVersion[] = await response.json()
-      const versionCount = versionsData.length
 
       // Show confirmation dialog
+      const versionMessage = hasVersions
+        ? `Se eliminarán ${versionCount} versión(es).`
+        : versionCount === 0
+          ? 'Este formulario no tiene versiones asociadas (registro huérfano).'
+          : 'No se pudo verificar el número de versiones.';
+
       setConfirmDialog({
         isOpen: true,
         title: 'Eliminar Formulario',
-        message: `¿Estás seguro de eliminar el formulario "${form.displayName}"? Se eliminarán ${versionCount} versión(es). Esta acción no se puede deshacer.`,
+        message: `¿Estás seguro de eliminar el formulario "${form.displayName}"? ${versionMessage} Esta acción no se puede deshacer.`,
         type: 'danger',
         onConfirm: async () => {
           try {
@@ -370,7 +396,7 @@ export default function FormsManagementPage() {
       setAlertDialog({
         isOpen: true,
         title: 'Error',
-        message: err.message || 'Ocurrió un error al obtener las versiones del formulario',
+        message: err.message || 'Ocurrió un error inesperado',
         type: 'error'
       })
     }
