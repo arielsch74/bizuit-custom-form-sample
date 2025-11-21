@@ -6,6 +6,7 @@
  * - Botón para mostrar modal con versión
  * - Fondo color naranja
  * - Generación automática de ZIP en dist/
+ * - Test: multiple forms update for workflow
  */
 
 import { useState } from 'react';
