@@ -12,10 +12,10 @@ if (!FASTAPI_URL) {
  */
 export async function GET(
   request: Request,
-  { params }: { params: { formName: string } }
+  { params }: { params: Promise<{ formName: string }> }
 ) {
   try {
-    const { formName } = params
+    const { formName } = await params
 
     const response = await fetch(`${FASTAPI_URL}/api/custom-forms/${formName}/versions`, {
       method: 'GET',

@@ -12,10 +12,10 @@ if (!FASTAPI_URL) {
  */
 export async function POST(
   request: Request,
-  { params }: { params: { formName: string } }
+  { params }: { params: Promise<{ formName: string }> }
 ) {
   try {
-    const { formName } = params
+    const { formName } = await params
     const { searchParams } = new URL(request.url)
     const version = searchParams.get('version')
 
