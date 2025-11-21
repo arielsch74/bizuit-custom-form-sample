@@ -6,7 +6,7 @@ trigger: none  # Manual only
 resources:
   pipelines:
     - pipeline: buildPipeline
-      source: 'BIZUIT Custom Forms - Build'
+      source: 'Custom Forms - Build'
       trigger: true
 
 variables:
@@ -38,7 +38,7 @@ stages:
             inputs:
               buildType: 'specific'
               project: '$(System.TeamProject)'
-              pipeline: 'BIZUIT Custom Forms - Build'
+              pipeline: 'Custom Forms - Build'
               buildVersionToDownload: 'latest'
               downloadType: 'single'
               artifactName: 'migrations-drop'
@@ -349,7 +349,7 @@ stages:
                   inputs:
                     buildType: 'specific'
                     project: '$(System.TeamProject)'
-                    pipeline: 'BIZUIT Custom Forms - Build'
+                    pipeline: 'Custom Forms - Build'
                     buildVersionToDownload: 'latest'
                     downloadType: 'single'
                     artifactName: 'runtime-drop'
@@ -739,7 +739,7 @@ stages:
                   inputs:
                     buildType: 'specific'
                     project: '$(System.TeamProject)'
-                    pipeline: 'BIZUIT Custom Forms - Build'
+                    pipeline: 'Custom Forms - Build'
                     buildVersionToDownload: 'latest'
                     downloadType: 'single'
                     artifactName: 'backend-drop'

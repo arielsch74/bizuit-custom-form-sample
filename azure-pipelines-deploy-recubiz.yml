@@ -7,6 +7,12 @@
 
 trigger: none  # Manual only
 
+resources:
+  pipelines:
+    - pipeline: buildPipeline
+      source: 'Custom Forms - Build'
+      trigger:
+        enabled: false  # Manual only - arielsch has auto-trigger
 
 variables:
   # Deployment paths
@@ -37,7 +43,7 @@ stages:
             inputs:
               buildType: 'specific'
               project: '$(System.TeamProject)'
-              pipeline: 'BIZUIT Custom Forms - Build'
+              pipeline: 'Custom Forms - Build'
               buildVersionToDownload: 'latest'
               downloadType: 'single'
               artifactName: 'migrations-drop'
@@ -348,7 +354,7 @@ stages:
                   inputs:
                     buildType: 'specific'
                     project: '$(System.TeamProject)'
-                    pipeline: 'BIZUIT Custom Forms - Build'
+                    pipeline: 'Custom Forms - Build'
                     buildVersionToDownload: 'latest'
                     downloadType: 'single'
                     artifactName: 'runtime-drop'
@@ -738,7 +744,7 @@ stages:
                   inputs:
                     buildType: 'specific'
                     project: '$(System.TeamProject)'
-                    pipeline: 'BIZUIT Custom Forms - Build'
+                    pipeline: 'Custom Forms - Build'
                     buildVersionToDownload: 'latest'
                     downloadType: 'single'
                     artifactName: 'backend-drop'
