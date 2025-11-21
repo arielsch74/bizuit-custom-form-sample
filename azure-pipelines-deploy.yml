@@ -365,25 +365,6 @@ stages:
                     OverWrite: true
                   displayName: 'Copy PM2 Ecosystem Config'
 
-                # Replace basePath placeholder in ecosystem.config.js
-                - task: PowerShell@2
-                  inputs:
-                    targetType: 'inline'
-                    script: |
-                      Write-Host "Configuring ecosystem.config.js with runtime basePath..."
-
-                      $ecosystemPath = "E:\BIZUITSites\arielsch\ecosystem.config.js"
-                      if (Test-Path $ecosystemPath) {
-                          $content = Get-Content $ecosystemPath -Raw
-                          $content = $content -replace '__RUNTIME_BASEPATH_VALUE__', '$(runtimeBasePath)'
-                          Set-Content -Path $ecosystemPath -Value $content -NoNewline
-                          Write-Host "✓ ecosystem.config.js configured with basePath: $(runtimeBasePath)"
-                      } else {
-                          Write-Error "❌ ecosystem.config.js not found at $ecosystemPath"
-                          exit 1
-                      }
-                  displayName: 'Configure Ecosystem BasePath'
-
                 - task: PowerShell@2
                   inputs:
                     targetType: 'inline'

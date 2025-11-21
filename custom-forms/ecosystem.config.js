@@ -42,8 +42,8 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         PORT: '3001',
-        // CRITICAL: Runtime basePath for Next.js SSR (will be replaced by pipeline)
-        __NEXT_ROUTER_BASEPATH: '__RUNTIME_BASEPATH_VALUE__'
+        // CRITICAL: Runtime basePath for Next.js SSR (must match deployment path)
+        __NEXT_ROUTER_BASEPATH: '/arielschBIZUITCustomForms'
       },
 
       // Logging
