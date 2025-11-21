@@ -526,6 +526,173 @@ def set_current_form_version(form_name: str, version: str):
             conn.close()
 
 
+def delete_form(form_name: str):
+    """
+    Delete a form and all its versions from the database
+
+    Args:
+        form_name: Name of the form to delete
+
+    Returns:
+        dict with 'success', 'message', and 'versions_deleted' count
+
+    Raises:
+        ValueError: If form_name has invalid format or form doesn't exist
+    """
+    # SECURITY: Validate inputs to prevent SQL injection
+    if not validate_form_name(form_name):
+        raise ValueError(f"Invalid form_name format: {sanitize_for_logging(form_name)}")
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # First, verify the form exists and get FormId
+        check_query = """
+        SELECT FormId
+        FROM CustomForms
+        WHERE FormName = ?
+        """
+        cursor.execute(check_query, (form_name,))
+        result = cursor.fetchone()
+
+        if not result:
+            raise ValueError(f"Form '{form_name}' not found")
+
+        form_id = result[0]
+
+        # Count versions that will be deleted
+        count_query = """
+        SELECT COUNT(*)
+        FROM CustomFormVersions
+        WHERE FormId = ?
+        """
+        cursor.execute(count_query, (form_id,))
+        versions_count = cursor.fetchone()[0]
+
+        # Delete all versions first (foreign key constraint)
+        delete_versions_query = """
+        DELETE FROM CustomFormVersions
+        WHERE FormId = ?
+        """
+        cursor.execute(delete_versions_query, (form_id,))
+
+        # Delete the form
+        delete_form_query = """
+        DELETE FROM CustomForms
+        WHERE FormId = ?
+        """
+        cursor.execute(delete_form_query, (form_id,))
+
+        conn.commit()
+
+        print(f"[Database] Deleted form '{form_name}' and {versions_count} version(s)")
+        return {
+            "success": True,
+            "message": f"Form '{form_name}' and {versions_count} version(s) deleted successfully",
+            "versions_deleted": versions_count
+        }
+
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print(f"[Database] Error deleting form: {str(e)}")
+        raise
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+
+def delete_form_version(form_name: str, version: str):
+    """
+    Delete a specific version of a form from the database
+
+    Args:
+        form_name: Name of the form
+        version: Version number to delete
+
+    Returns:
+        dict with 'success' and 'message'
+
+    Raises:
+        ValueError: If form_name/version invalid, form doesn't exist, or trying to delete current version
+    """
+    # SECURITY: Validate inputs to prevent SQL injection
+    if not validate_form_name(form_name):
+        raise ValueError(f"Invalid form_name format: {sanitize_for_logging(form_name)}")
+    if not validate_version(version):
+        raise ValueError(f"Invalid version format: {sanitize_for_logging(version)}")
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # First, verify the form exists and get FormId
+        check_query = """
+        SELECT FormId, CurrentVersion
+        FROM CustomForms
+        WHERE FormName = ?
+        """
+        cursor.execute(check_query, (form_name,))
+        result = cursor.fetchone()
+
+        if not result:
+            raise ValueError(f"Form '{form_name}' not found")
+
+        form_id = result[0]
+        current_version = result[1]
+
+        # Prevent deleting the current active version
+        if version == current_version:
+            raise ValueError(f"Cannot delete the current active version (v{version}). Please activate a different version first.")
+
+        # Verify the version exists
+        version_check_query = """
+        SELECT VersionId
+        FROM CustomFormVersions
+        WHERE FormId = ? AND Version = ?
+        """
+        cursor.execute(version_check_query, (form_id, version))
+        version_result = cursor.fetchone()
+
+        if not version_result:
+            raise ValueError(f"Version '{version}' not found for form '{form_name}'")
+
+        # Delete the version
+        delete_version_query = """
+        DELETE FROM CustomFormVersions
+        WHERE FormId = ? AND Version = ?
+        """
+        cursor.execute(delete_version_query, (form_id, version))
+
+        conn.commit()
+
+        print(f"[Database] Deleted version '{version}' of form '{form_name}'")
+        return {
+            "success": True,
+            "message": f"Version '{version}' deleted successfully"
+        }
+
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print(f"[Database] Error deleting form version: {str(e)}")
+        raise
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+
 # ==============================================================================
 # Admin Authentication Functions
 # ==============================================================================

@@ -766,6 +766,57 @@ def set_form_version_api(form_name: str, version: str):
         raise HTTPException(status_code=500, detail=f"Failed to set form version: {str(e)}")
 
 
+@app.delete("/api/custom-forms/{form_name}", tags=["Custom Forms"])
+def delete_form_api(form_name: str):
+    """
+    Delete a form and all its versions
+
+    Args:
+        form_name: Name of the form to delete
+
+    Returns:
+        Success message with count of deleted versions
+    """
+    from database import delete_form
+
+    try:
+        result = delete_form(form_name)
+        print(f"[Delete Form API] Deleted form '{form_name}' - {result['versions_deleted']} version(s)")
+        return result
+    except ValueError as e:
+        # Form not found or invalid format
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        print(f"[Delete Form API] Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete form: {str(e)}")
+
+
+@app.delete("/api/custom-forms/{form_name}/versions/{version}", tags=["Custom Forms"])
+def delete_form_version_api(form_name: str, version: str):
+    """
+    Delete a specific version of a form
+
+    Args:
+        form_name: Name of the form
+        version: Version number to delete
+
+    Returns:
+        Success message
+    """
+    from database import delete_form_version
+
+    try:
+        result = delete_form_version(form_name, version)
+        print(f"[Delete Version API] Deleted version '{version}' of form '{form_name}'")
+        return result
+    except ValueError as e:
+        # Version not found, invalid format, or trying to delete current version
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        print(f"[Delete Version API] Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete version: {str(e)}")
+
+
 # ==============================================================================
 # Security Functions for File Upload
 # ==============================================================================

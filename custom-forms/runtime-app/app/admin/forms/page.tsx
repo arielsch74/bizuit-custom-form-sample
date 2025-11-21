@@ -212,11 +212,13 @@ export default function FormsManagementPage() {
     title: string
     message: string
     onConfirm: () => void
+    type?: 'warning' | 'danger' | 'info'
   }>({
     isOpen: false,
     title: '',
     message: '',
-    onConfirm: () => {}
+    onConfirm: () => {},
+    type: 'warning'
   })
 
   const [alertDialog, setAlertDialog] = useState<{
@@ -313,6 +315,66 @@ export default function FormsManagementPage() {
     window.open(url, '_blank')
   }
 
+  const handleDeleteForm = async (form: CustomForm) => {
+    // First, get the number of versions to show in confirmation
+    try {
+      const response = await fetch(`/api/custom-forms/${form.name}/versions`)
+      if (!response.ok) {
+        throw new Error('Failed to get form versions')
+      }
+      const versionsData: FormVersion[] = await response.json()
+      const versionCount = versionsData.length
+
+      // Show confirmation dialog
+      setConfirmDialog({
+        isOpen: true,
+        title: 'Eliminar Formulario',
+        message: `¿Estás seguro de eliminar el formulario "${form.displayName}"? Se eliminarán ${versionCount} versión(es). Esta acción no se puede deshacer.`,
+        type: 'danger',
+        onConfirm: async () => {
+          try {
+            const deleteResponse = await fetch(`/api/custom-forms/${form.name}/delete`, {
+              method: 'DELETE',
+            })
+
+            if (!deleteResponse.ok) {
+              throw new Error('Failed to delete form')
+            }
+
+            const result = await deleteResponse.json()
+
+            // Show success message
+            setAlertDialog({
+              isOpen: true,
+              title: 'Formulario Eliminado',
+              message: `Se eliminó el formulario "${form.displayName}" y ${result.versions_deleted} versión(es) exitosamente.`,
+              type: 'success'
+            })
+
+            // Reload forms list
+            loadForms()
+          } catch (err: any) {
+            setAlertDialog({
+              isOpen: true,
+              title: 'Error al Eliminar',
+              message: err.message || 'Ocurrió un error al eliminar el formulario',
+              type: 'error'
+            })
+          } finally {
+            setConfirmDialog({ ...confirmDialog, isOpen: false })
+          }
+        }
+      })
+    } catch (err: any) {
+      setAlertDialog({
+        isOpen: true,
+        title: 'Error',
+        message: err.message || 'Ocurrió un error al obtener las versiones del formulario',
+        type: 'error'
+      })
+    }
+  }
+
   const handleViewForm = (formName: string, version?: string) => {
     const versionParam = version ? `?version=${version}` : ''
     const url = withBasePath(`/form/${formName}${versionParam}`)
@@ -391,6 +453,51 @@ export default function FormsManagementPage() {
           })
         } finally {
           setSettingVersion(null)
+        }
+      }
+    })
+  }
+
+  const handleDeleteVersion = async (version: string) => {
+    if (!selectedForm) return
+
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Eliminar Versión',
+      message: `¿Estás seguro de eliminar la versión v${version} del formulario "${selectedForm.displayName}"? Esta acción no se puede deshacer.`,
+      type: 'danger',
+      onConfirm: async () => {
+        setConfirmDialog({ ...confirmDialog, isOpen: false })
+
+        try {
+          const response = await fetch(
+            `/api/custom-forms/${selectedForm.name}/versions/${version}/delete`,
+            { method: 'DELETE' }
+          )
+
+          const result = await response.json()
+
+          if (!response.ok) {
+            throw new Error(result.error || result.detail || 'Error al eliminar la versión')
+          }
+
+          setAlertDialog({
+            isOpen: true,
+            title: 'Versión Eliminada',
+            message: `Se eliminó la versión v${version} exitosamente.`,
+            type: 'success'
+          })
+
+          // Reload versions
+          await handleShowVersions(selectedForm)
+        } catch (err: any) {
+          console.error('Error deleting version:', err)
+          setAlertDialog({
+            isOpen: true,
+            title: 'Error al Eliminar',
+            message: err.message || 'Ocurrió un error al eliminar la versión',
+            type: 'error'
+          })
         }
       }
     })
@@ -552,27 +659,31 @@ export default function FormsManagementPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleShowVersions(form)}
-                      className="flex items-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
+                      className="p-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
                       title={t('forms.versionsButton')}
                     >
-                      <History className="w-4 h-4" />
-                      {t('forms.versionsButton')}
+                      <History className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => handleViewForm(form.name)}
-                      className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                      className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                       title={t('forms.viewButton')}
                     >
-                      <Eye className="w-4 h-4" />
-                      {t('forms.viewButton')}
+                      <Eye className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => handleDownload(form.name, form.version)}
-                      className="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
+                      className="p-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
                       title={t('forms.downloadButton')}
                     >
-                      <Download className="w-4 h-4" />
-                      {t('forms.downloadButton')}
+                      <Download className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteForm(form)}
+                      className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                      title="Eliminar formulario"
+                    >
+                      <Trash2 className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
@@ -694,33 +805,39 @@ export default function FormsManagementPage() {
                         <div className="flex gap-2 flex-shrink-0">
                           <button
                             onClick={() => handleViewForm(selectedForm.name, version.version)}
-                            className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                            className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                             title={t('versions.view')}
                           >
-                            <Eye className="w-4 h-4" />
-                            {t('versions.view')}
+                            <Eye className="w-5 h-5" />
                           </button>
                           <button
                             onClick={() => handleDownload(selectedForm.name, version.version)}
-                            className="flex items-center gap-2 px-3 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition-colors"
+                            className="p-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors"
                             title={t('versions.download')}
                           >
-                            <Download className="w-4 h-4" />
-                            {t('versions.download')}
+                            <Download className="w-5 h-5" />
                           </button>
                           {!version.isCurrent && (
                             <button
                               onClick={() => handleSetVersion(version.version)}
                               disabled={settingVersion !== null}
-                              className="flex items-center gap-2 px-3 py-2 bg-primary hover:bg-primary/90 disabled:bg-slate-400 text-white rounded-lg text-sm font-medium transition-colors disabled:cursor-wait"
+                              className="p-2 bg-primary hover:bg-primary/90 disabled:bg-slate-400 text-white rounded-lg transition-colors disabled:cursor-wait"
                               title={t('versions.activate')}
                             >
                               {settingVersion === version.version ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <Loader2 className="w-5 h-5 animate-spin" />
                               ) : (
-                                <Check className="w-4 h-4" />
+                                <Check className="w-5 h-5" />
                               )}
-                              {t('versions.activate')}
+                            </button>
+                          )}
+                          {!version.isCurrent && (
+                            <button
+                              onClick={() => handleDeleteVersion(version.version)}
+                              className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                              title="Eliminar versión"
+                            >
+                              <Trash2 className="w-5 h-5" />
                             </button>
                           )}
                         </div>
@@ -741,7 +858,7 @@ export default function FormsManagementPage() {
         message={confirmDialog.message}
         confirmText={t('versions.confirmButton')}
         cancelText={t('versions.cancelButton')}
-        type="warning"
+        type={confirmDialog.type || 'warning'}
         onConfirm={confirmDialog.onConfirm}
         onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
       />
