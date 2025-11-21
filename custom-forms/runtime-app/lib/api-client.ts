@@ -17,7 +17,17 @@ const getBasePath = (): string => {
     return process.env.BASE_PATH || ''
   }
 
-  // Client-side: try to get from sessionStorage (set by RuntimeConfigProvider)
+  // Client-side: Extract basePath from Next.js runtime
+  // Next.js exposes the basePath in __NEXT_DATA__ which is set at runtime
+  try {
+    // @ts-ignore - __NEXT_DATA__ is Next.js internal
+    const nextData = window.__NEXT_DATA__
+    if (nextData?.basePath) {
+      return nextData.basePath
+    }
+  } catch {}
+
+  // Fallback: try to get from sessionStorage (set by RuntimeConfigProvider)
   try {
     const cached = sessionStorage.getItem('runtime-config')
     if (cached) {

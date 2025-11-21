@@ -87,9 +87,9 @@ Write-Host "  Build directory: " -NoNewline
 Write-Host (Resolve-Path -Path $TargetDir -Relative) -ForegroundColor Blue
 Write-Host ""
 
-# Find all JS and HTML files
+# Find all JS, HTML and CSS files
 Write-Info "Searching for files..."
-$Files = Get-ChildItem -Path $TargetDir -Include "*.js", "*.html" -Recurse -File | Where-Object {
+$Files = Get-ChildItem -Path $TargetDir -Include "*.js", "*.html", "*.css" -Recurse -File | Where-Object {
     $_.DirectoryName -notmatch "node_modules|cache"
 }
 Write-Host "  Found " -NoNewline
