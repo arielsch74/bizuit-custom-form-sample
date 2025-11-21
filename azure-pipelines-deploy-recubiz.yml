@@ -23,8 +23,10 @@ variables:
   pm2RuntimeApp: 'recubiz-runtime'
   pm2BackendApp: 'recubiz-backend'
 
-  # Runtime basePath configuration
+  # Runtime configuration
   runtimeBasePath: '/recubizBIZUITCustomForms'
+  runtimePort: '3002'
+  backendPort: '8001'
 
 stages:
   # ==========================================================================
@@ -631,7 +633,7 @@ stages:
 
                           try {
                               # IMPORTANT: Check with basePath included (Next.js requires full path)
-                              $response = Invoke-WebRequest -Uri "http://localhost:3001$(runtimeBasePath)" -UseBasicParsing -TimeoutSec 10
+                              $response = Invoke-WebRequest -Uri "http://localhost:$(runtimePort)$(runtimeBasePath)" -UseBasicParsing -TimeoutSec 10
                               if ($response.StatusCode -eq 200) {
                                   Write-Host "✅ Runtime app is healthy!" -ForegroundColor Green
                                   $success = $true
