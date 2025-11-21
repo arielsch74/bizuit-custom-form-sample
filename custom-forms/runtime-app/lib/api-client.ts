@@ -33,8 +33,8 @@ const getBasePath = (): string => {
     const scripts = document.querySelectorAll('script')
     for (const script of scripts) {
       const content = script.textContent || ''
-      // Look for the pattern: "p":"[basePath]"
-      const match = content.match(/"p":"([^"]+)"/)
+      // Look for the pattern: \"p\":\"[basePath]\" (escaped quotes)
+      const match = content.match(/\\"p\\":\\"(\/[^\\]+)\\"/)
       if (match && match[1]) {
         return match[1]
       }
