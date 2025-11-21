@@ -10,6 +10,7 @@
  */
 
 import { useState } from 'react';
+import { version as FORM_VERSION } from '../package.json';
 
 interface DashboardParameters {
   instanceId?: string;
@@ -27,9 +28,9 @@ interface FormProps {
   dashboardParams?: DashboardParameters | null;
 }
 
-const FORM_VERSION = "1.0.3";
+// Version is now managed in package.json
 const FORM_NAME = "Material Design Sample - Teal Edition";
-const LAST_UPDATED = "2025-11-21 11:15:00";  // Test artifact naming fix
+const LAST_UPDATED = "2025-11-21";  // Dynamic versioning from package.json
 
 export default function SampleForm2({ dashboardParams }: FormProps) {
   const [showModal, setShowModal] = useState(false);
