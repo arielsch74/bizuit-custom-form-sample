@@ -441,35 +441,67 @@ jobs:
             fi
           done
 
-      # Upload artifacts individually (GitHub Actions will create separate artifacts)
-      - name: Upload sample-form-2 artifact
-        if: contains(steps.changed_forms.outputs.changed_forms, 'sample-form-2')
+      # Upload artifacts dynamically for all changed forms
+      # We create a composite approach: generate upload commands for each form
+      - name: Upload form artifacts
         run: |
-          FORM_VERSION=$(jq -r '.version' sample-form-2/package.json)
-          echo "form_version=$FORM_VERSION" >> $GITHUB_OUTPUT
-        id: sample_form_2_version
+          echo "📤 Preparing artifacts for upload..."
+          CHANGED_FORMS="${{ steps.changed_forms.outputs.changed_forms }}"
 
-      - name: Upload sample-form-2 artifact (with version)
-        if: contains(steps.changed_forms.outputs.changed_forms, 'sample-form-2')
+          # Create JSON array of artifacts to upload
+          echo '{"artifacts": []}' > artifacts.json
+
+          for form_name in $CHANGED_FORMS; do
+            ARTIFACT_DIR="artifact-${form_name}"
+            if [ -d "$ARTIFACT_DIR" ]; then
+              # Get version from package.json
+              FORM_VERSION=$(jq -r '.version' "${form_name}/package.json")
+              SHORT_HASH="${{ steps.build_metadata.outputs.short_hash }}"
+
+              echo "  📦 Found artifact for ${form_name} version ${FORM_VERSION}"
+
+              # Add to JSON array
+              jq --arg name "${form_name}" \
+                 --arg version "${FORM_VERSION}" \
+                 --arg hash "${SHORT_HASH}" \
+                 --arg path "${ARTIFACT_DIR}" \
+                 '.artifacts += [{"name": $name, "version": $version, "hash": $hash, "path": $path}]' \
+                 artifacts.json > artifacts.tmp && mv artifacts.tmp artifacts.json
+            fi
+          done
+
+          echo "📋 Artifacts to upload:"
+          cat artifacts.json
+
+      # Upload each artifact using a loop
+      # Note: GitHub Actions doesn't support dynamic matrix, so we use a workaround
+      - name: Upload artifacts to GitHub
+        run: |
+          # Read the artifacts JSON
+          ARTIFACTS=$(cat artifacts.json | jq -c '.artifacts[]')
+
+          # Process each artifact
+          echo "$ARTIFACTS" | while IFS= read -r artifact; do
+            FORM_NAME=$(echo "$artifact" | jq -r '.name')
+            FORM_VERSION=$(echo "$artifact" | jq -r '.version')
+            SHORT_HASH=$(echo "$artifact" | jq -r '.hash')
+            ARTIFACT_PATH=$(echo "$artifact" | jq -r '.path')
+
+            echo "Uploading ${FORM_NAME}-deployment-${FORM_VERSION}-${SHORT_HASH}..."
+
+            # Unfortunately, we can't dynamically call actions/upload-artifact
+            # So we'll store the paths and handle them in the next step
+            echo "${FORM_NAME}:${FORM_VERSION}:${SHORT_HASH}:${ARTIFACT_PATH}" >> upload_list.txt
+          done
+
+      # Use actions/upload-artifact for each form
+      # This is a limitation of GitHub Actions - we can't dynamically create steps
+      # So we'll upload all artifacts in a single archive
+      - name: Upload all deployment packages
         uses: actions/upload-artifact@v4
         with:
-          name: sample-form-2-deployment-${{ steps.sample_form_2_version.outputs.form_version }}-${{ steps.build_metadata.outputs.short_hash }}
-          path: artifact-sample-form-2/
-          retention-days: 90
-
-      - name: Upload dashboard-integration-demo artifact
-        if: contains(steps.changed_forms.outputs.changed_forms, 'dashboard-integration-demo')
-        run: |
-          FORM_VERSION=$(jq -r '.version' dashboard-integration-demo/package.json)
-          echo "form_version=$FORM_VERSION" >> $GITHUB_OUTPUT
-        id: dashboard_integration_demo_version
-
-      - name: Upload dashboard-integration-demo artifact (with version)
-        if: contains(steps.changed_forms.outputs.changed_forms, 'dashboard-integration-demo')
-        uses: actions/upload-artifact@v4
-        with:
-          name: dashboard-integration-demo-deployment-${{ steps.dashboard_integration_demo_version.outputs.form_version }}-${{ steps.build_metadata.outputs.short_hash }}
-          path: artifact-dashboard-integration-demo/
+          name: all-deployment-packages-${{ steps.build_metadata.outputs.short_hash }}
+          path: artifact-*/
           retention-days: 90
 
 
