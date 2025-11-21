@@ -487,6 +487,14 @@ stages:
                           Copy-Item "web.config.production" "web.config" -Force
                           Write-Host "✓ web.config.production copied as web.config"
 
+                          # Replace placeholders in web.config
+                          Write-Host "Configuring web.config with runtime values..." -ForegroundColor Gray
+                          $content = Get-Content "web.config" -Raw
+                          $content = $content -replace '__RUNTIME_PORT__', '3001'
+                          $content = $content -replace '__RUNTIME_BASEPATH__', '$(runtimeBasePath)'
+                          Set-Content -Path "web.config" -Value $content -NoNewline
+                          Write-Host "✓ web.config configured with port 3001 and basePath $(runtimeBasePath)"
+
                           # Validate web.config is valid XML
                           try {
                               [xml]$webConfig = Get-Content "web.config"
