@@ -25,7 +25,7 @@ variables:
 
   # Runtime configuration
   runtimeBasePath: '/recubizBIZUITCustomForms'
-  runtimePort: '3002'
+  runtimePort: ''
   backendPort: '8001'
 
 stages:
@@ -456,7 +456,8 @@ stages:
                           # Verify replacements were made
                           Write-Host "Verifying basePath replacements..." -ForegroundColor Gray
                           $serverJs = Get-Content "server.js" -Raw
-                          if ($serverJs -match "__RUNTIME_BASEPATH__") {
+                          if ($serverJs -match "__BACKEND_PORT__', ''
+                          $content = $content -replace '__RUNTIME_BASEPATH__") {
                               Write-Error "❌ Placeholder still found in server.js after replacement!"
                               Write-Host "This indicates the prepare-deployment script failed silently."
                               exit 1
@@ -497,9 +498,11 @@ stages:
                           # Replace placeholders in web.config for RecuBiz
                           Write-Host "Configuring web.config with runtime values..." -ForegroundColor Gray
                           $content = Get-Content "web.config" -Raw
-                          $content = $content -replace '__RUNTIME_PORT__', '3002'
+                          $content = $content -replace '__RUNTIME_PORT__', '$(runtimePort)'
+                          $content = $content -replace '__BACKEND_PORT__', '$(backendPort)'
                           $content = $content -replace '__RUNTIME_BASEPATH__', '$(runtimeBasePath)'
                           Set-Content -Path "web.config" -Value $content -NoNewline
+                          Write-Host "✓ web.config configured: runtime=$(runtimePort), backend=$(backendPort), basePath=$(runtimeBasePath)"
                           Write-Host "✓ web.config configured with port 3002 and basePath $(runtimeBasePath)"
 
                           # Validate web.config is valid XML

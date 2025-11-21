@@ -18,8 +18,10 @@ variables:
   pm2RuntimeApp: 'arielsch-runtime'
   pm2BackendApp: 'arielsch-backend'
 
-  # Runtime basePath configuration
+  # Runtime configuration
   runtimeBasePath: '/arielschBIZUITCustomForms'
+  runtimePort: '3001'
+  backendPort: '8000'
 
 stages:
   # ==========================================================================
@@ -490,10 +492,11 @@ stages:
                           # Replace placeholders in web.config
                           Write-Host "Configuring web.config with runtime values..." -ForegroundColor Gray
                           $content = Get-Content "web.config" -Raw
-                          $content = $content -replace '__RUNTIME_PORT__', '3001'
+                          $content = $content -replace '__RUNTIME_PORT__', '$(runtimePort)'
+                          $content = $content -replace '__BACKEND_PORT__', '$(backendPort)'
                           $content = $content -replace '__RUNTIME_BASEPATH__', '$(runtimeBasePath)'
                           Set-Content -Path "web.config" -Value $content -NoNewline
-                          Write-Host "✓ web.config configured with port 3001 and basePath $(runtimeBasePath)"
+                          Write-Host "✓ web.config configured: runtime=$(runtimePort), backend=$(backendPort), basePath=$(runtimeBasePath)"
 
                           # Validate web.config is valid XML
                           try {
