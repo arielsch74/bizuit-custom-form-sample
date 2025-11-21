@@ -27,35 +27,49 @@ export function RuntimeConfigProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     // Always fetch fresh config from API on mount
     // This ensures we get the latest basePath if it changed
-    // Import apiFetch dynamically to avoid circular dependency
-    import('./api-client').then(({ apiFetch }) => {
-      apiFetch('/api/config')
-        .then((res) => res.json())
-        .then((data) => {
+    // For the initial config fetch, we need to get basePath from __NEXT_DATA__ directly
+    // to avoid circular dependency
+    const getInitialBasePath = () => {
+      if (typeof window !== 'undefined') {
+        try {
+          const nextData = (window as any).__NEXT_DATA__
+          if (nextData && nextData.basePath) {
+            return nextData.basePath
+          }
+        } catch {}
+      }
+      return ''
+    }
+
+    const basePath = getInitialBasePath()
+    const configUrl = basePath ? `${basePath}/api/config` : '/api/config'
+
+    fetch(configUrl)
+      .then((res) => res.json())
+      .then((data) => {
+        setConfig({
+          ...data,
+          isLoading: false,
+        })
+
+        // Update sessionStorage with fresh config
+        sessionStorage.setItem('runtime-config', JSON.stringify(data))
+      })
+      .catch((error) => {
+        console.error('Failed to load runtime config:', error)
+
+        // Only use cached config as fallback if API fails
+        const cached = sessionStorage.getItem('runtime-config')
+        if (cached) {
+          console.warn('Using cached runtime config due to API error')
           setConfig({
-            ...data,
+            ...JSON.parse(cached),
             isLoading: false,
           })
-
-          // Update sessionStorage with fresh config
-          sessionStorage.setItem('runtime-config', JSON.stringify(data))
-        })
-        .catch((error) => {
-          console.error('Failed to load runtime config:', error)
-
-          // Only use cached config as fallback if API fails
-          const cached = sessionStorage.getItem('runtime-config')
-          if (cached) {
-            console.warn('Using cached runtime config due to API error')
-            setConfig({
-              ...JSON.parse(cached),
-              isLoading: false,
-            })
-          } else {
-            setConfig((prev) => ({ ...prev, isLoading: false }))
-          }
-        })
-    })
+        } else {
+          setConfig((prev) => ({ ...prev, isLoading: false }))
+        }
+      })
   }, [])
 
   return (
