@@ -480,7 +480,8 @@ stages:
                               "NEXT_PUBLIC_ALLOW_DEV_MODE=false",
                               "",
                               "# Environment",
-                              "NODE_ENV=production"
+                              "NODE_ENV=production",
+                              "DEPLOY_ENV=production"
                           )
 
                           $envLines | Out-File -FilePath $envPath -Encoding utf8
