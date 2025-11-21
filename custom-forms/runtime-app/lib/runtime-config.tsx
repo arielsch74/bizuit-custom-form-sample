@@ -31,13 +31,30 @@ export function RuntimeConfigProvider({ children }: { children: React.ReactNode 
     // to avoid circular dependency
     const getInitialBasePath = () => {
       if (typeof window !== 'undefined') {
+        // Method 1: Try __NEXT_DATA__ (older Next.js versions)
         try {
           const nextData = (window as any).__NEXT_DATA__
           if (nextData) {
-            // Next.js 15 uses abbreviated properties: "p" for basePath
             return nextData.p || nextData.basePath || ''
           }
         } catch {}
+
+        // Method 2: Parse from HTML script tags (Next.js 15 streaming format)
+        try {
+          const scripts = document.querySelectorAll('script')
+          for (const script of scripts) {
+            const content = script.textContent || ''
+            const match = content.match(/"p":"([^"]+)"/)
+            if (match && match[1]) {
+              return match[1]
+            }
+          }
+        } catch {}
+
+        // Method 3: Check NEXT_PUBLIC_BASE_PATH from build
+        if (process.env.NEXT_PUBLIC_BASE_PATH) {
+          return process.env.NEXT_PUBLIC_BASE_PATH
+        }
       }
       return ''
     }

@@ -17,18 +17,31 @@ const getBasePath = (): string => {
     return process.env.BASE_PATH || ''
   }
 
-  // Client-side: Extract basePath from Next.js runtime
-  // Next.js exposes the basePath in __NEXT_DATA__ which is set at runtime
+  // Client-side: Extract basePath from Next.js data
+
+  // Method 1: Try __NEXT_DATA__ (older Next.js versions)
   try {
-    // @ts-ignore - __NEXT_DATA__ is Next.js internal
     const nextData = (window as any).__NEXT_DATA__
     if (nextData) {
-      // Next.js 15 uses abbreviated properties: "p" for basePath
       return nextData.p || nextData.basePath || ''
     }
   } catch {}
 
-  // Fallback: try to get from sessionStorage (set by RuntimeConfigProvider)
+  // Method 2: Parse from HTML script tags (Next.js 15 streaming format)
+  // Next.js 15 puts basePath in: self.__next_f.push([1,"0:{...\"p\":\"/path\"..."])
+  try {
+    const scripts = document.querySelectorAll('script')
+    for (const script of scripts) {
+      const content = script.textContent || ''
+      // Look for the pattern: "p":"[basePath]"
+      const match = content.match(/"p":"([^"]+)"/)
+      if (match && match[1]) {
+        return match[1]
+      }
+    }
+  } catch {}
+
+  // Method 3: Try sessionStorage (set by RuntimeConfigProvider)
   try {
     const cached = sessionStorage.getItem('runtime-config')
     if (cached) {
@@ -37,7 +50,12 @@ const getBasePath = (): string => {
     }
   } catch {}
 
-  // Fallback to empty string
+  // Method 4: Check NEXT_PUBLIC_BASE_PATH from build time
+  if (process.env.NEXT_PUBLIC_BASE_PATH) {
+    return process.env.NEXT_PUBLIC_BASE_PATH
+  }
+
+  // Final fallback to empty string (root deployment)
   return ''
 }
 
