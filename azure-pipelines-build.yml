@@ -127,6 +127,8 @@ stages:
                 package.json
                 server.js
                 web.config.production
+                scripts/prepare-deployment.js
+                scripts/prepare-deployment.ps1
                 !node_modules/**
                 !.next/cache/**
               TargetFolder: '$(Build.ArtifactStagingDirectory)/runtime-app'
