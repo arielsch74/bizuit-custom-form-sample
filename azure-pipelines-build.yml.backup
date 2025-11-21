@@ -1,11 +1,5 @@
-# Azure DevOps Pipeline - Build Only (Runtime + Backend) - OPTIMIZED
+# Azure DevOps Pipeline - Build Only (Runtime + Backend)
 # Deploys to E:\BIZUITSites\arielsch\arielschBIZUITCustomForms (runtime) and arielschBIZUITCustomFormsBackEnd (backend)
-#
-# OPTIMIZATIONS:
-# 1. Parallel execution of BuildRuntime and BuildBackend stages
-# 2. Enhanced caching for npm, Next.js, and pip packages
-# 3. Reduced artifact size by excluding unnecessary files
-# 4. Faster npm install with --prefer-offline flag
 
 trigger:
   branches:
@@ -15,7 +9,6 @@ trigger:
     include:
       - custom-forms/**
       - azure-pipelines-build.yml
-      - azure-pipelines-build-optimized.yml
 
 variables:
   # Node.js and Python versions
@@ -35,11 +28,10 @@ variables:
 
 stages:
   # ==========================================================================
-  # STAGE 1: Build Runtime App (Next.js) - PARALLEL with Backend
+  # STAGE 1: Build Runtime App (Next.js)
   # ==========================================================================
   - stage: BuildRuntime
     displayName: 'Build Runtime App (Next.js)'
-    dependsOn: []  # ⚡ No dependencies - run in PARALLEL
     pool:
       vmImage: 'windows-latest'
     jobs:
@@ -55,27 +47,18 @@ stages:
               versionSpec: '$(nodeVersion)'
             displayName: 'Install Node.js $(nodeVersion)'
 
-          # ⚡ OPTIMIZATION: Cache node_modules (more aggressive caching)
           - task: Cache@2
             inputs:
-              key: 'npm-v2 | "$(Agent.OS)" | custom-forms/runtime-app/package-lock.json'
+              key: 'npm | "$(Agent.OS)" | custom-forms/runtime-app/package-lock.json'
               restoreKeys: |
-                npm-v2 | "$(Agent.OS)"
-                npm-v2
+                npm | "$(Agent.OS)"
               path: '$(Build.SourcesDirectory)/custom-forms/runtime-app/node_modules'
             displayName: 'Cache npm dependencies'
 
-          # ⚡ OPTIMIZATION: Use --prefer-offline when cache exists
           - script: |
               cd custom-forms/runtime-app
-              if exist node_modules (
-                echo "Cache hit - using --prefer-offline"
-                npm ci --prefer-offline
-              ) else (
-                echo "No cache - full install"
-                npm ci
-              )
-            displayName: 'Install Runtime Dependencies (Optimized)'
+              npm ci
+            displayName: 'Install Runtime Dependencies'
 
           - task: PowerShell@2
             inputs:
@@ -84,27 +67,24 @@ stages:
               script: |
                 Write-Host "Creating .env.local for build..."
 
-                # Build-time environment variables (MUST use absolute URLs)
+                # Build-time environment variables
                 "# Build-time configuration" | Out-File -FilePath ".env.local" -Encoding utf8
                 "NEXT_PUBLIC_BASE_PATH=$(basePath)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                "NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                "NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://test.bizuit.com/arielschBIZUITCustomFormsbackend" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "NEXT_PUBLIC_BIZUIT_FORMS_API_URL=/api/bizuit" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=/api/bizuit" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                "NEXT_PUBLIC_ALLOW_DEV_MODE=false" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                "# Runtime configuration (server-side only)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                "FASTAPI_URL=http://127.0.0.1:8000" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "# Runtime configuration" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "FASTAPI_URL=http://localhost:8000" | Out-File -FilePath ".env.local" -Append -Encoding utf8
 
                 Write-Host "✓ .env.local created successfully"
             displayName: 'Create Build Environment Configuration'
 
-          # ⚡ OPTIMIZATION: Cache Next.js build output
           - task: Cache@2
             inputs:
-              key: 'nextjs-v2 | "$(Agent.OS)" | custom-forms/runtime-app/package-lock.json | custom-forms/runtime-app/**/*.ts | custom-forms/runtime-app/**/*.tsx'
+              key: 'nextjs | "$(Agent.OS)" | custom-forms/runtime-app/package-lock.json'
               restoreKeys: |
-                nextjs-v2 | "$(Agent.OS)" | custom-forms/runtime-app/package-lock.json
-                nextjs-v2 | "$(Agent.OS)"
+                nextjs | "$(Agent.OS)"
               path: '$(Build.SourcesDirectory)/custom-forms/runtime-app/.next/cache'
             displayName: 'Cache Next.js build'
 
@@ -115,14 +95,11 @@ stages:
             env:
               NODE_ENV: 'production'
 
-          # ⚡ OPTIMIZATION: Only copy necessary files (exclude cache, reduce artifact size)
           - task: CopyFiles@2
             inputs:
               SourceFolder: '$(Build.SourcesDirectory)/custom-forms/runtime-app'
               Contents: |
-                .next/standalone/**
-                .next/static/**
-                .next/BUILD_ID
+                .next/**
                 public/**
                 package.json
                 server.js
@@ -130,7 +107,7 @@ stages:
                 !node_modules/**
                 !.next/cache/**
               TargetFolder: '$(Build.ArtifactStagingDirectory)/runtime-app'
-            displayName: 'Copy Runtime Build Files (Optimized)'
+            displayName: 'Copy Runtime Build Files'
 
           - task: PublishBuildArtifacts@1
             inputs:
@@ -140,11 +117,10 @@ stages:
             displayName: 'Publish Runtime Artifacts'
 
   # ==========================================================================
-  # STAGE 2: Build Backend API (FastAPI) - PARALLEL with Runtime
+  # STAGE 2: Build Backend API (FastAPI)
   # ==========================================================================
   - stage: BuildBackend
     displayName: 'Build Backend API (FastAPI)'
-    dependsOn: []  # ⚡ No dependencies - run in PARALLEL
     pool:
       vmImage: 'windows-latest'
     jobs:
@@ -160,9 +136,11 @@ stages:
               versionSpec: '$(pythonVersion)'
             displayName: 'Use Python $(pythonVersion)'
 
-          # ⚡ OPTIMIZATION: Skip libs installation in build
-          # Dependencies will be installed during deployment (faster artifact publish)
-          # This reduces artifact size from ~200MB to ~2MB
+          - script: |
+              cd custom-forms/backend-api
+              pip install --upgrade pip
+              pip install -r requirements.txt --target ./libs
+            displayName: 'Install Python Dependencies to libs/'
 
           - task: CopyFiles@2
             inputs:
@@ -171,9 +149,9 @@ stages:
                 **/*.py
                 requirements.txt
                 web.config.production
+                libs/**
                 migrations/**
                 !venv/**
-                !libs/**
                 !__pycache__/**
                 !*.pyc
                 !.env
@@ -181,7 +159,7 @@ stages:
                 !tests/**
                 !test_*.py
               TargetFolder: '$(Build.ArtifactStagingDirectory)/backend-api'
-            displayName: 'Copy Backend Files (Source Only - No libs)'
+            displayName: 'Copy Backend Files'
 
           - task: CopyFiles@2
             inputs:
