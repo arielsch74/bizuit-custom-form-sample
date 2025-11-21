@@ -37,9 +37,8 @@ export default function AdminDashboard() {
       setLoading(true)
       setError(null)
 
-      // Obtener forms desde el backend
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-      const response = await fetch(`${apiUrl}/api/custom-forms`)
+      // Use Next.js API route (proxies to FastAPI backend)
+      const response = await fetch('/api/custom-forms')
 
       if (!response.ok) {
         throw new Error('Error al cargar los forms')

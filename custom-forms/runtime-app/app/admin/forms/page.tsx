@@ -262,8 +262,8 @@ export default function FormsManagementPage() {
       setLoading(true)
       setError(null)
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-      const response = await fetch(`${apiUrl}/api/custom-forms`)
+      // Use Next.js API route (proxies to FastAPI backend)
+      const response = await fetch('/api/custom-forms')
 
       if (!response.ok) {
         throw new Error('Error al cargar los formularios')
@@ -308,8 +308,8 @@ export default function FormsManagementPage() {
   }
 
   const handleDownload = (formName: string, version: string) => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-    const url = `${apiUrl}/api/custom-forms/${formName}/code?version=${version}`
+    // Use Next.js API route (proxies to FastAPI backend)
+    const url = `/api/custom-forms/${formName}/code?version=${version}`
     window.open(url, '_blank')
   }
 
@@ -325,8 +325,8 @@ export default function FormsManagementPage() {
     setLoadingVersions(true)
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-      const response = await fetch(`${apiUrl}/api/custom-forms/${form.name}/versions`)
+      // Use Next.js API route (proxies to FastAPI backend)
+      const response = await fetch(`/api/custom-forms/${form.name}/versions`)
 
       if (!response.ok) {
         throw new Error('Error al cargar versiones')
@@ -361,9 +361,9 @@ export default function FormsManagementPage() {
         setSettingVersion(version)
 
         try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+          // Use Next.js API route (proxies to FastAPI backend)
           const response = await fetch(
-            `${apiUrl}/api/custom-forms/${selectedForm.name}/set-version?version=${version}`,
+            `/api/custom-forms/${selectedForm.name}/set-version?version=${version}`,
             { method: 'POST' }
           )
 

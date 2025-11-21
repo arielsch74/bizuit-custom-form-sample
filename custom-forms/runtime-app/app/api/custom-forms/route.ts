@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 
-const FASTAPI_URL = process.env.FASTAPI_URL || 'http://127.0.0.1:8000'
+const FASTAPI_URL = process.env.FASTAPI_URL
+if (!FASTAPI_URL) {
+  throw new Error('FASTAPI_URL environment variable is required')
+}
 
 /**
  * GET /api/custom-forms

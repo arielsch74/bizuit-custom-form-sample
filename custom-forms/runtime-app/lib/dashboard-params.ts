@@ -81,7 +81,8 @@ export async function validateDashboardToken(
       }
     }
 
-    const response = await fetch('http://localhost:8000/api/dashboard/validate-token', {
+    // Use Next.js API route (proxies to FastAPI backend)
+    const response = await fetch('/api/dashboard/validate-token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
