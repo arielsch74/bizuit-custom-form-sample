@@ -50,7 +50,7 @@ export default function AdminDashboard() {
       const formsWithKb = forms.map((f: any) => ({
         ...f,
         name: f.formName,
-        displayName: f.description?.split(' para ')[0] || f.formName,
+        displayName: f.formName, // Use formName as title
         version: f.currentVersion,
         sizeKb: (f.sizeBytes || 0) / 1024
       }))

@@ -274,10 +274,10 @@ export default function FormsManagementPage() {
       // Convertir formato de API a formato esperado por el frontend
       const formsWithKb = data.map((f: any) => ({
         name: f.formName,
-        displayName: f.description?.split(' para ')[0] || f.formName,
+        displayName: f.formName, // Use formName as title
         processName: f.processName,
         version: f.currentVersion,
-        description: f.description,
+        description: f.description, // Use description as subtitle
         author: f.author,
         sizeKb: (f.sizeBytes || 0) / 1024,
         publishedAt: f.publishedAt,
