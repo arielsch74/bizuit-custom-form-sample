@@ -20,12 +20,32 @@ const path = require('path');
 const port = parseInt(process.env.PORT, 10) || 3001;
 const dev = process.env.NODE_ENV !== 'production';
 
-// Initialize Next.js app
+// CRITICAL: Inject runtime basePath from environment variable
+// This allows changing basePath without rebuilding
+const runtimeBasePath = process.env.__NEXT_ROUTER_BASEPATH || '';
+if (runtimeBasePath) {
+  console.log('[INFO] Runtime basePath:', runtimeBasePath);
+} else {
+  console.log('[INFO] No runtime basePath set (root deployment)');
+}
+
+// Load next.config.js and inject runtime basePath
+const nextConfigPath = path.join(__dirname, 'next.config.js');
+delete require.cache[nextConfigPath]; // Clear cache
+const nextConfig = require(nextConfigPath);
+
+// Initialize Next.js app with runtime basePath
 const app = next({
   dev,
   dir: __dirname,
   conf: {
-    distDir: '.next'
+    ...nextConfig,
+    distDir: '.next',
+    // Override basePath with runtime value if provided
+    ...(runtimeBasePath && {
+      basePath: runtimeBasePath,
+      assetPrefix: runtimeBasePath
+    })
   }
 });
 
