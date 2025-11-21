@@ -383,13 +383,32 @@ stages:
                       Write-Host "✓ Deployment directory prepared"
                   displayName: 'Prepare Deployment Directory'
 
+                # Copy standalone build (contains server.js, .next, node_modules, package.json)
                 - task: CopyFiles@2
                   inputs:
-                    SourceFolder: '$(System.ArtifactsDirectory)/runtime-drop/runtime-app'
+                    SourceFolder: '$(System.ArtifactsDirectory)/runtime-drop/runtime-app/.next/standalone/runtime-app'
                     Contents: '**'
                     TargetFolder: '$(runtimeDeployPath)'
                     OverWrite: true
-                  displayName: 'Copy Runtime Files'
+                  displayName: 'Copy Standalone Server Files'
+
+                # Copy static assets (not included in standalone)
+                - task: CopyFiles@2
+                  inputs:
+                    SourceFolder: '$(System.ArtifactsDirectory)/runtime-drop/runtime-app/.next/static'
+                    Contents: '**'
+                    TargetFolder: '$(runtimeDeployPath)/.next/static'
+                    OverWrite: true
+                  displayName: 'Copy Static Assets'
+
+                # Copy web.config for IIS
+                - task: CopyFiles@2
+                  inputs:
+                    SourceFolder: '$(System.ArtifactsDirectory)/runtime-drop/runtime-app'
+                    Contents: 'web.config.production'
+                    TargetFolder: '$(runtimeDeployPath)'
+                    OverWrite: true
+                  displayName: 'Copy Web Config'
 
                 - task: PowerShell@2
                   inputs:
