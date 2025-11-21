@@ -254,11 +254,15 @@ All services use `.env.local` files (see `.env.example` in each directory).
 - `BIZUIT_API_BASE_URL` - Bizuit BPM server URL
 
 **Next.js apps require:**
-- `NEXT_PUBLIC_BIZUIT_FORMS_API_URL` - Backend API endpoint
 - `NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL` - Bizuit dashboard endpoint
 - `NEXT_PUBLIC_BASE_PATH` - Path prefix for IIS deployment (e.g., `/BIZUITCustomForms`)
-- `BIZUIT_TIMEOUT` - Request timeout in ms
-- `BIZUIT_TOKEN_EXPIRATION_MINUTES` - Token validity period
+- `FASTAPI_URL` - FastAPI backend URL (server-side only, used by Next.js API routes)
+- `NEXT_PUBLIC_BIZUIT_TIMEOUT` - Request timeout in ms
+- `NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES` - Token validity period
+- `NEXT_PUBLIC_ALLOW_DEV_MODE` - **CRITICAL SECURITY**: Allow forms to open without Dashboard token
+  - **Development**: `true` - Allows testing forms directly without Dashboard token `s`
+  - **Production**: `false` or undefined - **REQUIRED** for security (secure by default)
+  - ⚠️ **NEVER deploy to production with `true`** - CRITICAL SECURITY RISK!
 
 **Note:** Variables prefixed with `NEXT_PUBLIC_` are build-time only. Server-side variables (without prefix) can be changed at runtime with restart.
 
