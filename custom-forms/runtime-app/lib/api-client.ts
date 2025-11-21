@@ -22,8 +22,9 @@ const getBasePath = (): string => {
   try {
     // @ts-ignore - __NEXT_DATA__ is Next.js internal
     const nextData = (window as any).__NEXT_DATA__
-    if (nextData && nextData.basePath) {
-      return nextData.basePath
+    if (nextData) {
+      // Next.js 15 uses abbreviated properties: "p" for basePath
+      return nextData.p || nextData.basePath || ''
     }
   } catch {}
 
