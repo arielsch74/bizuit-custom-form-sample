@@ -28,7 +28,7 @@ interface FormProps {
   dashboardParams?: DashboardParameters | null;
 }
 
-const FORM_NAME = "Dashboard Integration Demo - Workflow Test";
+const FORM_NAME = "Dashboard Integration Demo - Fixed Workflow";
 const LAST_UPDATED = new Date().toISOString().replace('T', ' ').slice(0, 19);
 
 export default function DashboardIntegrationDemoForm({ dashboardParams }: FormProps) {

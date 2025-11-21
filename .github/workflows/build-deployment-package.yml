@@ -718,9 +718,9 @@ jobs:
             fi
           done
 
-      # Upload sample-form-2 artifact if it exists
+      # Upload sample-form-2 artifact if it was changed
       - name: Prepare sample-form-2 artifact name
-        if: hashFiles('sample-form-2/upload/*.zip') != ''
+        if: contains(steps.changed_forms.outputs.changed_forms, 'sample-form-2')
         run: |
           # Get the NEWEST ZIP file (sort by modification time)
           ZIP_FILE=$(ls -t sample-form-2/upload/*.zip | head -1)
@@ -728,16 +728,16 @@ jobs:
           echo "SAMPLE_FORM_2_ARTIFACT=$ZIP_BASENAME" >> $GITHUB_ENV
 
       - name: Upload sample-form-2
-        if: hashFiles('sample-form-2/upload/*.zip') != ''
+        if: contains(steps.changed_forms.outputs.changed_forms, 'sample-form-2')
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.SAMPLE_FORM_2_ARTIFACT }}
           path: sample-form-2/upload/*.zip
           retention-days: 90
 
-      # Upload dashboard-integration-demo artifact if it exists
+      # Upload dashboard-integration-demo artifact if it was changed
       - name: Prepare dashboard-integration-demo artifact name
-        if: hashFiles('dashboard-integration-demo/upload/*.zip') != ''
+        if: contains(steps.changed_forms.outputs.changed_forms, 'dashboard-integration-demo')
         run: |
           # Get the NEWEST ZIP file (sort by modification time)
           ZIP_FILE=$(ls -t dashboard-integration-demo/upload/*.zip | head -1)
@@ -745,7 +745,7 @@ jobs:
           echo "DASHBOARD_DEMO_ARTIFACT=$ZIP_BASENAME" >> $GITHUB_ENV
 
       - name: Upload dashboard-integration-demo
-        if: hashFiles('dashboard-integration-demo/upload/*.zip') != ''
+        if: contains(steps.changed_forms.outputs.changed_forms, 'dashboard-integration-demo')
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.DASHBOARD_DEMO_ARTIFACT }}
