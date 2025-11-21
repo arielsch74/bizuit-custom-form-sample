@@ -121,6 +121,14 @@ def upsert_custom_form(
         conn = get_db_connection()
         cursor = conn.cursor()
 
+        # IMPORTANT: Set QUOTED_IDENTIFIER ON to avoid issues with indexed views/computed columns
+        cursor.execute("SET QUOTED_IDENTIFIER ON")
+        cursor.execute("SET ANSI_NULLS ON")
+        cursor.execute("SET ANSI_WARNINGS ON")
+        cursor.execute("SET ARITHABORT ON")
+        cursor.execute("SET CONCAT_NULL_YIELDS_NULL ON")
+        cursor.execute("SET NUMERIC_ROUNDABORT OFF")
+
         # DEBUG: Log parameters
         print(f"[DB] Executing sp_UpsertCustomForm with parameters:")
         print(f"  FormName: {form_name}")
@@ -463,6 +471,14 @@ def set_current_form_version(form_name: str, version: str):
         conn = get_db_connection()
         cursor = conn.cursor()
 
+        # IMPORTANT: Set QUOTED_IDENTIFIER ON to avoid issues with indexed views/computed columns
+        cursor.execute("SET QUOTED_IDENTIFIER ON")
+        cursor.execute("SET ANSI_NULLS ON")
+        cursor.execute("SET ANSI_WARNINGS ON")
+        cursor.execute("SET ARITHABORT ON")
+        cursor.execute("SET CONCAT_NULL_YIELDS_NULL ON")
+        cursor.execute("SET NUMERIC_ROUNDABORT OFF")
+
         # First, verify the version exists
         check_query = """
         SELECT COUNT(*)
@@ -549,6 +565,14 @@ def delete_form(form_name: str):
         conn = get_db_connection()
         cursor = conn.cursor()
 
+        # IMPORTANT: Set QUOTED_IDENTIFIER ON to avoid issues with indexed views/computed columns
+        cursor.execute("SET QUOTED_IDENTIFIER ON")
+        cursor.execute("SET ANSI_NULLS ON")
+        cursor.execute("SET ANSI_WARNINGS ON")
+        cursor.execute("SET ARITHABORT ON")
+        cursor.execute("SET CONCAT_NULL_YIELDS_NULL ON")
+        cursor.execute("SET NUMERIC_ROUNDABORT OFF")
+
         # First, verify the form exists and get FormId
         check_query = """
         SELECT FormId
@@ -633,6 +657,14 @@ def delete_form_version(form_name: str, version: str):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
+
+        # IMPORTANT: Set QUOTED_IDENTIFIER ON to avoid issues with indexed views/computed columns
+        cursor.execute("SET QUOTED_IDENTIFIER ON")
+        cursor.execute("SET ANSI_NULLS ON")
+        cursor.execute("SET ANSI_WARNINGS ON")
+        cursor.execute("SET ARITHABORT ON")
+        cursor.execute("SET CONCAT_NULL_YIELDS_NULL ON")
+        cursor.execute("SET NUMERIC_ROUNDABORT OFF")
 
         # First, verify the form exists and get FormId
         check_query = """
