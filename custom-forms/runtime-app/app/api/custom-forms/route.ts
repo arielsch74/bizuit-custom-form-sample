@@ -35,7 +35,7 @@ export async function GET() {
 
     return NextResponse.json(forms, {
       headers: {
-        'Cache-Control': 'public, max-age=300' // 5 min cache
+        'Cache-Control': 'no-store, no-cache, must-revalidate' // No cache for forms list
       }
     })
 

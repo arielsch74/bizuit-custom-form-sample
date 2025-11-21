@@ -23,10 +23,23 @@ export async function DELETE(
 
     const { formName, version } = await params
 
+    // Extract JWT token from cookie to forward to backend
+    const cookieHeader = request.headers.get('cookie') || ''
+    const tokenMatch = cookieHeader.match(/admin_token=([^;]+)/)
+    const adminToken = tokenMatch ? tokenMatch[1] : null
+
+    if (!adminToken) {
+      return NextResponse.json(
+        { error: 'No admin token found' },
+        { status: 401 }
+      )
+    }
+
     const response = await fetch(`${FASTAPI_URL}/api/custom-forms/${formName}/versions/${version}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`, // Forward the JWT token
       },
     })
 

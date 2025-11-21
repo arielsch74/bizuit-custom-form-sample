@@ -79,7 +79,10 @@ export async function apiFetch(
   const fetchOptions: RequestInit = {
     ...options,
     credentials: 'include', // This ensures cookies are always sent with the request
+    cache: 'no-store', // Force no caching
     headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
       ...options?.headers,
     }
   }

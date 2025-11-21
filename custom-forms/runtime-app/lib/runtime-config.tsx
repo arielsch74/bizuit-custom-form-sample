@@ -25,7 +25,8 @@ export function RuntimeConfigProvider({ children }: { children: React.ReactNode 
   })
 
   useEffect(() => {
-    // Fetch runtime config from API
+    // Always fetch fresh config from API on mount
+    // This ensures we get the latest basePath if it changed
     fetch('/api/config')
       .then((res) => res.json())
       .then((data) => {
@@ -34,15 +35,16 @@ export function RuntimeConfigProvider({ children }: { children: React.ReactNode 
           isLoading: false,
         })
 
-        // Store in sessionStorage for quick access
+        // Update sessionStorage with fresh config
         sessionStorage.setItem('runtime-config', JSON.stringify(data))
       })
       .catch((error) => {
         console.error('Failed to load runtime config:', error)
 
-        // Try to use cached config
+        // Only use cached config as fallback if API fails
         const cached = sessionStorage.getItem('runtime-config')
         if (cached) {
+          console.warn('Using cached runtime config due to API error')
           setConfig({
             ...JSON.parse(cached),
             isLoading: false,
