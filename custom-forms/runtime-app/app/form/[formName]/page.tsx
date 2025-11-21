@@ -29,7 +29,7 @@ export default function DynamicFormPage({ params }: Props) {
       setError(null)
 
       // Get version from URL query parameter (e.g., ?version=1.1.5)
-      const versionParam = searchParams.get('version')
+      const versionParam = searchParams?.get('version') || null
 
       console.log(`[Dynamic Form Page] Loading form: ${formName}${versionParam ? ` (version: ${versionParam})` : ''}`)
 
