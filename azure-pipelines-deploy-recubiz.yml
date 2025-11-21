@@ -7,12 +7,6 @@
 
 trigger: none  # Manual only
 
-resources:
-  pipelines:
-    - pipeline: buildPipeline
-      source: 'BIZUIT Custom Forms - Build'
-      trigger:
-        enabled: false  # Manual only - arielsch has auto-trigger
 
 variables:
   # Deployment paths
