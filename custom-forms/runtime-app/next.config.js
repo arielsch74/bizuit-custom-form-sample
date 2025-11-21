@@ -16,6 +16,10 @@ const nextConfig = {
     assetPrefix: BASE_PATH,
   }),
 
+  // Remove trailing slashes to prevent redirect issues with basePath
+  // Without this, /admin/ redirects to /admin but loses basePath
+  trailingSlash: false,
+
   // Output standalone server for IISNode deployment
   output: 'standalone',
 
