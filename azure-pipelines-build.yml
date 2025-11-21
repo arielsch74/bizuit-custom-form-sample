@@ -15,7 +15,6 @@ trigger:
     include:
       - custom-forms/**
       - azure-pipelines-build.yml
-      - azure-pipelines-build-optimized.yml
 
 variables:
   # Node.js and Python versions
