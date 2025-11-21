@@ -271,8 +271,12 @@ jobs:
           echo "📋 Generating manifest.json..."
 
           # Crear manifest.json dinámicamente con info extendida
+          # packageVersion será la fecha actual en formato semver-like para el paquete completo
+          PACKAGE_VERSION="1.0.$(date +%Y%m%d%H%M)"
+
           cat > manifest.json << EOF
           {
+            "packageVersion": "$PACKAGE_VERSION",
             "buildDate": "${{ steps.build_metadata.outputs.build_date }}",
             "commitHash": "${{ steps.build_metadata.outputs.commit_hash }}",
             "commitShortHash": "${{ steps.build_metadata.outputs.short_hash }}",
