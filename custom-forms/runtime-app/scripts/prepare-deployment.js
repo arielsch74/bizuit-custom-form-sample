@@ -123,9 +123,16 @@ function main() {
   console.log(`  Build directory: ${colors.blue}${path.relative(process.cwd(), targetDir)}${colors.reset}`);
   console.log();
 
-  // Find all JS, HTML and CSS files
+  // Find all JS, HTML, CSS, and RSC files
   console.log(`${colors.bright}Searching for files...${colors.reset}`);
-  const files = findFiles(targetDir, ['.js', '.html', '.css']);
+  const files = findFiles(targetDir, ['.js', '.html', '.css', '.rsc']);
+
+  // CRITICAL: Also process server.js in root directory (contains hardcoded basePath)
+  const serverJsPath = path.join(__dirname, '..', 'server.js');
+  if (fs.existsSync(serverJsPath)) {
+    files.push(serverJsPath);
+  }
+
   console.log(`  Found ${colors.yellow}${files.length}${colors.reset} files to process`);
   console.log();
 

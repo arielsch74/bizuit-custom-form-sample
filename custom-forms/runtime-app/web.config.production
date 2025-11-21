@@ -37,20 +37,20 @@
 
         <!-- Rule 1: Deployment API - Strip basePath and proxy to FastAPI -->
         <rule name="Deployment API with basePath (FastAPI)" stopProcessing="true">
-          <match url="^arielschBIZUITCustomForms/api/deployment/(.*)" />
+          <match url="^api/deployment/(.*)" />
           <action type="Rewrite" url="http://localhost:8000/api/deployment/{R:1}" />
         </rule>
 
-        <!-- Rule 2: All requests with basePath - KEEP basePath when proxying to Next.js -->
-        <rule name="Next.js with basePath (Keep basePath)" stopProcessing="true">
-          <match url="^arielschBIZUITCustomForms/(.*)" />
-          <action type="Rewrite" url="http://localhost:3001/arielschBIZUITCustomForms/{R:1}" />
+        <!-- Rule 2: Root path - Add basePath when proxying to Next.js -->
+        <rule name="Next.js Root" stopProcessing="true">
+          <match url="^$" />
+          <action type="Rewrite" url="http://localhost:3001/arielschBIZUITCustomForms" />
         </rule>
 
-        <!-- Rule 3: Fallback - Proxy everything else to Next.js root -->
-        <rule name="Next.js Fallback" stopProcessing="true">
-          <match url="(.*)" />
-          <action type="Rewrite" url="http://localhost:3001/{R:0}" />
+        <!-- Rule 3: All other paths - Add basePath when proxying to Next.js -->
+        <rule name="Next.js All Paths" stopProcessing="true">
+          <match url="^(.*)$" />
+          <action type="Rewrite" url="http://localhost:3001/arielschBIZUITCustomForms/{R:1}" />
         </rule>
 
       </rules>

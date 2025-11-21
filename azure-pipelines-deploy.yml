@@ -435,7 +435,7 @@ stages:
                       $env:RUNTIME_BASEPATH = "$(runtimeBasePath)"
                       Write-Host "Setting RUNTIME_BASEPATH to: $env:RUNTIME_BASEPATH" -ForegroundColor Yellow
 
-                      # Check if Node.js script exists
+                      # Check if Node.js script exists (PREFERRED - more reliable)
                       if (Test-Path "scripts\prepare-deployment.js") {
                           Write-Host "Executing Node.js prepare-deployment script..." -ForegroundColor Gray
                           node scripts\prepare-deployment.js
@@ -445,7 +445,19 @@ stages:
                               exit 1
                           }
                           Write-Host "✓ basePath replacement completed successfully" -ForegroundColor Green
+
+                          # Verify replacements were made
+                          Write-Host "Verifying basePath replacements..." -ForegroundColor Gray
+                          $serverJs = Get-Content "server.js" -Raw
+                          if ($serverJs -match "__RUNTIME_BASEPATH__") {
+                              Write-Error "❌ Placeholder still found in server.js after replacement!"
+                              Write-Host "This indicates the prepare-deployment script failed silently."
+                              exit 1
+                          }
+                          Write-Host "✓ No placeholders found - replacement successful" -ForegroundColor Green
+
                       } elseif (Test-Path "scripts\prepare-deployment.ps1") {
+                          Write-Host "⚠️  Using PowerShell script (Node.js script preferred)" -ForegroundColor Yellow
                           Write-Host "Executing PowerShell prepare-deployment script..." -ForegroundColor Gray
                           & .\scripts\prepare-deployment.ps1 -RuntimeBasePath "$(runtimeBasePath)"
 
@@ -605,7 +617,8 @@ stages:
                           Start-Sleep -Seconds 5
 
                           try {
-                              $response = Invoke-WebRequest -Uri "http://localhost:3001" -UseBasicParsing -TimeoutSec 10
+                              # IMPORTANT: Check with basePath included (Next.js requires full path)
+                              $response = Invoke-WebRequest -Uri "http://localhost:3001$(runtimeBasePath)" -UseBasicParsing -TimeoutSec 10
                               if ($response.StatusCode -eq 200) {
                                   Write-Host "✅ Runtime app is healthy!" -ForegroundColor Green
                                   $success = $true
