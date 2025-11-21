@@ -1,0 +1,936 @@
+# Azure DevOps Pipeline - RecuBiz Deployment
+# Deploys to E:\DevSites\RecuBiz\recubizBIZUITCustomForms (runtime) and recubizBIZUITCustomFormsBackEnd (backend)
+
+trigger: none  # Manual only
+
+resources:
+  pipelines:
+    - pipeline: buildPipeline
+      source: 'BIZUIT Custom Forms - Build'
+      trigger: true
+
+variables:
+  # Deployment paths
+  runtimeDeployPath: 'E:\DevSites\RecuBiz\recubizBIZUITCustomForms'
+  backendDeployPath: 'E:\DevSites\RecuBiz\recubizBIZUITCustomFormsBackEnd'
+
+  # PM2 app names
+  pm2RuntimeApp: 'recubiz-runtime'
+  pm2BackendApp: 'recubiz-backend'
+
+  # Runtime basePath configuration
+  runtimeBasePath: '/recubizBIZUITCustomForms'
+
+stages:
+  # ==========================================================================
+  # STAGE 3: Run Database Migrations
+  # ==========================================================================
+  - stage: RunMigrations
+    displayName: 'Run Database Migrations'
+    condition: succeeded()
+    pool:
+      name: Testbizuitcom  # Self-hosted agent
+    jobs:
+      - job: MigrationsJob
+        displayName: 'Execute SQL Migrations'
+        steps:
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              buildType: 'specific'
+              project: '$(System.TeamProject)'
+              pipeline: 'BIZUIT Custom Forms - Build'
+              buildVersionToDownload: 'latest'
+              downloadType: 'single'
+              artifactName: 'migrations-drop'
+              downloadPath: '$(System.ArtifactsDirectory)'
+            displayName: 'Download Migration Scripts (fast download)'
+
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                Write-Host "=== Running Database Migrations ===" -ForegroundColor Cyan
+
+                $migrationsPath = "$(System.ArtifactsDirectory)\migrations-drop\migrations"
+
+                if (-not (Test-Path $migrationsPath)) {
+                    Write-Host "⚠️  No migrations directory found" -ForegroundColor Yellow
+                    Write-Host "Skipping migrations..."
+                    exit 0
+                }
+
+                # Get all SQL files in migrations directory
+                $sqlFiles = Get-ChildItem -Path $migrationsPath -Filter "*.sql" | Sort-Object Name
+
+                if ($sqlFiles.Count -eq 0) {
+                    Write-Host "⚠️  No SQL migration files found" -ForegroundColor Yellow
+                    exit 0
+                }
+
+                Write-Host "Found $($sqlFiles.Count) migration file(s)" -ForegroundColor Green
+
+                # Read or create .env.local
+                $envPath = "$(backendDeployPath)\.env.local"
+
+                # Create backend deploy directory if it doesn't exist
+                $backendDir = "$(backendDeployPath)"
+                if (-not (Test-Path $backendDir)) {
+                    New-Item -ItemType Directory -Path $backendDir -Force | Out-Null
+                    Write-Host "✓ Created backend directory: $backendDir" -ForegroundColor Green
+                }
+
+                # Check if .env.local exists, create only if missing
+                if (-not (Test-Path $envPath)) {
+                    Write-Host "⚠️  .env.local not found, creating with default configuration..." -ForegroundColor Yellow
+
+                    # Create .env.local with production configuration (use array to avoid YAML heredoc issues)
+                    $envLines = @(
+                      "# SQL Server Connection - Dashboard Database",
+                      "DB_SERVER=test.bizuit.com",
+                      "DB_DATABASE=recubizBIZUIT",
+                      "DB_USER=BIZUITrecubiz",
+                      "DB_PASSWORD=Th3Qu33n1sD34d",
+                      "",
+                      "# SQL Server Connection - Persistence Store Database",
+                      "PERSISTENCE_DB_SERVER=test.bizuit.com",
+                      "PERSISTENCE_DB_DATABASE=recubizBIZUIT",
+                      "PERSISTENCE_DB_USER=BIZUITrecubiz",
+                      "PERSISTENCE_DB_PASSWORD=Th3Qu33n1sD34d",
+                      "",
+                      "# Bizuit Dashboard API (backend connects to BPM)",
+                      "BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/recubizbizuitdashboardapi/api",
+                      "",
+                      "# Security Configuration",
+                      "ADMIN_ALLOWED_ROLES=Administrators,BIZUIT Admins,SuperAdmin,FormManager",
+                      "SESSION_TIMEOUT_MINUTES=30",
+                      "JWT_SECRET_KEY=prod-$(New-Guid)-$((Get-Date).ToString('yyyyMMddHHmmss'))",
+                      "ENCRYPTION_TOKEN_KEY=Vq2ixrmV6oUGhQfIPWiCBk0S",
+                      "",
+                      "# API Configuration",
+                      "API_PORT=8000",
+                      "MAX_UPLOAD_SIZE_MB=50",
+                      "TEMP_UPLOAD_PATH=./temp-uploads",
+                      "",
+                      "# CORS Configuration (production - no localhost for security)",
+                      "CORS_ORIGINS=https://test.bizuit.com",
+                      "",
+                      "# Python Environment",
+                      "PYTHONUNBUFFERED=1",
+                      "ENVIRONMENT=production"
+                    )
+
+                    $envLines | Out-File -FilePath $envPath -Encoding utf8
+
+                    Write-Host "✓ Created $envPath" -ForegroundColor Green
+                    Write-Host ""
+                } else {
+                    Write-Host "✓ .env.local already exists, preserving existing configuration" -ForegroundColor Green
+                }
+
+                Write-Host "Reading database configuration from .env.local..." -ForegroundColor Gray
+
+                # Parse .env.local
+                $envVars = @{}
+                Get-Content $envPath | ForEach-Object {
+                    if ($_ -match '^([^#][^=]+)=(.+)$') {
+                        $envVars[$matches[1].Trim()] = $matches[2].Trim()
+                    }
+                }
+
+                # Use DB_* variables (for CustomForms tables in Dashboard DB)
+                $dbServer = $envVars['DB_SERVER']
+                $dbDatabase = $envVars['DB_DATABASE']
+                $dbUser = $envVars['DB_USER']
+                $dbPassword = $envVars['DB_PASSWORD']
+
+                # Validate database configuration
+                if ($dbDatabase -ne "recubizBIZUIT") {
+                    Write-Host "`n========================================" -ForegroundColor Red
+                    Write-Host "⚠️  WARNING: Incorrect Database Configuration" -ForegroundColor Red
+                    Write-Host "========================================" -ForegroundColor Red
+                    Write-Host "Current database: $dbDatabase" -ForegroundColor Yellow
+                    Write-Host "Expected database: recubizBIZUIT" -ForegroundColor Yellow
+                    Write-Host "`nPlease update $envPath manually:" -ForegroundColor Yellow
+                    Write-Host "  DB_DATABASE=recubizBIZUIT" -ForegroundColor Gray
+                    Write-Host "  PERSISTENCE_DB_DATABASE=recubizBIZUIT" -ForegroundColor Gray
+                    Write-Host "========================================`n" -ForegroundColor Red
+                    throw "Database configuration is incorrect. Please fix .env.local and re-run deployment."
+                }
+
+                if (-not $dbServer -or -not $dbDatabase) {
+                    Write-Error "❌ Missing database configuration in .env.local"
+                    Write-Error "Required: PERSISTENCE_DB_SERVER, PERSISTENCE_DB_DATABASE (or DB_SERVER, DB_DATABASE)"
+                    exit 1
+                }
+
+                Write-Host "Target Database: $dbServer\$dbDatabase" -ForegroundColor Gray
+
+                # Test SQL Server connection first
+                Write-Host "`nTesting SQL Server connection..." -ForegroundColor Yellow
+                try {
+                    $testCmd = "sqlcmd"
+                    $testArgs = @(
+                        "-S", $dbServer,
+                        "-d", $dbDatabase,
+                        "-U", $dbUser,
+                        "-P", $dbPassword,
+                        "-Q", "SELECT DB_NAME() AS CurrentDatabase, @@VERSION AS SQLVersion",
+                        "-b"
+                    )
+
+                    Write-Host "Command: sqlcmd -S $dbServer -d $dbDatabase -U $dbUser -P ****** -Q 'SELECT DB_NAME()...'" -ForegroundColor Gray
+                    $testOutput = & $testCmd $testArgs 2>&1
+
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Host "✓ SQL Server connection successful" -ForegroundColor Green
+                        Write-Host $testOutput -ForegroundColor Gray
+                    } else {
+                        Write-Error "❌ Cannot connect to SQL Server"
+                        Write-Host "Error output:" -ForegroundColor Red
+                        Write-Host $testOutput -ForegroundColor Red
+                        Write-Host "`nTroubleshooting:" -ForegroundColor Yellow
+                        Write-Host "1. Verify SQL Server is accessible from this agent" -ForegroundColor Gray
+                        Write-Host "2. Check credentials in .env.local" -ForegroundColor Gray
+                        Write-Host "3. Ensure sqlcmd is installed on the agent" -ForegroundColor Gray
+                        exit 1
+                    }
+                } catch {
+                    Write-Error "❌ Error testing connection: $_"
+                    exit 1
+                }
+
+                # Execute each migration file
+                foreach ($file in $sqlFiles) {
+                    Write-Host "`n--- Executing: $($file.Name) ---" -ForegroundColor Yellow
+
+                    try {
+                        # Use sqlcmd to execute the migration
+                        $sqlcmd = "sqlcmd"
+                        $arguments = @(
+                            "-S", $dbServer,
+                            "-d", $dbDatabase,
+                            "-U", $dbUser,
+                            "-P", $dbPassword,
+                            "-i", $file.FullName,
+                            "-b"  # Exit with error code on SQL errors
+                        )
+
+                        Write-Host "Executing: sqlcmd -S $dbServer -d $dbDatabase -U $dbUser -i $($file.Name)" -ForegroundColor Gray
+                        $output = & $sqlcmd $arguments 2>&1
+                        $exitCode = $LASTEXITCODE
+
+                        if ($exitCode -eq 0) {
+                            Write-Host "✓ Migration executed successfully" -ForegroundColor Green
+                            if ($output) {
+                                Write-Host $output -ForegroundColor Gray
+                            }
+                        } else {
+                            Write-Host "`n========================================" -ForegroundColor Red
+                            Write-Host "❌ MIGRATION FAILED" -ForegroundColor Red
+                            Write-Host "========================================" -ForegroundColor Red
+                            Write-Host "Exit Code: $exitCode" -ForegroundColor Yellow
+                            Write-Host "Migration File: $($file.FullName)" -ForegroundColor Yellow
+                            Write-Host "`nSQL Error Output:" -ForegroundColor Red
+                            Write-Host "----------------------------------------" -ForegroundColor Red
+                            Write-Host $output -ForegroundColor White
+                            Write-Host "----------------------------------------" -ForegroundColor Red
+                            Write-Host "`nCommand executed:" -ForegroundColor Yellow
+                            Write-Host "sqlcmd -S $dbServer -d $dbDatabase -U $dbUser -P ****** -i `"$($file.FullName)`"" -ForegroundColor Gray
+                            throw "Migration failed with exit code $exitCode"
+                        }
+                    } catch {
+                        Write-Host "`n❌ Exception during migration execution: $($_.Exception.Message)" -ForegroundColor Red
+                        throw
+                    }
+                }
+
+                Write-Host "`n=== All Migrations Completed Successfully ===" -ForegroundColor Green
+            displayName: 'Execute Idempotent SQL Migrations'
+
+  # ==========================================================================
+  # STAGE 4: Deploy Runtime App
+  # ==========================================================================
+  - stage: DeployRuntime
+    displayName: 'Deploy Runtime App'
+    dependsOn: RunMigrations
+    condition: succeeded()
+    pool:
+      name: Testbizuitcom
+    jobs:
+      - deployment: DeployRuntimeJob
+        displayName: 'Deploy Next.js to PM2'
+        environment: 'Production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # Step 0: Checkout source code to get ecosystem.config.js
+                - checkout: self
+                  clean: true
+                  displayName: 'Checkout Repository'
+
+                # Step 1: Check/Install PM2 FIRST (fast, fails early)
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      Write-Host "Checking PM2 installation..." -ForegroundColor Cyan
+
+                      # Set HOMEPATH and HOME BEFORE any PM2 command (required on Windows)
+                      if (-not $env:HOMEPATH) {
+                          $env:HOMEPATH = $env:USERPROFILE
+                          Write-Host "Set HOMEPATH to: $env:HOMEPATH" -ForegroundColor Gray
+                      }
+                      if (-not $env:HOME) {
+                          $env:HOME = $env:USERPROFILE
+                          Write-Host "Set HOME to: $env:HOME" -ForegroundColor Gray
+                      }
+
+                      # Get npm global bin path
+                      $npmBin = npm config get prefix
+                      $pm2CmdPath = Join-Path $npmBin "pm2.cmd"
+
+                      # Check if PM2 exists in npm global directory (more reliable than Get-Command)
+                      if (Test-Path $pm2CmdPath) {
+                          Write-Host "✓ PM2 is already installed" -ForegroundColor Green
+                          $version = & $pm2CmdPath --version 2>&1
+                          Write-Host "Version: $version" -ForegroundColor Gray
+                      } else {
+                          Write-Host "⚠️  PM2 not found at $pm2CmdPath" -ForegroundColor Yellow
+                          Write-Host "Installing PM2 globally..." -ForegroundColor Yellow
+                          npm install -g pm2
+
+                          # Verify installation
+                          if (Test-Path $pm2CmdPath) {
+                              $version = & $pm2CmdPath --version 2>&1
+                              Write-Host "✓ PM2 installed successfully" -ForegroundColor Green
+                              Write-Host "Version: $version" -ForegroundColor Gray
+                          } else {
+                              throw "Failed to install PM2 - file not found at $pm2CmdPath"
+                          }
+                      }
+
+                      # Ensure npm bin is in PATH for subsequent tasks
+                      if ($env:Path -notlike "*$npmBin*") {
+                          $env:Path = "$npmBin;$env:Path"
+                          Write-Host "Added npm global bin to PATH: $npmBin" -ForegroundColor Gray
+                      }
+                  displayName: 'Ensure PM2 is Installed'
+
+                # Step 2: Stop PM2 process BEFORE downloading (fast, fails early)
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      # Set HOMEPATH for PM2 (required on Windows)
+                      if (-not $env:HOMEPATH) { $env:HOMEPATH = $env:USERPROFILE }
+                      if (-not $env:HOME) { $env:HOME = $env:USERPROFILE }
+
+                      # Add npm global bin to PATH
+                      $npmBin = npm config get prefix
+                      $env:Path = "$npmBin;$env:Path"
+
+                      Write-Host "Stopping PM2 process: $(pm2RuntimeApp)"
+
+                      # Stop process (ignore all errors - process may not exist on first deployment)
+                      try {
+                          pm2 stop $(pm2RuntimeApp) 2>&1 | Out-Null
+                          Write-Host "✓ Process stopped successfully"
+                      } catch {
+                          Write-Host "Process was not running (this is expected on first deployment)"
+                      }
+
+                      # Always exit with success
+                      exit 0
+                  displayName: 'Stop PM2 Runtime Process'
+
+                # Step 3: Download artifacts AFTER PM2 is ready
+                - task: DownloadBuildArtifacts@0
+                  inputs:
+                    buildType: 'specific'
+                    project: '$(System.TeamProject)'
+                    pipeline: 'BIZUIT Custom Forms - Build'
+                    buildVersionToDownload: 'latest'
+                    downloadType: 'single'
+                    artifactName: 'runtime-drop'
+                    downloadPath: '$(System.ArtifactsDirectory)'
+                  displayName: 'Download Runtime Artifacts'
+
+                # Copy PM2 ecosystem.config.js to server
+                - task: CopyFiles@2
+                  inputs:
+                    SourceFolder: '$(Build.SourcesDirectory)/custom-forms'
+                    Contents: 'ecosystem.config.js'
+                    TargetFolder: 'E:\DevSites\RecuBiz'
+                    OverWrite: true
+                  displayName: 'Copy PM2 Ecosystem Config'
+
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      Write-Host "Preparing deployment directory..."
+
+                      # Clean deployment directory (preserve .env.local and logs)
+                      if (Test-Path "$(runtimeDeployPath)") {
+                          Write-Host "Cleaning deployment directory..."
+                          Get-ChildItem "$(runtimeDeployPath)" -Exclude @('.env.local', 'logs') | Remove-Item -Recurse -Force
+                      } else {
+                          Write-Host "Creating deployment directory..."
+                          New-Item -ItemType Directory -Path "$(runtimeDeployPath)" -Force | Out-Null
+                      }
+
+                      # Ensure logs directory exists
+                      New-Item -ItemType Directory -Path "$(runtimeDeployPath)\logs" -Force -ErrorAction SilentlyContinue | Out-Null
+
+                      Write-Host "✓ Deployment directory prepared"
+                  displayName: 'Prepare Deployment Directory'
+
+                # Copy standalone build (contains server.js, .next, node_modules, package.json)
+                - task: CopyFiles@2
+                  inputs:
+                    SourceFolder: '$(System.ArtifactsDirectory)/runtime-drop/runtime-app/.next/standalone/runtime-app'
+                    Contents: '**'
+                    TargetFolder: '$(runtimeDeployPath)'
+                    OverWrite: true
+                  displayName: 'Copy Standalone Server Files'
+
+                # Copy static assets (not included in standalone)
+                - task: CopyFiles@2
+                  inputs:
+                    SourceFolder: '$(System.ArtifactsDirectory)/runtime-drop/runtime-app/.next/static'
+                    Contents: '**'
+                    TargetFolder: '$(runtimeDeployPath)/.next/static'
+                    OverWrite: true
+                  displayName: 'Copy Static Assets'
+
+                # Copy prepare-deployment scripts
+                - task: CopyFiles@2
+                  inputs:
+                    SourceFolder: '$(System.ArtifactsDirectory)/runtime-drop/runtime-app/scripts'
+                    Contents: |
+                      prepare-deployment.js
+                      prepare-deployment.ps1
+                    TargetFolder: '$(runtimeDeployPath)/scripts'
+                    OverWrite: true
+                  displayName: 'Copy Deployment Scripts'
+
+                # Copy web.config for IIS
+                - task: CopyFiles@2
+                  inputs:
+                    SourceFolder: '$(System.ArtifactsDirectory)/runtime-drop/runtime-app'
+                    Contents: 'web.config.production'
+                    TargetFolder: '$(runtimeDeployPath)'
+                    OverWrite: true
+                  displayName: 'Copy Web Config'
+
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    workingDirectory: '$(runtimeDeployPath)'
+                    script: |
+                      Write-Host "=== Applying Runtime basePath Configuration ===" -ForegroundColor Cyan
+
+                      # Execute prepare-deployment script to replace placeholder with actual basePath
+                      $env:RUNTIME_BASEPATH = "$(runtimeBasePath)"
+                      Write-Host "Setting RUNTIME_BASEPATH to: $env:RUNTIME_BASEPATH" -ForegroundColor Yellow
+
+                      # Check if Node.js script exists (PREFERRED - more reliable)
+                      if (Test-Path "scripts\prepare-deployment.js") {
+                          Write-Host "Executing Node.js prepare-deployment script..." -ForegroundColor Gray
+                          node scripts\prepare-deployment.js
+
+                          if ($LASTEXITCODE -ne 0) {
+                              Write-Error "❌ Failed to execute prepare-deployment.js"
+                              exit 1
+                          }
+                          Write-Host "✓ basePath replacement completed successfully" -ForegroundColor Green
+
+                          # Verify replacements were made
+                          Write-Host "Verifying basePath replacements..." -ForegroundColor Gray
+                          $serverJs = Get-Content "server.js" -Raw
+                          if ($serverJs -match "__RUNTIME_BASEPATH__") {
+                              Write-Error "❌ Placeholder still found in server.js after replacement!"
+                              Write-Host "This indicates the prepare-deployment script failed silently."
+                              exit 1
+                          }
+                          Write-Host "✓ No placeholders found - replacement successful" -ForegroundColor Green
+
+                      } elseif (Test-Path "scripts\prepare-deployment.ps1") {
+                          Write-Host "⚠️  Using PowerShell script (Node.js script preferred)" -ForegroundColor Yellow
+                          Write-Host "Executing PowerShell prepare-deployment script..." -ForegroundColor Gray
+                          & .\scripts\prepare-deployment.ps1 -RuntimeBasePath "$(runtimeBasePath)"
+
+                          if ($LASTEXITCODE -ne 0) {
+                              Write-Error "❌ Failed to execute prepare-deployment.ps1"
+                              exit 1
+                          }
+                          Write-Host "✓ basePath replacement completed successfully" -ForegroundColor Green
+                      } else {
+                          Write-Error "❌ No prepare-deployment script found in scripts directory"
+                          Write-Host "Expected: scripts\prepare-deployment.js or scripts\prepare-deployment.ps1"
+                          exit 1
+                      }
+
+                      Write-Host ""
+                  displayName: 'Apply Runtime basePath Configuration'
+
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    workingDirectory: '$(runtimeDeployPath)'
+                    script: |
+                      Write-Host "Configuring runtime app for production..."
+
+                      # Copy production web.config
+                      if (Test-Path "web.config.production") {
+                          Copy-Item "web.config.production" "web.config" -Force
+                          Write-Host "✓ web.config.production copied as web.config"
+
+                          # Validate web.config is valid XML
+                          try {
+                              [xml]$webConfig = Get-Content "web.config"
+                              Write-Host "✓ web.config is valid XML"
+                          } catch {
+                              Write-Error "❌ web.config is not valid XML: $($_.Exception.Message)"
+                              Write-Host "`nweb.config content:"
+                              Get-Content "web.config" | Select-Object -First 20
+                              exit 1
+                          }
+
+                          # Remove web.config.production from deployment directory
+                          Remove-Item "web.config.production" -Force
+                          Write-Host "✓ web.config.production removed (no longer needed)"
+                      } else {
+                          Write-Warning "⚠️  web.config.production not found"
+                      }
+
+                      # Create or verify .env.local for runtime
+                      $envPath = ".env.local"
+                      if (-not (Test-Path $envPath)) {
+                          Write-Host "Creating .env.local for runtime with production configuration..." -ForegroundColor Yellow
+
+                          $envLines = @(
+                              "# Production Environment Variables for Runtime App",
+                              "# Auto-generated by Azure DevOps deployment pipeline",
+                              "",
+                              "# Base path for IIS deployment",
+                              "NEXT_PUBLIC_BASE_PATH=/recubizBIZUITCustomForms",
+                              "",
+                              "# Bizuit BPM Dashboard API URL (browser connects to Bizuit BPM)",
+                              "# MUST be absolute URL for browser requests",
+                              "NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/recubizbizuitdashboardapi/api",
+                              "",
+                              "# Custom Forms Backend API URL (browser connects to FastAPI backend)",
+                              "# MUST be absolute URL for browser requests",
+                              "NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://test.bizuit.com/recubizBIZUITCustomFormsbackend",
+                              "",
+                              "# FastAPI Backend URL (REQUIRED - server-side only, used by Next.js API routes)",
+                              "# Points to localhost where PM2 runs the FastAPI backend on port 8001",
+                              "FASTAPI_URL=http://127.0.0.1:8001",
+                              "",
+                              "# Timeouts and configuration",
+                              "NEXT_PUBLIC_BIZUIT_TIMEOUT=30000",
+                              "NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES=1440",
+                              "",
+                              "# Session timeout for admin panel",
+                              "NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30",
+                              "",
+                              "# Webhook secret (not used in production - form uploads happen via pipeline)",
+                              "WEBHOOK_SECRET=not-used-in-production",
+                              "",
+                              "# 🔒 CRITICAL SECURITY: Form Access Control",
+                              "# MUST be 'false' in production - only Dashboard can open forms with token authentication",
+                              "# If undefined or false, direct access to forms is BLOCKED (secure by default)",
+                              "NEXT_PUBLIC_ALLOW_DEV_MODE=false",
+                              "",
+                              "# Environment",
+                              "NODE_ENV=production",
+                              "DEPLOY_ENV=production"
+                          )
+
+                          $envLines | Out-File -FilePath $envPath -Encoding utf8
+                          Write-Host "✓ Created $envPath" -ForegroundColor Green
+                      } else {
+                          Write-Host "✓ .env.local already exists, preserving existing configuration" -ForegroundColor Green
+                      }
+
+                      # Install production dependencies
+                      Write-Host "Installing production dependencies..."
+                      npm install --omit=dev
+
+                      Write-Host "✓ Runtime app configured"
+                  displayName: 'Configure Runtime App'
+
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      # Set HOMEPATH for PM2 (required on Windows)
+                      if (-not $env:HOMEPATH) { $env:HOMEPATH = $env:USERPROFILE }
+                      if (-not $env:HOME) { $env:HOME = $env:USERPROFILE }
+
+                      # Add npm global bin to PATH
+                      $npmBin = npm config get prefix
+                      $env:Path = "$npmBin;$env:Path"
+
+                      Write-Host "Starting PM2 process: $(pm2RuntimeApp)"
+
+                      # Try to restart (if exists) or start (if new)
+                      try {
+                          pm2 restart $(pm2RuntimeApp) 2>&1 | Out-Null
+                          if ($LASTEXITCODE -eq 0) {
+                              Write-Host "✓ Process restarted successfully"
+                          } else {
+                              throw "Restart failed, will start new instance"
+                          }
+                      } catch {
+                          Write-Host "Process not found, starting new instance..."
+                          pm2 start E:\DevSites\RecuBiz\ecosystem.config.js --only $(pm2RuntimeApp)
+                      }
+
+                      # Save PM2 configuration
+                      pm2 save --force
+
+                      Write-Host "✓ PM2 process started"
+                  displayName: 'Start PM2 Runtime Process'
+
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      # Set HOMEPATH for PM2 (required on Windows)
+                      if (-not $env:HOMEPATH) { $env:HOMEPATH = $env:USERPROFILE }
+                      if (-not $env:HOME) { $env:HOME = $env:USERPROFILE }
+
+                      # Add npm global bin to PATH for pm2 logs command
+                      $npmBin = npm config get prefix
+                      $env:Path = "$npmBin;$env:Path"
+
+                      Write-Host "Health check: Testing runtime app..."
+
+                      $maxAttempts = 10
+                      $success = $false
+
+                      for ($i = 1; $i -le $maxAttempts; $i++) {
+                          Write-Host "Attempt $i of $maxAttempts..."
+                          Start-Sleep -Seconds 5
+
+                          try {
+                              # IMPORTANT: Check with basePath included (Next.js requires full path)
+                              $response = Invoke-WebRequest -Uri "http://localhost:3001$(runtimeBasePath)" -UseBasicParsing -TimeoutSec 10
+                              if ($response.StatusCode -eq 200) {
+                                  Write-Host "✅ Runtime app is healthy!" -ForegroundColor Green
+                                  $success = $true
+                                  break
+                              }
+                          } catch {
+                              Write-Host "Not ready: $($_.Exception.Message)" -ForegroundColor DarkGray
+                          }
+                      }
+
+                      if (-not $success) {
+                          Write-Host "`n=== PM2 Logs ===" -ForegroundColor Red
+                          pm2 logs $(pm2RuntimeApp) --lines 50 --nostream
+                          Write-Error "❌ Runtime app failed health check"
+                          exit 1
+                      }
+                  displayName: 'Runtime Health Check'
+
+  # ==========================================================================
+  # STAGE 5: Deploy Backend API
+  # ==========================================================================
+  - stage: DeployBackend
+    displayName: 'Deploy Backend API'
+    dependsOn: RunMigrations
+    condition: succeeded()
+    pool:
+      name: Testbizuitcom
+    jobs:
+      - deployment: DeployBackendJob
+        displayName: 'Deploy FastAPI to PM2'
+        environment: 'Production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # Step 0: Checkout source code to get ecosystem.config.js
+                - checkout: self
+                  clean: true
+                  displayName: 'Checkout Repository'
+
+                # Step 1: Check/Install PM2 FIRST (fast, fails early)
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      Write-Host "Checking PM2 installation..." -ForegroundColor Cyan
+
+                      # Set HOMEPATH and HOME BEFORE any PM2 command (required on Windows)
+                      if (-not $env:HOMEPATH) {
+                          $env:HOMEPATH = $env:USERPROFILE
+                          Write-Host "Set HOMEPATH to: $env:HOMEPATH" -ForegroundColor Gray
+                      }
+                      if (-not $env:HOME) {
+                          $env:HOME = $env:USERPROFILE
+                          Write-Host "Set HOME to: $env:HOME" -ForegroundColor Gray
+                      }
+
+                      # Get npm global bin path
+                      $npmBin = npm config get prefix
+                      $pm2CmdPath = Join-Path $npmBin "pm2.cmd"
+
+                      # Check if PM2 exists in npm global directory (more reliable than Get-Command)
+                      if (Test-Path $pm2CmdPath) {
+                          Write-Host "✓ PM2 is already installed" -ForegroundColor Green
+                          $version = & $pm2CmdPath --version 2>&1
+                          Write-Host "Version: $version" -ForegroundColor Gray
+                      } else {
+                          Write-Host "⚠️  PM2 not found at $pm2CmdPath" -ForegroundColor Yellow
+                          Write-Host "Installing PM2 globally..." -ForegroundColor Yellow
+                          npm install -g pm2
+
+                          # Verify installation
+                          if (Test-Path $pm2CmdPath) {
+                              $version = & $pm2CmdPath --version 2>&1
+                              Write-Host "✓ PM2 installed successfully" -ForegroundColor Green
+                              Write-Host "Version: $version" -ForegroundColor Gray
+                          } else {
+                              throw "Failed to install PM2 - file not found at $pm2CmdPath"
+                          }
+                      }
+
+                      # Ensure npm bin is in PATH for subsequent tasks
+                      if ($env:Path -notlike "*$npmBin*") {
+                          $env:Path = "$npmBin;$env:Path"
+                          Write-Host "Added npm global bin to PATH: $npmBin" -ForegroundColor Gray
+                      }
+                  displayName: 'Ensure PM2 is Installed'
+
+                # Step 2: Stop PM2 process BEFORE downloading (fast, fails early)
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      # Set HOMEPATH for PM2 (required on Windows)
+                      if (-not $env:HOMEPATH) { $env:HOMEPATH = $env:USERPROFILE }
+                      if (-not $env:HOME) { $env:HOME = $env:USERPROFILE }
+
+                      # Add npm global bin to PATH
+                      $npmBin = npm config get prefix
+                      $env:Path = "$npmBin;$env:Path"
+
+                      Write-Host "Stopping PM2 process: $(pm2BackendApp)"
+
+                      # Stop process (ignore all errors - process may not exist on first deployment)
+                      try {
+                          pm2 stop $(pm2BackendApp) 2>&1 | Out-Null
+                          Write-Host "✓ Process stopped successfully"
+                      } catch {
+                          Write-Host "Process was not running (this is expected on first deployment)"
+                      }
+
+                      # Always exit with success
+                      exit 0
+                  displayName: 'Stop PM2 Backend Process'
+
+                # Step 3: Download artifacts AFTER PM2 is ready
+                - task: DownloadBuildArtifacts@0
+                  inputs:
+                    buildType: 'specific'
+                    project: '$(System.TeamProject)'
+                    pipeline: 'BIZUIT Custom Forms - Build'
+                    buildVersionToDownload: 'latest'
+                    downloadType: 'single'
+                    artifactName: 'backend-drop'
+                    downloadPath: '$(System.ArtifactsDirectory)'
+                  displayName: 'Download Backend Artifacts'
+
+                # Copy PM2 ecosystem.config.js to server (if not already there from runtime deployment)
+                - task: CopyFiles@2
+                  inputs:
+                    SourceFolder: '$(Build.SourcesDirectory)/custom-forms'
+                    Contents: 'ecosystem.config.js'
+                    TargetFolder: 'E:\DevSites\RecuBiz'
+                    OverWrite: true
+                  displayName: 'Copy PM2 Ecosystem Config'
+
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      Write-Host "Preparing deployment directory..."
+
+                      # Clean deployment directory (preserve .env.local and logs)
+                      if (Test-Path "$(backendDeployPath)") {
+                          Write-Host "Cleaning deployment directory..."
+                          Get-ChildItem "$(backendDeployPath)" -Exclude @('.env.local', 'logs', 'temp-uploads') | Remove-Item -Recurse -Force
+                      } else {
+                          Write-Host "Creating deployment directory..."
+                          New-Item -ItemType Directory -Path "$(backendDeployPath)" -Force | Out-Null
+                      }
+
+                      # Ensure required directories exist
+                      New-Item -ItemType Directory -Path "$(backendDeployPath)\logs" -Force -ErrorAction SilentlyContinue | Out-Null
+                      New-Item -ItemType Directory -Path "$(backendDeployPath)\temp-uploads" -Force -ErrorAction SilentlyContinue | Out-Null
+
+                      Write-Host "✓ Deployment directory prepared"
+                  displayName: 'Prepare Deployment Directory'
+
+                - task: CopyFiles@2
+                  inputs:
+                    SourceFolder: '$(System.ArtifactsDirectory)/backend-drop'
+                    Contents: '**'
+                    TargetFolder: '$(backendDeployPath)'
+                    OverWrite: true
+                  displayName: 'Copy Backend Files'
+
+                # Install Python dependencies
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    workingDirectory: '$(backendDeployPath)'
+                    script: |
+                      Write-Host "Installing Python dependencies..."
+
+                      # Check if requirements.txt exists
+                      if (-not (Test-Path "requirements.txt")) {
+                          Write-Error "❌ requirements.txt not found in $(backendDeployPath)"
+                          exit 1
+                      }
+
+                      # Install dependencies with pip
+                      Write-Host "Running: python -m pip install -r requirements.txt"
+                      python -m pip install -r requirements.txt --upgrade
+
+                      if ($LASTEXITCODE -ne 0) {
+                          Write-Error "❌ Failed to install Python dependencies"
+                          exit 1
+                      }
+
+                      Write-Host "✓ Python dependencies installed successfully"
+                  displayName: 'Install Python Dependencies'
+
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    workingDirectory: '$(backendDeployPath)'
+                    script: |
+                      Write-Host "Configuring backend API for production..."
+
+                      # Copy production web.config for IIS reverse proxy
+                      if (Test-Path "web.config.production") {
+                          Copy-Item "web.config.production" "web.config" -Force
+                          Write-Host "✓ web.config.production copied as web.config"
+
+                          # Validate web.config is valid XML
+                          try {
+                              [xml]$webConfig = Get-Content "web.config"
+                              Write-Host "✓ web.config is valid XML"
+                          } catch {
+                              Write-Error "❌ web.config is not valid XML: $($_.Exception.Message)"
+                              Write-Host "`nweb.config content:"
+                              Get-Content "web.config" | Select-Object -First 20
+                              exit 1
+                          }
+
+                          # Remove web.config.production from deployment directory
+                          Remove-Item "web.config.production" -Force
+                          Write-Host "✓ web.config.production removed (no longer needed)"
+                      } else {
+                          Write-Warning "⚠️  web.config.production not found for backend"
+                      }
+
+                      # Verify .env.local exists (should be manually created on server)
+                      if (-not (Test-Path ".env.local")) {
+                          Write-Warning "⚠️  .env.local not found!"
+                          Write-Warning "Backend will not have configuration."
+                          Write-Warning "Create .env.local manually on server with production secrets."
+                      } else {
+                          Write-Host "✓ .env.local found"
+                      }
+
+                      # Move installed libs to Python path (if using libs folder)
+                      if (Test-Path "libs") {
+                          Write-Host "Python dependencies installed in libs/"
+                      }
+
+                      Write-Host "✓ Backend API configured"
+                  displayName: 'Configure Backend API'
+
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      # Set HOMEPATH for PM2 (required on Windows)
+                      if (-not $env:HOMEPATH) { $env:HOMEPATH = $env:USERPROFILE }
+                      if (-not $env:HOME) { $env:HOME = $env:USERPROFILE }
+
+                      # Add npm global bin to PATH
+                      $npmBin = npm config get prefix
+                      $env:Path = "$npmBin;$env:Path"
+
+                      Write-Host "Starting PM2 process: $(pm2BackendApp)"
+
+                      # Set environment variable for production mode
+                      $env:PYTHON_ENV = "production"
+
+                      # Try to restart (if exists) or start (if new)
+                      try {
+                          pm2 restart $(pm2BackendApp) 2>&1 | Out-Null
+                          if ($LASTEXITCODE -eq 0) {
+                              Write-Host "✓ Process restarted successfully"
+                          } else {
+                              throw "Restart failed, will start new instance"
+                          }
+                      } catch {
+                          Write-Host "Process not found, starting new instance..."
+                          pm2 start E:\DevSites\RecuBiz\ecosystem.config.js --only $(pm2BackendApp)
+                      }
+
+                      # Save PM2 configuration
+                      pm2 save --force
+
+                      Write-Host "✓ PM2 process started"
+                  displayName: 'Start PM2 Backend Process'
+
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      # Set HOMEPATH for PM2 (required on Windows)
+                      if (-not $env:HOMEPATH) { $env:HOMEPATH = $env:USERPROFILE }
+                      if (-not $env:HOME) { $env:HOME = $env:USERPROFILE }
+
+                      # Add npm global bin to PATH for pm2 logs command
+                      $npmBin = npm config get prefix
+                      $env:Path = "$npmBin;$env:Path"
+
+                      Write-Host "Health check: Testing backend API..."
+
+                      $maxAttempts = 10
+                      $success = $false
+
+                      for ($i = 1; $i -le $maxAttempts; $i++) {
+                          Write-Host "Attempt $i of $maxAttempts..."
+                          Start-Sleep -Seconds 5
+
+                          try {
+                              $response = Invoke-WebRequest -Uri "http://localhost:8000/health" -UseBasicParsing -TimeoutSec 10
+                              if ($response.StatusCode -eq 200) {
+                                  Write-Host "✅ Backend API is healthy!" -ForegroundColor Green
+                                  $success = $true
+                                  break
+                              }
+                          } catch {
+                              Write-Host "Not ready: $($_.Exception.Message)" -ForegroundColor DarkGray
+                          }
+                      }
+
+                      if (-not $success) {
+                          Write-Host "`n=== PM2 Logs ===" -ForegroundColor Red
+                          pm2 logs $(pm2BackendApp) --lines 50 --nostream
+                          Write-Error "❌ Backend API failed health check"
+                          exit 1
+                      }
+                  displayName: 'Backend Health Check'
