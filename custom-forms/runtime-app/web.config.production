@@ -35,8 +35,14 @@
           <action type="Redirect" url="{R:1}" redirectType="Permanent" />
         </rule>
 
-        <!-- Rule 1: Next.js Static Assets (handle _next without basePath) -->
-        <rule name="Next.js Static Assets" stopProcessing="true">
+        <!-- Rule 1: Next.js Static Assets with basePath -->
+        <rule name="Next.js Static Assets with basePath" stopProcessing="true">
+          <match url="^arielschBIZUITCustomForms/_next/(.*)" />
+          <action type="Rewrite" url="http://localhost:3001/_next/{R:1}" />
+        </rule>
+
+        <!-- Rule 1b: Next.js Static Assets without basePath (fallback) -->
+        <rule name="Next.js Static Assets Fallback" stopProcessing="true">
           <match url="^_next/(.*)" />
           <action type="Rewrite" url="http://localhost:3001/_next/{R:1}" />
         </rule>

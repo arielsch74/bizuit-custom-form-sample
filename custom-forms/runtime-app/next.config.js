@@ -13,8 +13,8 @@ const nextConfig = {
   // e.g., test.bizuit.com/BIZUITCustomForms
   ...(isProduction && BASE_PATH && {
     basePath: BASE_PATH,
-    // CRITICAL: assetPrefix must have trailing slash for dynamic imports
-    assetPrefix: BASE_PATH + '/',
+    // Remove assetPrefix - let Next.js handle it automatically with basePath
+    // assetPrefix is causing issues with dynamic imports in Next.js 15
   }),
 
   // Remove trailing slashes to prevent redirect issues with basePath
@@ -31,6 +31,14 @@ const nextConfig = {
   ...(isProduction && {
     generateBuildId: async () => {
       return 'production-build-' + Date.now()
+    }
+  }),
+
+  // Experimental: Fix for basePath in App Router
+  ...(isProduction && {
+    experimental: {
+      // This helps with asset loading in production
+      optimizeCss: false,
     }
   })
 }
