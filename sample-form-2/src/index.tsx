@@ -29,6 +29,7 @@ interface FormProps {
 
 const FORM_VERSION = "1.0.3";
 const FORM_NAME = "Material Design Sample - Teal Edition";
+const LAST_UPDATED = "2025-11-21 10:29:59";
 
 export default function SampleForm2({ dashboardParams }: FormProps) {
   const [showModal, setShowModal] = useState(false);
@@ -120,6 +121,14 @@ export default function SampleForm2({ dashboardParams }: FormProps) {
                 </div>
                 <div style={{ color: '#212121', fontSize: '16px', fontWeight: '500' }}>
                   {FORM_NAME}
+                </div>
+              </div>
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ color: '#757575', fontSize: '12px', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Última Actualización
+                </div>
+                <div style={{ color: '#212121', fontSize: '16px', fontWeight: '500' }}>
+                  {LAST_UPDATED}
                 </div>
               </div>
               <div style={{ marginBottom: '16px' }}>

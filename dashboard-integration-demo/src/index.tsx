@@ -28,6 +28,7 @@ interface FormProps {
 
 const FORM_VERSION = "1.1.2";
 const FORM_NAME = "Dashboard Integration Demo - Enhanced v3";
+const LAST_UPDATED = "2025-11-21 10:29:59";
 
 export default function DashboardIntegrationDemoForm({ dashboardParams }: FormProps) {
   const [showModal, setShowModal] = useState(false);
@@ -55,7 +56,7 @@ export default function DashboardIntegrationDemoForm({ dashboardParams }: FormPr
 
             <div className="inline-block px-4 py-2 bg-cyan-50 border-2 border-cyan-200 rounded-full">
               <span className="text-sm font-semibold text-cyan-700">
-                Versión {FORM_VERSION}
+                Versión {FORM_VERSION} - Actualizado: {LAST_UPDATED}
               </span>
             </div>
           </div>
