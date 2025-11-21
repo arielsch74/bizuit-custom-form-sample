@@ -1,16 +1,30 @@
 /**
  * Navigation helpers with basePath support
  *
- * These utilities ensure all internal navigation respects the NEXT_PUBLIC_BASE_PATH
+ * These utilities ensure all internal navigation respects the runtime BASE_PATH
  * configuration for IIS virtual directory deployments.
  */
 
 /**
- * Get the configured base path or empty string
+ * Get the configured base path from runtime configuration
  */
 export function getBasePath(): string {
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH
-  return basePath && basePath !== 'undefined' ? basePath : ''
+  // Server-side: use environment variable
+  if (typeof window === 'undefined') {
+    return process.env.BASE_PATH || ''
+  }
+
+  // Client-side: try to get from sessionStorage (set by RuntimeConfigProvider)
+  try {
+    const cached = sessionStorage.getItem('runtime-config')
+    if (cached) {
+      const config = JSON.parse(cached)
+      return config.basePath || ''
+    }
+  } catch {}
+
+  // Fallback to empty string
+  return ''
 }
 
 /**

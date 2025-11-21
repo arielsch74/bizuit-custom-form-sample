@@ -3,6 +3,7 @@ import { Quicksand } from "next/font/google";
 import "./globals.css";
 import { ReactGlobalExposer } from "@/components/ReactGlobalExposer";
 import { Providers } from "@/components/providers";
+import { RuntimeConfigProvider } from "@/lib/runtime-config";
 
 const quicksand = Quicksand({
   subsets: ["latin"],
@@ -36,9 +37,11 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <ReactGlobalExposer />
-        <Providers>
-          {children}
-        </Providers>
+        <RuntimeConfigProvider>
+          <Providers>
+            {children}
+          </Providers>
+        </RuntimeConfigProvider>
       </body>
     </html>
   );

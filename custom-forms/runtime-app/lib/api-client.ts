@@ -8,14 +8,26 @@
  */
 
 /**
- * Get the base path from environment variable or default to empty string
- * NEXT_PUBLIC_BASE_PATH is set in .env.local for production deployments
+ * Get the base path from runtime configuration
+ * This allows basePath to be changed without rebuilding
  */
 const getBasePath = (): string => {
-  // During build time, process.env.NEXT_PUBLIC_BASE_PATH will be available
-  // During runtime (client-side), it's available via process.env
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH
-  return basePath && basePath !== 'undefined' ? basePath : ''
+  // Server-side: use environment variable
+  if (typeof window === 'undefined') {
+    return process.env.BASE_PATH || ''
+  }
+
+  // Client-side: try to get from sessionStorage (set by RuntimeConfigProvider)
+  try {
+    const cached = sessionStorage.getItem('runtime-config')
+    if (cached) {
+      const config = JSON.parse(cached)
+      return config.basePath || ''
+    }
+  } catch {}
+
+  // Fallback to empty string
+  return ''
 }
 
 /**
