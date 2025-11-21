@@ -24,14 +24,20 @@
     <rewrite>
       <rules>
 
-        <!-- Rule 1: Proxy Deployment API only (FastAPI) -->
-        <rule name="Deployment API (FastAPI)" stopProcessing="true">
-          <match url="^api/deployment/(.*)" />
+        <!-- Rule 1: Deployment API with basePath - Strip basePath before proxying -->
+        <rule name="Deployment API with basePath (FastAPI)" stopProcessing="true">
+          <match url="^arielschBIZUITCustomForms/api/deployment/(.*)" />
           <action type="Rewrite" url="http://localhost:8000/api/deployment/{R:1}" />
         </rule>
 
-        <!-- Rule 2: Proxy Frontend including Next.js API routes (Next.js) -->
-        <rule name="Frontend (Next.js)" stopProcessing="true">
+        <!-- Rule 2: All requests with basePath - Strip basePath before proxying to Next.js -->
+        <rule name="Next.js with basePath" stopProcessing="true">
+          <match url="^arielschBIZUITCustomForms/(.*)" />
+          <action type="Rewrite" url="http://localhost:3001/{R:1}" />
+        </rule>
+
+        <!-- Rule 3: Fallback for requests without basePath (backwards compatibility) -->
+        <rule name="Next.js without basePath (Fallback)" stopProcessing="true">
           <match url="(.*)" />
           <action type="Rewrite" url="http://localhost:3001/{R:0}" />
         </rule>
