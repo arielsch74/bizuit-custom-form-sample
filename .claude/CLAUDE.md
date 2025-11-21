@@ -249,9 +249,20 @@ import { DynamicFormField } from '@tyconsa/bizuit-ui-components'
 All services use `.env.local` files (see `.env.example` in each directory).
 
 **Backend API requires:**
-- `DATABASE_URL` - SQLite database path
-- `SECRET_KEY` - For token encryption
-- `BIZUIT_API_BASE_URL` - Bizuit BPM server URL
+- `DB_SERVER` - SQL Server hostname (e.g., `test.bizuit.com`)
+- `DB_DATABASE` - Database name for CustomForms tables (e.g., `arielschBIZUITDashboard`)
+- `DB_USER` - SQL Server username
+- `DB_PASSWORD` - SQL Server password
+- `PERSISTENCE_DB_SERVER` - SQL Server for token validation
+- `PERSISTENCE_DB_DATABASE` - Database for SecurityTokens table
+- `PERSISTENCE_DB_USER` - SQL Server username
+- `PERSISTENCE_DB_PASSWORD` - SQL Server password
+- `BIZUIT_DASHBOARD_API_URL` - Bizuit BPM Dashboard API URL (e.g., `https://test.bizuit.com/arielschbizuitdashboardapi/api`)
+- `JWT_SECRET_KEY` - Secret key for admin session tokens (generate with `openssl rand -hex 32`)
+- `ENCRYPTION_TOKEN_KEY` - TripleDES key for Dashboard token encryption (24 chars, must match Dashboard)
+- `ADMIN_ALLOWED_ROLES` - Comma-separated roles allowed to access admin panel
+- `API_PORT` - Port for FastAPI backend (default: 8000)
+- `CORS_ORIGINS` - Comma-separated allowed CORS origins
 
 **Next.js apps require:**
 - `NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL` - Bizuit dashboard endpoint
