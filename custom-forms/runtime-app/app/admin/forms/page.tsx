@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Search, FileText, Calendar, Database, Trash2, Eye, Download, Loader2, AlertCircle, Filter, RefreshCw, History, X, Check, AlertTriangle, CheckCircle } from 'lucide-react'
 import { useAppTranslation } from '@/lib/useAppTranslation'
 import { withBasePath } from '@/lib/navigation'
+import { apiFetch } from '@/lib/api-client'
 
 // Confirmation Dialog Component
 interface ConfirmDialogProps {
@@ -265,7 +266,7 @@ export default function FormsManagementPage() {
       setError(null)
 
       // Use Next.js API route (proxies to FastAPI backend)
-      const response = await fetch('/api/custom-forms')
+      const response = await apiFetch('/api/custom-forms')
 
       if (!response.ok) {
         throw new Error('Error al cargar los formularios')
@@ -318,7 +319,7 @@ export default function FormsManagementPage() {
   const handleDeleteForm = async (form: CustomForm) => {
     // First, get the number of versions to show in confirmation
     try {
-      const response = await fetch(`/api/custom-forms/${form.name}/versions`)
+      const response = await apiFetch(`/api/custom-forms/${form.name}/versions`)
       if (!response.ok) {
         throw new Error('Failed to get form versions')
       }
@@ -333,7 +334,7 @@ export default function FormsManagementPage() {
         type: 'danger',
         onConfirm: async () => {
           try {
-            const deleteResponse = await fetch(`/api/custom-forms/${form.name}/delete`, {
+            const deleteResponse = await apiFetch(`/api/custom-forms/${form.name}/delete`, {
               method: 'DELETE',
             })
 
@@ -388,7 +389,7 @@ export default function FormsManagementPage() {
 
     try {
       // Use Next.js API route (proxies to FastAPI backend)
-      const response = await fetch(`/api/custom-forms/${form.name}/versions`)
+      const response = await apiFetch(`/api/custom-forms/${form.name}/versions`)
 
       if (!response.ok) {
         throw new Error('Error al cargar versiones')
@@ -424,7 +425,7 @@ export default function FormsManagementPage() {
 
         try {
           // Use Next.js API route (proxies to FastAPI backend)
-          const response = await fetch(
+          const response = await apiFetch(
             `/api/custom-forms/${selectedForm.name}/set-version?version=${version}`,
             { method: 'POST' }
           )
@@ -470,7 +471,7 @@ export default function FormsManagementPage() {
         setConfirmDialog({ ...confirmDialog, isOpen: false })
 
         try {
-          const response = await fetch(
+          const response = await apiFetch(
             `/api/custom-forms/${selectedForm.name}/versions/${version}/delete`,
             { method: 'DELETE' }
           )
