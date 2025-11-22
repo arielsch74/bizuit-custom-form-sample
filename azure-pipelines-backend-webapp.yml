@@ -9,7 +9,6 @@ trigger:
   paths:
     include:
       - custom-forms/backend-api/**
-      - azure-pipelines-backend-webapp.yml
 
 variables:
   pythonVersion: '3.10'
