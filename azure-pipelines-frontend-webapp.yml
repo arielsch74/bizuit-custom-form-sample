@@ -42,11 +42,10 @@ stages:
               versionSpec: '$(nodeVersion)'
             displayName: 'Install Node.js $(nodeVersion)'
 
-          # Install runtime app dependencies (uses published npm packages)
-          - task: Npm@1
-            inputs:
-              command: 'install'
-              workingDir: 'custom-forms/runtime-app'
+          # Install runtime app dependencies (npm ci fetches published packages from registry)
+          - script: |
+              cd custom-forms/runtime-app
+              npm ci
             displayName: 'Install Runtime App Dependencies'
 
           # Create .env.local for build (build-time variables)
