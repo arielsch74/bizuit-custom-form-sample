@@ -311,7 +311,7 @@ stages:
                       echo "Testing health endpoint: $HEALTH_URL"
 
                       # Wait for deployment to complete and app to start
-                      MAX_ATTEMPTS=20
+                      MAX_ATTEMPTS=3
                       ATTEMPT=1
                       SUCCESS=false
 
