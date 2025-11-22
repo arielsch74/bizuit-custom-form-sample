@@ -19,7 +19,7 @@ variables:
   backendApiUrl: 'https://bizuit-custom-forms-api-c0c3c9fbb8adafbh.eastus-01.azurewebsites.net'
 
   # Runtime basePath for deployment
-  runtimeBasePath: '/bizuitforms'  # Can be changed as needed
+  runtimeBasePath: ''  # Empty = root path (no virtual directory)
 
 stages:
   # ==========================================================================
