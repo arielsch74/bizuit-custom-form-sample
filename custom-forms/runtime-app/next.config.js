@@ -34,7 +34,43 @@ const nextConfig = {
       // This helps with asset loading in production
       optimizeCss: false,
     }
-  })
+  }),
+
+  // Security headers for standalone forms (iframe-only routes)
+  async headers() {
+    // Parse allowed origins from environment variable
+    const allowedOrigins = process.env.NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS
+      ? process.env.NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS.split(',').map(o => o.trim())
+      : []
+
+    // Add localhost if allowed in development
+    if (process.env.NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME === 'true') {
+      allowedOrigins.push('http://localhost', 'http://127.0.0.1')
+    }
+
+    // Build frame-ancestors directive
+    // Note: frame-ancestors doesn't support port wildcards, so we add common ports for localhost
+    const frameAncestors = allowedOrigins.length > 0
+      ? allowedOrigins.join(' ')
+      : "'none'"  // Block all iframes if no origins configured
+
+    return [
+      {
+        // Apply CSP to standalone forms routes only
+        source: '/formsa/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: `frame-ancestors ${frameAncestors}`,
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',  // Fallback for older browsers
+          },
+        ],
+      },
+    ]
+  },
 }
 
 module.exports = nextConfig

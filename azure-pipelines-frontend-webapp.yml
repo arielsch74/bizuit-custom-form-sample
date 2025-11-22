@@ -21,6 +21,10 @@ variables:
   # Runtime basePath for deployment
   runtimeBasePath: ''  # Empty = root path (no virtual directory)
 
+  # Standalone Forms (Iframe) Configuration
+  allowedIframeOrigins: 'https://test.bizuit.com,https://*.bizuit.com'  # Comma-separated, supports wildcards
+  allowLocalhostIframe: 'false'  # true for dev, false for production
+
 stages:
   # ==========================================================================
   # STAGE 1: Build Next.js Application
@@ -98,6 +102,14 @@ stages:
 
                 # 🔒 CRITICAL SECURITY: Production mode (no dev access)
                 NEXT_PUBLIC_ALLOW_DEV_MODE=false
+
+                # 🔒 Standalone Forms (Iframe) Configuration
+                # Allowed origins for iframe embedding (/formsa/* routes)
+                # Comma-separated list of domains, supports wildcards: https://*.bizuit.com
+                NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=$(allowedIframeOrigins)
+
+                # Allow localhost for iframe testing (ONLY for development, false in production)
+                NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=$(allowLocalhostIframe)
 
                 # Server-side Environment Variables (not baked into build)
                 # FASTAPI_URL is used by Next.js API routes (server-side only)

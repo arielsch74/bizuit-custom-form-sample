@@ -562,7 +562,345 @@ console.log('[Security] Token validated successfully:', {
 
 ---
 
-## 13. Referencias
+## 13. Standalone Forms (Iframe-Only Access)
+
+### 🔒 Two Form Loaders: `/form` vs `/formsa`
+
+El runtime app implementa **DOS** loaders distintos para diferentes casos de uso:
+
+| Loader | Ruta | Dashboard Token | Iframe Required | Use Case |
+|--------|------|-----------------|-----------------|----------|
+| **Standard** | `/form/[formName]` | Required (prod)<br/>Optional (dev) | No | Forms accessed from Bizuit Dashboard |
+| **Standalone** | `/formsa/[formName]` | Optional | **YES** | Forms embedded in external apps |
+
+### 🎯 Standalone Forms (`/formsa/*`)
+
+**Purpose:** Allow embedding forms in external applications (e.g., partner portals, customer dashboards) with strict origin control.
+
+**Security Model:**
+- ✅ **MUST** be loaded inside an iframe (blocks direct browser access)
+- ✅ **MUST** be from an allowed origin (configurable via env vars)
+- ✅ Supports optional Dashboard token for additional context
+- ✅ Triple-layer validation: client-side + middleware + CSP headers
+- ⚠️ **NEVER** checks `NEXT_PUBLIC_ALLOW_DEV_MODE` (always accessible if iframe requirements met)
+
+### 🛡️ Triple-Layer Security Architecture
+
+#### Layer 1: Client-Side Validation (lib/iframe-origin-validator.ts)
+
+```typescript
+// 1. Validate iframe detection
+if (!isInIframe()) {
+  throw new Error('Standalone forms can only be loaded inside an iframe')
+}
+
+// 2. Get parent origin
+const parentOrigin = getParentOrigin() // From document.referrer
+
+// 3. Validate against allowed list
+const allowed = allowedOrigins.some(pattern =>
+  isOriginAllowed(parentOrigin, pattern)
+)
+
+if (!allowed) {
+  throw new Error(`Origin "${parentOrigin}" is not in the allowed list`)
+}
+```
+
+**Features:**
+- Exact origin matching: `https://app.example.com`
+- Wildcard subdomain matching: `https://*.example.com`
+- Port-agnostic localhost: `http://localhost` (any port)
+- Configurable via `NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS`
+
+#### Layer 2: Server-Side Middleware (middleware.ts)
+
+```typescript
+// Validate Referer header for /formsa/* routes
+if (request.nextUrl.pathname.startsWith('/formsa/')) {
+  const referer = request.headers.get('referer')
+
+  if (!referer) {
+    return new NextResponse({ error: 'Missing Referer header' }, {
+      status: 403
+    })
+  }
+
+  const refererOrigin = new URL(referer).origin
+  const isAllowed = allowedOrigins.some(p => isOriginAllowed(refererOrigin, p))
+
+  if (!isAllowed) {
+    return new NextResponse({
+      error: `Origin "${refererOrigin}" not allowed`
+    }, { status: 403 })
+  }
+}
+```
+
+**Blocks:**
+- Requests without Referer header
+- Requests from unauthorized origins
+- Direct curl/Postman access (no referer)
+
+#### Layer 3: CSP frame-ancestors Headers (next.config.js)
+
+```typescript
+// next.config.js
+async headers() {
+  return [
+    {
+      source: '/formsa/:path*',
+      headers: [
+        {
+          key: 'Content-Security-Policy',
+          value: `frame-ancestors ${allowedOrigins.join(' ')}`,
+        },
+        {
+          key: 'X-Frame-Options',
+          value: 'SAMEORIGIN',
+        },
+      ],
+    },
+  ]
+}
+```
+
+**Enforces:**
+- Browser-level iframe embedding restrictions
+- Cannot be bypassed by malicious JavaScript
+- Works even if client-side validation is bypassed
+
+### 📋 Configuration
+
+#### Environment Variables
+
+```bash
+# .env.local (development)
+NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://test.bizuit.com,https://localhost:3000
+NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=true
+
+# .env.production
+NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://test.bizuit.com,https://app.bizuit.com,https://*.bizuit.com
+NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=false
+```
+
+**Origin Formats Supported:**
+
+```bash
+# Exact match
+NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://app.example.com
+
+# Multiple origins (comma-separated)
+NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://app1.com,https://app2.com
+
+# Wildcard subdomains
+NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://*.example.com
+
+# Mixed (all above)
+NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://app.com,https://*.example.com,https://partner.io
+```
+
+#### Azure Pipelines Configuration
+
+All deployment pipelines include the new variables:
+
+```yaml
+# azure-pipelines-build.yml
+# azure-pipelines-deploy.yml
+# azure-pipelines-deploy-recubiz.yml
+# azure-pipelines-frontend-webapp.yml
+
+NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://test.bizuit.com,https://*.bizuit.com
+NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=false
+```
+
+### 🔐 Security Decision Logic
+
+```typescript
+// app/formsa/[formName]/page.tsx
+
+// 1. ALWAYS validate iframe origin (no ALLOW_DEV_MODE check)
+const iframeValidation = validateIframeOrigin()
+
+if (!iframeValidation.isInIframe) {
+  throw new Error('Standalone forms can only be loaded inside an iframe')
+}
+
+if (!iframeValidation.isAllowedOrigin) {
+  throw new Error(`Origin not allowed: ${iframeValidation.error}`)
+}
+
+// 2. Optional: Try to get Dashboard parameters (not required)
+try {
+  const validation = await getDashboardParameters()
+  if (validation.valid) {
+    setDashboardParams(validation.parameters)
+  }
+} catch (err) {
+  // Dashboard params are optional for standalone loader
+  console.log('No Dashboard parameters provided (optional)')
+}
+
+// 3. Load form
+const metadata = await fetch(`/api/custom-forms/${formName}/metadata`)
+const component = await loadDynamicFormCached(formName, { version })
+```
+
+### 🚫 Attack Scenarios (Blocked)
+
+#### Scenario 1: Direct Browser Access
+
+```
+❌ BLOCKED by client-side check:
+https://test.bizuit.com/arielschBIZUITCustomForms/formsa/my-form
+
+Error: "🚫 Access Denied: Standalone forms can only be loaded inside an iframe"
+```
+
+#### Scenario 2: Unauthorized Origin
+
+```html
+<!-- evil.com embeds iframe -->
+<iframe src="https://test.bizuit.com/.../formsa/my-form"></iframe>
+
+❌ BLOCKED by all 3 layers:
+- Client: isOriginAllowed('https://evil.com', allowedOrigins) → false
+- Middleware: Referer header validation fails → 403
+- CSP: frame-ancestors header blocks embedding → Browser error
+```
+
+#### Scenario 3: cURL/Postman Attack
+
+```bash
+curl https://test.bizuit.com/.../formsa/my-form
+
+❌ BLOCKED by middleware:
+- No Referer header → 403 Forbidden
+- Response: {"error":"Missing Referer header"}
+```
+
+#### Scenario 4: Subdomain Bypass Attempt
+
+```
+Allowed: https://*.bizuit.com
+Attempt: https://evil.com.bizuit.com
+
+❌ BLOCKED by origin matching logic:
+- Wildcard *.bizuit.com matches *.bizuit.com only
+- Does NOT match evil.com.bizuit.com
+```
+
+### ✅ Valid Usage Example
+
+#### Partner Portal Embedding
+
+```html
+<!-- partner.example.com (allowed origin) -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Partner Portal</title>
+</head>
+<body>
+  <h1>Submit Approval Request</h1>
+
+  <!-- Embed standalone form -->
+  <iframe
+    src="https://test.bizuit.com/arielschBIZUITCustomForms/formsa/aprobacion-gastos?version=1"
+    width="100%"
+    height="800px"
+    style="border: none;"
+  ></iframe>
+
+  <script>
+    // Optional: Listen for form submission events
+    window.addEventListener('message', (event) => {
+      if (event.data.type === 'FORM_SUBMITTED') {
+        console.log('Form submitted:', event.data.payload)
+        // Handle success (e.g., show confirmation, redirect)
+      }
+    })
+  </script>
+</body>
+</html>
+```
+
+**Configuration Required:**
+
+```bash
+# Add partner.example.com to allowed origins
+NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://test.bizuit.com,https://partner.example.com
+```
+
+### 📋 Production Deployment Checklist
+
+**CRITICAL - Must Verify Before Production:**
+
+- [ ] **Set allowed origins** in production environment variables
+- [ ] **Disable localhost** (`NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=false`)
+- [ ] Test iframe embedding from **allowed origins** works
+- [ ] Test iframe embedding from **unauthorized origins** is blocked
+- [ ] Test **direct browser access** is blocked
+- [ ] Test **cURL/Postman access** is blocked (403 Forbidden)
+- [ ] Verify CSP headers in browser DevTools (Network → Headers)
+- [ ] Verify middleware logs show origin validation
+- [ ] Test wildcard subdomain matching if used
+- [ ] Monitor logs for unauthorized access attempts
+
+### 🚨 Security Events to Monitor
+
+```typescript
+// Middleware logs (server-side)
+console.log('[Middleware] ✅ Standalone form access allowed from:', refererOrigin)
+console.warn('[Middleware] ❌ Standalone form access blocked - no Referer header')
+console.warn('[Middleware] ❌ Standalone form access blocked - origin not allowed:', refererOrigin)
+
+// Client logs (browser console)
+console.log('[Standalone Form Page] ✅ Iframe validation passed - origin:', parentOrigin)
+console.error('[Standalone Form Page] ❌ Error loading form:', error.message)
+```
+
+### 🛡️ Best Practices
+
+**✅ DO:**
+- Always configure `NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS` in production
+- Use wildcard `https://*.example.com` for multi-subdomain scenarios
+- Monitor logs for unauthorized access attempts
+- Test iframe embedding from all expected origins before deployment
+- Use HTTPS for all allowed origins (HTTP not recommended)
+- Document all allowed origins in deployment notes
+
+**❌ DON'T:**
+- NEVER allow `http://` origins in production (except localhost in dev)
+- NEVER use `*` wildcard for all origins (security risk)
+- NEVER skip middleware or CSP configuration
+- NEVER expose detailed error messages to end users
+- NEVER trust client-side validation alone (use all 3 layers)
+
+### 🔍 Comparison: `/form` vs `/formsa`
+
+| Feature | `/form/[formName]` | `/formsa/[formName]` |
+|---------|-------------------|---------------------|
+| **Dashboard Token** | Required (prod), Optional (dev) | Optional (always) |
+| **Iframe Required** | No | **YES** |
+| **Origin Validation** | No | **YES** (triple-layer) |
+| **ALLOW_DEV_MODE** | Checked | **NOT** checked |
+| **Direct Browser** | Allowed (if dev mode) | **BLOCKED** (always) |
+| **Use Case** | Dashboard-launched forms | External app embeds |
+| **Middleware Check** | No | YES (Referer validation) |
+| **CSP Headers** | Standard | `frame-ancestors` |
+
+### 📁 Files Involved
+
+- **[app/formsa/[formName]/page.tsx](app/formsa/[formName]/page.tsx)** - Standalone form loader
+- **[lib/iframe-origin-validator.ts](lib/iframe-origin-validator.ts)** - Origin validation logic
+- **[middleware.ts](middleware.ts)** - Server-side Referer validation
+- **[next.config.js](next.config.js)** - CSP headers configuration
+- **[.env.example](.env.example)** - Environment variable templates
+
+---
+
+## 14. Referencias
 
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [MDN Web Security](https://developer.mozilla.org/en-US/docs/Web/Security)
