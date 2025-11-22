@@ -42,34 +42,7 @@ stages:
               versionSpec: '$(nodeVersion)'
             displayName: 'Install Node.js $(nodeVersion)'
 
-          # Build packages first (SDK + UI components)
-          - task: Npm@1
-            inputs:
-              command: 'install'
-              workingDir: 'packages/bizuit-form-sdk'
-            displayName: 'Install SDK Dependencies'
-
-          - task: Npm@1
-            inputs:
-              command: 'custom'
-              customCommand: 'run build'
-              workingDir: 'packages/bizuit-form-sdk'
-            displayName: 'Build SDK Package'
-
-          - task: Npm@1
-            inputs:
-              command: 'install'
-              workingDir: 'packages/bizuit-ui-components'
-            displayName: 'Install UI Components Dependencies'
-
-          - task: Npm@1
-            inputs:
-              command: 'custom'
-              customCommand: 'run build'
-              workingDir: 'packages/bizuit-ui-components'
-            displayName: 'Build UI Components Package'
-
-          # Install runtime app dependencies
+          # Install runtime app dependencies (uses published npm packages)
           - task: Npm@1
             inputs:
               command: 'install'
