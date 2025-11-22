@@ -4,9 +4,8 @@ const path = require('path')
 const isProduction = process.env.NODE_ENV === 'production' || process.env.DEPLOY_ENV === 'production'
 
 // IMPORTANT: Runtime basePath configuration
-// Priority: 1) Runtime env var, 2) Build-time placeholder, 3) Empty (root)
-// The placeholder /__RUNTIME_BASEPATH__ will be replaced at deployment time in static files
-// But for server-side rendering (SSR), we need the runtime environment variable
+// The placeholder /__RUNTIME_BASEPATH__ will be replaced at deployment time via prepare-deployment script
+// This allows deploying to multiple locations (arielsch, recubiz, etc.) without rebuilding
 const basePath = process.env.__NEXT_ROUTER_BASEPATH || (isProduction ? '/__RUNTIME_BASEPATH__' : '')
 
 /** @type {import('next').NextConfig} */
