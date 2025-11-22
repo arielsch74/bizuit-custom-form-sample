@@ -18,11 +18,8 @@ const nextConfig = {
   // Without this, /admin/ redirects to /admin but loses basePath
   trailingSlash: false,
 
-  // Output standalone server for IISNode deployment
+  // Output standalone server for Azure Web App deployment
   output: 'standalone',
-
-  // Fix workspace root for file tracing
-  outputFileTracingRoot: path.join(__dirname, '../'),
 
   // Force unique build ID in production for cache busting
   ...(isProduction && {
