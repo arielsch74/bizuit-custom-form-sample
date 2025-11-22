@@ -15,7 +15,7 @@ variables:
   pythonVersion: '3.10'
   azureSubscription: 'Azure BIZUIT'  # Service Connection name
   webAppName: 'bizuit-custom-forms-api'
-  resourceGroup: 'bizuit-custom-forms-api_group'
+  resourceGroup: 'BIZUIT'
 
 stages:
   # ==========================================================================
