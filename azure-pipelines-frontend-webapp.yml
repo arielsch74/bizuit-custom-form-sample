@@ -79,6 +79,10 @@ stages:
                 # 🔒 CRITICAL SECURITY: Production mode (no dev access)
                 NEXT_PUBLIC_ALLOW_DEV_MODE=false
 
+                # Server-side Environment Variables (not baked into build)
+                # FASTAPI_URL is used by Next.js API routes (server-side only)
+                FASTAPI_URL=https://bizuit-custom-forms-api-c0c3c9fbb8adafbh.eastus-01.azurewebsites.net
+
                 # Environment
                 NODE_ENV=production
                 EOF
@@ -215,12 +219,13 @@ stages:
                     inlineScript: |
                       echo "Configuring Azure Web App settings..."
 
-                      # Set runtime basePath as environment variable (used by startup script)
+                      # Set runtime environment variables
                       az webapp config appsettings set \
                         --name $(webAppName) \
                         --resource-group $(resourceGroup) \
                         --settings \
                           RUNTIME_BASEPATH="$(runtimeBasePath)" \
+                          FASTAPI_URL="https://bizuit-custom-forms-api-c0c3c9fbb8adafbh.eastus-01.azurewebsites.net" \
                           NODE_ENV="production" \
                           WEBSITE_NODE_DEFAULT_VERSION="~22" \
                           SCM_DO_BUILD_DURING_DEPLOYMENT="false" \
