@@ -326,23 +326,31 @@ stages:
                       echo "Backend API URL: $BACKEND_API_URL"
                       echo ""
 
-                      # CRITICAL: Disable Oryx build to prevent it from cleaning wwwroot
-                      echo "Configuring critical app settings to disable Oryx build..."
-                      az webapp config appsettings set \
+                      # List current settings BEFORE changes
+                      echo "Current app settings (BEFORE):"
+                      az webapp config appsettings list \
                         --name "$WEB_APP_NAME" \
                         --resource-group "$RESOURCE_GROUP" \
-                        --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false \
+                        --query "[?name=='SCM_DO_BUILD_DURING_DEPLOYMENT' || name=='RUNTIME_BASEPATH' || name=='FASTAPI_URL' || name=='ENABLE_ORYX_BUILD'].{Name:name, Value:value}" \
                         --output table
 
+                      echo ""
+                      echo "=== Configuring App Settings ==="
+
+                      # CRITICAL: Disable Oryx/Kudu build completely
+                      echo ""
+                      echo "1. Disabling Oryx build system..."
                       az webapp config appsettings set \
                         --name "$WEB_APP_NAME" \
                         --resource-group "$RESOURCE_GROUP" \
-                        --settings WEBSITES_ENABLE_APP_SERVICE_STORAGE=false \
-                        --output table
+                        --settings \
+                          SCM_DO_BUILD_DURING_DEPLOYMENT=false \
+                          ENABLE_ORYX_BUILD=false \
+                          WEBSITES_ENABLE_APP_SERVICE_STORAGE=false
 
                       # Set application environment variables
                       echo ""
-                      echo "Configuring application environment variables..."
+                      echo "2. Setting application environment variables..."
                       az webapp config appsettings set \
                         --name "$WEB_APP_NAME" \
                         --resource-group "$RESOURCE_GROUP" \
@@ -350,20 +358,30 @@ stages:
                           RUNTIME_BASEPATH="$RUNTIME_BASEPATH" \
                           FASTAPI_URL="$BACKEND_API_URL" \
                           NODE_ENV=production \
-                          WEBSITE_NODE_DEFAULT_VERSION=~22 \
-                        --output table
+                          WEBSITE_NODE_DEFAULT_VERSION=~22
 
                       echo ""
-                      echo "✓ App settings configured"
-
-                      # Verify critical settings
-                      echo ""
-                      echo "Verifying critical settings..."
+                      echo "=== Verifying App Settings (AFTER) ==="
                       az webapp config appsettings list \
                         --name "$WEB_APP_NAME" \
                         --resource-group "$RESOURCE_GROUP" \
-                        --query "[?name=='SCM_DO_BUILD_DURING_DEPLOYMENT' || name=='RUNTIME_BASEPATH' || name=='FASTAPI_URL'].{Name:name, Value:value}" \
+                        --query "[?name=='SCM_DO_BUILD_DURING_DEPLOYMENT' || name=='ENABLE_ORYX_BUILD' || name=='RUNTIME_BASEPATH' || name=='FASTAPI_URL'].{Name:name, Value:value}" \
                         --output table
+
+                      # Check if settings were actually applied
+                      echo ""
+                      ORYX_DISABLED=$(az webapp config appsettings list \
+                        --name "$WEB_APP_NAME" \
+                        --resource-group "$RESOURCE_GROUP" \
+                        --query "[?name=='SCM_DO_BUILD_DURING_DEPLOYMENT'].value | [0]" \
+                        -o tsv)
+
+                      if [ "$ORYX_DISABLED" != "false" ]; then
+                        echo "⚠️  WARNING: SCM_DO_BUILD_DURING_DEPLOYMENT is not 'false', current value: '$ORYX_DISABLED'"
+                        echo "⚠️  Oryx may still clean wwwroot after deployment!"
+                      else
+                        echo "✓ Oryx build correctly disabled"
+                      fi
 
                       # Configure startup command
                       az webapp config set \
@@ -523,7 +541,7 @@ stages:
                       echo "Testing URL: $FULL_URL"
 
                       # Wait for deployment to complete and app to start
-                      MAX_ATTEMPTS=15
+                      MAX_ATTEMPTS=3
                       ATTEMPT=1
                       SUCCESS=false
 
@@ -538,15 +556,26 @@ stages:
                           SUCCESS=true
                           break
                         else
-                          echo "Not ready yet (HTTP $HTTP_CODE)..."
+                          echo "⚠️ Not ready yet (HTTP $HTTP_CODE)..."
                         fi
 
                         ATTEMPT=$((ATTEMPT + 1))
                       done
 
                       if [ "$SUCCESS" = "false" ]; then
-                        echo "❌ Health check failed after $MAX_ATTEMPTS attempts"
-                        echo "Check application logs with: az webapp log tail --name $(webAppName) --resource-group $(resourceGroup)"
+                        echo ""
+                        echo "❌ Health check failed after $MAX_ATTEMPTS attempts (HTTP $HTTP_CODE)"
+                        echo ""
+                        echo "Troubleshooting steps:"
+                        echo "1. Check app settings are configured:"
+                        echo "   az webapp config appsettings list --name $(webAppName) --resource-group $(resourceGroup)"
+                        echo ""
+                        echo "2. Check application logs:"
+                        echo "   az webapp log tail --name $(webAppName) --resource-group $(resourceGroup)"
+                        echo ""
+                        echo "3. Check deployment logs:"
+                        echo "   az webapp log deployment show --name $(webAppName) --resource-group $(resourceGroup)"
+                        echo ""
                         exit 1
                       fi
 
