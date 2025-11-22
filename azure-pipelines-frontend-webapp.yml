@@ -14,9 +14,12 @@ trigger:
 
 variables:
   nodeVersion: '22.x'
-  azureSubscription: 'c8538779-b0ee-48be-ba9e-d0c4f883c811'  # Subscription ID
+  azureSubscription: 'Azure BIZUIT'  # Service Connection name
   webAppName: 'bizuit-custom-forms'
   resourceGroup: 'BIZUIT'
+
+  # Backend API URL (FastAPI)
+  backendApiUrl: 'https://bizuit-custom-forms-api-c0c3c9fbb8adafbh.eastus-01.azurewebsites.net'
 
   # Runtime basePath for deployment
   runtimeBasePath: '/bizuitforms'  # Can be changed as needed
@@ -42,38 +45,31 @@ stages:
               versionSpec: '$(nodeVersion)'
             displayName: 'Install Node.js $(nodeVersion)'
 
-          # Build packages first (SDK + UI components)
-          - task: Npm@1
+          # Cache npm dependencies for faster builds
+          - task: Cache@2
             inputs:
-              command: 'ci'
-              workingDir: 'packages/bizuit-form-sdk'
-            displayName: 'Install SDK Dependencies'
+              key: 'npm-v2 | "$(Agent.OS)" | custom-forms/runtime-app/package-lock.json'
+              restoreKeys: |
+                npm-v2 | "$(Agent.OS)"
+                npm-v2
+              path: '$(Build.SourcesDirectory)/custom-forms/runtime-app/node_modules'
+            displayName: 'Cache npm dependencies'
 
-          - task: Npm@1
+          # Cache Next.js build for faster rebuilds
+          - task: Cache@2
             inputs:
-              command: 'custom'
-              customCommand: 'run build'
-              workingDir: 'packages/bizuit-form-sdk'
-            displayName: 'Build SDK Package'
+              key: 'nextjs-v2 | "$(Agent.OS)" | custom-forms/runtime-app/package-lock.json'
+              restoreKeys: |
+                nextjs-v2 | "$(Agent.OS)"
+                nextjs-v2
+              path: '$(Build.SourcesDirectory)/custom-forms/runtime-app/.next/cache'
+            displayName: 'Cache Next.js build'
+            continueOnError: true
 
-          - task: Npm@1
-            inputs:
-              command: 'ci'
-              workingDir: 'packages/bizuit-ui-components'
-            displayName: 'Install UI Components Dependencies'
-
-          - task: Npm@1
-            inputs:
-              command: 'custom'
-              customCommand: 'run build'
-              workingDir: 'packages/bizuit-ui-components'
-            displayName: 'Build UI Components Package'
-
-          # Install runtime app dependencies
-          - task: Npm@1
-            inputs:
-              command: 'ci'
-              workingDir: 'custom-forms/runtime-app'
+          # Install runtime app dependencies (npm ci fetches published packages from registry)
+          - script: |
+              cd custom-forms/runtime-app
+              npm ci
             displayName: 'Install Runtime App Dependencies'
 
           # Create .env.local for build (build-time variables)
@@ -94,8 +90,7 @@ stages:
                 NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api
 
                 # Custom Forms Backend API URL (browser connects to FastAPI backend)
-                # Will be updated to point to second Web App after backend deployment
-                NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://bizuit-custom-forms-api.azurewebsites.net
+                NEXT_PUBLIC_BIZUIT_FORMS_API_URL=$(backendApiUrl)
 
                 # Timeouts and configuration
                 NEXT_PUBLIC_BIZUIT_TIMEOUT=30000
@@ -106,6 +101,10 @@ stages:
 
                 # 🔒 CRITICAL SECURITY: Production mode (no dev access)
                 NEXT_PUBLIC_ALLOW_DEV_MODE=false
+
+                # Server-side Environment Variables (not baked into build)
+                # FASTAPI_URL is used by Next.js API routes (server-side only)
+                FASTAPI_URL=$(backendApiUrl)
 
                 # Environment
                 NODE_ENV=production
@@ -126,73 +125,155 @@ stages:
               NEXT_PUBLIC_BASE_PATH: '$(runtimeBasePath)'
               NODE_ENV: 'production'
 
-          # Prepare deployment package
+          # Copy build files (exclude node_modules - standalone includes only necessary deps)
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: '$(Build.SourcesDirectory)/custom-forms/runtime-app'
+              Contents: |
+                .next/standalone/**
+                .next/static/**
+                .next/BUILD_ID
+                public/**
+                package.json
+                scripts/prepare-deployment.js
+                !node_modules/**
+                !.next/cache/**
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/runtime-app-temp'
+            displayName: 'Copy Runtime Build Files'
+
+          # Restructure for deployment (standalone needs special structure)
           - task: Bash@3
             inputs:
               targetType: 'inline'
-              workingDirectory: 'custom-forms/runtime-app'
               script: |
-                echo "Preparing deployment package..."
+                echo "=== Preparing Next.js Standalone Deployment Package ==="
 
-                # Create deployment directory
-                mkdir -p $(Build.ArtifactStagingDirectory)/runtime-app
+                TEMP_DIR="$(Build.ArtifactStagingDirectory)/runtime-app-temp"
+                DEPLOY_DIR="$(Build.ArtifactStagingDirectory)/runtime-app"
 
-                # Copy standalone build (includes server.js, node_modules, .next)
-                if [ -d ".next/standalone/runtime-app" ]; then
-                  echo "✓ Copying standalone build..."
-                  cp -r .next/standalone/runtime-app/* $(Build.ArtifactStagingDirectory)/runtime-app/
-                else
-                  echo "❌ Standalone build not found! Ensure next.config.js has output: 'standalone'"
+                echo "Temp directory: $TEMP_DIR"
+                echo "Deployment directory: $DEPLOY_DIR"
+                echo ""
+
+                # Check standalone build structure
+                echo "Checking standalone build structure..."
+                STANDALONE_BASE="$TEMP_DIR/.next/standalone"
+
+                if [ ! -d "$STANDALONE_BASE" ]; then
+                  echo "❌ ERROR: Standalone build not found at $STANDALONE_BASE"
+                  ls -la $TEMP_DIR
                   exit 1
                 fi
 
-                # Copy static assets (not included in standalone)
-                echo "✓ Copying static assets..."
-                mkdir -p $(Build.ArtifactStagingDirectory)/runtime-app/.next/static
-                cp -r .next/static/* $(Build.ArtifactStagingDirectory)/runtime-app/.next/static/
+                # With outputFileTracingRoot, structure is: .next/standalone/custom-forms/runtime-app/
+                # We need to find where server.js actually is
+                STANDALONE_APP=$(find $STANDALONE_BASE -name "server.js" -type f | head -1)
 
-                # Copy public folder (images, fonts, etc.)
-                if [ -d "public" ]; then
-                  echo "✓ Copying public assets..."
-                  cp -r public $(Build.ArtifactStagingDirectory)/runtime-app/
+                if [ -z "$STANDALONE_APP" ]; then
+                  echo "❌ ERROR: server.js not found in standalone build"
+                  echo "Directory structure:"
+                  find $STANDALONE_BASE -type f | head -20
+                  exit 1
+                fi
+
+                STANDALONE_DIR=$(dirname "$STANDALONE_APP")
+                echo "✓ Found server.js at: $STANDALONE_DIR"
+                echo ""
+
+                # Create deployment directory
+                mkdir -p $DEPLOY_DIR
+
+                # Copy everything from the actual standalone app directory
+                echo "Copying standalone app files..."
+                cp -r $STANDALONE_DIR/* $DEPLOY_DIR/
+
+                # Copy static assets to correct location (they're in temp root, not in standalone)
+                echo "Copying Next.js static assets..."
+                mkdir -p $DEPLOY_DIR/.next/static
+                if [ -d "$TEMP_DIR/.next/static" ]; then
+                  cp -r $TEMP_DIR/.next/static/* $DEPLOY_DIR/.next/static/
+                  echo "✓ Static assets copied"
+                else
+                  echo "⚠️  No static assets found (might be normal)"
+                fi
+
+                # Copy public folder (from temp root)
+                echo "Copying public folder..."
+                if [ -d "$TEMP_DIR/public" ]; then
+                  cp -r $TEMP_DIR/public $DEPLOY_DIR/
+                  echo "✓ Public folder copied"
+                else
+                  echo "⚠️  No public folder found"
+                fi
+
+                # Copy deployment scripts (from temp root)
+                echo "Copying deployment scripts..."
+                if [ -d "$TEMP_DIR/scripts" ]; then
+                  cp -r $TEMP_DIR/scripts $DEPLOY_DIR/
+                  echo "✓ Scripts copied"
                 fi
 
                 # Create startup script for Azure Web App
-                cat > $(Build.ArtifactStagingDirectory)/runtime-app/startup.sh <<'STARTUP_EOF'
+                echo "Creating startup script..."
+                cat > $DEPLOY_DIR/startup.sh <<'STARTUP_EOF'
                 #!/bin/bash
-                # Azure Web App startup script for Next.js
-
-                echo "Starting Next.js application..."
+                echo "=== Next.js Application Startup ==="
                 echo "Node version: $(node --version)"
                 echo "Working directory: $(pwd)"
+                echo ""
 
-                # Run basePath replacement if script exists
+                # List files to verify structure
+                echo "Deployment structure:"
+                ls -la
+                echo ""
+
+                # Check if server.js exists
+                if [ ! -f "server.js" ]; then
+                  echo "❌ ERROR: server.js not found in deployment"
+                  exit 1
+                fi
+
+                # Run basePath replacement if needed
                 if [ -f "scripts/prepare-deployment.js" ] && [ -n "$RUNTIME_BASEPATH" ]; then
                   echo "Applying runtime basePath: $RUNTIME_BASEPATH"
                   node scripts/prepare-deployment.js
+                  echo ""
                 fi
 
                 # Start Next.js server
-                export PORT=${PORT:-8080}  # Azure Web App uses PORT env var
-                echo "Starting server on port $PORT..."
-                node server.js
+                export PORT=${PORT:-8080}
+                export HOSTNAME=${HOSTNAME:-0.0.0.0}
+
+                echo "Starting Next.js server..."
+                echo "  Port: $PORT"
+                echo "  Hostname: $HOSTNAME"
+                echo "  Runtime BasePath: ${RUNTIME_BASEPATH:-(none)}"
+                echo "  FastAPI URL: ${FASTAPI_URL:-(not set)}"
+                echo ""
+
+                exec node server.js
                 STARTUP_EOF
 
-                chmod +x $(Build.ArtifactStagingDirectory)/runtime-app/startup.sh
-                echo "✓ Startup script created"
+                chmod +x $DEPLOY_DIR/startup.sh
 
-                # Copy prepare-deployment script if exists
-                if [ -d "scripts" ]; then
-                  echo "✓ Copying deployment scripts..."
-                  cp -r scripts $(Build.ArtifactStagingDirectory)/runtime-app/
-                fi
+                echo ""
+                echo "=== Deployment Package Summary ==="
+                echo "Deployment directory: $DEPLOY_DIR"
+                echo ""
+                echo "Structure:"
+                ls -lah $DEPLOY_DIR/
+                echo ""
+                echo "Verifying critical files:"
+                [ -f "$DEPLOY_DIR/server.js" ] && echo "✓ server.js" || echo "❌ server.js MISSING"
+                [ -d "$DEPLOY_DIR/.next" ] && echo "✓ .next/" || echo "❌ .next/ MISSING"
+                [ -d "$DEPLOY_DIR/.next/static" ] && echo "✓ .next/static/" || echo "⚠️  .next/static/ missing"
+                [ -d "$DEPLOY_DIR/public" ] && echo "✓ public/" || echo "⚠️  public/ missing"
+                [ -f "$DEPLOY_DIR/startup.sh" ] && echo "✓ startup.sh" || echo "❌ startup.sh MISSING"
+                echo ""
 
-                # Verify package structure
-                echo ""
-                echo "=== Deployment Package Structure ==="
-                ls -la $(Build.ArtifactStagingDirectory)/runtime-app/
-                echo ""
-                echo "✓ Deployment package prepared"
+                # Cleanup temp directory
+                rm -rf $TEMP_DIR
+                echo "✓ Deployment package ready"
             displayName: 'Prepare Deployment Package'
 
           # Create ZIP for deployment
@@ -225,7 +306,7 @@ stages:
     jobs:
       - deployment: DeployJob
         displayName: 'Deploy to Linux Web App'
-        environment: 'Production'
+        environment: 'Azure'
         strategy:
           runOnce:
             deploy:
@@ -237,18 +318,19 @@ stages:
                 # Configure Web App settings BEFORE deployment
                 - task: AzureCLI@2
                   inputs:
-                    azureSubscription: 'Azure subscription 1'  # Service connection name
+                    azureSubscription: '$(azureSubscription)'  # Use variable
                     scriptType: 'bash'
                     scriptLocation: 'inlineScript'
                     inlineScript: |
                       echo "Configuring Azure Web App settings..."
 
-                      # Set runtime basePath as environment variable (used by startup script)
+                      # Set runtime environment variables
                       az webapp config appsettings set \
                         --name $(webAppName) \
                         --resource-group $(resourceGroup) \
                         --settings \
                           RUNTIME_BASEPATH="$(runtimeBasePath)" \
+                          FASTAPI_URL="$(backendApiUrl)" \
                           NODE_ENV="production" \
                           WEBSITE_NODE_DEFAULT_VERSION="~22" \
                           SCM_DO_BUILD_DURING_DEPLOYMENT="false" \
@@ -276,10 +358,11 @@ stages:
                 # Deploy to Azure Web App
                 - task: AzureWebApp@1
                   inputs:
-                    azureSubscription: 'Azure subscription 1'  # Service connection name
+                    azureSubscription: '$(azureSubscription)'  # Use variable
                     appType: 'webAppLinux'
                     appName: '$(webAppName)'
                     package: '$(Pipeline.Workspace)/frontend-drop/runtime-app.zip'
+                    deploymentMethod: 'zipDeploy'
                     runtimeStack: 'NODE|22-lts'
                     startUpCommand: 'startup.sh'
                   displayName: 'Deploy to Azure Web App'
@@ -287,7 +370,7 @@ stages:
                 # Health check
                 - task: AzureCLI@2
                   inputs:
-                    azureSubscription: 'Azure subscription 1'
+                    azureSubscription: '$(azureSubscription)'
                     scriptType: 'bash'
                     scriptLocation: 'inlineScript'
                     inlineScript: |

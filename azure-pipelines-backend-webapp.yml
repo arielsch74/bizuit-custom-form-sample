@@ -13,7 +13,7 @@ trigger:
 
 variables:
   pythonVersion: '3.10'
-  azureSubscription: 'c8538779-b0ee-48be-ba9e-d0c4f883c811'  # Subscription ID
+  azureSubscription: 'Azure BIZUIT'  # Service Connection name
   webAppName: 'bizuit-custom-forms-api'
   resourceGroup: 'BIZUIT'
 
@@ -212,7 +212,7 @@ stages:
     jobs:
       - deployment: DeployJob
         displayName: 'Deploy to Linux Web App'
-        environment: 'Production'
+        environment: 'Azure'
         strategy:
           runOnce:
             deploy:
@@ -224,7 +224,7 @@ stages:
                 # Configure Web App settings BEFORE deployment
                 - task: AzureCLI@2
                   inputs:
-                    azureSubscription: 'Azure subscription 1'  # Service connection name
+                    azureSubscription: '$(azureSubscription)'  # Use variable
                     scriptType: 'bash'
                     scriptLocation: 'inlineScript'
                     inlineScript: |
@@ -284,7 +284,7 @@ stages:
                 # Deploy to Azure Web App
                 - task: AzureWebApp@1
                   inputs:
-                    azureSubscription: 'Azure subscription 1'  # Service connection name
+                    azureSubscription: '$(azureSubscription)'  # Use variable
                     appType: 'webAppLinux'
                     appName: '$(webAppName)'
                     package: '$(Pipeline.Workspace)/backend-drop/backend-api.zip'
@@ -295,7 +295,7 @@ stages:
                 # Health check
                 - task: AzureCLI@2
                   inputs:
-                    azureSubscription: 'Azure subscription 1'
+                    azureSubscription: '$(azureSubscription)'
                     scriptType: 'bash'
                     scriptLocation: 'inlineScript'
                     inlineScript: |
@@ -365,7 +365,7 @@ stages:
                 # Test database connection (optional, only if DB credentials are set)
                 - task: AzureCLI@2
                   inputs:
-                    azureSubscription: 'Azure subscription 1'
+                    azureSubscription: '$(azureSubscription)'
                     scriptType: 'bash'
                     scriptLocation: 'inlineScript'
                     inlineScript: |
