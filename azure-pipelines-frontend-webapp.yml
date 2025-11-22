@@ -324,20 +324,46 @@ stages:
                       echo "Resource Group: $RESOURCE_GROUP"
                       echo "Runtime BasePath: $RUNTIME_BASEPATH"
                       echo "Backend API URL: $BACKEND_API_URL"
+                      echo ""
 
-                      # Set runtime environment variables
+                      # CRITICAL: Disable Oryx build to prevent it from cleaning wwwroot
+                      echo "Configuring critical app settings to disable Oryx build..."
+                      az webapp config appsettings set \
+                        --name "$WEB_APP_NAME" \
+                        --resource-group "$RESOURCE_GROUP" \
+                        --settings SCM_DO_BUILD_DURING_DEPLOYMENT=false \
+                        --output table
+
+                      az webapp config appsettings set \
+                        --name "$WEB_APP_NAME" \
+                        --resource-group "$RESOURCE_GROUP" \
+                        --settings WEBSITES_ENABLE_APP_SERVICE_STORAGE=false \
+                        --output table
+
+                      # Set application environment variables
+                      echo ""
+                      echo "Configuring application environment variables..."
                       az webapp config appsettings set \
                         --name "$WEB_APP_NAME" \
                         --resource-group "$RESOURCE_GROUP" \
                         --settings \
                           RUNTIME_BASEPATH="$RUNTIME_BASEPATH" \
                           FASTAPI_URL="$BACKEND_API_URL" \
-                          NODE_ENV="production" \
-                          WEBSITE_NODE_DEFAULT_VERSION="~22" \
-                          SCM_DO_BUILD_DURING_DEPLOYMENT="false" \
-                          WEBSITES_ENABLE_APP_SERVICE_STORAGE="false"
+                          NODE_ENV=production \
+                          WEBSITE_NODE_DEFAULT_VERSION=~22 \
+                        --output table
 
+                      echo ""
                       echo "✓ App settings configured"
+
+                      # Verify critical settings
+                      echo ""
+                      echo "Verifying critical settings..."
+                      az webapp config appsettings list \
+                        --name "$WEB_APP_NAME" \
+                        --resource-group "$RESOURCE_GROUP" \
+                        --query "[?name=='SCM_DO_BUILD_DURING_DEPLOYMENT' || name=='RUNTIME_BASEPATH' || name=='FASTAPI_URL'].{Name:name, Value:value}" \
+                        --output table
 
                       # Configure startup command
                       az webapp config set \
