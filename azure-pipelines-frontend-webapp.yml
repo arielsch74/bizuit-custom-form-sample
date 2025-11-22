@@ -129,6 +129,7 @@ stages:
               Contents: |
                 .next/standalone/**
                 .next/static/**
+                .next/server/**
                 .next/BUILD_ID
                 .next/*.json
                 public/**
@@ -183,6 +184,13 @@ stages:
                 if ls $TEMP_DIR/.next/*.json 1> /dev/null 2>&1; then
                   cp $TEMP_DIR/.next/*.json $DEPLOY_DIR/.next/
                   echo "  ✓ Copied $(ls $TEMP_DIR/.next/*.json | wc -l) manifest files"
+                fi
+
+                # Copy server manifests (.next/server/)
+                if [ -d "$TEMP_DIR/.next/server" ]; then
+                  mkdir -p $DEPLOY_DIR/.next/server
+                  cp -r $TEMP_DIR/.next/server/* $DEPLOY_DIR/.next/server/
+                  echo "  ✓ Server manifests copied"
                 fi
 
                 # Move public folder into standalone structure
