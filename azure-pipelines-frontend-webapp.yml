@@ -217,9 +217,9 @@ stages:
                 echo "Node: $(node --version)"
                 echo "Working dir: $(pwd)"
 
-                # Apply basePath if needed
-                if [ -f "scripts/prepare-deployment.js" ] && [ -n "$RUNTIME_BASEPATH" ]; then
-                  echo "Applying basePath: $RUNTIME_BASEPATH"
+                # Always apply basePath replacement (even if empty for root path)
+                if [ -f "scripts/prepare-deployment.js" ]; then
+                  echo "Applying basePath: ${RUNTIME_BASEPATH:-'(root)'}"
                   node scripts/prepare-deployment.js
                 fi
 
