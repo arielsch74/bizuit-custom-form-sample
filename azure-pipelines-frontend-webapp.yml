@@ -18,6 +18,9 @@ variables:
   webAppName: 'bizuit-custom-forms'
   resourceGroup: 'BIZUIT'
 
+  # Backend API URL (FastAPI)
+  backendApiUrl: 'https://bizuit-custom-forms-api-c0c3c9fbb8adafbh.eastus-01.azurewebsites.net'
+
   # Runtime basePath for deployment
   runtimeBasePath: '/bizuitforms'  # Can be changed as needed
 
@@ -66,8 +69,7 @@ stages:
                 NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api
 
                 # Custom Forms Backend API URL (browser connects to FastAPI backend)
-                # Will be updated to point to second Web App after backend deployment
-                NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://bizuit-custom-forms-api-c0c3c9fbb8adafbh.eastus-01.azurewebsites.net
+                NEXT_PUBLIC_BIZUIT_FORMS_API_URL=$(backendApiUrl)
 
                 # Timeouts and configuration
                 NEXT_PUBLIC_BIZUIT_TIMEOUT=30000
@@ -81,7 +83,7 @@ stages:
 
                 # Server-side Environment Variables (not baked into build)
                 # FASTAPI_URL is used by Next.js API routes (server-side only)
-                FASTAPI_URL=https://bizuit-custom-forms-api-c0c3c9fbb8adafbh.eastus-01.azurewebsites.net
+                FASTAPI_URL=$(backendApiUrl)
 
                 # Environment
                 NODE_ENV=production
@@ -225,7 +227,7 @@ stages:
                         --resource-group $(resourceGroup) \
                         --settings \
                           RUNTIME_BASEPATH="$(runtimeBasePath)" \
-                          FASTAPI_URL="https://bizuit-custom-forms-api-c0c3c9fbb8adafbh.eastus-01.azurewebsites.net" \
+                          FASTAPI_URL="$(backendApiUrl)" \
                           NODE_ENV="production" \
                           WEBSITE_NODE_DEFAULT_VERSION="~22" \
                           SCM_DO_BUILD_DURING_DEPLOYMENT="false" \
