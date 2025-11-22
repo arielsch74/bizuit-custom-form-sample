@@ -44,13 +44,13 @@
         <!-- Rule 2: Root path - Add basePath when proxying to Next.js -->
         <rule name="Next.js Root" stopProcessing="true">
           <match url="^$" />
-          <action type="Rewrite" url="http://localhost:__RUNTIME_PORT____RUNTIME_BASEPATH__" />
+          <action type="Rewrite" url="http://localhost:__RUNTIME_PORT__/__RUNTIME_BASEPATH__" />
         </rule>
 
         <!-- Rule 3: All other paths - Add basePath when proxying to Next.js -->
         <rule name="Next.js All Paths" stopProcessing="true">
           <match url="^(.*)$" />
-          <action type="Rewrite" url="http://localhost:__RUNTIME_PORT____RUNTIME_BASEPATH__/{R:1}" />
+          <action type="Rewrite" url="http://localhost:__RUNTIME_PORT__/__RUNTIME_BASEPATH__/{R:1}" />
         </rule>
 
       </rules>
