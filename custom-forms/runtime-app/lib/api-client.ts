@@ -116,5 +116,28 @@ export async function apiFetch(
     }
   }
 
-  return fetch(url, fetchOptions)
+  const response = await fetch(url, fetchOptions)
+
+  // Intercept 401 Unauthorized - session expired, redirect to login
+  if (response.status === 401) {
+    // Check if we're in admin panel (avoid infinite redirect on login page)
+    if (typeof window !== 'undefined') {
+      const currentPath = window.location.pathname
+      const basePath = getBasePath()
+      const adminPrefix = basePath ? `${basePath}/admin` : '/admin'
+      const loginPath = `${adminPrefix}/login`
+
+      // Only redirect if NOT already on login page
+      if (currentPath.startsWith(adminPrefix) && currentPath !== loginPath) {
+        // Clear admin cookies
+        document.cookie = `admin_token=; path=${basePath || '/'}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+        document.cookie = `admin_user_data=; path=${basePath || '/'}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+
+        // Redirect to login with return URL
+        window.location.href = `${loginPath}?expired=true`
+      }
+    }
+  }
+
+  return response
 }

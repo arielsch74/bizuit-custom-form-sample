@@ -1,15 +1,20 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useLoginForm } from '@/hooks/useLoginForm'
 import { apiFetch } from '@/lib/api-client'
+import { AlertCircle } from 'lucide-react'
 
 export default function AdminLoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [checking, setChecking] = useState(true)
   const { username, password, loading, error, setUsername, setPassword, handleLogin } = useLoginForm('/admin')
+
+  // Check if redirected due to expired session
+  const sessionExpired = searchParams.get('expired') === 'true'
 
   useEffect(() => {
     // Check if already authenticated
@@ -59,6 +64,22 @@ export default function AdminLoginPage() {
         <p className="text-slate-400 dark:text-slate-400 mb-8 text-center">
           BIZUIT Custom Forms
         </p>
+
+        {sessionExpired && (
+          <div className="mb-6 bg-orange-900/20 border border-orange-700 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-orange-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-orange-400 mb-1">
+                  Sesión Expirada
+                </p>
+                <p className="text-sm text-orange-300">
+                  Tu sesión ha expirado. Por favor, inicia sesión nuevamente.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
