@@ -475,7 +475,7 @@ stages:
                         -H "Content-Type: application/json" \
                         -X POST \
                         "$KUDU_URL/api/command" \
-                        -d "{\"command\": \"cd /home/site/wwwroot && RUNTIME_BASEPATH='$RUNTIME_BASEPATH' node scripts/prepare-deployment.js\", \"dir\": \"/home/site/wwwroot\"}")
+                        -d "{\"command\": \"RUNTIME_BASEPATH='$RUNTIME_BASEPATH' node scripts/prepare-deployment.js\", \"dir\": \"/home/site/wwwroot\"}")
 
                       echo "Prepare-deployment output:"
                       echo "$PREPARE_RESULT" | jq '.'
