@@ -1,6 +1,6 @@
 {
   "name": "bizuit-custom-forms-runtime",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Runtime application for BIZUIT Custom Forms with hot reload support",
   "private": true,
   "scripts": {
