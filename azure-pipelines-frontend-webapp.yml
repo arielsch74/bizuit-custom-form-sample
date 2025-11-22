@@ -130,6 +130,7 @@ stages:
                 .next/standalone/**
                 .next/static/**
                 .next/BUILD_ID
+                .next/*.json
                 public/**
                 scripts/prepare-deployment.js
                 !node_modules/**
