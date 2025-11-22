@@ -58,13 +58,13 @@ stages:
           # Cache Next.js build for faster rebuilds
           - task: Cache@2
             inputs:
-              key: 'nextjs-v2 | "$(Agent.OS)" | custom-forms/runtime-app/package-lock.json | custom-forms/runtime-app/.next/BUILD_ID'
+              key: 'nextjs-v2 | "$(Agent.OS)" | custom-forms/runtime-app/package-lock.json'
               restoreKeys: |
-                nextjs-v2 | "$(Agent.OS)" | custom-forms/runtime-app/package-lock.json
                 nextjs-v2 | "$(Agent.OS)"
                 nextjs-v2
               path: '$(Build.SourcesDirectory)/custom-forms/runtime-app/.next/cache'
             displayName: 'Cache Next.js build'
+            continueOnError: true
 
           # Install runtime app dependencies (npm ci fetches published packages from registry)
           - script: |
