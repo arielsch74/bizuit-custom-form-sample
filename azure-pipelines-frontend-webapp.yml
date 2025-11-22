@@ -168,14 +168,17 @@ stages:
                   echo "✓ Static assets moved"
                 fi
 
-                # Copy BUILD_ID (required by Next.js standalone mode)
-                echo "Copying BUILD_ID..."
-                if [ -f "$TEMP_DIR/.next/BUILD_ID" ]; then
-                  cp $TEMP_DIR/.next/BUILD_ID $DEPLOY_DIR/.next/BUILD_ID
-                  echo "✓ BUILD_ID copied"
-                else
-                  echo "❌ WARNING: BUILD_ID not found!"
-                fi
+                # Copy required Next.js manifest files (not in standalone/)
+                echo "Copying Next.js manifests and BUILD_ID..."
+                mkdir -p $DEPLOY_DIR/.next
+
+                # Copy all manifest files and BUILD_ID from .next/ root
+                for file in BUILD_ID *.json; do
+                  if [ -f "$TEMP_DIR/.next/$file" ]; then
+                    cp "$TEMP_DIR/.next/$file" "$DEPLOY_DIR/.next/"
+                    echo "  ✓ $file"
+                  fi
+                done
 
                 # Move public folder into standalone structure
                 echo "Moving public folder..."
