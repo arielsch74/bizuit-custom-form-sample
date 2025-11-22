@@ -45,7 +45,7 @@ stages:
           # Build packages first (SDK + UI components)
           - task: Npm@1
             inputs:
-              command: 'ci'
+              command: 'install'
               workingDir: 'packages/bizuit-form-sdk'
             displayName: 'Install SDK Dependencies'
 
@@ -58,7 +58,7 @@ stages:
 
           - task: Npm@1
             inputs:
-              command: 'ci'
+              command: 'install'
               workingDir: 'packages/bizuit-ui-components'
             displayName: 'Install UI Components Dependencies'
 
@@ -72,7 +72,7 @@ stages:
           # Install runtime app dependencies
           - task: Npm@1
             inputs:
-              command: 'ci'
+              command: 'install'
               workingDir: 'custom-forms/runtime-app'
             displayName: 'Install Runtime App Dependencies'
 
