@@ -73,7 +73,20 @@ export default function AdminLayout({
     }
 
     // Delete cookies client-side (IIS compatibility)
-    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/'
+    // Get basePath dynamically (same method as login)
+    const getBasePath = () => {
+      try {
+        const scripts = document.querySelectorAll('script')
+        for (const script of scripts) {
+          const content = script.textContent || ''
+          const match = content.match(/\\"p\\":\\"(\/[^\\]+)\\"/)
+          if (match && match[1]) return match[1]
+        }
+      } catch {}
+      return process.env.NEXT_PUBLIC_BASE_PATH || '/'
+    }
+
+    const basePath = getBasePath()
     document.cookie = `admin_token=; path=${basePath}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
     document.cookie = `admin_user_data=; path=${basePath}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
 
