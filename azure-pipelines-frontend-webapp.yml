@@ -465,6 +465,30 @@ stages:
                         exit 1
                       fi
 
+                      # Execute prepare-deployment.js via Kudu to replace basePath placeholder
+                      echo ""
+                      echo "=== Applying basePath Configuration ===="
+                      echo "Runtime basePath: ${RUNTIME_BASEPATH:-'(root)'}"
+
+                      # Execute Node.js script via Kudu command API
+                      PREPARE_RESULT=$(curl -s -u "$USERNAME:$PASSWORD" \
+                        -H "Content-Type: application/json" \
+                        -X POST \
+                        "$KUDU_URL/api/command" \
+                        -d "{\"command\": \"cd /home/site/wwwroot && RUNTIME_BASEPATH='$RUNTIME_BASEPATH' node scripts/prepare-deployment.js\", \"dir\": \"/home/site/wwwroot\"}")
+
+                      echo "Prepare-deployment output:"
+                      echo "$PREPARE_RESULT" | jq '.'
+
+                      # Check if command succeeded
+                      EXIT_CODE=$(echo "$PREPARE_RESULT" | jq -r '.ExitCode // "1"')
+                      if [ "$EXIT_CODE" != "0" ]; then
+                        echo "⚠️ prepare-deployment.js returned exit code: $EXIT_CODE"
+                        echo "This is expected if basePath is empty (no replacements needed)"
+                      else
+                        echo "✓ basePath configuration applied successfully"
+                      fi
+
                       # Verify files were extracted
                       echo ""
                       echo "Verifying deployment..."
