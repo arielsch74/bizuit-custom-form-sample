@@ -546,13 +546,14 @@ stages:
                       echo "Testing URL: $FULL_URL"
 
                       # Wait for deployment to complete and app to start
-                      MAX_ATTEMPTS=3
+                      # Increased attempts to handle cold start and basePath configuration
+                      MAX_ATTEMPTS=6
                       ATTEMPT=1
                       SUCCESS=false
 
                       while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
                         echo "Health check attempt $ATTEMPT of $MAX_ATTEMPTS..."
-                        sleep 10
+                        sleep 15
 
                         HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -L "$FULL_URL" || echo "000")
 
