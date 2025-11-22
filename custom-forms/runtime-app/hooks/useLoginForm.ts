@@ -50,7 +50,20 @@ export function useLoginForm(redirectPath: string = '/admin'): UseLoginFormRetur
 
       if (data.success && data.token) {
         // Store cookies client-side (IIS reverse proxy strips Set-Cookie headers)
-        const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/'
+        // Get basePath dynamically (same method as apiFetch)
+        const getBasePath = () => {
+          try {
+            const scripts = document.querySelectorAll('script')
+            for (const script of scripts) {
+              const content = script.textContent || ''
+              const match = content.match(/\\"p\\":\\"(\/[^\\]+)\\"/)
+              if (match && match[1]) return match[1]
+            }
+          } catch {}
+          return process.env.NEXT_PUBLIC_BASE_PATH || '/'
+        }
+
+        const basePath = getBasePath()
         const maxAge = 60 * 60 * 24 // 24 hours in seconds
         const expires = new Date(Date.now() + maxAge * 1000).toUTCString()
 
