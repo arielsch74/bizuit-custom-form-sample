@@ -177,12 +177,27 @@ stages:
                 echo "✓ Found server.js at: $STANDALONE_DIR"
                 echo ""
 
+                # Debug: Show what's inside the standalone directory
+                echo "=== DEBUG: Standalone directory structure ==="
+                echo "Contents of $STANDALONE_DIR:"
+                ls -la $STANDALONE_DIR/
+                echo ""
+                echo "Subdirectories in $STANDALONE_DIR:"
+                find $STANDALONE_DIR -maxdepth 2 -type d
+                echo ""
+
                 # Create deployment directory
                 mkdir -p $DEPLOY_DIR
 
                 # Copy everything from the actual standalone app directory
                 echo "Copying standalone app files..."
                 cp -r $STANDALONE_DIR/* $DEPLOY_DIR/
+
+                # Remove any nested runtime-app directory to prevent duplication
+                if [ -d "$DEPLOY_DIR/runtime-app" ]; then
+                  echo "⚠️  Found nested runtime-app directory - removing it"
+                  rm -rf $DEPLOY_DIR/runtime-app
+                fi
 
                 # Copy static assets to correct location (they're in temp root, not in standalone)
                 echo "Copying Next.js static assets..."
