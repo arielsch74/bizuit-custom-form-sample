@@ -138,148 +138,77 @@ stages:
               TargetFolder: '$(Build.ArtifactStagingDirectory)/runtime-app-temp'
             displayName: 'Copy Runtime Build Files'
 
-          # Restructure for deployment (standalone needs special structure)
+          # Prepare standalone deployment (standard Next.js pattern)
           - task: Bash@3
             inputs:
               targetType: 'inline'
               script: |
-                echo "=== Preparing Next.js Standalone Deployment Package ==="
+                echo "=== Preparing Next.js Standalone Deployment ==="
 
                 TEMP_DIR="$(Build.ArtifactStagingDirectory)/runtime-app-temp"
                 DEPLOY_DIR="$(Build.ArtifactStagingDirectory)/runtime-app"
 
-                echo "Temp directory: $TEMP_DIR"
-                echo "Deployment directory: $DEPLOY_DIR"
-                echo ""
-
-                # Check standalone build structure
-                echo "Checking standalone build structure..."
-                STANDALONE_BASE="$TEMP_DIR/.next/standalone"
-
-                if [ ! -d "$STANDALONE_BASE" ]; then
-                  echo "❌ ERROR: Standalone build not found at $STANDALONE_BASE"
-                  ls -la $TEMP_DIR
+                # Verify standalone build exists
+                if [ ! -d "$TEMP_DIR/.next/standalone" ]; then
+                  echo "❌ ERROR: Standalone build not found"
+                  ls -la $TEMP_DIR/.next/
                   exit 1
                 fi
 
-                # With outputFileTracingRoot, structure is: .next/standalone/custom-forms/runtime-app/
-                # We need to find where server.js actually is
-                STANDALONE_APP=$(find $STANDALONE_BASE -name "server.js" -type f | head -1)
-
-                if [ -z "$STANDALONE_APP" ]; then
-                  echo "❌ ERROR: server.js not found in standalone build"
-                  echo "Directory structure:"
-                  find $STANDALONE_BASE -type f | head -20
-                  exit 1
-                fi
-
-                STANDALONE_DIR=$(dirname "$STANDALONE_APP")
-                echo "✓ Found server.js at: $STANDALONE_DIR"
-                echo ""
-
-                # Create deployment directory
+                # Copy standalone build to deployment directory
+                echo "Copying standalone build..."
                 mkdir -p $DEPLOY_DIR
+                cp -r $TEMP_DIR/.next/standalone/* $DEPLOY_DIR/
 
-                # Copy everything from the actual standalone app directory
-                echo "Copying standalone app files..."
-                cp -r $STANDALONE_DIR/* $DEPLOY_DIR/
-
-                # Copy static assets to correct location (they're in temp root, not in standalone)
-                echo "Copying Next.js static assets..."
-                mkdir -p $DEPLOY_DIR/.next/static
+                # Move static assets into standalone structure (standard Next.js pattern)
+                echo "Moving static assets..."
                 if [ -d "$TEMP_DIR/.next/static" ]; then
+                  mkdir -p $DEPLOY_DIR/.next/static
                   cp -r $TEMP_DIR/.next/static/* $DEPLOY_DIR/.next/static/
-                  echo "✓ Static assets copied"
-                else
-                  echo "⚠️  No static assets found (might be normal)"
+                  echo "✓ Static assets moved"
                 fi
 
-                # Copy public folder (from temp root)
-                echo "Copying public folder..."
+                # Move public folder into standalone structure
+                echo "Moving public folder..."
                 if [ -d "$TEMP_DIR/public" ]; then
                   cp -r $TEMP_DIR/public $DEPLOY_DIR/
-                  echo "✓ Public folder copied"
-                else
-                  echo "⚠️  No public folder found"
+                  echo "✓ Public folder moved"
                 fi
 
-                # Copy deployment scripts (from temp root)
-                echo "Copying deployment scripts..."
+                # Copy deployment scripts
                 if [ -d "$TEMP_DIR/scripts" ]; then
                   cp -r $TEMP_DIR/scripts $DEPLOY_DIR/
-                  echo "✓ Scripts copied"
                 fi
 
-                # Create startup script for Azure Web App
-                echo "Creating startup script..."
-                cat > $DEPLOY_DIR/startup.sh <<'STARTUP_EOF'
+                # Create startup script
+                cat > $DEPLOY_DIR/startup.sh <<'EOF'
                 #!/bin/bash
-                echo "=== Next.js Application Startup ==="
-                echo "Node version: $(node --version)"
-                echo "Working directory: $(pwd)"
-                echo ""
+                echo "=== Next.js Startup ==="
+                echo "Node: $(node --version)"
+                echo "Working dir: $(pwd)"
 
-                # List files to verify structure
-                echo "Deployment structure:"
-                ls -la
-                echo ""
-
-                # Check if server.js exists
-                if [ ! -f "server.js" ]; then
-                  echo "❌ ERROR: server.js not found in deployment"
-                  exit 1
-                fi
-
-                # Run basePath replacement if needed
+                # Apply basePath if needed
                 if [ -f "scripts/prepare-deployment.js" ] && [ -n "$RUNTIME_BASEPATH" ]; then
-                  echo "Applying runtime basePath: $RUNTIME_BASEPATH"
+                  echo "Applying basePath: $RUNTIME_BASEPATH"
                   node scripts/prepare-deployment.js
-                  echo ""
                 fi
 
-                # Start Next.js server
-                export PORT=${PORT:-8080}
-                export HOSTNAME=${HOSTNAME:-0.0.0.0}
-
-                echo "Starting Next.js server..."
-                echo "  Port: $PORT"
-                echo "  Hostname: $HOSTNAME"
-                echo "  Runtime BasePath: ${RUNTIME_BASEPATH:-(none)}"
-                echo "  FastAPI URL: ${FASTAPI_URL:-(not set)}"
-                echo ""
-
-                exec node server.js
-                STARTUP_EOF
+                # Start server
+                PORT=${PORT:-8080} HOSTNAME=${HOSTNAME:-0.0.0.0} node server.js
+                EOF
 
                 chmod +x $DEPLOY_DIR/startup.sh
 
+                # Verification
                 echo ""
-                echo "=== Deployment Package Summary ==="
-                echo "Deployment directory: $DEPLOY_DIR"
-                echo ""
-                echo "Structure:"
+                echo "=== Deployment Package ==="
                 ls -lah $DEPLOY_DIR/
                 echo ""
-                echo "Verifying critical files:"
                 [ -f "$DEPLOY_DIR/server.js" ] && echo "✓ server.js" || echo "❌ server.js MISSING"
                 [ -d "$DEPLOY_DIR/.next" ] && echo "✓ .next/" || echo "❌ .next/ MISSING"
-                [ -d "$DEPLOY_DIR/.next/static" ] && echo "✓ .next/static/" || echo "⚠️  .next/static/ missing"
-                [ -d "$DEPLOY_DIR/public" ] && echo "✓ public/" || echo "⚠️  public/ missing"
-                [ -f "$DEPLOY_DIR/startup.sh" ] && echo "✓ startup.sh" || echo "❌ startup.sh MISSING"
-                echo ""
 
-                # Create .deployment file to prevent Kudu/Oryx from running build
-                echo "Creating .deployment file to disable Kudu build..."
-                cat > $DEPLOY_DIR/.deployment <<'DEPLOYMENT_EOF'
-                [config]
-                SCM_DO_BUILD_DURING_DEPLOYMENT=false
-                DEPLOYMENT_EOF
-
-                echo "✓ .deployment file created"
-
-                # Cleanup temp directory
                 rm -rf $TEMP_DIR
-                echo "✓ Deployment package ready"
+                echo "✓ Ready for deployment"
             displayName: 'Prepare Deployment Package'
 
           # Create ZIP for deployment
