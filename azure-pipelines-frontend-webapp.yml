@@ -217,13 +217,7 @@ stages:
                 echo "Node: $(node --version)"
                 echo "Working dir: $(pwd)"
 
-                # Always apply basePath replacement (even if empty for root path)
-                if [ -f "scripts/prepare-deployment.js" ]; then
-                  echo "Applying basePath: ${RUNTIME_BASEPATH:-'(root)'}"
-                  node scripts/prepare-deployment.js
-                fi
-
-                # Start server
+                # Start server directly
                 PORT=${PORT:-8080} HOSTNAME=${HOSTNAME:-0.0.0.0} node server.js
                 EOF
 
