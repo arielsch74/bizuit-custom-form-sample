@@ -323,14 +323,18 @@ stages:
                     scriptLocation: 'inlineScript'
                     inlineScript: |
                       echo "Configuring Azure Web App settings..."
+                      echo "Web App: $WEB_APP_NAME"
+                      echo "Resource Group: $RESOURCE_GROUP"
+                      echo "Runtime BasePath: $RUNTIME_BASEPATH"
+                      echo "Backend API URL: $BACKEND_API_URL"
 
                       # Set runtime environment variables
                       az webapp config appsettings set \
-                        --name $(webAppName) \
-                        --resource-group $(resourceGroup) \
+                        --name "$WEB_APP_NAME" \
+                        --resource-group "$RESOURCE_GROUP" \
                         --settings \
-                          RUNTIME_BASEPATH="$(runtimeBasePath)" \
-                          FASTAPI_URL="$(backendApiUrl)" \
+                          RUNTIME_BASEPATH="$RUNTIME_BASEPATH" \
+                          FASTAPI_URL="$BACKEND_API_URL" \
                           NODE_ENV="production" \
                           WEBSITE_NODE_DEFAULT_VERSION="~22" \
                           SCM_DO_BUILD_DURING_DEPLOYMENT="false" \
@@ -340,19 +344,24 @@ stages:
 
                       # Configure startup command
                       az webapp config set \
-                        --name $(webAppName) \
-                        --resource-group $(resourceGroup) \
+                        --name "$WEB_APP_NAME" \
+                        --resource-group "$RESOURCE_GROUP" \
                         --startup-file "startup.sh"
 
                       echo "✓ Startup command configured"
 
                       # Enable Always On (recommended for production)
                       az webapp config set \
-                        --name $(webAppName) \
-                        --resource-group $(resourceGroup) \
+                        --name "$WEB_APP_NAME" \
+                        --resource-group "$RESOURCE_GROUP" \
                         --always-on true
 
                       echo "✓ Always On enabled"
+                  env:
+                    WEB_APP_NAME: $(webAppName)
+                    RESOURCE_GROUP: $(resourceGroup)
+                    RUNTIME_BASEPATH: $(runtimeBasePath)
+                    BACKEND_API_URL: $(backendApiUrl)
                   displayName: 'Configure Web App Settings'
 
                 # Deploy to Azure Web App
