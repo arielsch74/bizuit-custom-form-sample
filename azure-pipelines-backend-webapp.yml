@@ -1,0 +1,395 @@
+# Azure DevOps Pipeline - Backend (FastAPI) to Azure Web App Linux
+# Deploys custom-forms/backend-api to Azure Web App: bizuit-custom-forms-api
+
+trigger:
+  branches:
+    include:
+      - main
+      - dev
+  paths:
+    include:
+      - custom-forms/backend-api/**
+      - azure-pipelines-backend-webapp.yml
+
+variables:
+  pythonVersion: '3.10'
+  azureSubscription: 'c8538779-b0ee-48be-ba9e-d0c4f883c811'  # Subscription ID
+  webAppName: 'bizuit-custom-forms-api'
+  resourceGroup: 'BIZUIT'
+
+stages:
+  # ==========================================================================
+  # STAGE 1: Build FastAPI Application
+  # ==========================================================================
+  - stage: Build
+    displayName: 'Build FastAPI Application'
+    pool:
+      vmImage: 'ubuntu-latest'  # Linux agent
+    jobs:
+      - job: BuildJob
+        displayName: 'Build Backend API'
+        steps:
+          - checkout: self
+            clean: true
+            displayName: 'Checkout Repository'
+
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '$(pythonVersion)'
+              addToPath: true
+            displayName: 'Install Python $(pythonVersion)'
+
+          # Create deployment package directory
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              script: |
+                echo "Creating deployment package..."
+                mkdir -p $(Build.ArtifactStagingDirectory)/backend-api
+            displayName: 'Create Package Directory'
+
+          # Copy backend source code
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: 'custom-forms/backend-api'
+              Contents: |
+                **/*.py
+                requirements.txt
+                .env.example
+              TargetFolder: '$(Build.ArtifactStagingDirectory)/backend-api'
+            displayName: 'Copy Backend Source Code'
+
+          # Create startup script for Azure Web App
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(Build.ArtifactStagingDirectory)/backend-api'
+              script: |
+                cat > startup.sh <<'STARTUP_EOF'
+                #!/bin/bash
+                # Azure Web App startup script for FastAPI
+
+                echo "=== FastAPI Backend Startup ==="
+                echo "Python version: $(python --version)"
+                echo "Working directory: $(pwd)"
+                echo ""
+
+                # Install dependencies if not cached
+                if [ -f "requirements.txt" ]; then
+                  echo "Installing Python dependencies..."
+                  pip install --no-cache-dir -r requirements.txt
+                  echo "✓ Dependencies installed"
+                else
+                  echo "⚠️  requirements.txt not found"
+                fi
+
+                # Azure Web App sets PORT environment variable
+                export PORT=${PORT:-8080}
+                echo "Starting FastAPI on port $PORT..."
+                echo ""
+
+                # Start Uvicorn with Gunicorn workers (production-ready)
+                # Use 4 workers for better performance
+                exec gunicorn main:app \
+                  --workers 4 \
+                  --worker-class uvicorn.workers.UvicornWorker \
+                  --bind 0.0.0.0:$PORT \
+                  --timeout 120 \
+                  --access-logfile - \
+                  --error-logfile - \
+                  --log-level info
+                STARTUP_EOF
+
+                chmod +x startup.sh
+                echo "✓ Startup script created"
+            displayName: 'Create Startup Script'
+
+          # Update requirements.txt to include gunicorn
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(Build.ArtifactStagingDirectory)/backend-api'
+              script: |
+                echo "Checking for gunicorn in requirements.txt..."
+                if ! grep -q "gunicorn" requirements.txt; then
+                  echo "Adding gunicorn to requirements.txt..."
+                  echo "" >> requirements.txt
+                  echo "# Production WSGI server" >> requirements.txt
+                  echo "gunicorn==21.2.0" >> requirements.txt
+                  echo "✓ gunicorn added"
+                else
+                  echo "✓ gunicorn already in requirements.txt"
+                fi
+            displayName: 'Ensure Gunicorn is in Requirements'
+
+          # Create .env.example for reference (actual .env.local is configured in Azure)
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(Build.ArtifactStagingDirectory)/backend-api'
+              script: |
+                if [ ! -f ".env.example" ]; then
+                  cat > .env.example <<'ENV_EOF'
+                # SQL Server Connection - Dashboard Database
+                DB_SERVER=test.bizuit.com
+                DB_DATABASE=arielschBIZUITDashboard
+                DB_USER=YOUR_USERNAME
+                DB_PASSWORD=YOUR_PASSWORD
+
+                # SQL Server Connection - Persistence Store Database
+                PERSISTENCE_DB_SERVER=test.bizuit.com
+                PERSISTENCE_DB_DATABASE=arielschBizuitPersistenceStore
+                PERSISTENCE_DB_USER=YOUR_USERNAME
+                PERSISTENCE_DB_PASSWORD=YOUR_PASSWORD
+
+                # Bizuit Dashboard API (backend connects to BPM)
+                BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api
+
+                # Security Configuration
+                ADMIN_ALLOWED_ROLES=Administrators,BIZUIT Admins,SuperAdmin,FormManager
+                SESSION_TIMEOUT_MINUTES=30
+                JWT_SECRET_KEY=GENERATE_WITH_openssl_rand_hex_32
+                ENCRYPTION_TOKEN_KEY=24_CHAR_TRIPLEDES_KEY
+
+                # API Configuration
+                API_PORT=8080
+                MAX_UPLOAD_SIZE_MB=50
+                TEMP_UPLOAD_PATH=./temp-uploads
+
+                # CORS Configuration (production - no localhost for security)
+                CORS_ORIGINS=https://test.bizuit.com,https://bizuit-custom-forms-gtg7g8b9gdb8egbh.eastus-01.azurewebsites.net
+
+                # Python Environment
+                PYTHONUNBUFFERED=1
+                ENVIRONMENT=production
+                ENV_EOF
+                  echo "✓ .env.example created"
+                fi
+            displayName: 'Create Environment Example'
+
+          # Verify package structure
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(Build.ArtifactStagingDirectory)/backend-api'
+              script: |
+                echo "=== Deployment Package Structure ==="
+                ls -la
+                echo ""
+                echo "=== Python Files ==="
+                find . -name "*.py" -type f
+                echo ""
+                echo "✓ Package structure verified"
+            displayName: 'Verify Package Structure'
+
+          # Create ZIP for deployment
+          - task: ArchiveFiles@2
+            inputs:
+              rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/backend-api'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/backend-api.zip'
+              replaceExistingArchive: true
+            displayName: 'Create Deployment ZIP'
+
+          # Publish artifact
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)/backend-api.zip'
+              ArtifactName: 'backend-drop'
+              publishLocation: 'Container'
+            displayName: 'Publish Build Artifact'
+
+  # ==========================================================================
+  # STAGE 2: Deploy to Azure Web App
+  # ==========================================================================
+  - stage: Deploy
+    displayName: 'Deploy to Azure Web App'
+    dependsOn: Build
+    condition: succeeded()
+    pool:
+      vmImage: 'ubuntu-latest'
+    jobs:
+      - deployment: DeployJob
+        displayName: 'Deploy to Linux Web App'
+        environment: 'Production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: 'backend-drop'
+                  displayName: 'Download Build Artifact'
+
+                # Configure Web App settings BEFORE deployment
+                - task: AzureCLI@2
+                  inputs:
+                    azureSubscription: 'Azure subscription 1'  # Service connection name
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      echo "Configuring Azure Web App settings..."
+
+                      # Set basic app settings
+                      az webapp config appsettings set \
+                        --name $(webAppName) \
+                        --resource-group $(resourceGroup) \
+                        --settings \
+                          PYTHONUNBUFFERED="1" \
+                          ENVIRONMENT="production" \
+                          WEBSITE_PYTHON_DEFAULT_VERSION="~3.10" \
+                          SCM_DO_BUILD_DURING_DEPLOYMENT="false" \
+                          WEBSITES_ENABLE_APP_SERVICE_STORAGE="false"
+
+                      echo "✓ Basic app settings configured"
+
+                      # Note: Database credentials and secrets should be set manually
+                      # via Azure Portal for security (not in pipeline)
+                      echo ""
+                      echo "⚠️  IMPORTANT: Ensure the following secrets are configured in Azure Portal:"
+                      echo "  - DB_SERVER, DB_DATABASE, DB_USER, DB_PASSWORD"
+                      echo "  - PERSISTENCE_DB_SERVER, PERSISTENCE_DB_DATABASE, PERSISTENCE_DB_USER, PERSISTENCE_DB_PASSWORD"
+                      echo "  - BIZUIT_DASHBOARD_API_URL"
+                      echo "  - JWT_SECRET_KEY (generate with: openssl rand -hex 32)"
+                      echo "  - ENCRYPTION_TOKEN_KEY (24 chars, must match Dashboard)"
+                      echo "  - CORS_ORIGINS"
+                      echo ""
+
+                      # Configure startup command
+                      az webapp config set \
+                        --name $(webAppName) \
+                        --resource-group $(resourceGroup) \
+                        --startup-file "startup.sh"
+
+                      echo "✓ Startup command configured"
+
+                      # Enable Always On (recommended for production APIs)
+                      az webapp config set \
+                        --name $(webAppName) \
+                        --resource-group $(resourceGroup) \
+                        --always-on true
+
+                      echo "✓ Always On enabled"
+
+                      # Configure logging
+                      az webapp log config \
+                        --name $(webAppName) \
+                        --resource-group $(resourceGroup) \
+                        --application-logging filesystem \
+                        --level information
+
+                      echo "✓ Application logging enabled"
+                  displayName: 'Configure Web App Settings'
+
+                # Deploy to Azure Web App
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: 'Azure subscription 1'  # Service connection name
+                    appType: 'webAppLinux'
+                    appName: '$(webAppName)'
+                    package: '$(Pipeline.Workspace)/backend-drop/backend-api.zip'
+                    runtimeStack: 'PYTHON|3.10'
+                    startUpCommand: 'startup.sh'
+                  displayName: 'Deploy to Azure Web App'
+
+                # Health check
+                - task: AzureCLI@2
+                  inputs:
+                    azureSubscription: 'Azure subscription 1'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      echo "Performing health check..."
+
+                      # Get Web App URL
+                      APP_URL=$(az webapp show \
+                        --name $(webAppName) \
+                        --resource-group $(resourceGroup) \
+                        --query "defaultHostName" -o tsv)
+
+                      # Test health endpoint
+                      HEALTH_URL="https://${APP_URL}/health"
+                      echo "Testing health endpoint: $HEALTH_URL"
+
+                      # Wait for deployment to complete and app to start
+                      MAX_ATTEMPTS=20
+                      ATTEMPT=1
+                      SUCCESS=false
+
+                      while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+                        echo "Health check attempt $ATTEMPT of $MAX_ATTEMPTS..."
+                        sleep 10
+
+                        HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -L "$HEALTH_URL" || echo "000")
+
+                        if [ "$HTTP_CODE" = "200" ]; then
+                          echo "✅ Backend API is healthy! (HTTP $HTTP_CODE)"
+
+                          # Get health response
+                          HEALTH_RESPONSE=$(curl -s "$HEALTH_URL")
+                          echo "Health response: $HEALTH_RESPONSE"
+
+                          SUCCESS=true
+                          break
+                        else
+                          echo "Not ready yet (HTTP $HTTP_CODE)..."
+                        fi
+
+                        ATTEMPT=$((ATTEMPT + 1))
+                      done
+
+                      if [ "$SUCCESS" = "false" ]; then
+                        echo ""
+                        echo "❌ Health check failed after $MAX_ATTEMPTS attempts"
+                        echo ""
+                        echo "=== Troubleshooting ==="
+                        echo "1. Check application logs:"
+                        echo "   az webapp log tail --name $(webAppName) --resource-group $(resourceGroup)"
+                        echo ""
+                        echo "2. Verify environment variables are set in Azure Portal:"
+                        echo "   az webapp config appsettings list --name $(webAppName) --resource-group $(resourceGroup)"
+                        echo ""
+                        echo "3. SSH into container:"
+                        echo "   az webapp ssh --name $(webAppName) --resource-group $(resourceGroup)"
+                        echo ""
+                        exit 1
+                      fi
+
+                      echo ""
+                      echo "=== Deployment Successful ==="
+                      echo "API URL: https://${APP_URL}"
+                      echo "Health endpoint: $HEALTH_URL"
+                      echo "================================"
+                  displayName: 'Health Check'
+
+                # Test database connection (optional, only if DB credentials are set)
+                - task: AzureCLI@2
+                  inputs:
+                    azureSubscription: 'Azure subscription 1'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      echo "Testing database connectivity..."
+
+                      APP_URL=$(az webapp show \
+                        --name $(webAppName) \
+                        --resource-group $(resourceGroup) \
+                        --query "defaultHostName" -o tsv)
+
+                      DB_TEST_URL="https://${APP_URL}/admin/db-test"
+
+                      HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -L "$DB_TEST_URL" || echo "000")
+
+                      if [ "$HTTP_CODE" = "200" ]; then
+                        echo "✅ Database connection successful"
+                        DB_RESPONSE=$(curl -s "$DB_TEST_URL")
+                        echo "$DB_RESPONSE"
+                      else
+                        echo "⚠️  Database connection test failed (HTTP $HTTP_CODE)"
+                        echo "This is expected if database credentials are not yet configured"
+                        echo "Configure database settings in Azure Portal:"
+                        echo "  DB_SERVER, DB_DATABASE, DB_USER, DB_PASSWORD"
+                        echo "  PERSISTENCE_DB_SERVER, PERSISTENCE_DB_DATABASE, etc."
+                      fi
+                  displayName: 'Test Database Connection'
+                  continueOnError: true  # Don't fail pipeline if DB not configured yet

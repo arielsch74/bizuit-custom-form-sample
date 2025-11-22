@@ -1,0 +1,338 @@
+# Azure DevOps Pipeline - Frontend (Next.js) to Azure Web App Linux
+# Deploys custom-forms/runtime-app to Azure Web App: bizuit-custom-forms
+
+trigger:
+  branches:
+    include:
+      - main
+      - dev
+  paths:
+    include:
+      - custom-forms/runtime-app/**
+      - packages/**
+      - azure-pipelines-frontend-webapp.yml
+
+variables:
+  nodeVersion: '22.x'
+  azureSubscription: 'c8538779-b0ee-48be-ba9e-d0c4f883c811'  # Subscription ID
+  webAppName: 'bizuit-custom-forms'
+  resourceGroup: 'BIZUIT'
+
+  # Runtime basePath for deployment
+  runtimeBasePath: '/bizuitforms'  # Can be changed as needed
+
+stages:
+  # ==========================================================================
+  # STAGE 1: Build Next.js Application
+  # ==========================================================================
+  - stage: Build
+    displayName: 'Build Next.js Application'
+    pool:
+      vmImage: 'ubuntu-latest'  # Linux agent for faster builds
+    jobs:
+      - job: BuildJob
+        displayName: 'Build Runtime App'
+        steps:
+          - checkout: self
+            clean: true
+            displayName: 'Checkout Repository'
+
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '$(nodeVersion)'
+            displayName: 'Install Node.js $(nodeVersion)'
+
+          # Build packages first (SDK + UI components)
+          - task: Npm@1
+            inputs:
+              command: 'ci'
+              workingDir: 'packages/bizuit-form-sdk'
+            displayName: 'Install SDK Dependencies'
+
+          - task: Npm@1
+            inputs:
+              command: 'custom'
+              customCommand: 'run build'
+              workingDir: 'packages/bizuit-form-sdk'
+            displayName: 'Build SDK Package'
+
+          - task: Npm@1
+            inputs:
+              command: 'ci'
+              workingDir: 'packages/bizuit-ui-components'
+            displayName: 'Install UI Components Dependencies'
+
+          - task: Npm@1
+            inputs:
+              command: 'custom'
+              customCommand: 'run build'
+              workingDir: 'packages/bizuit-ui-components'
+            displayName: 'Build UI Components Package'
+
+          # Install runtime app dependencies
+          - task: Npm@1
+            inputs:
+              command: 'ci'
+              workingDir: 'custom-forms/runtime-app'
+            displayName: 'Install Runtime App Dependencies'
+
+          # Create .env.local for build (build-time variables)
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              workingDirectory: 'custom-forms/runtime-app'
+              script: |
+                echo "Creating .env.local for build..."
+                cat > .env.local <<'EOF'
+                # Build-time Environment Variables
+                # These are baked into the Next.js build
+
+                # Base path for Azure Web App deployment
+                NEXT_PUBLIC_BASE_PATH=$(runtimeBasePath)
+
+                # Bizuit BPM Dashboard API URL (browser connects to BPM)
+                NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api
+
+                # Custom Forms Backend API URL (browser connects to FastAPI backend)
+                # Will be updated to point to second Web App after backend deployment
+                NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://bizuit-custom-forms-api.azurewebsites.net
+
+                # Timeouts and configuration
+                NEXT_PUBLIC_BIZUIT_TIMEOUT=30000
+                NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES=1440
+
+                # Session timeout
+                NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30
+
+                # 🔒 CRITICAL SECURITY: Production mode (no dev access)
+                NEXT_PUBLIC_ALLOW_DEV_MODE=false
+
+                # Environment
+                NODE_ENV=production
+                EOF
+
+                echo "✓ .env.local created"
+                cat .env.local
+            displayName: 'Create Build Environment Configuration'
+
+          # Build Next.js with standalone output
+          - task: Npm@1
+            inputs:
+              command: 'custom'
+              customCommand: 'run build'
+              workingDir: 'custom-forms/runtime-app'
+            displayName: 'Build Next.js Application'
+            env:
+              NEXT_PUBLIC_BASE_PATH: '$(runtimeBasePath)'
+              NODE_ENV: 'production'
+
+          # Prepare deployment package
+          - task: Bash@3
+            inputs:
+              targetType: 'inline'
+              workingDirectory: 'custom-forms/runtime-app'
+              script: |
+                echo "Preparing deployment package..."
+
+                # Create deployment directory
+                mkdir -p $(Build.ArtifactStagingDirectory)/runtime-app
+
+                # Copy standalone build (includes server.js, node_modules, .next)
+                if [ -d ".next/standalone/runtime-app" ]; then
+                  echo "✓ Copying standalone build..."
+                  cp -r .next/standalone/runtime-app/* $(Build.ArtifactStagingDirectory)/runtime-app/
+                else
+                  echo "❌ Standalone build not found! Ensure next.config.js has output: 'standalone'"
+                  exit 1
+                fi
+
+                # Copy static assets (not included in standalone)
+                echo "✓ Copying static assets..."
+                mkdir -p $(Build.ArtifactStagingDirectory)/runtime-app/.next/static
+                cp -r .next/static/* $(Build.ArtifactStagingDirectory)/runtime-app/.next/static/
+
+                # Copy public folder (images, fonts, etc.)
+                if [ -d "public" ]; then
+                  echo "✓ Copying public assets..."
+                  cp -r public $(Build.ArtifactStagingDirectory)/runtime-app/
+                fi
+
+                # Create startup script for Azure Web App
+                cat > $(Build.ArtifactStagingDirectory)/runtime-app/startup.sh <<'STARTUP_EOF'
+                #!/bin/bash
+                # Azure Web App startup script for Next.js
+
+                echo "Starting Next.js application..."
+                echo "Node version: $(node --version)"
+                echo "Working directory: $(pwd)"
+
+                # Run basePath replacement if script exists
+                if [ -f "scripts/prepare-deployment.js" ] && [ -n "$RUNTIME_BASEPATH" ]; then
+                  echo "Applying runtime basePath: $RUNTIME_BASEPATH"
+                  node scripts/prepare-deployment.js
+                fi
+
+                # Start Next.js server
+                export PORT=${PORT:-8080}  # Azure Web App uses PORT env var
+                echo "Starting server on port $PORT..."
+                node server.js
+                STARTUP_EOF
+
+                chmod +x $(Build.ArtifactStagingDirectory)/runtime-app/startup.sh
+                echo "✓ Startup script created"
+
+                # Copy prepare-deployment script if exists
+                if [ -d "scripts" ]; then
+                  echo "✓ Copying deployment scripts..."
+                  cp -r scripts $(Build.ArtifactStagingDirectory)/runtime-app/
+                fi
+
+                # Verify package structure
+                echo ""
+                echo "=== Deployment Package Structure ==="
+                ls -la $(Build.ArtifactStagingDirectory)/runtime-app/
+                echo ""
+                echo "✓ Deployment package prepared"
+            displayName: 'Prepare Deployment Package'
+
+          # Create ZIP for deployment
+          - task: ArchiveFiles@2
+            inputs:
+              rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/runtime-app'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/runtime-app.zip'
+              replaceExistingArchive: true
+            displayName: 'Create Deployment ZIP'
+
+          # Publish artifact
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)/runtime-app.zip'
+              ArtifactName: 'frontend-drop'
+              publishLocation: 'Container'
+            displayName: 'Publish Build Artifact'
+
+  # ==========================================================================
+  # STAGE 2: Deploy to Azure Web App
+  # ==========================================================================
+  - stage: Deploy
+    displayName: 'Deploy to Azure Web App'
+    dependsOn: Build
+    condition: succeeded()
+    pool:
+      vmImage: 'ubuntu-latest'
+    jobs:
+      - deployment: DeployJob
+        displayName: 'Deploy to Linux Web App'
+        environment: 'Production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: 'frontend-drop'
+                  displayName: 'Download Build Artifact'
+
+                # Configure Web App settings BEFORE deployment
+                - task: AzureCLI@2
+                  inputs:
+                    azureSubscription: 'Azure subscription 1'  # Service connection name
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      echo "Configuring Azure Web App settings..."
+
+                      # Set runtime basePath as environment variable (used by startup script)
+                      az webapp config appsettings set \
+                        --name $(webAppName) \
+                        --resource-group $(resourceGroup) \
+                        --settings \
+                          RUNTIME_BASEPATH="$(runtimeBasePath)" \
+                          NODE_ENV="production" \
+                          WEBSITE_NODE_DEFAULT_VERSION="~22" \
+                          SCM_DO_BUILD_DURING_DEPLOYMENT="false" \
+                          WEBSITES_ENABLE_APP_SERVICE_STORAGE="false"
+
+                      echo "✓ App settings configured"
+
+                      # Configure startup command
+                      az webapp config set \
+                        --name $(webAppName) \
+                        --resource-group $(resourceGroup) \
+                        --startup-file "startup.sh"
+
+                      echo "✓ Startup command configured"
+
+                      # Enable Always On (recommended for production)
+                      az webapp config set \
+                        --name $(webAppName) \
+                        --resource-group $(resourceGroup) \
+                        --always-on true
+
+                      echo "✓ Always On enabled"
+                  displayName: 'Configure Web App Settings'
+
+                # Deploy to Azure Web App
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: 'Azure subscription 1'  # Service connection name
+                    appType: 'webAppLinux'
+                    appName: '$(webAppName)'
+                    package: '$(Pipeline.Workspace)/frontend-drop/runtime-app.zip'
+                    runtimeStack: 'NODE|22-lts'
+                    startUpCommand: 'startup.sh'
+                  displayName: 'Deploy to Azure Web App'
+
+                # Health check
+                - task: AzureCLI@2
+                  inputs:
+                    azureSubscription: 'Azure subscription 1'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      echo "Performing health check..."
+
+                      # Get Web App URL
+                      APP_URL=$(az webapp show \
+                        --name $(webAppName) \
+                        --resource-group $(resourceGroup) \
+                        --query "defaultHostName" -o tsv)
+
+                      FULL_URL="https://${APP_URL}$(runtimeBasePath)"
+
+                      echo "Testing URL: $FULL_URL"
+
+                      # Wait for deployment to complete and app to start
+                      MAX_ATTEMPTS=15
+                      ATTEMPT=1
+                      SUCCESS=false
+
+                      while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+                        echo "Health check attempt $ATTEMPT of $MAX_ATTEMPTS..."
+                        sleep 10
+
+                        HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -L "$FULL_URL" || echo "000")
+
+                        if [ "$HTTP_CODE" = "200" ]; then
+                          echo "✅ Application is healthy! (HTTP $HTTP_CODE)"
+                          SUCCESS=true
+                          break
+                        else
+                          echo "Not ready yet (HTTP $HTTP_CODE)..."
+                        fi
+
+                        ATTEMPT=$((ATTEMPT + 1))
+                      done
+
+                      if [ "$SUCCESS" = "false" ]; then
+                        echo "❌ Health check failed after $MAX_ATTEMPTS attempts"
+                        echo "Check application logs with: az webapp log tail --name $(webAppName) --resource-group $(resourceGroup)"
+                        exit 1
+                      fi
+
+                      echo ""
+                      echo "=== Deployment Successful ==="
+                      echo "Application URL: $FULL_URL"
+                      echo "================================"
+                  displayName: 'Health Check'

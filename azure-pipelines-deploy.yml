@@ -492,9 +492,11 @@ stages:
                           # Replace placeholders in web.config
                           Write-Host "Configuring web.config with runtime values..." -ForegroundColor Gray
                           $content = Get-Content "web.config" -Raw
+                          # Remove leading slash from basePath for replacement (template already has /)
+                          $basePathNoSlash = '$(runtimeBasePath)' -replace '^/', ''
                           $content = $content -replace '__RUNTIME_PORT__', '$(runtimePort)'
                           $content = $content -replace '__BACKEND_PORT__', '$(backendPort)'
-                          $content = $content -replace '__RUNTIME_BASEPATH__', '$(runtimeBasePath)'
+                          $content = $content -replace '__RUNTIME_BASEPATH__', $basePathNoSlash
                           Set-Content -Path "web.config" -Value $content -NoNewline
                           Write-Host "✓ web.config configured: runtime=$(runtimePort), backend=$(backendPort), basePath=$(runtimeBasePath)"
 
