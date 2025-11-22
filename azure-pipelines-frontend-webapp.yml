@@ -8,7 +8,6 @@ trigger:
   paths:
     include:
       - custom-forms/runtime-app/**
-      - packages/**
 
 variables:
   nodeVersion: '22.x'
