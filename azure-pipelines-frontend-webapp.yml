@@ -146,56 +146,134 @@ stages:
             inputs:
               targetType: 'inline'
               script: |
-                echo "Preparing deployment package..."
+                echo "=== Preparing Next.js Standalone Deployment Package ==="
 
-                # Move standalone content to root
-                if [ -d "$(Build.ArtifactStagingDirectory)/runtime-app-temp/.next/standalone" ]; then
-                  mv $(Build.ArtifactStagingDirectory)/runtime-app-temp/.next/standalone $(Build.ArtifactStagingDirectory)/runtime-app
+                TEMP_DIR="$(Build.ArtifactStagingDirectory)/runtime-app-temp"
+                DEPLOY_DIR="$(Build.ArtifactStagingDirectory)/runtime-app"
 
-                  # Copy static assets to correct location
-                  mkdir -p $(Build.ArtifactStagingDirectory)/runtime-app/.next/static
-                  cp -r $(Build.ArtifactStagingDirectory)/runtime-app-temp/.next/static/* $(Build.ArtifactStagingDirectory)/runtime-app/.next/static/
+                echo "Temp directory: $TEMP_DIR"
+                echo "Deployment directory: $DEPLOY_DIR"
+                echo ""
 
-                  # Copy public folder
-                  if [ -d "$(Build.ArtifactStagingDirectory)/runtime-app-temp/public" ]; then
-                    cp -r $(Build.ArtifactStagingDirectory)/runtime-app-temp/public $(Build.ArtifactStagingDirectory)/runtime-app/
-                  fi
+                # Check standalone build structure
+                echo "Checking standalone build structure..."
+                STANDALONE_BASE="$TEMP_DIR/.next/standalone"
 
-                  # Copy deployment scripts
-                  if [ -d "$(Build.ArtifactStagingDirectory)/runtime-app-temp/scripts" ]; then
-                    cp -r $(Build.ArtifactStagingDirectory)/runtime-app-temp/scripts $(Build.ArtifactStagingDirectory)/runtime-app/
-                  fi
-                else
-                  echo "❌ Standalone build not found!"
+                if [ ! -d "$STANDALONE_BASE" ]; then
+                  echo "❌ ERROR: Standalone build not found at $STANDALONE_BASE"
+                  ls -la $TEMP_DIR
                   exit 1
                 fi
 
-                # Create startup script
-                cat > $(Build.ArtifactStagingDirectory)/runtime-app/startup.sh <<'STARTUP_EOF'
+                # With outputFileTracingRoot, structure is: .next/standalone/custom-forms/runtime-app/
+                # We need to find where server.js actually is
+                STANDALONE_APP=$(find $STANDALONE_BASE -name "server.js" -type f | head -1)
+
+                if [ -z "$STANDALONE_APP" ]; then
+                  echo "❌ ERROR: server.js not found in standalone build"
+                  echo "Directory structure:"
+                  find $STANDALONE_BASE -type f | head -20
+                  exit 1
+                fi
+
+                STANDALONE_DIR=$(dirname "$STANDALONE_APP")
+                echo "✓ Found server.js at: $STANDALONE_DIR"
+                echo ""
+
+                # Create deployment directory
+                mkdir -p $DEPLOY_DIR
+
+                # Copy everything from the actual standalone app directory
+                echo "Copying standalone app files..."
+                cp -r $STANDALONE_DIR/* $DEPLOY_DIR/
+
+                # Copy static assets to correct location (they're in temp root, not in standalone)
+                echo "Copying Next.js static assets..."
+                mkdir -p $DEPLOY_DIR/.next/static
+                if [ -d "$TEMP_DIR/.next/static" ]; then
+                  cp -r $TEMP_DIR/.next/static/* $DEPLOY_DIR/.next/static/
+                  echo "✓ Static assets copied"
+                else
+                  echo "⚠️  No static assets found (might be normal)"
+                fi
+
+                # Copy public folder (from temp root)
+                echo "Copying public folder..."
+                if [ -d "$TEMP_DIR/public" ]; then
+                  cp -r $TEMP_DIR/public $DEPLOY_DIR/
+                  echo "✓ Public folder copied"
+                else
+                  echo "⚠️  No public folder found"
+                fi
+
+                # Copy deployment scripts (from temp root)
+                echo "Copying deployment scripts..."
+                if [ -d "$TEMP_DIR/scripts" ]; then
+                  cp -r $TEMP_DIR/scripts $DEPLOY_DIR/
+                  echo "✓ Scripts copied"
+                fi
+
+                # Create startup script for Azure Web App
+                echo "Creating startup script..."
+                cat > $DEPLOY_DIR/startup.sh <<'STARTUP_EOF'
                 #!/bin/bash
-                echo "Starting Next.js application..."
+                echo "=== Next.js Application Startup ==="
                 echo "Node version: $(node --version)"
                 echo "Working directory: $(pwd)"
+                echo ""
+
+                # List files to verify structure
+                echo "Deployment structure:"
+                ls -la
+                echo ""
+
+                # Check if server.js exists
+                if [ ! -f "server.js" ]; then
+                  echo "❌ ERROR: server.js not found in deployment"
+                  exit 1
+                fi
 
                 # Run basePath replacement if needed
                 if [ -f "scripts/prepare-deployment.js" ] && [ -n "$RUNTIME_BASEPATH" ]; then
                   echo "Applying runtime basePath: $RUNTIME_BASEPATH"
                   node scripts/prepare-deployment.js
+                  echo ""
                 fi
 
                 # Start Next.js server
                 export PORT=${PORT:-8080}
-                echo "Starting server on port $PORT..."
-                node server.js
+                export HOSTNAME=${HOSTNAME:-0.0.0.0}
+
+                echo "Starting Next.js server..."
+                echo "  Port: $PORT"
+                echo "  Hostname: $HOSTNAME"
+                echo "  Runtime BasePath: ${RUNTIME_BASEPATH:-(none)}"
+                echo "  FastAPI URL: ${FASTAPI_URL:-(not set)}"
+                echo ""
+
+                exec node server.js
                 STARTUP_EOF
 
-                chmod +x $(Build.ArtifactStagingDirectory)/runtime-app/startup.sh
+                chmod +x $DEPLOY_DIR/startup.sh
+
+                echo ""
+                echo "=== Deployment Package Summary ==="
+                echo "Deployment directory: $DEPLOY_DIR"
+                echo ""
+                echo "Structure:"
+                ls -lah $DEPLOY_DIR/
+                echo ""
+                echo "Verifying critical files:"
+                [ -f "$DEPLOY_DIR/server.js" ] && echo "✓ server.js" || echo "❌ server.js MISSING"
+                [ -d "$DEPLOY_DIR/.next" ] && echo "✓ .next/" || echo "❌ .next/ MISSING"
+                [ -d "$DEPLOY_DIR/.next/static" ] && echo "✓ .next/static/" || echo "⚠️  .next/static/ missing"
+                [ -d "$DEPLOY_DIR/public" ] && echo "✓ public/" || echo "⚠️  public/ missing"
+                [ -f "$DEPLOY_DIR/startup.sh" ] && echo "✓ startup.sh" || echo "❌ startup.sh MISSING"
+                echo ""
 
                 # Cleanup temp directory
-                rm -rf $(Build.ArtifactStagingDirectory)/runtime-app-temp
-
-                echo "✓ Deployment package prepared"
-                ls -la $(Build.ArtifactStagingDirectory)/runtime-app/
+                rm -rf $TEMP_DIR
+                echo "✓ Deployment package ready"
             displayName: 'Prepare Deployment Package'
 
           # Create ZIP for deployment
@@ -284,6 +362,7 @@ stages:
                     appType: 'webAppLinux'
                     appName: '$(webAppName)'
                     package: '$(Pipeline.Workspace)/frontend-drop/runtime-app.zip'
+                    deploymentMethod: 'zipDeploy'
                     runtimeStack: 'NODE|22-lts'
                     startUpCommand: 'startup.sh'
                   displayName: 'Deploy to Azure Web App'
