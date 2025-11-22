@@ -172,13 +172,17 @@ stages:
                 echo "Copying Next.js manifests and BUILD_ID..."
                 mkdir -p $DEPLOY_DIR/.next
 
-                # Copy all manifest files and BUILD_ID from .next/ root
-                for file in BUILD_ID *.json; do
-                  if [ -f "$TEMP_DIR/.next/$file" ]; then
-                    cp "$TEMP_DIR/.next/$file" "$DEPLOY_DIR/.next/"
-                    echo "  ✓ $file"
-                  fi
-                done
+                # Copy BUILD_ID if exists
+                if [ -f "$TEMP_DIR/.next/BUILD_ID" ]; then
+                  cp "$TEMP_DIR/.next/BUILD_ID" "$DEPLOY_DIR/.next/"
+                  echo "  ✓ BUILD_ID"
+                fi
+
+                # Copy all .json manifest files from .next/ root
+                if ls $TEMP_DIR/.next/*.json 1> /dev/null 2>&1; then
+                  cp $TEMP_DIR/.next/*.json $DEPLOY_DIR/.next/
+                  echo "  ✓ Copied $(ls $TEMP_DIR/.next/*.json | wc -l) manifest files"
+                fi
 
                 # Move public folder into standalone structure
                 echo "Moving public folder..."
