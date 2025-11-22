@@ -14,7 +14,7 @@ trigger:
 
 variables:
   nodeVersion: '22.x'
-  azureSubscription: 'c8538779-b0ee-48be-ba9e-d0c4f883c811'  # Subscription ID
+  azureSubscription: 'Azure BIZUIT'  # Service Connection name
   webAppName: 'bizuit-custom-forms'
   resourceGroup: 'BIZUIT'
 
@@ -95,7 +95,7 @@ stages:
 
                 # Custom Forms Backend API URL (browser connects to FastAPI backend)
                 # Will be updated to point to second Web App after backend deployment
-                NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://bizuit-custom-forms-api.azurewebsites.net
+                NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://bizuit-custom-forms-api-c0c3c9fbb8adafbh.eastus-01.azurewebsites.net
 
                 # Timeouts and configuration
                 NEXT_PUBLIC_BIZUIT_TIMEOUT=30000
@@ -225,7 +225,7 @@ stages:
     jobs:
       - deployment: DeployJob
         displayName: 'Deploy to Linux Web App'
-        environment: 'Production'
+        environment: 'Azure'
         strategy:
           runOnce:
             deploy:
@@ -237,7 +237,7 @@ stages:
                 # Configure Web App settings BEFORE deployment
                 - task: AzureCLI@2
                   inputs:
-                    azureSubscription: 'Azure subscription 1'  # Service connection name
+                    azureSubscription: '$(azureSubscription)'  # Use variable
                     scriptType: 'bash'
                     scriptLocation: 'inlineScript'
                     inlineScript: |
@@ -276,7 +276,7 @@ stages:
                 # Deploy to Azure Web App
                 - task: AzureWebApp@1
                   inputs:
-                    azureSubscription: 'Azure subscription 1'  # Service connection name
+                    azureSubscription: '$(azureSubscription)'  # Use variable
                     appType: 'webAppLinux'
                     appName: '$(webAppName)'
                     package: '$(Pipeline.Workspace)/frontend-drop/runtime-app.zip'
@@ -287,7 +287,7 @@ stages:
                 # Health check
                 - task: AzureCLI@2
                   inputs:
-                    azureSubscription: 'Azure subscription 1'
+                    azureSubscription: '$(azureSubscription)'
                     scriptType: 'bash'
                     scriptLocation: 'inlineScript'
                     inlineScript: |
