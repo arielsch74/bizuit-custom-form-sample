@@ -357,5 +357,3 @@ All components support latest versions of:
 - Component naming: PascalCase
 - Hooks: camelCase with `use` prefix
 - File naming: kebab-case for components, camelCase for utilities
-
-
