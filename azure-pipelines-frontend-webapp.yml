@@ -389,8 +389,23 @@ stages:
 
                       echo "Publishing credentials obtained"
 
-                      # Get Kudu URL
-                      KUDU_URL="https://$WEB_APP_NAME.scm.eastus-01.azurewebsites.net"
+                      # Get Kudu URL from Web App properties
+                      echo "Getting Kudu URL..."
+                      KUDU_URL=$(az webapp show \
+                        --name "$WEB_APP_NAME" \
+                        --resource-group "$RESOURCE_GROUP" \
+                        --query "enabledHostNames" -o tsv | grep -o "[^ ]*\.scm\.[^ ]*" | head -1)
+
+                      if [ -z "$KUDU_URL" ]; then
+                        # Fallback: construct from default hostname
+                        DEFAULT_HOSTNAME=$(az webapp show \
+                          --name "$WEB_APP_NAME" \
+                          --resource-group "$RESOURCE_GROUP" \
+                          --query "defaultHostName" -o tsv)
+                        KUDU_URL=$(echo "$DEFAULT_HOSTNAME" | sed 's/\.azurewebsites\.net/.scm.azurewebsites.net/')
+                      fi
+
+                      KUDU_URL="https://$KUDU_URL"
                       echo "Kudu URL: $KUDU_URL"
 
                       # Deploy using Kudu ZipDeploy API
