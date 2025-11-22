@@ -5,12 +5,10 @@ trigger:
   branches:
     include:
       - main
-      - dev
   paths:
     include:
       - custom-forms/runtime-app/**
       - packages/**
-      - azure-pipelines-frontend-webapp.yml
 
 variables:
   nodeVersion: '22.x'
