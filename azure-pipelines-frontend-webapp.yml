@@ -470,31 +470,42 @@ stages:
                       echo "=== Applying basePath Configuration ===="
                       echo "Runtime basePath: ${RUNTIME_BASEPATH:-'(root)'}"
 
-                      # Only run prepare-deployment.js if basePath is NOT empty
+                      # IMPORTANT: ALWAYS run prepare-deployment.js because next.config.js ALWAYS uses
+                      # __RUNTIME_BASEPATH__ placeholder in production builds (regardless of NEXT_PUBLIC_BASE_PATH)
+                      # When basePath is empty, we need to replace /__RUNTIME_BASEPATH__ with empty string
+
                       if [ -n "$RUNTIME_BASEPATH" ]; then
-                        echo "Running prepare-deployment.js to replace __RUNTIME_BASEPATH__ with '$RUNTIME_BASEPATH'"
-
-                        # Execute Node.js script via Kudu command API
-                        PREPARE_RESULT=$(curl -s -u "$USERNAME:$PASSWORD" \
-                          -H "Content-Type: application/json" \
-                          -X POST \
-                          "$KUDU_URL/api/command" \
-                          -d "{\"command\": \"RUNTIME_BASEPATH='$RUNTIME_BASEPATH' node scripts/prepare-deployment.js\", \"dir\": \"/home/site/wwwroot\"}")
-
-                        echo "Prepare-deployment output:"
-                        echo "$PREPARE_RESULT" | jq '.'
-
-                        # Check if command succeeded
-                        EXIT_CODE=$(echo "$PREPARE_RESULT" | jq -r '.ExitCode // "1"')
-                        if [ "$EXIT_CODE" != "0" ]; then
-                          echo "❌ prepare-deployment.js failed with exit code: $EXIT_CODE"
-                          exit 1
-                        else
-                          echo "✓ basePath configuration applied successfully"
-                        fi
+                        echo "Running prepare-deployment.js to replace /__RUNTIME_BASEPATH__ with '$RUNTIME_BASEPATH'"
+                        COMMAND="RUNTIME_BASEPATH='$RUNTIME_BASEPATH' node scripts/prepare-deployment.js"
                       else
-                        echo "✓ basePath is empty (root path) - no placeholder replacement needed"
-                        echo "  Build was already configured with NEXT_PUBLIC_BASE_PATH=''"
+                        echo "Running prepare-deployment.js to replace /__RUNTIME_BASEPATH__ with empty string (root path)"
+                        # For empty basePath, use unset variable so prepare-deployment.js uses default empty string
+                        COMMAND="node scripts/prepare-deployment.js"
+                      fi
+
+                      # Execute Node.js script via Kudu command API
+                      PREPARE_RESULT=$(curl -s -u "$USERNAME:$PASSWORD" \
+                        -H "Content-Type: application/json" \
+                        -X POST \
+                        "$KUDU_URL/api/command" \
+                        -d "{\"command\": \"$COMMAND\", \"dir\": \"/home/site/wwwroot\"}")
+
+                      echo "Prepare-deployment output:"
+                      echo "$PREPARE_RESULT" | jq '.'
+
+                      # Check if command succeeded
+                      EXIT_CODE=$(echo "$PREPARE_RESULT" | jq -r '.ExitCode // "1"')
+                      if [ "$EXIT_CODE" != "0" ]; then
+                        echo "❌ prepare-deployment.js failed with exit code: $EXIT_CODE"
+                        echo "Error output:"
+                        echo "$PREPARE_RESULT" | jq -r '.Error'
+                        exit 1
+                      else
+                        echo "✓ basePath configuration applied successfully"
+                        OUTPUT=$(echo "$PREPARE_RESULT" | jq -r '.Output')
+                        if [ -n "$OUTPUT" ]; then
+                          echo "$OUTPUT"
+                        fi
                       fi
 
                       # Verify files were extracted
