@@ -168,6 +168,15 @@ stages:
                   echo "✓ Static assets moved"
                 fi
 
+                # Copy BUILD_ID (required by Next.js standalone mode)
+                echo "Copying BUILD_ID..."
+                if [ -f "$TEMP_DIR/.next/BUILD_ID" ]; then
+                  cp $TEMP_DIR/.next/BUILD_ID $DEPLOY_DIR/.next/BUILD_ID
+                  echo "✓ BUILD_ID copied"
+                else
+                  echo "❌ WARNING: BUILD_ID not found!"
+                fi
+
                 # Move public folder into standalone structure
                 echo "Moving public folder..."
                 if [ -d "$TEMP_DIR/public" ]; then
