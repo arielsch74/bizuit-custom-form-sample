@@ -180,6 +180,11 @@ stages:
                   cp -r $TEMP_DIR/scripts $DEPLOY_DIR/
                 fi
 
+                # Remove package.json to prevent Oryx from running build
+                echo "Removing package.json to prevent Oryx build..."
+                rm -f $DEPLOY_DIR/package.json
+                echo "✓ package.json removed"
+
                 # Create startup script
                 cat > $DEPLOY_DIR/startup.sh <<'EOF'
                 #!/bin/bash
