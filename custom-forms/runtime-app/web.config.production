@@ -35,19 +35,13 @@
           <action type="Redirect" url="{R:1}" redirectType="Permanent" />
         </rule>
 
-        <!-- Rule 1: Deployment API - Strip basePath and proxy to FastAPI -->
-        <rule name="Deployment API with basePath (FastAPI)" stopProcessing="true">
-          <match url="^api/deployment/(.*)" />
-          <action type="Rewrite" url="http://localhost:__BACKEND_PORT__/api/deployment/{R:1}" />
-        </rule>
-
-        <!-- Rule 2: Root path - Add basePath when proxying to Next.js -->
+        <!-- Rule 1: Root path - Add basePath when proxying to Next.js -->
         <rule name="Next.js Root" stopProcessing="true">
           <match url="^$" />
           <action type="Rewrite" url="http://localhost:__RUNTIME_PORT__/__RUNTIME_BASEPATH__" />
         </rule>
 
-        <!-- Rule 3: All other paths - Add basePath when proxying to Next.js -->
+        <!-- Rule 2: All other paths - Add basePath when proxying to Next.js -->
         <rule name="Next.js All Paths" stopProcessing="true">
           <match url="^(.*)$" />
           <action type="Rewrite" url="http://localhost:__RUNTIME_PORT__/__RUNTIME_BASEPATH__/{R:1}" />
