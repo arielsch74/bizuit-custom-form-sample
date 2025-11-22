@@ -131,10 +131,10 @@ stages:
                 .next/static/**
                 .next/BUILD_ID
                 public/**
-                package.json
                 scripts/prepare-deployment.js
                 !node_modules/**
                 !.next/cache/**
+                !package.json
               TargetFolder: '$(Build.ArtifactStagingDirectory)/runtime-app-temp'
             displayName: 'Copy Runtime Build Files'
 
