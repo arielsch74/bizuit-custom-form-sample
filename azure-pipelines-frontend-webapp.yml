@@ -364,16 +364,71 @@ stages:
                     BACKEND_API_URL: $(backendApiUrl)
                   displayName: 'Configure Web App Settings'
 
-                # Deploy to Azure Web App
-                - task: AzureWebApp@1
+                # Deploy to Azure Web App using Kudu ZipDeploy API
+                - task: AzureCLI@2
                   inputs:
-                    azureSubscription: '$(azureSubscription)'  # Use variable
-                    appType: 'webAppLinux'
-                    appName: '$(webAppName)'
-                    package: '$(Pipeline.Workspace)/frontend-drop/runtime-app.zip'
-                    deploymentMethod: 'zipDeploy'
-                    runtimeStack: 'NODE|22-lts'
-                    startUpCommand: 'startup.sh'
+                    azureSubscription: '$(azureSubscription)'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      echo "=== Deploying to Azure Web App using Kudu API ==="
+                      echo "Web App: $WEB_APP_NAME"
+                      echo "Resource Group: $RESOURCE_GROUP"
+                      echo "ZIP file: $(Pipeline.Workspace)/frontend-drop/runtime-app.zip"
+
+                      # Get publishing credentials
+                      echo "Getting publishing credentials..."
+                      CREDS=$(az webapp deployment list-publishing-credentials \
+                        --name "$WEB_APP_NAME" \
+                        --resource-group "$RESOURCE_GROUP" \
+                        --query "{username:publishingUserName, password:publishingPassword}" \
+                        -o json)
+
+                      USERNAME=$(echo $CREDS | jq -r '.username')
+                      PASSWORD=$(echo $CREDS | jq -r '.password')
+
+                      echo "Publishing credentials obtained"
+
+                      # Get Kudu URL
+                      KUDU_URL="https://$WEB_APP_NAME.scm.eastus-01.azurewebsites.net"
+                      echo "Kudu URL: $KUDU_URL"
+
+                      # Deploy using Kudu ZipDeploy API
+                      echo "Deploying ZIP package..."
+                      HTTP_STATUS=$(curl -X POST \
+                        -u "$USERNAME:$PASSWORD" \
+                        --data-binary @"$(Pipeline.Workspace)/frontend-drop/runtime-app.zip" \
+                        -H "Content-Type: application/zip" \
+                        -w "%{http_code}" \
+                        -o /tmp/deploy_response.txt \
+                        "$KUDU_URL/api/zipdeploy")
+
+                      echo "HTTP Status: $HTTP_STATUS"
+                      echo "Response:"
+                      cat /tmp/deploy_response.txt
+                      echo ""
+
+                      if [ "$HTTP_STATUS" -eq 200 ] || [ "$HTTP_STATUS" -eq 202 ]; then
+                        echo "✓ Deployment successful"
+                      else
+                        echo "❌ Deployment failed with status $HTTP_STATUS"
+                        exit 1
+                      fi
+
+                      # Verify files were extracted
+                      echo ""
+                      echo "Verifying deployment..."
+                      sleep 5
+
+                      # List files in wwwroot via Kudu
+                      curl -s -u "$USERNAME:$PASSWORD" \
+                        "$KUDU_URL/api/vfs/site/wwwroot/" \
+                        | jq -r '.[].name' || echo "Could not list files"
+
+                      echo "✓ Deployment completed"
+                  env:
+                    WEB_APP_NAME: $(webAppName)
+                    RESOURCE_GROUP: $(resourceGroup)
                   displayName: 'Deploy to Azure Web App'
 
                 # Health check
