@@ -16,7 +16,7 @@ variables:
   resourceGroup: 'BIZUIT'
 
   # Backend API URL (FastAPI)
-  backendApiUrl: 'https://bizuit-custom-forms-api-c0c3c9fbb8adafbh.eastus-01.azurewebsites.net'
+  backendApiUrl: 'https://bizuit-custom-forms-api-c0c3c9fbb8adathj.eastus-01.azurewebsites.net'
 
   # Runtime basePath for deployment
   runtimeBasePath: ''  # Empty = root path (no virtual directory)
