@@ -28,6 +28,15 @@ export default function DocsPage() {
               </div>
             </Link>
             <div className="flex items-center space-x-4">
+              <span className="text-sm px-3 py-1.5 rounded-lg bg-orange-500/20 border border-orange-500 text-orange-400 font-medium">
+                English
+              </span>
+              <Link
+                href="/docs/es"
+                className="text-sm px-3 py-1.5 rounded-lg border border-slate-600 text-slate-400 hover:text-white hover:border-slate-500 transition"
+              >
+                Español
+              </Link>
               <Link
                 href="/admin"
                 className="text-slate-400 hover:text-white transition text-sm"
