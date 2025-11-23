@@ -1,7 +1,7 @@
 /**
  * Recubiz - Sistema de Gestión de Cobranzas
  * Professional debt collection management system
- * v1.0.1 - Workflow optimization test
+ * v1.0.2 - Workflow race condition fix test
  */
 
 import { useState, useEffect, useMemo } from 'react';
