@@ -37,7 +37,9 @@ export default function DynamicFormPage({ params }: Props) {
       const fromDashboard = isFromDashboard()
 
       // Fetch runtime configuration (allows different deployments to have different settings without rebuild)
-      const configResponse = await fetch('/api/config')
+      // Note: We need to use window.location.origin for absolute URL because client-side fetch
+      // doesn't automatically apply Next.js basePath
+      const configResponse = await fetch(`${window.location.origin}${window.location.pathname.split('/form/')[0]}/api/config`)
       const config = await configResponse.json()
       const allowDevMode = config.allowDevMode ?? false // Default to false if not set
 
