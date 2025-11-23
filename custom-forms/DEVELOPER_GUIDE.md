@@ -616,6 +616,159 @@ NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=true
 | `ALLOW_DEV_MODE` | Server-side | ❌ No | ✅ Yes | Server | Dev credentials enabled |
 | `WEBHOOK_SECRET` | Server-side | ❌ No | ✅ Yes | Server | GitHub webhook auth |
 
+### Configuration by Environment
+
+Different `.env.local` files for each environment:
+
+#### Local Development Machine
+
+**File**: `runtime-app/.env.local` (on your laptop)
+
+```env
+# Dashboard API (proxy for CORS)
+NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=/api/bizuit
+
+# Backend API (local)
+FASTAPI_URL=http://127.0.0.1:8000
+
+# Development mode ENABLED
+ALLOW_DEV_MODE=true
+
+# No base path (root deployment)
+# NEXT_PUBLIC_BASE_PATH=
+
+# Localhost iframe allowed
+NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=true
+
+# Session timeout
+NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30
+
+# Webhook secret (for testing)
+WEBHOOK_SECRET=dev-webhook-secret-local
+```
+
+#### Test Server (test.bizuit.com/arielschBIZUITCustomForms)
+
+**File**: `E:\BIZUITSites\arielsch\arielschBIZUITCustomForms\.env.local`
+
+```env
+# Dashboard API (direct URL - tenant specific)
+NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/arielschBizuitDashboardapi/api
+
+# Backend API (same server, port 8000)
+FASTAPI_URL=http://127.0.0.1:8000
+
+# Development mode ENABLED (test environment allows dev testing)
+ALLOW_DEV_MODE=true
+
+# Base path (subdirectory deployment)
+NEXT_PUBLIC_BASE_PATH=/arielschBIZUITCustomForms
+
+# Production iframe origins
+NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://test.bizuit.com
+
+# Localhost iframe NOT allowed
+NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=false
+
+# Session timeout
+NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30
+
+# Webhook secret (production secret)
+WEBHOOK_SECRET=<production-secret-from-azure-keyvault>
+```
+
+#### Production Server (test.bizuit.com/recubizBIZUITCustomForms)
+
+**File**: `E:\BIZUITSites\recubiz\recubizBIZUITCustomForms\.env.local`
+
+```env
+# Dashboard API (direct URL - different tenant)
+NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/recubizBizuitDashboardapi/api
+
+# Backend API (same server, port 8000)
+FASTAPI_URL=http://127.0.0.1:8000
+
+# Development mode DISABLED (production security)
+ALLOW_DEV_MODE=false
+
+# Base path (different subdirectory)
+NEXT_PUBLIC_BASE_PATH=/recubizBIZUITCustomForms
+
+# Production iframe origins
+NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://test.bizuit.com
+
+# Localhost iframe NOT allowed
+NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=false
+
+# Session timeout
+NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30
+
+# Webhook secret (same as other deployments)
+WEBHOOK_SECRET=<production-secret-from-azure-keyvault>
+```
+
+### Key Differences by Environment
+
+| Setting | Local Dev | Test Server (arielsch) | Prod Server (recubiz) |
+|---------|-----------|------------------------|----------------------|
+| **NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL** | `/api/bizuit` (proxy) | `https://test.bizuit.com/arielschBizuitDashboardapi/api` | `https://test.bizuit.com/recubizBizuitDashboardapi/api` |
+| **FASTAPI_URL** | `http://127.0.0.1:8000` | `http://127.0.0.1:8000` | `http://127.0.0.1:8000` |
+| **ALLOW_DEV_MODE** | `true` | `true` (testing) | `false` (secure) |
+| **NEXT_PUBLIC_BASE_PATH** | (empty) | `/arielschBIZUITCustomForms` | `/recubizBIZUITCustomForms` |
+| **NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME** | `true` | `false` | `false` |
+
+### Multi-Tenant Deployment Strategy
+
+**Same codebase, different configurations**:
+
+```
+Single Build Artifact
+        ↓
+    Deployed to Multiple Tenants
+        ↓
+┌─────────────────┬─────────────────┐
+│  Tenant A       │  Tenant B       │
+│  (arielsch)     │  (recubiz)      │
+├─────────────────┼─────────────────┤
+│ ALLOW_DEV_MODE  │ ALLOW_DEV_MODE  │
+│ = true          │ = false         │
+│                 │                 │
+│ BASE_PATH       │ BASE_PATH       │
+│ = /arielsch...  │ = /recubiz...   │
+│                 │                 │
+│ API URL         │ API URL         │
+│ = .../arielsch..│ = .../recubiz.. │
+└─────────────────┴─────────────────┘
+
+Each tenant has different .env.local
+NO rebuild needed (server-side vars)
+```
+
+### Why Server-Side Variables Matter
+
+**Example**: `ALLOW_DEV_MODE`
+
+```bash
+# Without server-side variable (old way):
+# Build for arielsch with ALLOW_DEV_MODE=true
+NEXT_PUBLIC_ALLOW_DEV_MODE=true npm run build
+
+# Same build used for recubiz
+# Problem: recubiz also has ALLOW_DEV_MODE=true (insecure!)
+
+# With server-side variable (new way):
+# Single build (no ALLOW_DEV_MODE baked in)
+npm run build
+
+# Deploy to arielsch with .env.local:
+ALLOW_DEV_MODE=true  # Test environment
+
+# Deploy to recubiz with .env.local:
+ALLOW_DEV_MODE=false  # Production secure
+
+# ✅ Same artifact, different security per tenant
+```
+
 ---
 
 ## 🔑 Development Credentials Setup
