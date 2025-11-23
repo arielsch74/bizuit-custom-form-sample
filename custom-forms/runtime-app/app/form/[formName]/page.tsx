@@ -86,7 +86,9 @@ export default function DynamicFormPage({ params }: Props) {
 
         try {
           // Try local credentials (gitignored)
-          const module = await import('../../../dev-credentials.js').catch(() => null)
+          // Use dynamic string to bypass TypeScript static analysis
+          const credPath = '../../../dev-credentials' + '.js'
+          const module = await import(credPath).catch(() => null)
           if (module) {
             DEV_CREDENTIALS = module.DEV_CREDENTIALS
             console.log('[Dynamic Form Page] ✅ Dev credentials loaded from dev-credentials.js')
