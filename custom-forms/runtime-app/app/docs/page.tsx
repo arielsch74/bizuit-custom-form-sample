@@ -2,14 +2,17 @@
  * Developer Documentation Page
  * Public access - no authentication required
  * Comprehensive guide for junior developers
+ * Uses translation system for multilanguage support
  */
 
 'use client'
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { useAppTranslation } from '@/lib/useAppTranslation'
 
 export default function DocsPage() {
+  const { t, language } = useAppTranslation()
   const [activeSection, setActiveSection] = useState<string>('quickstart')
 
   return (
@@ -24,30 +27,21 @@ export default function DocsPage() {
               </div>
               <div>
                 <span className="text-white font-semibold text-lg block">BIZUIT Custom Forms</span>
-                <span className="text-slate-400 text-xs">Developer Documentation</span>
+                <span className="text-slate-400 text-xs">{t('docs.title')}</span>
               </div>
             </Link>
             <div className="flex items-center space-x-4">
-              <span className="text-sm px-3 py-1.5 rounded-lg bg-orange-500/20 border border-orange-500 text-orange-400 font-medium">
-                English
-              </span>
-              <Link
-                href="/docs/es"
-                className="text-sm px-3 py-1.5 rounded-lg border border-slate-600 text-slate-400 hover:text-white hover:border-slate-500 transition"
-              >
-                Español
-              </Link>
               <Link
                 href="/admin"
                 className="text-slate-400 hover:text-white transition text-sm"
               >
-                Admin Panel
+                {t('docs.adminPanel')}
               </Link>
               <Link
                 href="/"
                 className="text-slate-400 hover:text-white transition text-sm"
               >
-                ← Home
+                {t('docs.backToHome')}
               </Link>
             </div>
           </div>
@@ -59,40 +53,40 @@ export default function DocsPage() {
         {/* Sidebar Navigation */}
         <aside className="hidden lg:block w-64 flex-shrink-0">
           <nav className="sticky top-24 bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-            <h3 className="text-sm font-semibold text-slate-400 uppercase mb-3">Contents</h3>
+            <h3 className="text-sm font-semibold text-slate-400 uppercase mb-3">{t('docs.nav.contents')}</h3>
             <ul className="space-y-1">
               <NavItem href="#quickstart" active={activeSection === 'quickstart'} onClick={() => setActiveSection('quickstart')}>
-                Quick Start
+                {t('docs.nav.quickstart')}
               </NavItem>
               <NavItem href="#architecture" active={activeSection === 'architecture'} onClick={() => setActiveSection('architecture')}>
-                Architecture
+                {t('docs.nav.architecture')}
               </NavItem>
               <NavItem href="#routes" active={activeSection === 'routes'} onClick={() => setActiveSection('routes')}>
-                Routes & Loaders
+                {t('docs.nav.routes')}
               </NavItem>
               <NavItem href="#authentication" active={activeSection === 'authentication'} onClick={() => setActiveSection('authentication')}>
-                Authentication
+                {t('docs.nav.authentication')}
               </NavItem>
               <NavItem href="#environment" active={activeSection === 'environment'} onClick={() => setActiveSection('environment')}>
-                Environment Config
+                {t('docs.nav.environment')}
               </NavItem>
               <NavItem href="#dev-credentials" active={activeSection === 'dev-credentials'} onClick={() => setActiveSection('dev-credentials')}>
-                Dev Credentials
+                {t('docs.nav.devCredentials')}
               </NavItem>
               <NavItem href="#workflows" active={activeSection === 'workflows'} onClick={() => setActiveSection('workflows')}>
-                Workflows
+                {t('docs.nav.workflows')}
               </NavItem>
               <NavItem href="#testing" active={activeSection === 'testing'} onClick={() => setActiveSection('testing')}>
-                Testing
+                {t('docs.nav.testing')}
               </NavItem>
               <NavItem href="#deployment" active={activeSection === 'deployment'} onClick={() => setActiveSection('deployment')}>
-                Deployment
+                {t('docs.nav.deployment')}
               </NavItem>
               <NavItem href="#troubleshooting" active={activeSection === 'troubleshooting'} onClick={() => setActiveSection('troubleshooting')}>
-                Troubleshooting
+                {t('docs.nav.troubleshooting')}
               </NavItem>
               <NavItem href="#faqs" active={activeSection === 'faqs'} onClick={() => setActiveSection('faqs')}>
-                FAQs
+                {t('docs.nav.faqs')}
               </NavItem>
             </ul>
           </nav>
@@ -103,27 +97,27 @@ export default function DocsPage() {
           {/* Hero */}
           <div className="mb-12">
             <h1 className="text-5xl font-bold text-white mb-4">
-              Developer Documentation
+              {t('docs.title')}
             </h1>
             <p className="text-xl text-slate-400">
-              Complete guide for building and deploying custom forms for BIZUIT BPM
+              {t('docs.subtitle')}
             </p>
             <div className="flex items-center gap-4 mt-4 text-sm text-slate-500">
-              <span>🎯 Target: Junior Developers</span>
+              <span>🎯 {t('docs.targetAudience')}</span>
               <span>•</span>
-              <span>⏱️ Reading Time: 30-45 min</span>
+              <span>⏱️ {t('docs.readingTime')}</span>
               <span>•</span>
-              <span>📅 Updated: Nov 2025</span>
+              <span>📅 {t('docs.updated')}</span>
             </div>
           </div>
 
           {/* Quick Start Section */}
-          <Section id="quickstart" title="🚀 Quick Start (5 Minutes)">
+          <Section id="quickstart" title={t('docs.quickstart.title')}>
             <p className="text-slate-300 mb-6">
-              Get your development environment up and running in 5 minutes.
+              {t('docs.quickstart.description')}
             </p>
 
-            <SubSection title="Prerequisites">
+            <SubSection title={t('docs.quickstart.prerequisites')}>
               <CodeBlock language="bash">{`# Check installed versions
 node --version    # Need: v18.0.0+
 npm --version     # Need: v9.0.0+
@@ -131,7 +125,7 @@ python3 --version # Need: v3.10+
 git --version     # Any recent version`}</CodeBlock>
             </SubSection>
 
-            <SubSection title="Installation Steps">
+            <SubSection title={t('docs.quickstart.installation')}>
               <CodeBlock language="bash">{`# 1. Clone repository
 git clone <repo-url>
 cd custom-forms
@@ -157,23 +151,23 @@ code dev-credentials.js
 cd ..
 ./start-all.sh`}</CodeBlock>
 
-              <InfoBox type="success" title="Success! You now have:">
+              <InfoBox type="success" title={t('docs.quickstart.success')}>
                 <ul className="space-y-1 text-sm">
-                  <li>✅ Backend API on <code className="text-orange-400">http://localhost:8000</code></li>
-                  <li>✅ Showcase on <code className="text-orange-400">http://localhost:3000</code></li>
-                  <li>✅ Runtime on <code className="text-orange-400">http://localhost:3001</code></li>
+                  <li>✅ {t('docs.quickstart.backendApi')} <code className="text-orange-400">http://localhost:8000</code></li>
+                  <li>✅ {t('docs.quickstart.showcase')} <code className="text-orange-400">http://localhost:3000</code></li>
+                  <li>✅ {t('docs.quickstart.runtime')} <code className="text-orange-400">http://localhost:3001</code></li>
                 </ul>
               </InfoBox>
             </SubSection>
           </Section>
 
           {/* Architecture Section */}
-          <Section id="architecture" title="🏗️ Project Architecture">
+          <Section id="architecture" title={t('docs.architecture.title')}>
             <p className="text-slate-300 mb-6">
-              Understanding the system architecture helps you navigate the codebase.
+              {t('docs.architecture.description')}
             </p>
 
-            <SubSection title="High-Level Flow">
+            <SubSection title={t('docs.architecture.highLevel')}>
               <CodeBlock language="text">{`┌────────────────┐
 │ BIZUIT User    │ 1. Clicks "Open Form"
 └────────┬───────┘
@@ -191,7 +185,7 @@ cd ..
 └────────────────────────┘ • Version management`}</CodeBlock>
             </SubSection>
 
-            <SubSection title="Directory Structure">
+            <SubSection title={t('docs.architecture.directory')}>
               <CodeBlock language="text">{`custom-forms/
 ├── runtime-app/           # Next.js 15 runtime
 │   ├── app/
@@ -220,12 +214,12 @@ cd ..
           </Section>
 
           {/* Form Routes & Loaders Section */}
-          <Section id="routes" title="🔀 Form Routes & Loaders">
+          <Section id="routes" title={t('docs.routes.title')}>
             <p className="text-slate-300 mb-6">
-              The runtime app has two different routes for loading forms, each with specific security models and use cases.
+              {t('docs.routes.description')}
             </p>
 
-            <SubSection title="Two Routes Comparison">
+            <SubSection title={t('docs.routes.comparison')}>
               <div className="overflow-x-auto mb-6">
                 <table className="w-full text-sm">
                   <thead className="bg-slate-900/50 border-b border-slate-700">
@@ -271,14 +265,14 @@ cd ..
               </div>
             </SubSection>
 
-            <SubSection title="Route 1: /form/[formName] (Standard)">
-              <InfoBox type="info" title="Purpose">
+            <SubSection title={t('docs.routes.standard')}>
+              <InfoBox type="info" title={t('docs.routes.purpose')}>
                 <p className="text-sm">Standard form loading from BIZUIT Dashboard</p>
               </InfoBox>
 
               <div className="mt-4 space-y-4">
                 <div className="bg-slate-900/50 rounded-lg p-4">
-                  <h4 className="text-white font-semibold mb-2">Security Model:</h4>
+                  <h4 className="text-white font-semibold mb-2">{t('docs.routes.securityModel')}:</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex items-start gap-2">
                       <span className="text-green-400">✅</span>
@@ -1256,35 +1250,37 @@ git push origin main
             <ResourceLink
               href="http://localhost:8000/docs"
               icon="📡"
-              title="Backend API Docs"
-              description="FastAPI Swagger UI"
+              title={t('docs.resources.backendApi')}
+              description={t('docs.resources.backendDesc')}
               external
+              newTabText={t('docs.resources.newTab')}
             />
             <ResourceLink
               href="http://localhost:3000"
               icon="🎨"
-              title="Showcase Examples"
-              description="Live demonstrations"
+              title={t('docs.resources.showcase')}
+              description={t('docs.resources.showcaseDesc')}
               external
+              newTabText={t('docs.resources.newTab')}
             />
             <ResourceLink
               href="/admin"
               icon="⚙️"
-              title="Admin Panel"
-              description="Upload & manage forms"
+              title={t('docs.resources.admin')}
+              description={t('docs.resources.adminDesc')}
             />
           </div>
 
           {/* Footer */}
           <div className="mt-16 pt-8 border-t border-slate-700 text-center">
             <p className="text-slate-400">
-              Need help? Check the{' '}
+              {t('docs.footer.help')}{' '}
               <a href="https://github.com/your-org/your-repo" className="text-orange-400 hover:text-orange-300">
-                repository
+                {t('docs.footer.repository')}
               </a>{' '}
-              or ask the team!
+              {t('docs.footer.orAsk')}
             </p>
-            <p className="text-slate-500 mt-2 text-sm">Happy coding! 🚀</p>
+            <p className="text-slate-500 mt-2 text-sm">{t('docs.footer.happyCoding')} 🚀</p>
           </div>
         </main>
       </div>
@@ -1531,12 +1527,14 @@ function ResourceLink({
   title,
   description,
   external,
+  newTabText,
 }: {
   href: string
   icon: string
   title: string
   description: string
   external?: boolean
+  newTabText?: string
 }) {
   const Component = external ? 'a' : Link
   const props = external ? { target: '_blank', rel: 'noopener noreferrer' } : {}
@@ -1552,7 +1550,7 @@ function ResourceLink({
         {title}
       </h3>
       <p className="text-sm text-slate-400 mt-2">{description}</p>
-      {external && <span className="text-xs text-slate-500 mt-1 block">Opens in new tab ↗</span>}
+      {external && <span className="text-xs text-slate-500 mt-1 block">{newTabText || 'Opens in new tab'} ↗</span>}
     </Component>
   )
 }

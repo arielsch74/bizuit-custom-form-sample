@@ -28,6 +28,76 @@ export const translations = {
     'home.developerDocsDescription': 'Complete guide for building and deploying custom forms',
     'home.viewDocs': 'View Docs',
 
+    // Documentation page
+    'docs.title': 'Developer Documentation',
+    'docs.subtitle': 'Complete guide for building and deploying custom forms for BIZUIT BPM',
+    'docs.targetAudience': 'Target: Junior Developers',
+    'docs.readingTime': 'Reading Time: 30-45 min',
+    'docs.updated': 'Updated: Nov 2025',
+    'docs.backToHome': '← Home',
+    'docs.adminPanel': 'Admin Panel',
+
+    // Navigation
+    'docs.nav.contents': 'Contents',
+    'docs.nav.quickstart': 'Quick Start',
+    'docs.nav.architecture': 'Architecture',
+    'docs.nav.routes': 'Routes & Loaders',
+    'docs.nav.authentication': 'Authentication',
+    'docs.nav.environment': 'Environment Config',
+    'docs.nav.devCredentials': 'Dev Credentials',
+    'docs.nav.workflows': 'Workflows',
+    'docs.nav.testing': 'Testing',
+    'docs.nav.deployment': 'Deployment',
+    'docs.nav.troubleshooting': 'Troubleshooting',
+    'docs.nav.faqs': 'FAQs',
+    'docs.nav.learningPath': 'Learning Path',
+
+    // Quick Start section
+    'docs.quickstart.title': '🚀 Quick Start (5 Minutes)',
+    'docs.quickstart.description': 'Get your development environment up and running in 5 minutes.',
+    'docs.quickstart.prerequisites': 'Prerequisites',
+    'docs.quickstart.installation': 'Installation Steps',
+    'docs.quickstart.success': 'Success! You now have:',
+    'docs.quickstart.backendApi': 'Backend API on',
+    'docs.quickstart.showcase': 'Showcase on',
+    'docs.quickstart.runtime': 'Runtime on',
+
+    // Architecture section
+    'docs.architecture.title': '🏗️ Project Architecture',
+    'docs.architecture.description': 'Understanding the system architecture helps you navigate the codebase.',
+    'docs.architecture.highLevel': 'High-Level Flow',
+    'docs.architecture.directory': 'Directory Structure',
+
+    // Routes section
+    'docs.routes.title': '🔀 Form Routes & Loaders',
+    'docs.routes.description': 'The runtime app has two different routes for loading forms, each with specific security models and use cases.',
+    'docs.routes.comparison': 'Two Routes Comparison',
+    'docs.routes.standard': 'Route 1: /form/[formName] (Standard)',
+    'docs.routes.standalone': 'Route 2: /formsa/[formName] (Standalone)',
+    'docs.routes.purpose': 'Purpose',
+    'docs.routes.securityModel': 'Security Model',
+    'docs.routes.urlExamples': 'URL Examples',
+    'docs.routes.parameters': 'Parameters Received by Form',
+    'docs.routes.configuration': 'Configuration',
+    'docs.routes.embedding': 'Embedding Example',
+    'docs.routes.queryParams': 'Query Parameters Supported',
+    'docs.routes.dashboardParams': 'dashboardParams Object Structure',
+
+    // Resources
+    'docs.resources.backendApi': 'Backend API Docs',
+    'docs.resources.backendDesc': 'FastAPI Swagger UI',
+    'docs.resources.showcase': 'Showcase Examples',
+    'docs.resources.showcaseDesc': 'Live demonstrations',
+    'docs.resources.admin': 'Admin Panel',
+    'docs.resources.adminDesc': 'Upload & manage forms',
+    'docs.resources.newTab': 'Opens in new tab',
+
+    // Footer
+    'docs.footer.help': 'Need help? Check the',
+    'docs.footer.repository': 'repository',
+    'docs.footer.orAsk': 'or ask the team!',
+    'docs.footer.happyCoding': 'Happy coding!',
+
     // Login page
     'login.title': 'Admin Login',
     'login.subtitle': 'BIZUIT Custom Forms - Administration Panel',
@@ -176,6 +246,76 @@ export const translations = {
     'home.developerDocs': 'Documentación para Desarrolladores',
     'home.developerDocsDescription': 'Guía completa para construir y deployar formularios customizados',
     'home.viewDocs': 'Ver Documentación',
+
+    // Documentation page
+    'docs.title': 'Documentación para Desarrolladores',
+    'docs.subtitle': 'Guía completa para construir y deployar formularios customizados para BIZUIT BPM',
+    'docs.targetAudience': 'Audiencia: Desarrolladores Junior',
+    'docs.readingTime': 'Tiempo de Lectura: 30-45 min',
+    'docs.updated': 'Actualizado: Nov 2025',
+    'docs.backToHome': '← Inicio',
+    'docs.adminPanel': 'Panel Admin',
+
+    // Navigation
+    'docs.nav.contents': 'Contenido',
+    'docs.nav.quickstart': 'Inicio Rápido',
+    'docs.nav.architecture': 'Arquitectura',
+    'docs.nav.routes': 'Rutas y Loaders',
+    'docs.nav.authentication': 'Autenticación',
+    'docs.nav.environment': 'Variables de Entorno',
+    'docs.nav.devCredentials': 'Credenciales Dev',
+    'docs.nav.workflows': 'Flujos de Trabajo',
+    'docs.nav.testing': 'Testing',
+    'docs.nav.deployment': 'Deployment',
+    'docs.nav.troubleshooting': 'Solución de Problemas',
+    'docs.nav.faqs': 'Preguntas Frecuentes',
+    'docs.nav.learningPath': 'Ruta de Aprendizaje',
+
+    // Quick Start section
+    'docs.quickstart.title': '🚀 Inicio Rápido (5 Minutos)',
+    'docs.quickstart.description': 'Levantá tu entorno de desarrollo en 5 minutos.',
+    'docs.quickstart.prerequisites': 'Prerequisitos',
+    'docs.quickstart.installation': 'Pasos de Instalación',
+    'docs.quickstart.success': '¡Listo! Ahora tenés:',
+    'docs.quickstart.backendApi': 'Backend API en',
+    'docs.quickstart.showcase': 'Showcase en',
+    'docs.quickstart.runtime': 'Runtime en',
+
+    // Architecture section
+    'docs.architecture.title': '🏗️ Arquitectura del Proyecto',
+    'docs.architecture.description': 'Entender la arquitectura te ayuda a navegar el código.',
+    'docs.architecture.highLevel': 'Flujo de Alto Nivel',
+    'docs.architecture.directory': 'Estructura de Directorios',
+
+    // Routes section
+    'docs.routes.title': '🔀 Rutas de Forms y Loaders',
+    'docs.routes.description': 'La runtime app tiene dos formas de cargar forms, cada una con seguridad y casos de uso específicos.',
+    'docs.routes.comparison': 'Comparación de Rutas',
+    'docs.routes.standard': 'Ruta 1: /form/[formName] (Estándar)',
+    'docs.routes.standalone': 'Ruta 2: /formsa/[formName] (Standalone)',
+    'docs.routes.purpose': 'Propósito',
+    'docs.routes.securityModel': 'Modelo de Seguridad',
+    'docs.routes.urlExamples': 'Ejemplos de URL',
+    'docs.routes.parameters': 'Parámetros que Recibe tu Form',
+    'docs.routes.configuration': 'Configuración',
+    'docs.routes.embedding': 'Ejemplo de Embedding',
+    'docs.routes.queryParams': 'Parámetros Query Soportados',
+    'docs.routes.dashboardParams': 'Estructura del Objeto dashboardParams',
+
+    // Resources
+    'docs.resources.backendApi': 'Docs Backend API',
+    'docs.resources.backendDesc': 'Swagger UI de FastAPI',
+    'docs.resources.showcase': 'Ejemplos Showcase',
+    'docs.resources.showcaseDesc': 'Demostraciones en vivo',
+    'docs.resources.admin': 'Panel Admin',
+    'docs.resources.adminDesc': 'Subir y gestionar forms',
+    'docs.resources.newTab': 'Abre en nueva pestaña',
+
+    // Footer
+    'docs.footer.help': '¿Necesitás ayuda? Consultá el',
+    'docs.footer.repository': 'repositorio',
+    'docs.footer.orAsk': 'o preguntale al equipo!',
+    'docs.footer.happyCoding': '¡Feliz coding!',
 
     // Login page
     'login.title': 'Admin Login',

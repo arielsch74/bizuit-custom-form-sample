@@ -76,7 +76,7 @@ export default function HomePage() {
                 {t('home.developerDocsDescription')}
               </p>
               <Link
-                href={`/docs${language === 'es' ? '/es' : ''}`}
+                href="/docs"
                 className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-semibold px-8 py-3 rounded-lg transition-colors shadow-lg hover:shadow-xl"
               >
                 {t('home.viewDocs')}

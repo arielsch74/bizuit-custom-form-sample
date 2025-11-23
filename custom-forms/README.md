@@ -104,8 +104,11 @@ Según la documentación detallada en [`docs/DYNAMIC_FORMS.md`](docs/DYNAMIC_FOR
 
 Access comprehensive developer documentation with interactive UI:
 
-- **English**: `http://localhost:3001/docs`
-- **Español**: `http://localhost:3001/docs/es`
+**URL**: `http://localhost:3001/docs`
+
+- ✅ Multilanguage support (English & Spanish)
+- ✅ Automatic language detection (uses app setting)
+- ✅ Switch language in Settings toolbar (top right)
 
 Features:
 - ✅ Interactive navigation with sidebar
