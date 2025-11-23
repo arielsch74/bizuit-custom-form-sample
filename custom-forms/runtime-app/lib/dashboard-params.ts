@@ -56,23 +56,6 @@ export function extractDashboardParams(): DashboardQueryParams | null {
 
   const searchParams = new URLSearchParams(window.location.search)
 
-  // Check for bz-auth first (JWT token, not encrypted)
-  const bzAuth = searchParams.get('bz-auth')
-  if (bzAuth) {
-    // bz-auth is a JWT token, return it directly without validation
-    console.log('[Dashboard Params] Found bz-auth (JWT token, no validation needed)')
-    return {
-      valid: true,
-      parameters: {
-        token: bzAuth,
-        userName: searchParams.get('UserName') || 'User',
-        instanceId: searchParams.get('InstanceId'),
-        eventName: searchParams.get('eventName'),
-        activityName: searchParams.get('activityName')
-      }
-    }
-  }
-
   const params: DashboardQueryParams = {
     s: searchParams.get('s') || undefined,  // Encrypted token (needs validation)
     InstanceId: searchParams.get('InstanceId') || undefined,
@@ -166,7 +149,25 @@ export async function getDashboardParameters(): Promise<{
   try {
     console.log('[Dashboard Params] Checking for Dashboard parameters...')
 
-    // 1. Extract query params
+    // Check for bz-auth first (JWT token, no encryption)
+    const searchParams = new URLSearchParams(window.location.search)
+    const bzAuth = searchParams.get('bz-auth')
+
+    if (bzAuth) {
+      console.log('[Dashboard Params] Found bz-auth (JWT token, no validation needed)')
+      return {
+        valid: true,
+        parameters: {
+          token: bzAuth,
+          userName: searchParams.get('UserName') || 'User',
+          instanceId: searchParams.get('InstanceId'),
+          eventName: searchParams.get('eventName'),
+          activityName: searchParams.get('activityName')
+        }
+      }
+    }
+
+    // 1. Extract query params (for 's' encrypted token)
     const queryParams = extractDashboardParams()
 
     if (!queryParams) {
