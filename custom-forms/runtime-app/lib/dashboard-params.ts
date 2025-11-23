@@ -88,7 +88,12 @@ export async function validateDashboardToken(
     }
 
     // Use Next.js API route (proxies to FastAPI backend)
-    const response = await fetch('/api/dashboard/validate-token', {
+    // Build absolute URL with basePath (same pattern as config/metadata endpoints)
+    const basePath = window.location.pathname.split('/form')[0]
+    const apiUrl = `${window.location.origin}${basePath}/api/dashboard/validate-token`
+
+    console.log('[Dashboard Params] Validating token at:', apiUrl)
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
