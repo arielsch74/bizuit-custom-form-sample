@@ -32,6 +32,10 @@ variables:
   # Base path for Next.js
   basePath: '/arielschBIZUITCustomForms'
 
+  # Standalone Forms (Iframe) Configuration
+  allowedIframeOrigins: 'https://test.bizuit.com,https://*.bizuit.com'
+  allowLocalhostIframe: 'false'
+
 stages:
   # ==========================================================================
   # STAGE 1: Build Runtime App (Next.js) - PARALLEL with Backend
@@ -90,6 +94,10 @@ stages:
                 "NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://test.bizuit.com/arielschBIZUITCustomFormsbackend" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "NEXT_PUBLIC_ALLOW_DEV_MODE=false" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "# Standalone Forms (Iframe) Configuration" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=$(allowedIframeOrigins)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=$(allowLocalhostIframe)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "# Runtime configuration (server-side only)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "FASTAPI_URL=http://127.0.0.1:8000" | Out-File -FilePath ".env.local" -Append -Encoding utf8

@@ -9,7 +9,7 @@ export type ProcessStatus = 'Completed' | 'Waiting' | 'Running' | 'Error'
 
 export interface IParameter {
   name: string
-  value: string | null
+  value: string | any | null  // Can be string or parsed JSON object for XML parameters
   valueJson?: string | null
   type: ParameterType
   direction: ParameterDirection
@@ -21,7 +21,7 @@ export interface IParameter {
 }
 
 export interface IProcessParameter extends IParameter {
-  parameterType: 1 | 2 // 1 = SingleValue, 2 = Complex
+  parameterType: 1 | 2 | 'SingleValue' | 'Xml' | 'Json' // 1 = SingleValue, 2 = Complex/Xml, 'Json' after parsing
 }
 
 export interface IInitializeParams {
@@ -89,7 +89,7 @@ export interface IRaiseEventResult {
 
 // @deprecated Use IProcessParameter instead
 export interface IEventParameter extends IParameter {
-  parameterType: 1 | 2 // 1 = SingleValue, 2 = Complex
+  parameterType: 1 | 2 | 'SingleValue' | 'Xml' | 'Json' // 1 = SingleValue, 2 = Complex/Xml, 'Json' after parsing
 }
 
 export interface IInstanceData {

@@ -23,6 +23,10 @@ variables:
   runtimePort: '3001'
   backendPort: '8000'
 
+  # Standalone Forms (Iframe) Configuration
+  allowedIframeOrigins: 'https://test.bizuit.com,https://*.bizuit.com'
+  allowLocalhostIframe: 'false'
+
 stages:
   # ==========================================================================
   # STAGE 3: Run Database Migrations
@@ -556,6 +560,14 @@ stages:
                               "# MUST be 'false' in production - only Dashboard can open forms with token authentication",
                               "# If undefined or false, direct access to forms is BLOCKED (secure by default)",
                               "NEXT_PUBLIC_ALLOW_DEV_MODE=false",
+                              "",
+                              "# 🔒 Standalone Forms (Iframe) Configuration",
+                              "# Allowed origins for iframe embedding (/formsa/* routes)",
+                              "# Comma-separated list of domains, supports wildcards: https://*.bizuit.com",
+                              "NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=$(allowedIframeOrigins)",
+                              "",
+                              "# Allow localhost for iframe testing (ONLY for development, false in production)",
+                              "NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=$(allowLocalhostIframe)",
                               "",
                               "# Environment",
                               "NODE_ENV=production",
