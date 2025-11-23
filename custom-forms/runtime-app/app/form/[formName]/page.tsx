@@ -73,7 +73,8 @@ export default function DynamicFormPage({ params }: Props) {
       }
 
       // 1. Fetch metadata from API (simula consulta a BD)
-      const metadataResponse = await fetch(`/api/custom-forms/${formName}/metadata`)
+      const metadataUrl = `${window.location.origin}${window.location.pathname.split('/form/')[0]}/api/custom-forms/${formName}/metadata`
+      const metadataResponse = await fetch(metadataUrl)
 
       if (!metadataResponse.ok) {
         throw new Error(`Form "${formName}" not found`)
