@@ -188,7 +188,9 @@ const MOCK_DEUDAS_HISTORIAL: Deuda[] = [
 const MOCK_CONTACTOS: Contacto[] = [
   { id: 'C1', tipo: 'Teléfono Móvil', valor: '351 663 9967', estado: 'INICIAL' },
   { id: 'C2', tipo: 'Teléfono Laboral', valor: '351 445 5566', estado: 'INICIAL' },
-  { id: 'C3', tipo: 'Email Personal', valor: 'deudor@email.com', estado: 'INICIAL' }
+  { id: 'C3', tipo: 'Email Personal', valor: 'deudor@email.com', estado: 'INICIAL' },
+  { id: 'C4', tipo: 'WhatsApp', valor: '351 663 9967', estado: 'INICIAL' },
+  { id: 'C5', tipo: 'Instagram', valor: '@deudor_ar', estado: 'INICIAL' }
 ];
 
 // Acciones previas (readonly - ya registradas en gestiones anteriores)
@@ -216,6 +218,14 @@ const MOCK_ACCIONES_PREVIAS: Accion[] = [
     tipo: 'Gestión',
     contacto: 'Teléfono Móvil: 351 663 9967',
     observaciones: 'Contacto telefónico exitoso. Promete pago parcial en 48hs.'
+  },
+  {
+    id: 'A004',
+    fecha: '20/01/2024',
+    hora: '09:45',
+    tipo: 'Gestión',
+    contacto: 'WhatsApp: 351 663 9967',
+    observaciones: 'Se realizó contacto vía WhatsApp con el deudor. Manifestó estar atravesando una situación económica complicada debido a la pérdida de su empleo hace 3 meses. Expresó su voluntad de regularizar la deuda pero indicó que necesita un plazo mayor. Se le ofreció un plan de pagos en 12 cuotas con una quita del 15% sobre los intereses acumulados. El deudor solicitó 48 horas para evaluar la propuesta y consultar con su familia. Se acordó retomar el contacto el día 22/01/2024 a las 14:00 hs para confirmar su decisión. Mostró buena predisposición y agradeció la flexibilidad ofrecida.'
   }
 ];
 
@@ -338,6 +348,11 @@ function DetalleDeudaRow({ detalle, index }: { detalle: DetalleDeuda; index: num
 }
 
 function AccionRow({ accion, index, onClick }: { accion: Accion; index: number; onClick: () => void }) {
+  const truncateText = (text: string, maxLength: number = 80) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+
   return (
     <tr
       onClick={onClick}
@@ -349,7 +364,7 @@ function AccionRow({ accion, index, onClick }: { accion: Accion; index: number; 
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{accion.hora}</td>
       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{accion.tipo}</td>
       <td className="px-6 py-4 text-sm text-gray-600">{accion.contacto}</td>
-      <td className="px-6 py-4 text-sm text-gray-900 truncate max-w-xs">{accion.observaciones}</td>
+      <td className="px-6 py-4 text-sm text-gray-900">{truncateText(accion.observaciones)}</td>
     </tr>
   );
 }
@@ -964,44 +979,120 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
             )}
 
             {/* Contactos */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center">
-                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900">Contactos del Deudor</h3>
-                    <p className="text-sm text-gray-600 mt-1">Click en un contacto para registrar acción</p>
-                  </div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">Contactos del Deudor</h3>
+                  <p className="text-sm text-gray-600">Click en un contacto para registrar acción</p>
                 </div>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-100 border-b border-gray-200">
-                    <tr>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Tipo de Contacto</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Contacto</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {MOCK_CONTACTOS.map((c, index) => (
-                      <ContactoRow
-                        key={c.id}
-                        contacto={c}
-                        isSelected={contactoSeleccionado?.id === c.id}
-                        onClick={() => {
-                          setContactoSeleccionado(c);
-                          setMostrarModalRegistrarAccion(true);
-                        }}
-                        index={index}
-                      />
-                    ))}
-                  </tbody>
-                </table>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                  onClick={() => {
+                    setContactoSeleccionado(MOCK_CONTACTOS[0]);
+                    setMostrarModalRegistrarAccion(true);
+                  }}
+                  className="bg-gray-50 rounded-xl shadow-sm hover:shadow-xl hover:bg-orange-50 hover:border-l-8 transition-all border-l-4 border-orange-500 p-4 cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Teléfono Móvil</p>
+                      <p className="text-base font-bold text-gray-900">351 663 9967</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => {
+                    setContactoSeleccionado(MOCK_CONTACTOS[1]);
+                    setMostrarModalRegistrarAccion(true);
+                  }}
+                  className="bg-gray-50 rounded-xl shadow-sm hover:shadow-xl hover:bg-orange-50 hover:border-l-8 transition-all border-l-4 border-orange-500 p-4 cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Teléfono Laboral</p>
+                      <p className="text-base font-bold text-gray-900">351 445 5566</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => {
+                    setContactoSeleccionado(MOCK_CONTACTOS[2]);
+                    setMostrarModalRegistrarAccion(true);
+                  }}
+                  className="bg-gray-50 rounded-xl shadow-sm hover:shadow-xl hover:bg-orange-50 hover:border-l-8 transition-all border-l-4 border-orange-500 p-4 cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Email Personal</p>
+                      <p className="text-base font-bold text-gray-900">deudor@email.com</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => {
+                    setContactoSeleccionado(MOCK_CONTACTOS[3]);
+                    setMostrarModalRegistrarAccion(true);
+                  }}
+                  className="bg-gray-50 rounded-xl shadow-sm hover:shadow-xl hover:bg-orange-50 hover:border-l-8 transition-all border-l-4 border-orange-500 p-4 cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">WhatsApp</p>
+                      <p className="text-base font-bold text-gray-900">351 663 9967</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => {
+                    setContactoSeleccionado(MOCK_CONTACTOS[4]);
+                    setMostrarModalRegistrarAccion(true);
+                  }}
+                  className="bg-gray-50 rounded-xl shadow-sm hover:shadow-xl hover:bg-orange-50 hover:border-l-8 transition-all border-l-4 border-orange-500 p-4 cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Instagram</p>
+                      <p className="text-base font-bold text-gray-900">@deudor_ar</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1187,19 +1278,11 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
         {mostrarModalRegistrarAccion && contactoSeleccionado && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full p-8">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                </div>
+              <div className="flex items-start justify-between mb-6">
                 <div className="flex-1">
-                  <h2 className="text-xl font-bold text-gray-900 mb-1">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-1">
                     Registrar Nueva Acción
                   </h2>
-                  <p className="text-sm text-gray-600">
-                    {contactoSeleccionado.tipo} - {contactoSeleccionado.valor}
-                  </p>
                 </div>
                 <button
                   onClick={() => {
@@ -1213,6 +1296,36 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
+              </div>
+
+              <div className="mb-6 p-4 bg-gray-50 border-l-4 border-orange-500 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                    {(contactoSeleccionado.tipo || '').toLowerCase().includes('email') ? (
+                      <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    ) : (contactoSeleccionado.tipo || '').toLowerCase().includes('whatsapp') ? (
+                      <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                    ) : (contactoSeleccionado.tipo || '').toLowerCase().includes('instagram') ? (
+                      <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-orange-700 uppercase tracking-wide mb-1">Contacto seleccionado</p>
+                    <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">{contactoSeleccionado.tipo}</p>
+                    <p className="text-base font-bold text-gray-900">{contactoSeleccionado.valor}</p>
+                  </div>
+                </div>
               </div>
 
               <div className="mb-6">
@@ -1258,15 +1371,10 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
         {/* ============================================================ */}
         {accionSeleccionada && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-8">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
+            <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full p-8">
+              <div className="flex items-start justify-between mb-6">
                 <div className="flex-1">
-                  <h2 className="text-xl font-bold text-gray-900 mb-1">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-1">
                     Detalle de Acción
                   </h2>
                   <p className="text-sm text-gray-600">
@@ -1283,44 +1391,48 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
                 </button>
               </div>
 
-              <div className="space-y-6">
-                {/* Información de la acción */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                      Fecha y Hora
-                    </label>
-                    <p className="text-base text-gray-900">{accionSeleccionada.fecha} - {accionSeleccionada.hora}</p>
+              <div className="mb-6 p-4 bg-gray-50 border-l-4 border-blue-500 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                    {accionSeleccionada.contacto.toLowerCase().includes('email') ? (
+                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    ) : accionSeleccionada.contacto.toLowerCase().includes('whatsapp') ? (
+                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                    ) : accionSeleccionada.contacto.toLowerCase().includes('instagram') ? (
+                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                    )}
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                      Tipo de Acción
-                    </label>
-                    <p className="text-base font-medium text-gray-900">{accionSeleccionada.tipo}</p>
+                    <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">Contacto utilizado</p>
+                    <p className="text-base font-bold text-gray-900">{accionSeleccionada.contacto}</p>
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                    Contacto Utilizado
-                  </label>
-                  <p className="text-base text-gray-900">{accionSeleccionada.contacto}</p>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                    Observaciones
-                  </label>
-                  <textarea
-                    value={accionSeleccionada.observaciones}
-                    readOnly
-                    rows={6}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:outline-none resize-none"
-                  />
                 </div>
               </div>
 
-              <div className="flex justify-end pt-6 mt-6 border-t border-gray-200">
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Observaciones
+                </label>
+                <textarea
+                  value={accionSeleccionada.observaciones}
+                  readOnly
+                  rows={6}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:outline-none resize-none"
+                />
+              </div>
+
+              <div className="flex justify-end">
                 <Button variant="outline" onClick={() => setAccionSeleccionada(null)}>
                   Cerrar
                 </Button>
