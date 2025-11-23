@@ -72,26 +72,36 @@
 <body>
   <div id="root"></div>
 
-  <!-- Load the built form as ES module (DEV - Fat Bundle with all dependencies) -->
+  <!-- Load dev credentials (gitignored file) -->
+  <script type="module" src="./dev-credentials.js"></script>
+
+  <!-- Load the built form as ES module -->
   <script type="module">
     // Force light theme and orange color
     localStorage.setItem('bizuit-ui-theme', 'light');
     localStorage.setItem('bizuit-ui-color-theme', 'orange');
 
-    // Import the form component (use form.dev.js for development)
-    import RecubizGestionForm from './dist/form.dev.js';
+    // Import the form component
+    import RecubizGestionForm from './dist/form.js';
+
+    // Import dev credentials (from dev-credentials.js)
+    import { DEV_CREDENTIALS } from './dev-credentials.js';
 
     // Mount the form with mock dashboard params
     const container = document.getElementById('root');
     const root = ReactDOM.createRoot(container);
 
     // Mock dashboard parameters for testing
+    // In dev mode: pass devUsername/devPassword for authentication
+    // In production: Dashboard provides token
     const mockDashboardParams = {
       userName: 'Gestor Demo',
       instanceId: 'INST-12345',
       eventName: 'NuevaGestion',
       activityName: 'GestionarDeuda',
-      token: 'mock-token-123'
+      // Dev credentials (NOT committed to repo)
+      devUsername: DEV_CREDENTIALS.username,
+      devPassword: DEV_CREDENTIALS.password
     };
 
     // Render the form
