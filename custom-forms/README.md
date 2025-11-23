@@ -94,6 +94,45 @@ Según la documentación detallada en [`docs/DYNAMIC_FORMS.md`](docs/DYNAMIC_FOR
 
 ---
 
+---
+
+## 📚 Developer Documentation
+
+**Complete guides for building and deploying custom forms:**
+
+### Interactive Documentation (Recommended)
+
+Access comprehensive developer documentation with interactive UI:
+
+- **English**: `http://localhost:3001/docs`
+- **Español**: `http://localhost:3001/docs/es`
+
+Features:
+- ✅ Interactive navigation with sidebar
+- ✅ Syntax-highlighted code examples
+- ✅ Step-by-step guides
+- ✅ Environment configuration examples
+- ✅ Troubleshooting solutions
+- ✅ Learning path for junior developers
+
+### Markdown Guide
+
+For offline reading: [`DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md)
+
+**Topics covered:**
+- Quick Start (5 minutes)
+- Project Architecture
+- Form Routes & Loaders (`/form` vs `/formsa`)
+- Authentication (JWT + dev credentials)
+- Environment Configuration (build-time vs server-side)
+- Development Workflows (Fat Bundle, Full Stack, Runtime Testing)
+- Testing Strategies
+- Deployment Process (GitHub Actions)
+- Troubleshooting
+- FAQs
+
+---
+
 ## 🚀 Quick Start
 
 ### 1. Instalar Runtime App
