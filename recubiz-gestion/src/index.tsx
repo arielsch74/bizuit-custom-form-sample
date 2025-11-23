@@ -123,6 +123,14 @@ const MOCK_DEUDAS_NUEVAS: Deuda[] = [
         importe: 179600.00,
         producto: '1040754305',
         descripcion: 'A3 F011143DEPPHILIPS HP-6574 SAINT PERF744739NOKIA 100 MOVISTAR PRE'
+      },
+      {
+        id: 2,
+        fecha: '2019-03-15',
+        importeOriginal: 25000.00,
+        importe: 89400.00,
+        producto: '1040754306',
+        descripcion: 'Samsung Galaxy S10 - Tablet iPad Mini'
       }
     ]
   }
@@ -278,9 +286,10 @@ function ContactoRow({ contacto, isSelected, onClick, index }: {
   onClick: () => void;
   index: number;
 }) {
-  const tipoText = contacto.tipo;
-  const valorText = contacto.valor;
-  const estadoText = contacto.estado;
+  // Mapeo correcto de propiedades
+  const tipoContactoText = contacto.tipo || contacto.tipoContacto || '-';
+  const contactoText = contacto.valor || contacto.contacto || '-';
+  const estadoText = contacto.estado || '-';
 
   return (
     <tr
@@ -289,24 +298,41 @@ function ContactoRow({ contacto, isSelected, onClick, index }: {
         isSelected ? 'bg-orange-50 border-l-4 border-orange-500' : index % 2 === 0 ? 'bg-gray-50 hover:bg-orange-50 border-l-4 border-transparent' : 'bg-white hover:bg-orange-50 border-l-4 border-transparent'
       }`}
     >
-      <td className="px-2 py-4 w-12">
-        {isSelected && (
-          <svg className="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-          </svg>
-        )}
+      <td className="px-6 py-4">
+        <span className="text-sm font-medium text-gray-900">{tipoContactoText}</span>
       </td>
       <td className="px-6 py-4">
-        <span className="text-sm font-medium text-gray-900">{tipoText}</span>
-      </td>
-      <td className="px-6 py-4">
-        <span className="text-sm text-gray-900">{valorText}</span>
+        <span className="text-sm text-gray-900">{contactoText}</span>
       </td>
       <td className="px-6 py-4">
         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
           {estadoText}
         </span>
       </td>
+    </tr>
+  );
+}
+
+function DetalleDeudaRow({ detalle, index }: { detalle: DetalleDeuda; index: number }) {
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-AR', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  return (
+    <tr className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(detalle.fecha)}</td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{formatCurrency(detalle.importeOriginal)}</td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-orange-600">{formatCurrency(detalle.importe)}</td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{detalle.producto || '-'}</td>
+      <td className="px-6 py-4 text-sm text-gray-900">{detalle.descripcion || '-'}</td>
     </tr>
   );
 }
@@ -344,6 +370,8 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
   const [mostrarConfirmacionFinalizar, setMostrarConfirmacionFinalizar] = useState(false);
   const [mostrarConfirmacionSolicitar, setMostrarConfirmacionSolicitar] = useState(false);
   const [accionSeleccionada, setAccionSeleccionada] = useState<Accion | null>(null);
+  const [mostrarHistorial, setMostrarHistorial] = useState(false);
+  const [mostrarModalRegistrarAccion, setMostrarModalRegistrarAccion] = useState(false);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
@@ -416,6 +444,8 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
 
     setAccionesHistorial([...accionesHistorial, nuevaAccion]);
     setObservaciones('');
+    setMostrarModalRegistrarAccion(false);
+    setContactoSeleccionado(null);
     alert('Acción registrada exitosamente');
   };
 
@@ -713,18 +743,13 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {deudaActual.detalles.map((detalle, index) => {
-                      console.log('Detalle:', detalle);
-                      return (
-                        <tr key={detalle.id} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(detalle.fecha)}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{formatCurrency(detalle.importeOriginal)}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-orange-600">{formatCurrency(detalle.importe)}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{detalle.producto || '-'}</td>
-                          <td className="px-6 py-4 text-sm text-gray-900">{detalle.descripcion || '-'}</td>
-                        </tr>
-                      );
-                    })}
+                    {deudaActual.detalles.map((detalle, index) => (
+                      <DetalleDeudaRow
+                        key={detalle.id}
+                        detalle={detalle}
+                        index={index}
+                      />
+                    ))}
                   </tbody>
                   <tfoot className="bg-gray-100 border-t-2 border-gray-300">
                     <tr>
@@ -762,94 +787,179 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
               <p className="text-gray-600">{deudaActual.id} - {deudaActual.deudor}</p>
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white rounded-xl shadow-sm border-l-4 border-orange-500 p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Deudor</p>
-                    <p className="text-lg font-bold text-gray-900">{deudaActual.deudor}</p>
-                    <p className="text-xs text-gray-500">{deudaActual.numeroDocumento}</p>
-                  </div>
+            {/* Info Card Expandido - Deudor y Deuda */}
+            <div className="bg-white rounded-xl shadow-sm border-l-4 border-orange-500 p-6">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">Información del Deudor</h3>
+                  <p className="text-sm text-gray-600">Datos personales y deuda total</p>
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border-l-4 border-blue-500 p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Productos</p>
-                    <p className="text-2xl font-bold text-gray-900">{deudaActual.detalles.length}</p>
-                    <p className="text-xs text-gray-500">{deudaActual.detalles.length === 1 ? 'producto' : 'productos'}</p>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                    Nombre
+                  </label>
+                  <p className="text-base font-semibold text-gray-900">{deudaActual.deudor}</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                    Documento
+                  </label>
+                  <p className="text-base font-medium text-gray-900">{deudaActual.numeroDocumento}</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                    CUIT
+                  </label>
+                  <p className="text-base font-medium text-gray-900">{deudaActual.cuit}</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                    Fecha Nacimiento
+                  </label>
+                  <p className="text-base text-gray-900">{formatDate(deudaActual.fechaNacimiento)}</p>
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl shadow-sm border-l-4 border-red-500 p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+              <div className="pt-4 border-t border-gray-200">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Productos</p>
+                      <p className="text-lg font-bold text-gray-900">{deudaActual.detalles.length} {deudaActual.detalles.length === 1 ? 'producto' : 'productos'}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Deuda Total</p>
-                    <p className="text-2xl font-bold text-red-600">
-                      {formatCurrency(deudaActual.detalles.reduce((sum, d) => sum + d.importe, 0))}
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Deuda Total</p>
+                      <p className="text-xl font-bold text-red-600">
+                        {formatCurrency(deudaActual.detalles.reduce((sum, d) => sum + d.importe, 0))}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Historial de Acciones */}
-            {accionesHistorial.length > 0 && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
-                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-900">Historial de Acciones</h3>
-                      <p className="text-sm text-gray-600 mt-1">{accionesHistorial.length} acciones registradas</p>
-                    </div>
+            {/* Datos de la Deuda */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200 bg-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
+                    <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">Datos de la Deuda</h3>
+                    <p className="text-sm text-gray-600">{deudaActual.detalles.length} {deudaActual.detalles.length === 1 ? 'registro' : 'registros'}</p>
                   </div>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-100 border-b border-gray-200">
-                      <tr>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Hora</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Tipo</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Contacto</th>
-                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Observaciones</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {accionesHistorial.map((a, index) => (
-                        <AccionRow
-                          key={a.id}
-                          accion={a}
-                          index={index}
-                          onClick={() => setAccionSeleccionada(a)}
-                        />
-                      ))}
-                    </tbody>
-                  </table>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-100 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Importe Original</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Importe Actual</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Producto</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Descripción</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {deudaActual.detalles.map((detalle, index) => (
+                      <DetalleDeudaRow
+                        key={detalle.id}
+                        detalle={detalle}
+                        index={index}
+                      />
+                    ))}
+                  </tbody>
+                  <tfoot className="bg-gray-100 border-t-2 border-gray-300">
+                    <tr>
+                      <td className="px-6 py-4 text-sm font-bold text-gray-900" colSpan={2}>TOTAL</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-lg font-bold text-red-600">
+                        {formatCurrency(deudaActual.detalles.reduce((sum, d) => sum + d.importe, 0))}
+                      </td>
+                      <td colSpan={2}></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            {/* Historial de Acciones - Colapsable */}
+            {accionesHistorial.length > 0 && (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div
+                  className="px-6 py-4 border-b border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => setMostrarHistorial(!mostrarHistorial)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900">Historial de Acciones</h3>
+                        <p className="text-sm text-gray-600 mt-1">{accionesHistorial.length} acciones registradas</p>
+                      </div>
+                    </div>
+                    <svg
+                      className={`w-6 h-6 text-gray-600 transition-transform ${mostrarHistorial ? 'rotate-180' : ''}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
                 </div>
+                {mostrarHistorial && (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-100 border-b border-gray-200">
+                        <tr>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha</th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Hora</th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Tipo</th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Contacto</th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Observaciones</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {accionesHistorial.map((a, index) => (
+                          <AccionRow
+                            key={a.id}
+                            accion={a}
+                            index={index}
+                            onClick={() => setAccionSeleccionada(a)}
+                          />
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
 
@@ -864,7 +974,7 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-gray-900">Contactos del Deudor</h3>
-                    <p className="text-sm text-gray-600 mt-1">Seleccione un contacto para registrar acciones</p>
+                    <p className="text-sm text-gray-600 mt-1">Click en un contacto para registrar acción</p>
                   </div>
                 </div>
               </div>
@@ -872,7 +982,6 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
                 <table className="w-full">
                   <thead className="bg-gray-100 border-b border-gray-200">
                     <tr>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-12"></th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Tipo de Contacto</th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Contacto</th>
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
@@ -884,53 +993,15 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
                         key={c.id}
                         contacto={c}
                         isSelected={contactoSeleccionado?.id === c.id}
-                        onClick={() => setContactoSeleccionado(contactoSeleccionado?.id === c.id ? null : c)}
+                        onClick={() => {
+                          setContactoSeleccionado(c);
+                          setMostrarModalRegistrarAccion(true);
+                        }}
                         index={index}
                       />
                     ))}
                   </tbody>
                 </table>
-              </div>
-              {contactoSeleccionado && (
-                <div className="px-6 py-3 bg-orange-50 border-t border-orange-200">
-                  <p className="text-sm font-medium text-orange-900">
-                    <span className="font-bold">Seleccionado:</span> {contactoSeleccionado.tipo} - {contactoSeleccionado.valor}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Registrar Acción */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">Registrar Nueva Acción</h3>
-                  <p className="text-sm text-gray-600">Complete los datos de la acción realizada</p>
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Observaciones *
-                </label>
-                <textarea
-                  value={observaciones}
-                  onChange={(e) => setObservaciones(e.target.value)}
-                  rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
-                  placeholder="Describa la acción realizada..."
-                />
-              </div>
-
-              <div className="flex justify-end">
-                <Button onClick={handleAgregarAccion} disabled={!contactoSeleccionado} size="lg">
-                  + Agregar Acción
-                </Button>
               </div>
             </div>
 
@@ -1104,6 +1175,78 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
                 </Button>
                 <Button variant="destructive" onClick={handleConfirmarRechazo} className="flex-1">
                   Confirmar Rechazo
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================ */}
+        {/* MODAL REGISTRAR ACCION */}
+        {/* ============================================================ */}
+        {mostrarModalRegistrarAccion && contactoSeleccionado && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full p-8">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-xl font-bold text-gray-900 mb-1">
+                    Registrar Nueva Acción
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    {contactoSeleccionado.tipo} - {contactoSeleccionado.valor}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setMostrarModalRegistrarAccion(false);
+                    setContactoSeleccionado(null);
+                    setObservaciones('');
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Observaciones *
+                </label>
+                <textarea
+                  value={observaciones}
+                  onChange={(e) => setObservaciones(e.target.value)}
+                  rows={6}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                  placeholder="Describa la acción realizada..."
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setMostrarModalRegistrarAccion(false);
+                    setContactoSeleccionado(null);
+                    setObservaciones('');
+                  }}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="default"
+                  onClick={handleAgregarAccion}
+                  className="flex-1"
+                >
+                  Guardar Acción
                 </Button>
               </div>
             </div>
