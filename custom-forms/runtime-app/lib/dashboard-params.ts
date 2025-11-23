@@ -160,9 +160,9 @@ export async function getDashboardParameters(): Promise<{
         parameters: {
           token: bzAuth,
           userName: searchParams.get('UserName') || 'User',
-          instanceId: searchParams.get('InstanceId'),
-          eventName: searchParams.get('eventName'),
-          activityName: searchParams.get('activityName')
+          instanceId: searchParams.get('InstanceId') || undefined,
+          eventName: searchParams.get('eventName') || undefined,
+          activityName: searchParams.get('activityName') || undefined
         }
       }
     }
