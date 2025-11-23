@@ -499,58 +499,44 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
 
       console.log('🔍 Datosgestion parameter:', datosGestionParam);
 
-      // Parse XML string
-      let xmlDoc: Document;
-      try {
-        const parser = new DOMParser();
-        const xmlString = typeof datosGestionParam.value === 'string'
-          ? datosGestionParam.value
-          : String(datosGestionParam.value);
+      // SDK v2.0.1+ automatically parses XML to JSON with camelCase property names
+      const datosGestion = datosGestionParam.value as any;
+      console.log('🔍 Parsed JSON structure:', JSON.stringify(datosGestion, null, 2));
 
-        console.log('🔍 XML string to parse:', xmlString);
-
-        xmlDoc = parser.parseFromString(xmlString, 'text/xml');
-
-        // Check for parsing errors
-        const parserError = xmlDoc.querySelector('parsererror');
-        if (parserError) {
-          throw new Error(`Error al parsear XML: ${parserError.textContent}`);
-        }
-      } catch (err) {
-        console.error('❌ Error parsing XML:', err);
-        throw new Error('Error al parsear los datos XML del proceso');
-      }
-
-      // Extract DatosPersonales
-      const datosPersonalesNode = xmlDoc.querySelector('Deudor > DatosPersonales');
-      const idPersonal = datosPersonalesNode?.querySelector('ID')?.textContent || `D-${Date.now()}`;
-      const nombre = datosPersonalesNode?.querySelector('Nombre')?.textContent || 'Sin nombre';
-      const cuit = datosPersonalesNode?.querySelector('CUIT')?.textContent || 'Sin CUIT';
-      const numeroDocumento = datosPersonalesNode?.querySelector('NumeroDocumento')?.textContent || 'Sin documento';
-      const fechaNacimiento = datosPersonalesNode?.querySelector('FechaNacimiento')?.textContent || new Date().toISOString();
+      // Access parsed JSON directly (XML <Deudor><DatosPersonales> becomes deudor.datosPersonales)
+      const datosPersonales = datosGestion?.deudor?.datosPersonales || {};
+      const idPersonal = datosPersonales.id || `D-${Date.now()}`;
+      const nombre = datosPersonales.nombre || 'Sin nombre';
+      const cuit = datosPersonales.cuit || 'Sin CUIT';
+      const numeroDocumento = datosPersonales.numeroDocumento || 'Sin documento';
+      const fechaNacimiento = datosPersonales.fechaNacimiento || new Date().toISOString();
 
       console.log('🔍 DatosPersonales:', { idPersonal, nombre, cuit, numeroDocumento, fechaNacimiento });
 
-      // Extract Deudas and Detalles
-      const deudasNodes = xmlDoc.querySelectorAll('Deudor > Deudas > Deuda');
+      // Extract Deudas and Detalles from parsed JSON
+      const deudasArray = datosGestion?.deudor?.deudas?.deuda || [];
       const detalles: DetalleDeuda[] = [];
 
-      deudasNodes.forEach((deudaNode) => {
-        const detallesNodes = deudaNode.querySelectorAll('Detalles > Detalle');
+      // Ensure deudasArray is an array (single item might not be in array)
+      const deudas = Array.isArray(deudasArray) ? deudasArray : [deudasArray];
 
-        detallesNodes.forEach((detalleNode) => {
-          const detalle: DetalleDeuda = {
-            id: parseInt(detalleNode.querySelector('ID')?.textContent || String(detalles.length + 1)),
-            fecha: detalleNode.querySelector('Fecha')?.textContent || new Date().toISOString().split('T')[0],
-            importeOriginal: parseFloat(detalleNode.querySelector('ImporteOriginal')?.textContent || '0'),
-            importe: parseFloat(detalleNode.querySelector('Importe')?.textContent || '0'),
-            producto: detalleNode.querySelector('Producto')?.textContent || undefined,
-            descripcion: detalleNode.querySelector('Descripcion')?.textContent || undefined,
-            acreedorOriginal: detalleNode.querySelector('AcreedorOriginal')?.textContent || undefined,
-            active: detalleNode.querySelector('Active')?.textContent === 'true'
+      deudas.forEach((deuda: any) => {
+        const detallesArray = deuda?.detalles?.detalle || [];
+        const detallesItems = Array.isArray(detallesArray) ? detallesArray : [detallesArray];
+
+        detallesItems.forEach((detalle: any) => {
+          const detalleItem: DetalleDeuda = {
+            id: parseInt(detalle.id || String(detalles.length + 1)),
+            fecha: detalle.fecha || new Date().toISOString().split('T')[0],
+            importeOriginal: parseFloat(detalle.importeOriginal || '0'),
+            importe: parseFloat(detalle.importe || '0'),
+            producto: detalle.producto || undefined,
+            descripcion: detalle.descripcion || undefined,
+            acreedorOriginal: detalle.acreedorOriginal || undefined,
+            active: detalle.active === 'true' || detalle.active === true
           };
 
-          detalles.push(detalle);
+          detalles.push(detalleItem);
         });
       });
 
