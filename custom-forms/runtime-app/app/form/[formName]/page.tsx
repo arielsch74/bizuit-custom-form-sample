@@ -64,7 +64,16 @@ export default function DynamicFormPage({ params }: Props) {
         }
 
         console.log('[Dynamic Form Page] ✅ Dashboard token validated:', validation.parameters)
-        setDashboardParams(validation.parameters || null)
+
+        // Add apiUrl from config to dashboard params
+        const apiUrl = config.dashboardApiUrl
+        const paramsWithApiUrl = {
+          ...validation.parameters,
+          apiUrl: apiUrl
+        }
+
+        setDashboardParams(paramsWithApiUrl || null)
+        console.log('[Dynamic Form Page] API URL:', apiUrl)
       } else {
         console.warn(
           '[Dynamic Form Page] ⚠️ DEVELOPMENT MODE: Direct access allowed. ' +
@@ -72,18 +81,44 @@ export default function DynamicFormPage({ params }: Props) {
         )
 
         // Load dev credentials for forms that need authentication
+        // Use dynamic import with variable to prevent Next.js build-time analysis
+        const devCredentialsPath = '../../../dev-credentials.js'
+
         try {
-          const { DEV_CREDENTIALS } = await import('../../../dev-credentials.js')
+          // Dynamic import that won't fail the build if file doesn't exist
+          const module = await import(/* webpackIgnore: true */ devCredentialsPath).catch(() => null)
+
+          if (module?.DEV_CREDENTIALS) {
+            const { DEV_CREDENTIALS } = module
+
+            // Get apiUrl from config or dev credentials
+            const apiUrl = config.dashboardApiUrl || DEV_CREDENTIALS.apiUrl
+
+            setDashboardParams({
+              userName: 'Dev User',
+              apiUrl: apiUrl,  // Pass to forms for SDK initialization
+              devUsername: DEV_CREDENTIALS.username,
+              devPassword: DEV_CREDENTIALS.password,
+              devApiUrl: DEV_CREDENTIALS.apiUrl
+            })
+            console.log('[Dynamic Form Page] ✅ Dev credentials loaded')
+            console.log('[Dynamic Form Page] API URL:', apiUrl)
+          } else {
+            // No dev credentials, use empty params (forms will show appropriate error)
+            setDashboardParams({
+              userName: 'Dev User',
+              apiUrl: config.dashboardApiUrl
+            })
+            console.warn('[Dynamic Form Page] ⚠️ No dev-credentials.js found')
+            console.warn('[Dynamic Form Page] Forms requiring auth will fail')
+          }
+        } catch (err) {
+          console.warn('[Dynamic Form Page] ⚠️ Error loading dev credentials:', err)
+          // Set minimal params
           setDashboardParams({
             userName: 'Dev User',
-            devUsername: DEV_CREDENTIALS.username,
-            devPassword: DEV_CREDENTIALS.password,
-            devApiUrl: DEV_CREDENTIALS.apiUrl
+            apiUrl: config.dashboardApiUrl
           })
-          console.log('[Dynamic Form Page] ✅ Dev credentials loaded')
-        } catch (err) {
-          console.warn('[Dynamic Form Page] ⚠️ No dev-credentials.js found, forms may fail to authenticate')
-          console.warn('[Dynamic Form Page] Create dev-credentials.js from dev-credentials.example.js')
         }
       }
 
