@@ -98,6 +98,10 @@ interface Deuda {
   fechaAlta: string;
   estado: 'nueva' | 'gestionando' | 'finalizada';
   detalles: DetalleDeuda[];
+  // Campos internos de gestión (no se muestran en UI)
+  idDeudor?: number;
+  idDeuda?: number;
+  instanceIdGestion?: string;
 }
 
 interface Accion {
@@ -485,6 +489,16 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
       // Log raw response for debugging
       console.log('🔍 SDK Response (raw):', JSON.stringify(result, null, 2));
 
+      // Log Datosgestion parameter specifically
+      const datosParam = result.parameters?.find((p) => p.name === 'Datosgestion');
+      console.log('🔍 Datosgestion parameterType:', datosParam?.parameterType);
+      console.log('🔍 Datosgestion value type:', typeof datosParam?.value);
+      console.log('🔍 Datosgestion value (first 200 chars):',
+        typeof datosParam?.value === 'string'
+          ? datosParam.value.substring(0, 200)
+          : JSON.stringify(datosParam?.value).substring(0, 200)
+      );
+
       // Check for errors
       if (result.status === 'Error') {
         throw new Error(result.errorMessage || 'Error al solicitar nueva deuda');
@@ -542,6 +556,12 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
 
       console.log('🔍 Detalles extracted:', detalles);
 
+      // Get idDeuda from first deuda element
+      const primeraDeuda = deudas[0] || {};
+      const idDeuda = parseInt(primeraDeuda.id || '0');
+
+      console.log('🔍 IDs for process:', { idDeudor: parseInt(idPersonal), idDeuda });
+
       // Map XML data to Deuda interface
       const nuevaDeuda: Deuda = {
         id: idPersonal,
@@ -551,7 +571,10 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
         fechaNacimiento: fechaNacimiento,
         fechaAlta: new Date().toISOString().split('T')[0],
         estado: 'nueva',
-        detalles: detalles
+        detalles: detalles,
+        // Internal fields for process management
+        idDeudor: parseInt(idPersonal),
+        idDeuda: idDeuda
       };
 
       setDeudaActual(nuevaDeuda);
@@ -571,9 +594,71 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
     }
   };
 
-  const handleAceptarDeuda = () => {
-    alert(`Deuda ${deudaActual?.id} aceptada para gestión`);
-    setScreen('management');
+  const handleAceptarDeuda = async () => {
+    if (!deudaActual || !deudaActual.idDeudor || !deudaActual.idDeuda) {
+      alert('Faltan datos necesarios para iniciar la gestión');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setLoadingMessage('Iniciando gestión...');
+
+      // Call RB_IniciarGestion process
+      const result = await sdk.process.start(
+        {
+          processName: 'RB_IniciarGestion',
+          parameters: [
+            {
+              name: 'idGestor',
+              value: String(SDK_CONFIG.idGestor),
+              type: 'SingleValue',
+              direction: 'In'
+            },
+            {
+              name: 'idDeudor',
+              value: String(deudaActual.idDeudor),
+              type: 'SingleValue',
+              direction: 'In'
+            },
+            {
+              name: 'idDeuda',
+              value: String(deudaActual.idDeuda),
+              type: 'SingleValue',
+              direction: 'In'
+            }
+          ]
+        },
+        [],
+        authToken
+      );
+
+      console.log('🔍 RB_IniciarGestion response:', result);
+
+      // Check for errors
+      if (result.status === 'Error') {
+        throw new Error(result.errorMessage || 'Error al iniciar gestión');
+      }
+
+      // Store instanceId in deudaActual
+      setDeudaActual({
+        ...deudaActual,
+        instanceIdGestion: result.instanceId,
+        estado: 'gestionando'
+      });
+
+      console.log('✅ Gestión iniciada. InstanceId:', result.instanceId);
+      setScreen('management');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido al iniciar gestión';
+      setError({
+        message: errorMessage,
+        retry: handleAceptarDeuda
+      });
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage('');
+    }
   };
 
   const handleRechazarDeuda = () => {
