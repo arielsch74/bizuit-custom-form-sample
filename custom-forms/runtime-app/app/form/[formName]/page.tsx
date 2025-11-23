@@ -81,25 +81,37 @@ export default function DynamicFormPage({ params }: Props) {
         )
 
         // Load dev credentials for forms that need authentication
+        // Try local dev-credentials.js first, fallback to default
+        let DEV_CREDENTIALS = null
+
         try {
-          const { DEV_CREDENTIALS } = await import('../../../dev-credentials.js')
+          // Try local credentials (gitignored)
+          const module = await import('../../../dev-credentials.js').catch(() => null)
+          if (module) {
+            DEV_CREDENTIALS = module.DEV_CREDENTIALS
+            console.log('[Dynamic Form Page] ✅ Dev credentials loaded from dev-credentials.js')
+          }
+        } catch {}
 
-          // Get apiUrl from config or dev credentials
-          const apiUrl = config.dashboardApiUrl || DEV_CREDENTIALS.apiUrl
-
-          setDashboardParams({
-            userName: 'Dev User',
-            apiUrl: apiUrl,  // Pass to forms for SDK initialization
-            devUsername: DEV_CREDENTIALS.username,
-            devPassword: DEV_CREDENTIALS.password,
-            devApiUrl: DEV_CREDENTIALS.apiUrl
-          })
-          console.log('[Dynamic Form Page] ✅ Dev credentials loaded')
-          console.log('[Dynamic Form Page] API URL:', apiUrl)
-        } catch (err) {
-          console.warn('[Dynamic Form Page] ⚠️ No dev-credentials.js found, forms may fail to authenticate')
-          console.warn('[Dynamic Form Page] Create dev-credentials.js from dev-credentials.example.js')
+        // Fallback to default (empty credentials)
+        if (!DEV_CREDENTIALS) {
+          const defaultModule = await import('../../../dev-credentials.default.js')
+          DEV_CREDENTIALS = defaultModule.DEV_CREDENTIALS
+          console.warn('[Dynamic Form Page] ⚠️ Using default credentials (empty)')
+          console.warn('[Dynamic Form Page] Copy dev-credentials.example.js to dev-credentials.js')
         }
+
+        // Get apiUrl from config or dev credentials
+        const apiUrl = config.dashboardApiUrl || DEV_CREDENTIALS.apiUrl
+
+        setDashboardParams({
+          userName: 'Dev User',
+          apiUrl: apiUrl,  // Pass to forms for SDK initialization
+          devUsername: DEV_CREDENTIALS.username,
+          devPassword: DEV_CREDENTIALS.password,
+          devApiUrl: DEV_CREDENTIALS.apiUrl
+        })
+        console.log('[Dynamic Form Page] API URL:', apiUrl)
       }
 
       // 1. Fetch metadata from API (simula consulta a BD)
