@@ -1,6 +1,7 @@
 /**
  * Recubiz - Sistema de Gestión de Cobranzas
  * Professional debt collection management system
+ * @version 1.0.18
  */
 
 import { useState, useEffect, useMemo } from 'react';
