@@ -12,6 +12,7 @@ import type {
   IStartProcessParams,
   IProcessResult,
 } from '../types'
+import { xmlToJson } from '../utils/xml-parser'
 
 export class BizuitProcessService {
   private client: BizuitHttpClient
@@ -145,6 +146,30 @@ export class BizuitProcessService {
       payload,
       { headers }
     )
+
+    // Automatically parse XML parameters to JSON
+    if (result.parameters && Array.isArray(result.parameters)) {
+      result.parameters.forEach(param => {
+        // Check if parameter type is 2 (XML/Complex) and has a value
+        if (param.parameterType === 2 && param.value) {
+          try {
+            const parsedJson = xmlToJson(param.value)
+            if (parsedJson !== null) {
+              // Replace XML string with parsed JSON object
+              param.value = parsedJson as any
+              // Change parameterType to indicate it's now JSON
+              param.parameterType = 'Json' as any
+              console.log(`✅ Auto-parsed XML parameter: ${param.name}`)
+            } else {
+              console.warn(`⚠️ Failed to parse XML parameter: ${param.name}, keeping original XML`)
+            }
+          } catch (error) {
+            console.warn(`⚠️ Error parsing XML parameter ${param.name}:`, error)
+            // Keep original XML value on error
+          }
+        }
+      })
+    }
 
     return result
   }
@@ -307,6 +332,30 @@ export class BizuitProcessService {
       payload,
       { headers }
     )
+
+    // Automatically parse XML parameters to JSON
+    if (result.parameters && Array.isArray(result.parameters)) {
+      result.parameters.forEach(param => {
+        // Check if parameter type is 2 (XML/Complex) and has a value
+        if (param.parameterType === 2 && param.value) {
+          try {
+            const parsedJson = xmlToJson(param.value)
+            if (parsedJson !== null) {
+              // Replace XML string with parsed JSON object
+              param.value = parsedJson as any
+              // Change parameterType to indicate it's now JSON
+              param.parameterType = 'Json' as any
+              console.log(`✅ Auto-parsed XML parameter: ${param.name}`)
+            } else {
+              console.warn(`⚠️ Failed to parse XML parameter: ${param.name}, keeping original XML`)
+            }
+          } catch (error) {
+            console.warn(`⚠️ Error parsing XML parameter ${param.name}:`, error)
+            // Keep original XML value on error
+          }
+        }
+      })
+    }
 
     return result
   }

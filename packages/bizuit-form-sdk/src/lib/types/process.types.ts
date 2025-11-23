@@ -9,7 +9,7 @@ export type ProcessStatus = 'Completed' | 'Waiting' | 'Running' | 'Error'
 
 export interface IParameter {
   name: string
-  value: string | null
+  value: string | any | null  // Can be string or parsed JSON object for XML parameters
   valueJson?: string | null
   type: ParameterType
   direction: ParameterDirection
