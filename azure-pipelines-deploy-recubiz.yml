@@ -400,7 +400,7 @@ stages:
                 # Copy standalone build (contains server.js, .next, node_modules, package.json)
                 - task: CopyFiles@2
                   inputs:
-                    SourceFolder: '$(System.ArtifactsDirectory)/runtime-drop/runtime-app/.next/standalone/runtime-app'
+                    SourceFolder: '$(System.ArtifactsDirectory)/runtime-drop/runtime-app/.next/standalone'
                     Contents: '**'
                     TargetFolder: '$(runtimeDeployPath)'
                     OverWrite: true
