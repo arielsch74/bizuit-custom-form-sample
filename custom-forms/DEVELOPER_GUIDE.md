@@ -1,470 +1,1410 @@
-# 🚀 BIZUIT Custom Forms - Developer Guide
+# 🚀 BIZUIT Custom Forms - Complete Developer Guide
 
-> **Quick Start Guide for Junior Developers**
-> Everything you need to know to develop, test, and deploy custom forms
+> **Comprehensive guide for junior developers**
+> Everything from zero to production deployment
+
+**Last Updated**: 2025-11-23
+**Target Audience**: Junior Developers, New Team Members
+**Reading Time**: 30-45 minutes
 
 ---
 
 ## 📚 Table of Contents
 
-1. [Quick Start](#-quick-start)
-2. [Understanding Authentication](#-understanding-authentication)
-3. [Environment Configuration](#-environment-configuration)
-4. [Development Workflow](#-development-workflow)
-5. [Testing Your Form](#-testing-your-form)
-6. [Deployment Process](#-deployment-process)
-7. [Troubleshooting](#-troubleshooting)
+1. [Quick Start (5 Minutes)](#-quick-start-5-minutes)
+2. [Project Architecture](#-project-architecture)
+3. [Understanding Authentication](#-understanding-authentication)
+4. [Environment Configuration Deep Dive](#-environment-configuration-deep-dive)
+5. [Development Credentials Setup](#-development-credentials-setup)
+6. [Development Workflows](#-development-workflows)
+7. [Testing Strategies](#-testing-strategies)
+8. [Deployment Process](#-deployment-process)
+9. [Common Scenarios](#-common-scenarios)
+10. [Troubleshooting](#-troubleshooting)
+11. [FAQs](#-faqs)
 
 ---
 
-## 🎯 Quick Start
+## 🎯 Quick Start (5 Minutes)
 
 ### Prerequisites
 
-- **Node.js 18+** and npm
-- **Python 3.10+** (for backend API)
-- **Git** and **GitHub account**
+```bash
+# Required
+node --version    # v18.0.0 or higher
+npm --version     # v9.0.0 or higher
+python3 --version # v3.10 or higher
+git --version     # any recent version
 
-### Clone and Setup
+# Optional but recommended
+code --version    # VS Code
+```
+
+### Initial Setup
 
 ```bash
-# Clone the repository
+# 1. Clone repository
 git clone <repo-url>
 cd custom-forms
 
-# Install dependencies
+# 2. Install dependencies
 npm install
 
-# Setup forms-examples submodule
+# 3. Setup forms-examples submodule
 git submodule init
 git submodule update
+cd forms-examples && npm install && cd ..
 
-# Start all services (automated)
+# 4. Setup environment files
+cd runtime-app
+cp .env.example .env.local
+cp dev-credentials.example.js dev-credentials.js
+
+# 5. Edit dev-credentials.js (IMPORTANT!)
+# Update with your test credentials
+
+# 6. Start all services
+cd ..
 ./start-all.sh
 ```
 
-**That's it!** You now have:
-- ✅ Backend API running on `http://localhost:8000`
-- ✅ Showcase app on `http://localhost:3000`
-- ✅ Runtime app on `http://localhost:3001`
+**Access Points**:
+- 🌐 Runtime App: `http://localhost:3001`
+- 📊 Showcase: `http://localhost:3000`
+- 🔧 Backend API: `http://localhost:8000/docs`
+
+---
+
+## 🏗️ Project Architecture
+
+### High-Level Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      BIZUIT Dashboard                        │
+│          (User clicks form → Generates JWT token)           │
+└─────────────────────┬───────────────────────────────────────┘
+                      │ token
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│              Runtime App (Next.js - Port 3001)              │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  1. Validates token with Backend API                 │   │
+│  │  2. Loads form from database                         │   │
+│  │  3. Executes form with user context                  │   │
+│  └──────────────────────────────────────────────────────┘   │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│            Backend API (FastAPI - Port 8000)                │
+│  • Token validation                                          │
+│  • Form storage (SQLite)                                     │
+│  • Version management                                        │
+│  • Admin authentication                                      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Directory Structure
+
+```
+custom-forms/
+├── runtime-app/              # Next.js 15 App Router
+│   ├── app/
+│   │   ├── forms/           # Dynamic form routes
+│   │   ├── admin/           # Admin panel
+│   │   ├── docs/            # Developer documentation
+│   │   └── api/             # Next.js API routes
+│   ├── lib/                 # Utilities
+│   ├── .env.local           # Environment config (CREATE THIS)
+│   └── dev-credentials.js   # Dev credentials (CREATE THIS)
+│
+├── backend-api/             # FastAPI Python backend
+│   ├── main.py             # Entry point
+│   ├── requirements.txt    # Python dependencies
+│   └── venv/               # Virtual environment
+│
+├── forms-examples/          # Git submodule
+│   ├── recubiz-gestion/    # Example form
+│   ├── my-form/            # Your forms here
+│   └── build-form.js       # Shared build script
+│
+├── start-all.sh            # Start all services
+├── stop-all.sh             # Stop all services
+└── logs/                   # Runtime logs
+```
 
 ---
 
 ## 🔐 Understanding Authentication
 
-### How Forms Get Loaded
-
-BIZUIT Custom Forms uses a **token-based authentication** system:
+### Production Authentication Flow
 
 ```
-User in Dashboard → Clicks "Open Form" → URL with token → Form loads
+┌──────────────┐
+│ BIZUIT User  │
+└──────┬───────┘
+       │ 1. Clicks "Open Form"
+       ▼
+┌─────────────────────┐
+│ BIZUIT Dashboard    │
+│ (BPM System)        │
+└──────┬──────────────┘
+       │ 2. Generates JWT token
+       │    { userName, roles, processName, exp }
+       ▼
+┌────────────────────────────────────────────────────┐
+│ Runtime App                                        │
+│ URL: /forms/my-form?token=eyJhbGc...              │
+└──────┬─────────────────────────────────────────────┘
+       │ 3. Validates token
+       ▼
+┌─────────────────────┐
+│ Backend API         │
+│ /api/auth/validate  │
+└──────┬──────────────┘
+       │ 4. Returns user context
+       ▼
+┌────────────────────────────────────────────────────┐
+│ Form Executes with Context                         │
+│ - userName: "john.doe"                             │
+│ - roles: ["Admin", "Manager"]                      │
+│ - processName: "ApprovalProcess"                   │
+└────────────────────────────────────────────────────┘
 ```
 
-### Token Flow
+### Development Mode Authentication
 
-1. **Dashboard generates JWT token** with:
-   - User info (username, email, roles)
-   - Process info (processName, activityName)
-   - Expiration time
+**Problem**: During development, you don't have access to the Dashboard to generate tokens.
 
-2. **Token passed via URL**:
-   ```
-   http://localhost:3001/forms/my-form?token=eyJhbGc...
-   ```
+**Solution**: Development credentials system
 
-3. **Runtime validates token** with backend API:
-   ```
-   GET /api/auth/validate?token=eyJhbGc...
-   ```
+```javascript
+// dev-credentials.js (you create this)
+export const DEV_CREDENTIALS = {
+  username: 'john.doe@company.com',
+  password: 'YourPassword123',
+  apiUrl: 'https://test.bizuit.com/yourTenantBizuitDashboardapi/api/'
+}
+```
 
-4. **Form receives authenticated context**:
-   ```typescript
-   const { user, process } = useAuth()
-   // user = { userName: "john.doe", roles: ["Admin"] }
-   ```
+**How it works**:
 
-### Security by Environment
+1. **Environment Variable**: `ALLOW_DEV_MODE=true` in `.env.local`
+2. **No Token in URL**: Runtime detects missing token
+3. **Uses Dev Credentials**: Authenticates with Dashboard using dev credentials
+4. **Gets Real Token**: Receives JWT token from Dashboard
+5. **Form Runs Normally**: With real user context
 
-| Environment | Security | Token Required |
-|------------|----------|----------------|
-| **Production** | ✅ Strict | ✅ YES - Dashboard only |
-| **Development** | ⚠️ Relaxed | ❌ NO - Dev credentials |
+**Security Note**:
+- ⚠️ `ALLOW_DEV_MODE=true` **ONLY** for local development
+- ⚠️ Production **MUST** have `ALLOW_DEV_MODE=false` or undefined
+- ✅ Server-side variable (no rebuild needed per environment)
 
 ---
 
-## 🔧 Environment Configuration
+## 🔧 Environment Configuration Deep Dive
 
-### Two Types of Variables
+### Understanding Next.js Environment Variables
+
+Next.js has **TWO types** of environment variables:
 
 #### 1. Build-Time Variables (`NEXT_PUBLIC_*`)
 
-These are "baked" into the JavaScript during `npm run build`:
+**Characteristics**:
+- Prefixed with `NEXT_PUBLIC_`
+- Accessible in **client-side** code
+- **Baked into JavaScript** during build
+- Changing requires **full rebuild**
+
+**Example**:
 
 ```env
 # .env.local
 NEXT_PUBLIC_BASE_PATH=/BIZUITCustomForms
 NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/api
+NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30
 ```
 
-⚠️ **Important**: Changing these after build requires **rebuilding**!
+```typescript
+// Can use in client components
+const apiUrl = process.env.NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL
+```
 
+**When to use**:
+- Configuration that's the same for all users
+- URLs, paths, feature flags
+- Timeout values
+
+**Important**:
 ```bash
-npm run build  # Re-bake the new values
+# After changing NEXT_PUBLIC_* variables:
+npm run build  # MUST rebuild!
+npm start      # Then restart
 ```
 
 #### 2. Server-Side Variables (no prefix)
 
-These can be changed at runtime (restart required):
+**Characteristics**:
+- No `NEXT_PUBLIC_` prefix
+- Accessible **only** in server-side code
+- Can be changed without rebuild (restart only)
+- More secure (not exposed to client)
+
+**Example**:
 
 ```env
 # .env.local
-FASTAPI_URL=http://localhost:8000
-DATABASE_URL=postgresql://user:pass@localhost:5432/db
+FASTAPI_URL=http://127.0.0.1:8000
+ALLOW_DEV_MODE=true
+DATABASE_URL=postgresql://localhost:5432/db
 ```
 
-✅ **Flexible**: Just restart the app!
+```typescript
+// Only in server components / API routes
+const backendUrl = process.env.FASTAPI_URL
+```
 
-### Development Credentials
+**When to use**:
+- Secrets, API keys
+- Database URLs
+- Internal service URLs
+- Environment-specific flags
 
-For **local development without Dashboard**, use dev credentials:
+**Important**:
+```bash
+# After changing server variables:
+# NO rebuild needed!
+./stop-all.sh
+./start-all.sh  # Just restart
+```
 
-**File**: `custom-forms/runtime-app/dev-credentials.js`
+### Complete .env.local Reference
 
+Create this file: `runtime-app/.env.local`
+
+```env
+# ==============================================================================
+# BIZUIT BPM Dashboard API
+# ==============================================================================
+
+# Dashboard API base URL
+# For development with CORS proxy:
+NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=/api/bizuit
+
+# For production (direct URL):
+# NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/yourTenantBizuitDashboardapi/api
+
+# HTTP timeout (milliseconds)
+NEXT_PUBLIC_BIZUIT_TIMEOUT=30000
+
+# Token expiration (minutes)
+NEXT_PUBLIC_BIZUIT_TOKEN_EXPIRATION_MINUTES=60
+
+# ==============================================================================
+# Backend FastAPI
+# ==============================================================================
+
+# Backend API URL (server-side only)
+FASTAPI_URL=http://127.0.0.1:8000
+
+# Webhook secret for GitHub Actions
+# Generate: openssl rand -hex 32
+WEBHOOK_SECRET=your-webhook-secret-change-me
+
+# ==============================================================================
+# Deployment Configuration
+# ==============================================================================
+
+# Base path for subdirectory deployment
+# Local development: Leave empty or commented out
+# Production: Set to your subdirectory (e.g., /BIZUITCustomForms)
+# NEXT_PUBLIC_BASE_PATH=/BIZUITCustomForms
+
+# ==============================================================================
+# Development Mode - CRITICAL SECURITY SETTING
+# ==============================================================================
+
+# Allow forms to load without Dashboard token
+# DEVELOPMENT: true  - Allows dev-credentials.js usage
+# PRODUCTION:  false - Requires Dashboard token (secure)
+#
+# ⚠️  This is a SERVER-SIDE variable (no NEXT_PUBLIC_)
+# ✅  Can be different per deployment without rebuild
+# ⚠️  NEVER set to 'true' in production!
+#
+ALLOW_DEV_MODE=true
+
+# ==============================================================================
+# Admin Panel Security
+# ==============================================================================
+
+# Session timeout for admin panel (minutes)
+NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30
+
+# ==============================================================================
+# Iframe Security (Standalone Forms /formsa/*)
+# ==============================================================================
+
+# Allowed origins for iframe embedding (comma-separated)
+# Supports wildcards: https://*.example.com
+NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://test.bizuit.com
+
+# Allow localhost for iframe testing (development only)
+NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=true
+
+# ==============================================================================
+# Optional: Deployment Environment
+# ==============================================================================
+
+# Deployment environment identifier
+# Values: production, testing, staging
+# DEPLOY_ENV=testing
+```
+
+### Environment Variables Matrix
+
+| Variable | Type | Rebuild? | Restart? | Where Used | Purpose |
+|----------|------|----------|----------|------------|---------|
+| `NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL` | Build-time | ✅ Yes | ✅ Yes | Client | Dashboard API URL |
+| `NEXT_PUBLIC_BASE_PATH` | Build-time | ✅ Yes | ✅ Yes | Client | Deployment subdirectory |
+| `NEXT_PUBLIC_BIZUIT_TIMEOUT` | Build-time | ✅ Yes | ✅ Yes | Client | HTTP timeout |
+| `FASTAPI_URL` | Server-side | ❌ No | ✅ Yes | Server | Backend API URL |
+| `ALLOW_DEV_MODE` | Server-side | ❌ No | ✅ Yes | Server | Dev credentials enabled |
+| `WEBHOOK_SECRET` | Server-side | ❌ No | ✅ Yes | Server | GitHub webhook auth |
+
+---
+
+## 🔑 Development Credentials Setup
+
+### Why Dev Credentials?
+
+Without dev credentials:
+```
+❌ Can't test forms locally
+❌ Always need Dashboard access
+❌ Can't work offline
+❌ Slow development iteration
+```
+
+With dev credentials:
+```
+✅ Test forms instantly
+✅ No Dashboard dependency
+✅ Work offline
+✅ Fast iteration
+```
+
+### Step-by-Step Setup
+
+#### Step 1: Enable Dev Mode
+
+Edit `runtime-app/.env.local`:
+
+```env
+ALLOW_DEV_MODE=true  # ← Add or uncomment this line
+```
+
+#### Step 2: Create Dev Credentials File
+
+```bash
+cd runtime-app
+cp dev-credentials.example.js dev-credentials.js
+```
+
+#### Step 3: Get Your Credentials
+
+**Option A: From your team lead**
 ```javascript
+// dev-credentials.js
 export const DEV_CREDENTIALS = {
-  token: 'dev-token-12345',
-  user: {
-    userName: 'developer',
-    email: 'dev@bizuit.com',
-    roles: ['Admin', 'Developer']
-  },
-  process: {
-    processName: 'TestProcess',
-    instanceId: 'test-instance-001'
-  }
+  username: 'provided-by-team@company.com',
+  password: 'ProvidedPassword123',
+  apiUrl: 'https://test.bizuit.com/companyBizuitDashboardapi/api/'
 }
 ```
 
-**Enable dev mode**:
+**Option B: Use your own test account**
 
-```env
-# .env.local
-NEXT_PUBLIC_ALLOW_DEV_MODE=true  # ⚠️ NEVER in production!
+1. Get your tenant name (e.g., `arielsch`, `recubiz`)
+2. Get your test Dashboard credentials
+3. Construct API URL:
+
+```javascript
+// Pattern: https://test.bizuit.com/{tenant}BizuitDashboardapi/api/
+export const DEV_CREDENTIALS = {
+  username: 'your.email@company.com',
+  password: 'YourDashboardPassword',
+  apiUrl: 'https://test.bizuit.com/yourTenantBizuitDashboardapi/api/'
+}
 ```
 
-**How it works**:
+#### Step 4: Verify Setup
 
-```typescript
-// In your form
-const { user } = useAuth()
+```bash
+# Start runtime app
+cd runtime-app
+npm run dev
 
-// Development: uses dev-credentials.js
-// Production: requires Dashboard token
-console.log(user.userName) // "developer" (dev) or "john.doe" (prod)
+# Open browser
+open http://localhost:3001/forms/test-form
+
+# Check console (should NOT see token errors)
+# Should see: "Authenticated with dev credentials"
+```
+
+### Security Checklist
+
+- ✅ `dev-credentials.js` in `.gitignore` (already done)
+- ✅ Never commit real credentials
+- ✅ Use test/dev accounts only (NOT production accounts)
+- ✅ `ALLOW_DEV_MODE=true` only in local `.env.local`
+- ✅ Production: `ALLOW_DEV_MODE=false` or undefined
+
+### Troubleshooting Dev Credentials
+
+**Problem**: "Authentication failed"
+
+```bash
+# Check credentials file exists
+ls runtime-app/dev-credentials.js
+
+# Check ALLOW_DEV_MODE is enabled
+grep ALLOW_DEV_MODE runtime-app/.env.local
+
+# Check API URL format (must end with /api/)
+cat runtime-app/dev-credentials.js
+```
+
+**Problem**: "TypeError: Cannot read property 'username'"
+
+```bash
+# File exists but has wrong format
+# Must export object with username, password, apiUrl
 ```
 
 ---
 
-## 💻 Development Workflow
+## 💻 Development Workflows
 
-### Option 1: Full Stack Development (Recommended)
+### Workflow 1: Full Stack Development
 
-Use this when developing **form functionality** that needs backend:
+**Use when**: Developing form functionality that needs backend
+
+**Services needed**:
+- ✅ Backend API (port 8000)
+- ✅ Runtime App (port 3001)
+
+**Setup**:
 
 ```bash
-# Terminal 1: Start all services
+# Terminal: Start all services
 ./start-all.sh
 
-# View logs
-tail -f logs/backend-api.log
-tail -f logs/runtime-app.log
+# What starts:
+# - Backend API on 8000
+# - Showcase on 3000 (optional)
+# - Runtime on 3001
+```
+
+**Develop your form**:
+
+```bash
+# Your form directory
+cd forms-examples/my-form
+
+# Hot reload enabled - just edit and save
+code src/index.tsx
 ```
 
 **Test your form**:
+
 ```
 http://localhost:3001/forms/my-form
 ```
 
-### Option 2: Fast Development (Fat Bundle)
-
-Use this for **UI-only development** (faster reload):
+**Watch logs**:
 
 ```bash
-# Terminal 1: Build your form as a fat bundle
+# Backend logs
+tail -f logs/backend-api.log
+
+# Runtime logs
+tail -f logs/runtime-app.log
+```
+
+**When to use**:
+- Building new forms
+- Testing Bizuit SDK integration
+- Testing process calls (raiseEvent, initialize)
+- Testing with real backend
+- Full integration testing
+
+---
+
+### Workflow 2: Fat Bundle Development
+
+**Use when**: Quick UI iterations, styling, component testing
+
+**Services needed**:
+- ❌ Backend API (NOT needed)
+- ❌ Runtime App (NOT needed)
+- ✅ Simple HTTP server
+
+**What is a Fat Bundle?**
+
+A self-contained JavaScript file with **everything**:
+- Your form code
+- React library
+- All dependencies (UI components, SDK, etc.)
+- Ready to run standalone
+
+**Setup**:
+
+```bash
+# Terminal 1: Build fat bundle
 cd forms-examples/my-form
 npm run build
 
-# Terminal 2: Serve via HTTP
-cd forms-examples/my-form/dist
-python3 -m http.server 8080
+# Creates: dist/form.js (fat bundle)
+# Also creates: dist/dev.html (test page)
+```
 
+```bash
+# Terminal 2: Serve via HTTP
+cd dist
+python3 -m http.server 8080
+```
+
+```bash
 # Terminal 3: Open dev.html
 open http://localhost:8080/dev.html
 ```
 
-**What's a "Fat Bundle"?**
+**What you see**:
 
-A self-contained JavaScript file with **everything included**:
-- ✅ Your form code
-- ✅ All dependencies (React, UI libs, etc.)
-- ✅ Ready to run standalone
+```html
+<!-- dev.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Form Development</title>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="./form.js"></script>
+  <!-- ^ Fat bundle with everything -->
+</body>
+</html>
+```
 
-**Perfect for**:
-- Quick UI iterations
-- Styling changes
-- Component testing
-- No backend needed!
+**Development loop**:
+
+```bash
+# 1. Edit form
+code src/index.tsx
+
+# 2. Rebuild (fast - only your code)
+npm run build
+
+# 3. Refresh browser (Cmd+R)
+# See changes instantly!
+```
+
+**Mock data**:
+
+```typescript
+// In your form
+const mockData = {
+  user: { userName: 'dev', roles: ['Admin'] },
+  process: { processName: 'TestProcess' }
+}
+
+// Use mock data for development
+const data = __DEV__ ? mockData : await sdk.process.initialize()
+```
+
+**When to use**:
+- Styling and layout
+- Component behavior
+- Form validation
+- UI interactions
+- No backend needed
+
+**Limitations**:
+- ❌ Can't call real Bizuit APIs
+- ❌ Can't test process integration
+- ✅ Perfect for UI-only work
 
 ---
 
-## 🧪 Testing Your Form
+### Workflow 3: Runtime Testing (Port 3001)
 
-### Local Testing (Development Mode)
+**Use when**: Testing form as it will run in production
 
-**1. Start runtime server**:
-```bash
-cd custom-forms/runtime-app
-PORT=3001 npm run dev
-```
-
-**2. Access your form**:
-```
-http://localhost:3001/forms/my-form
-```
-
-**What happens**:
-- ❌ No token? → Dev credentials used
-- ✅ Form loads instantly
-- ✅ Hot reload on code changes
-
-### Testing with Real Backend
-
-**1. Ensure backend is running**:
-```bash
-cd custom-forms/backend-api
-python main.py  # Port 8000
-```
-
-**2. Test form with API calls**:
-```typescript
-// Your form
-import { BizuitSDK } from '@tyconsa/bizuit-form-sdk'
-
-const sdk = new BizuitSDK()
-const result = await sdk.process.raiseEvent({
-  processName: 'MyProcess',
-  // ... parameters
-})
-```
-
-### Testing on Runtime Server (Port 3001)
-
-⚠️ **Important**: Port 3001 loads forms **from the database**
+**⚠️ CRITICAL**: Port 3001 loads forms **from the database**, NOT from your filesystem
 
 **Requirements**:
-1. ✅ Form must be **uploaded** to backend
-2. ✅ Form must exist in `CustomForms` table
-3. ✅ Backend API must be running
 
-**Upload your form**:
+1. ✅ Form must be **built** (`npm run build`)
+2. ✅ Form must be **packaged** as ZIP
+3. ✅ ZIP must be **uploaded** via admin panel
+4. ✅ Form must exist in `CustomForms` table
+5. ✅ Backend API must be **running**
+
+**Full Process**:
 
 ```bash
-# Option A: Via Admin Panel
-# 1. Build your form
+# Step 1: Build your form
 cd forms-examples/my-form
 npm run build
 
-# 2. Create deployment ZIP
-cd upload
-# Use the latest ZIP
+# Step 2: Get deployment ZIP
+# Option A: From upload/ directory (if workflow ran)
+ls -lt upload/*.zip | head -1
 
-# 3. Go to http://localhost:3001/admin
-# 4. Upload ZIP
+# Option B: Create manually
+cd dist
+zip -r ../my-form-deployment.zip .
+cd ..
 
-# Option B: Via API (advanced)
-curl -X POST http://localhost:8000/api/forms/upload \
-  -F "file=@my-form-deployment-1.0.0.zip"
+# Step 3: Start backend
+cd ../../backend-api
+python main.py
+
+# Step 4: Start runtime
+cd ../runtime-app
+npm run dev
+
+# Step 5: Upload via admin panel
+open http://localhost:3001/admin/upload-forms
+# Drag and drop your ZIP
+
+# Step 6: Test form
+open http://localhost:3001/forms/my-form
 ```
 
-**Then test**:
+**Why this workflow?**
+
+- ✅ Tests real production behavior
+- ✅ Tests form loading from database
+- ✅ Tests version management
+- ✅ Tests with real backend APIs
+- ✅ Catches issues before deployment
+
+**Common mistake**:
+
+```bash
+# ❌ WRONG: Expecting port 3001 to load from filesystem
+# Edit src/index.tsx
+# Refresh http://localhost:3001/forms/my-form
+# See OLD version (from database)
+
+# ✅ CORRECT: Upload new version first
+npm run build
+# Upload new ZIP via admin
+# Refresh http://localhost:3001/forms/my-form
+# See NEW version
 ```
-http://localhost:3001/forms/my-form?token=<your-token>
+
+---
+
+## 🧪 Testing Strategies
+
+### Testing Matrix
+
+| Test Type | Workflow | Backend | Speed | Use Case |
+|-----------|----------|---------|-------|----------|
+| **UI Only** | Fat Bundle | ❌ No | ⚡ Instant | Styling, layout, components |
+| **Integration** | Full Stack | ✅ Yes | 🐢 Moderate | SDK calls, process integration |
+| **Production-Like** | Runtime (3001) | ✅ Yes | 🐌 Slow | Final validation, deployment prep |
+
+### Test Scenario Examples
+
+#### Scenario 1: Building a New Form Component
+
+```bash
+# Use: Fat Bundle (fastest)
+
+# 1. Create component
+cd forms-examples/my-form/src
+code components/MyComponent.tsx
+
+# 2. Import in form
+# src/index.tsx
+import { MyComponent } from './components/MyComponent'
+
+# 3. Build and test
+npm run build
+open http://localhost:8080/dev.html
+
+# 4. Iterate rapidly
+# Edit, build, refresh - takes seconds!
 ```
+
+#### Scenario 2: Testing Bizuit SDK Integration
+
+```bash
+# Use: Full Stack (needs backend)
+
+# 1. Start services
+./start-all.sh
+
+# 2. Implement SDK call
+// src/index.tsx
+const result = await sdk.process.raiseEvent({
+  processName: 'MyProcess',
+  parameters: [...]
+})
+
+# 3. Test with dev credentials
+open http://localhost:3001/forms/my-form
+
+# 4. Check backend logs
+tail -f logs/backend-api.log
+```
+
+#### Scenario 3: Pre-Deployment Testing
+
+```bash
+# Use: Runtime Testing (production-like)
+
+# 1. Build final version
+npm run build
+
+# 2. Upload via admin
+open http://localhost:3001/admin/upload-forms
+
+# 3. Test exactly as production
+open http://localhost:3001/forms/my-form?token=...
+
+# 4. Verify everything works
+# - Form loads
+# - API calls succeed
+# - Process integration works
+# - No console errors
+```
+
+### Testing Checklist
+
+Before pushing to production:
+
+- [ ] UI looks correct (Fat Bundle testing)
+- [ ] Form validation works (Fat Bundle testing)
+- [ ] SDK integration works (Full Stack testing)
+- [ ] Process calls succeed (Full Stack testing)
+- [ ] Form loads from database (Runtime testing)
+- [ ] No console errors (Runtime testing)
+- [ ] Mobile responsive (All browsers)
+- [ ] Dark mode works (If applicable)
 
 ---
 
 ## 📦 Deployment Process
 
-### GitHub Workflow (Automatic)
+### Deployment Overview
 
-**Triggers**: Push to `main` branch with changes in `forms-examples/*/src/**`
+```
+Local Development
+       ↓
+  Git Commit
+       ↓
+  Push to main
+       ↓
+GitHub Actions Workflow
+       ↓
+  • Detects changed forms
+  • Builds each form
+  • Bumps version
+  • Creates deployment ZIP
+  • Uploads to Artifacts
+  • Commits ZIP to repo
+  • Creates git tag
+       ↓
+Download Artifact
+       ↓
+Upload to Admin Panel
+       ↓
+  Production! 🎉
+```
 
-**What it does**:
-1. ✅ Detects changed forms
-2. ✅ Builds each form
-3. ✅ Bumps version (semantic versioning)
-4. ✅ Creates deployment ZIP with:
-   - `manifest.json` (metadata)
-   - `forms/my-form/form.js` (bundle)
-   - `VERSION.txt` (git info)
-5. ✅ Uploads to GitHub Actions artifacts
-6. ✅ Commits ZIP to `my-form/upload/`
-7. ✅ Creates git tag `my-form-v1.0.5`
+### Step-by-Step Deployment
 
-**Download artifact**:
-- Go to **Actions** → Latest run → **Artifacts**
-- Download `my-form-deployment-1.0.5-abc1234.zip`
-- Ready to upload to admin panel!
-
-### Azure DevOps Pipeline (Alternative)
-
-Same process, but on Azure DevOps. Artifacts available in pipeline runs.
-
-### Manual Deployment
-
-**Build and package**:
+#### Step 1: Prepare Your Form
 
 ```bash
+# Ensure form builds successfully
 cd forms-examples/my-form
 npm run build
 
-# Create ZIP manually
-cd dist
-zip -r ../my-form-deployment.zip .
+# Check for errors
+# Verify dist/form.js exists
+ls -lh dist/form.js
 ```
 
-**Upload**:
-1. Go to `/admin/upload-forms`
-2. Select ZIP
-3. Upload
-4. Done!
+#### Step 2: Commit Changes
+
+```bash
+# Stage changes
+git add forms-examples/my-form/src/
+
+# Commit with semantic versioning message
+# feat: = minor version bump
+# fix: = patch version bump
+# BREAKING CHANGE: = major version bump
+
+git commit -m "feat: add new field to my-form
+
+- Added email validation
+- Improved error messages"
+
+# Push to main
+git push origin main
+```
+
+#### Step 3: Monitor GitHub Workflow
+
+```bash
+# Watch workflow
+open https://github.com/your-org/your-repo/actions
+
+# Or via CLI
+gh run list --limit 1
+gh run watch
+```
+
+**What the workflow does**:
+
+```
+✅ Detect changes: Finds my-form was modified
+✅ Install deps: npm install
+✅ Build form: npm run build in my-form/
+✅ Calculate version: Reads last tag, bumps version
+   Last: my-form-v1.0.5
+   New:  my-form-v1.0.6
+✅ Update package.json: Sets version to 1.0.6
+✅ Create ZIP: my-form-deployment-1.0.6-abc1234.zip
+   Contents:
+   - manifest.json (ONLY my-form)
+   - forms/my-form/form.js
+   - VERSION.txt
+✅ Upload artifact: To GitHub Actions
+✅ Commit ZIP: To my-form/upload/
+✅ Create tag: my-form-v1.0.6
+✅ Push changes: Back to repo
+```
+
+#### Step 4: Download Artifact
+
+**Option A: From GitHub Actions**
+
+```bash
+# Via web
+open https://github.com/your-org/your-repo/actions
+# Click latest run
+# Click "Artifacts"
+# Download: my-form-deployment-1.0.6-abc1234.zip
+
+# Via CLI
+gh run list --limit 1
+gh run download <run-id>
+```
+
+**Option B: From Repository**
+
+```bash
+# Pull latest
+git pull origin main
+
+# ZIP is already committed
+ls -lh forms-examples/my-form/upload/*.zip
+
+# Use latest ZIP
+cp forms-examples/my-form/upload/my-form-deployment-1.0.6-abc1234.zip ~/Downloads/
+```
+
+#### Step 5: Upload to Production
+
+```bash
+# Access admin panel
+open https://your-prod-server.com/admin/upload-forms
+
+# Or local testing
+open http://localhost:3001/admin/upload-forms
+
+# Steps:
+# 1. Login with admin credentials
+# 2. Drag and drop ZIP
+# 3. Click "Upload"
+# 4. Wait for success message
+# 5. Verify form appears in list
+```
+
+#### Step 6: Verify Deployment
+
+```bash
+# Test form in production
+open https://your-prod-server.com/forms/my-form?token=<prod-token>
+
+# Verify:
+# ✅ Form loads without errors
+# ✅ New features work
+# ✅ No console errors
+# ✅ API calls succeed
+```
+
+### Versioning System
+
+**Automatic Semantic Versioning**:
+
+```bash
+# Commit message format determines version bump
+# Pattern: type: description
+
+# Patch bump (1.0.5 → 1.0.6)
+git commit -m "fix: correct validation bug"
+git commit -m "chore: update dependencies"
+
+# Minor bump (1.0.5 → 1.1.0)
+git commit -m "feat: add new export feature"
+
+# Major bump (1.0.5 → 2.0.0)
+git commit -m "feat: redesign form layout
+
+BREAKING CHANGE: old API endpoints removed"
+```
+
+**Git Tags**:
+
+```bash
+# Each form has independent tags
+git tag | grep my-form
+# my-form-v1.0.0
+# my-form-v1.0.1
+# my-form-v1.0.2
+# ...
+
+# View tag details
+git show my-form-v1.0.6
+
+# Tags are source of truth for versioning
+# workflow uses last tag to calculate next version
+```
+
+### Rollback Process
+
+**If deployment has issues**:
+
+```bash
+# Find previous working version
+cd forms-examples/my-form/upload
+ls -lt *.zip
+
+# Upload previous ZIP
+# my-form-deployment-1.0.5-xyz7890.zip
+
+# Or revert git commit
+git revert HEAD
+git push origin main
+# Workflow runs again with old code
+```
+
+---
+
+## 🎓 Common Scenarios
+
+### Scenario: Starting a New Form
+
+```bash
+# 1. Copy example form
+cd forms-examples
+cp -r dashboard-integration-demo my-new-form
+
+# 2. Update package.json
+cd my-new-form
+# Edit package.json: name, description
+
+# 3. Start development
+npm install
+npm run build
+
+# 4. Test with fat bundle
+cd dist
+python3 -m http.server 8080
+open http://localhost:8080/dev.html
+
+# 5. Develop your form
+code src/index.tsx
+
+# 6. When ready, test on runtime
+cd ../../..
+./start-all.sh
+# Upload via admin panel
+# Test on http://localhost:3001/forms/my-new-form
+
+# 7. Deploy
+git add forms-examples/my-new-form
+git commit -m "feat: add new form"
+git push origin main
+```
+
+### Scenario: Debugging Token Issues
+
+```bash
+# Enable debug logging
+# runtime-app/middleware.ts (check console)
+
+# Check dev mode
+cat runtime-app/.env.local | grep ALLOW_DEV_MODE
+# Should be: ALLOW_DEV_MODE=true
+
+# Check dev credentials
+cat runtime-app/dev-credentials.js
+# Should have: username, password, apiUrl
+
+# Test authentication
+curl http://localhost:8000/api/auth/validate?token=test
+
+# Check backend logs
+tail -f logs/backend-api.log
+# Look for: "Token validation failed" or "401"
+```
+
+### Scenario: Changing Deployment Environment
+
+```bash
+# You have multiple deployments:
+# - test.bizuit.com/arielschBIZUITCustomForms (ALLOW_DEV_MODE=true)
+# - test.bizuit.com/recubizBIZUITCustomForms (ALLOW_DEV_MODE=false)
+
+# Same codebase, different .env.local per deployment
+
+# Deployment 1 (.env.local):
+ALLOW_DEV_MODE=true
+NEXT_PUBLIC_BASE_PATH=/arielschBIZUITCustomForms
+
+# Deployment 2 (.env.local):
+ALLOW_DEV_MODE=false  # Secure!
+NEXT_PUBLIC_BASE_PATH=/recubizBIZUITCustomForms
+
+# Restart app (NO rebuild needed for ALLOW_DEV_MODE!)
+./stop-all.sh && ./start-all.sh
+```
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Port Already in Use
+### Problem: Port Already in Use
 
 ```bash
-# Kill processes on ports
+# Error: EADDRINUSE: address already in use :::3001
+
+# Solution: Kill processes
 lsof -ti:8000 | xargs kill -9  # Backend
 lsof -ti:3000 | xargs kill -9  # Showcase
 lsof -ti:3001 | xargs kill -9  # Runtime
 
-# Or use the automated script
-./stop-all.sh && ./start-all.sh
+# Or use stop script
+./stop-all.sh
+./start-all.sh
 ```
 
-### Form Not Loading on Port 3001
-
-**Error**: "Form not found" or blank page
-
-**Cause**: Form not in database
-
-**Solution**:
-1. Check backend is running (`http://localhost:8000/docs`)
-2. Upload form via admin panel
-3. Verify in database:
-   ```sql
-   SELECT FormName, Version FROM CustomForms
-   ```
-
-### Token Validation Failed
-
-**Error**: "Invalid token" or 401 Unauthorized
-
-**Solutions**:
-
-1. **Development mode**: Enable dev credentials
-   ```env
-   NEXT_PUBLIC_ALLOW_DEV_MODE=true
-   ```
-
-2. **Production mode**: Use real Dashboard token
-   ```
-   http://localhost:3001/forms/my-form?token=<valid-jwt>
-   ```
-
-3. **Backend not responding**: Check backend logs
-   ```bash
-   tail -f logs/backend-api.log
-   ```
-
-### Build Errors in Forms
-
-**Error**: Module not found or TypeScript errors
-
-**Solution**:
+### Problem: Form Not Loading on Port 3001
 
 ```bash
-# Clean and reinstall
+# Error: "Form not found" or blank page
+
+# Checklist:
+# ✅ Backend running?
+curl http://localhost:8000/docs  # Should load Swagger UI
+
+# ✅ Form in database?
+# Via admin panel
+open http://localhost:3001/admin
+# Check forms list
+
+# ✅ Form uploaded?
+# Upload via admin panel first!
+
+# ✅ Using correct form name?
+# URL: /forms/my-form (lowercase, hyphens)
+# Not: /forms/MyForm or /forms/my_form
+```
+
+### Problem: Authentication Failed
+
+```bash
+# Error: "Invalid token" or 401
+
+# For dev mode:
+# ✅ Check ALLOW_DEV_MODE
+grep ALLOW_DEV_MODE runtime-app/.env.local
+# Should be: ALLOW_DEV_MODE=true
+
+# ✅ Check dev-credentials.js exists
+ls runtime-app/dev-credentials.js
+
+# ✅ Check credentials format
+cat runtime-app/dev-credentials.js
+# Must have: username, password, apiUrl
+
+# ✅ Test credentials manually
+# Try logging into Dashboard with same credentials
+
+# For production mode:
+# ✅ Check token in URL
+# Should have: ?token=eyJhbGc...
+
+# ✅ Check backend
+tail -f logs/backend-api.log
+# Look for token validation errors
+```
+
+### Problem: Build Errors
+
+```bash
+# Error: "Module not found" or TypeScript errors
+
+# Solution: Clean and reinstall
 cd forms-examples/my-form
 rm -rf node_modules package-lock.json
 npm install
+npm run build
 
-# Clean Next.js cache (if using runtime-app)
+# For Next.js errors:
 cd ../../runtime-app
-rm -rf .next
+rm -rf .next node_modules
+npm install
 npm run build
 ```
 
-### Environment Variables Not Working
+### Problem: Changes Not Reflecting
 
-**Problem**: Changed `.env.local` but no effect
+```bash
+# Scenario 1: Changed NEXT_PUBLIC_* variable
+# Solution: Rebuild required
+npm run build
+npm start
 
-**Solution**:
+# Scenario 2: Changed server variable
+# Solution: Restart only
+./stop-all.sh && ./start-all.sh
 
-1. **For `NEXT_PUBLIC_*` variables**: Rebuild required
-   ```bash
-   npm run build
-   ```
+# Scenario 3: Changed form code, testing on 3001
+# Solution: Upload new version
+npm run build
+# Upload new ZIP via admin panel
 
-2. **For server variables**: Restart required
-   ```bash
-   # Kill and restart
-   ./stop-all.sh && ./start-all.sh
-   ```
+# Scenario 4: Changed form code, testing fat bundle
+# Solution: Rebuild and refresh
+npm run build
+# Refresh browser (Cmd+R)
+```
+
+### Problem: Workflow Not Triggering
+
+```bash
+# Check workflow triggers
+# Must push to main branch
+# Must change files in forms-examples/*/src/**
+
+# Verify
+git log --oneline -1
+git diff HEAD~1 HEAD --name-only
+
+# Should show changed files like:
+# forms-examples/my-form/src/index.tsx
+
+# Check workflow status
+gh run list --limit 5
+```
+
+---
+
+## ❓ FAQs
+
+### Q: Do I need the Dashboard running locally?
+
+**A**: No! That's the point of dev credentials. The runtime app authenticates with the **test** Dashboard (test.bizuit.com) using your dev credentials.
+
+---
+
+### Q: Can I work offline?
+
+**A**: Partially. You can:
+- ✅ Edit form code
+- ✅ Build fat bundle
+- ✅ Test UI via dev.html
+- ❌ Can't test SDK calls (need Dashboard API)
+- ❌ Can't test process integration
+
+---
+
+### Q: Which workflow should I use?
+
+| Task | Workflow |
+|------|----------|
+| Styling/layout | Fat Bundle |
+| New components | Fat Bundle |
+| Form validation UI | Fat Bundle |
+| SDK integration | Full Stack |
+| Process testing | Full Stack |
+| Final testing | Runtime (3001) |
+
+---
+
+### Q: Why does my form work in dev but not in production?
+
+Common causes:
+1. **ALLOW_DEV_MODE**: Production should be `false`
+2. **Environment variables**: Check production `.env.local`
+3. **Base path**: Production has `/BIZUITCustomForms`, dev doesn't
+4. **API URLs**: Different between dev and prod
+5. **Secrets**: Missing in production environment
+
+---
+
+### Q: How do I debug in production?
+
+```typescript
+// Add console logging in your form
+console.log('[MyForm] User context:', user)
+console.log('[MyForm] Process data:', processData)
+
+// Check browser console in production
+// Use browser DevTools
+
+// Enable verbose SDK logging
+const sdk = new BizuitSDK({ debug: true })
+```
+
+---
+
+### Q: Can I have multiple forms in one repository?
+
+**A**: Yes! That's the design:
+
+```
+forms-examples/
+├── form-1/
+├── form-2/
+├── form-3/
+└── ...
+
+# Each form:
+# - Independent versioning
+# - Independent deployment
+# - Own upload/ directory
+# - Own git tags
+```
+
+---
+
+### Q: What happens if I manually change package.json version?
+
+**A**: The workflow will auto-correct it:
+- Reads last git tag (source of truth)
+- Calculates next version
+- Overwrites package.json
+- Commits the correction
+
+**Don't manually change package.json versions!**
+
+---
+
+### Q: How do I test with real Dashboard tokens?
+
+```bash
+# Get token from Dashboard
+# (Your team will provide this)
+
+# Test with token
+open http://localhost:3001/forms/my-form?token=eyJhbGc...
+
+# Disable dev mode to force token requirement
+# .env.local
+ALLOW_DEV_MODE=false
+
+# Restart
+./stop-all.sh && ./start-all.sh
+```
+
+---
+
+## 🎓 Learning Path for Junior Developers
+
+### Week 1: Setup and Basics
+
+**Day 1-2**: Environment setup
+- [ ] Clone repository
+- [ ] Install dependencies
+- [ ] Setup `.env.local`
+- [ ] Setup `dev-credentials.js`
+- [ ] Start all services successfully
+
+**Day 3-4**: Explore examples
+- [ ] Browse showcase examples
+- [ ] Open forms in browser
+- [ ] Inspect with browser DevTools
+- [ ] Read form source code
+
+**Day 5**: Create first form
+- [ ] Copy example form
+- [ ] Modify UI
+- [ ] Test with fat bundle
+- [ ] Add console.log debugging
+
+### Week 2: Development Skills
+
+**Day 1-3**: Fat bundle workflow
+- [ ] Create simple form
+- [ ] Style with Tailwind CSS
+- [ ] Add form validation
+- [ ] Test in dev.html
+
+**Day 4-5**: Full stack workflow
+- [ ] Use Bizuit SDK
+- [ ] Make API calls
+- [ ] Handle responses
+- [ ] Test with dev credentials
+
+### Week 3: Integration
+
+**Day 1-2**: Runtime testing
+- [ ] Upload form via admin
+- [ ] Test on port 3001
+- [ ] Verify database loading
+- [ ] Test with tokens
+
+**Day 3-5**: Deployment
+- [ ] Commit changes
+- [ ] Push to main
+- [ ] Monitor GitHub Actions
+- [ ] Download artifact
+- [ ] Upload to admin panel
+
+### Week 4: Advanced Topics
+
+- [ ] Error handling
+- [ ] Custom hooks
+- [ ] Performance optimization
+- [ ] Debugging techniques
+- [ ] Security best practices
 
 ---
 
 ## 📖 Additional Resources
 
 - **Main README**: `custom-forms/README.md`
-- **Showcase Examples**: `http://localhost:3000`
 - **Backend API Docs**: `http://localhost:8000/docs`
+- **Showcase Examples**: `http://localhost:3000`
+- **Admin Panel**: `http://localhost:3001/admin`
 - **SDK Documentation**: `packages/bizuit-form-sdk/README.md`
 - **UI Components**: `packages/bizuit-ui-components/README.md`
 
 ---
 
-## 🎓 Learning Path for Junior Developers
-
-### Week 1: Understanding the Basics
-1. ✅ Clone and run `./start-all.sh`
-2. ✅ Explore showcase examples
-3. ✅ Understand authentication flow
-4. ✅ Create a simple form with dev credentials
-
-### Week 2: Building Your First Form
-1. ✅ Use fat bundle for quick iterations
-2. ✅ Add Bizuit UI components
-3. ✅ Connect to Bizuit SDK
-4. ✅ Test locally on port 3001
-
-### Week 3: Deployment
-1. ✅ Understand GitHub workflow
-2. ✅ Push to main and get artifact
-3. ✅ Upload via admin panel
-4. ✅ Test in production environment
-
-### Week 4: Advanced Topics
-1. ✅ Custom hooks and state management
-2. ✅ Error handling and logging
-3. ✅ Performance optimization
-4. ✅ Testing strategies
-
----
-
-**Need help?** Check the troubleshooting section or ask the team!
+**Need help?** Ask your team lead or senior developer!
 
 **Happy coding!** 🚀

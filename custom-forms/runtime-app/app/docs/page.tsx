@@ -1,486 +1,1307 @@
 /**
  * Developer Documentation Page
  * Public access - no authentication required
+ * Comprehensive guide for junior developers
  */
 
+'use client'
+
 import Link from 'next/link'
+import { useState } from 'react'
 
 export default function DocsPage() {
+  const [activeSection, setActiveSection] = useState<string>('quickstart')
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Header */}
-      <header className="border-b border-slate-700 bg-slate-900/50 backdrop-blur">
+      <header className="border-b border-slate-700 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
                 <span className="text-white font-bold text-xl">B</span>
               </div>
-              <span className="text-white font-semibold text-lg">BIZUIT Custom Forms</span>
+              <div>
+                <span className="text-white font-semibold text-lg block">BIZUIT Custom Forms</span>
+                <span className="text-slate-400 text-xs">Developer Documentation</span>
+              </div>
             </Link>
-            <Link
-              href="/"
-              className="text-slate-400 hover:text-white transition"
-            >
-              ← Back to Home
-            </Link>
+            <div className="flex items-center space-x-4">
+              <Link
+                href="/admin"
+                className="text-slate-400 hover:text-white transition text-sm"
+              >
+                Admin Panel
+              </Link>
+              <Link
+                href="/"
+                className="text-slate-400 hover:text-white transition text-sm"
+              >
+                ← Home
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-6 py-12">
-        {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-white mb-4">
-            Developer Documentation
-          </h1>
-          <p className="text-xl text-slate-400 max-w-3xl mx-auto">
-            Everything you need to develop, test, and deploy custom forms for BIZUIT BPM
-          </p>
-        </div>
+      {/* Main Content with Sidebar */}
+      <div className="container mx-auto px-6 py-8 flex gap-8">
+        {/* Sidebar Navigation */}
+        <aside className="hidden lg:block w-64 flex-shrink-0">
+          <nav className="sticky top-24 bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+            <h3 className="text-sm font-semibold text-slate-400 uppercase mb-3">Contents</h3>
+            <ul className="space-y-1">
+              <NavItem href="#quickstart" active={activeSection === 'quickstart'} onClick={() => setActiveSection('quickstart')}>
+                Quick Start
+              </NavItem>
+              <NavItem href="#architecture" active={activeSection === 'architecture'} onClick={() => setActiveSection('architecture')}>
+                Architecture
+              </NavItem>
+              <NavItem href="#authentication" active={activeSection === 'authentication'} onClick={() => setActiveSection('authentication')}>
+                Authentication
+              </NavItem>
+              <NavItem href="#environment" active={activeSection === 'environment'} onClick={() => setActiveSection('environment')}>
+                Environment Config
+              </NavItem>
+              <NavItem href="#dev-credentials" active={activeSection === 'dev-credentials'} onClick={() => setActiveSection('dev-credentials')}>
+                Dev Credentials
+              </NavItem>
+              <NavItem href="#workflows" active={activeSection === 'workflows'} onClick={() => setActiveSection('workflows')}>
+                Workflows
+              </NavItem>
+              <NavItem href="#testing" active={activeSection === 'testing'} onClick={() => setActiveSection('testing')}>
+                Testing
+              </NavItem>
+              <NavItem href="#deployment" active={activeSection === 'deployment'} onClick={() => setActiveSection('deployment')}>
+                Deployment
+              </NavItem>
+              <NavItem href="#troubleshooting" active={activeSection === 'troubleshooting'} onClick={() => setActiveSection('troubleshooting')}>
+                Troubleshooting
+              </NavItem>
+              <NavItem href="#faqs" active={activeSection === 'faqs'} onClick={() => setActiveSection('faqs')}>
+                FAQs
+              </NavItem>
+            </ul>
+          </nav>
+        </aside>
 
-        {/* Quick Start Card */}
-        <div className="max-w-5xl mx-auto bg-slate-800/50 rounded-2xl border border-slate-700 p-8 mb-8">
-          <div className="flex items-start space-x-4 mb-6">
-            <div className="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center">
-              <span className="text-3xl">🚀</span>
-            </div>
-            <div>
-              <h2 className="text-3xl font-bold text-white mb-2">Quick Start</h2>
-              <p className="text-slate-400">Get up and running in 5 minutes</p>
+        {/* Main Documentation Content */}
+        <main className="flex-1 max-w-4xl">
+          {/* Hero */}
+          <div className="mb-12">
+            <h1 className="text-5xl font-bold text-white mb-4">
+              Developer Documentation
+            </h1>
+            <p className="text-xl text-slate-400">
+              Complete guide for building and deploying custom forms for BIZUIT BPM
+            </p>
+            <div className="flex items-center gap-4 mt-4 text-sm text-slate-500">
+              <span>🎯 Target: Junior Developers</span>
+              <span>•</span>
+              <span>⏱️ Reading Time: 30-45 min</span>
+              <span>•</span>
+              <span>📅 Updated: Nov 2025</span>
             </div>
           </div>
 
-          <div className="space-y-6">
-            {/* Prerequisites */}
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-3">📋 Prerequisites</h3>
-              <div className="bg-slate-900/50 rounded-lg p-4">
-                <ul className="space-y-2 text-slate-300">
-                  <li className="flex items-center space-x-2">
-                    <span className="text-green-400">✓</span>
-                    <span>Node.js 18+ and npm</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <span className="text-green-400">✓</span>
-                    <span>Python 3.10+ (for backend API)</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <span className="text-green-400">✓</span>
-                    <span>Git and GitHub account</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
+          {/* Quick Start Section */}
+          <Section id="quickstart" title="🚀 Quick Start (5 Minutes)">
+            <p className="text-slate-300 mb-6">
+              Get your development environment up and running in 5 minutes.
+            </p>
 
-            {/* Installation */}
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-3">⚙️ Installation</h3>
-              <div className="bg-slate-900/50 rounded-lg p-4">
-                <pre className="text-sm text-slate-300 overflow-x-auto">
-                  <code>{`# Clone the repository
+            <SubSection title="Prerequisites">
+              <CodeBlock language="bash">{`# Check installed versions
+node --version    # Need: v18.0.0+
+npm --version     # Need: v9.0.0+
+python3 --version # Need: v3.10+
+git --version     # Any recent version`}</CodeBlock>
+            </SubSection>
+
+            <SubSection title="Installation Steps">
+              <CodeBlock language="bash">{`# 1. Clone repository
 git clone <repo-url>
 cd custom-forms
 
-# Install dependencies
+# 2. Install dependencies
 npm install
 
-# Setup forms-examples submodule
+# 3. Setup forms-examples submodule
 git submodule init
 git submodule update
+cd forms-examples && npm install && cd ..
 
-# Start all services (automated)
-./start-all.sh`}</code>
-                </pre>
-              </div>
-              <div className="mt-4 bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-                <p className="text-green-400 font-medium">✨ That's it! You now have:</p>
-                <ul className="mt-2 space-y-1 text-slate-300 ml-4">
-                  <li>• Backend API on <code className="text-orange-400">http://localhost:8000</code></li>
-                  <li>• Showcase on <code className="text-orange-400">http://localhost:3000</code></li>
-                  <li>• Runtime on <code className="text-orange-400">http://localhost:3001</code></li>
+# 4. Setup environment files
+cd runtime-app
+cp .env.example .env.local
+cp dev-credentials.example.js dev-credentials.js
+
+# 5. Edit dev-credentials.js
+# Update: username, password, apiUrl
+code dev-credentials.js
+
+# 6. Start all services
+cd ..
+./start-all.sh`}</CodeBlock>
+
+              <InfoBox type="success" title="Success! You now have:">
+                <ul className="space-y-1 text-sm">
+                  <li>✅ Backend API on <code className="text-orange-400">http://localhost:8000</code></li>
+                  <li>✅ Showcase on <code className="text-orange-400">http://localhost:3000</code></li>
+                  <li>✅ Runtime on <code className="text-orange-400">http://localhost:3001</code></li>
                 </ul>
-              </div>
-            </div>
-          </div>
-        </div>
+              </InfoBox>
+            </SubSection>
+          </Section>
 
-        {/* Core Concepts Grid */}
-        <div className="max-w-5xl mx-auto mb-12">
-          <h2 className="text-3xl font-bold text-white mb-8 text-center">Core Concepts</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Authentication */}
-            <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6 hover:border-orange-500/50 transition">
-              <div className="flex items-center space-x-3 mb-4">
-                <span className="text-3xl">🔐</span>
-                <h3 className="text-xl font-semibold text-white">Authentication</h3>
+          {/* Architecture Section */}
+          <Section id="architecture" title="🏗️ Project Architecture">
+            <p className="text-slate-300 mb-6">
+              Understanding the system architecture helps you navigate the codebase.
+            </p>
+
+            <SubSection title="High-Level Flow">
+              <CodeBlock language="text">{`┌────────────────┐
+│ BIZUIT User    │ 1. Clicks "Open Form"
+└────────┬───────┘
+         │ 2. Dashboard generates JWT token
+         ▼
+┌────────────────────────┐
+│ Runtime App (3001)     │ 3. Validates token
+│ /forms/my-form?token=  │ 4. Loads form from DB
+└────────┬───────────────┘ 5. Executes form
+         │
+         ▼
+┌────────────────────────┐
+│ Backend API (8000)     │ • Token validation
+│ FastAPI + SQLite       │ • Form storage
+└────────────────────────┘ • Version management`}</CodeBlock>
+            </SubSection>
+
+            <SubSection title="Directory Structure">
+              <CodeBlock language="text">{`custom-forms/
+├── runtime-app/           # Next.js 15 runtime
+│   ├── app/
+│   │   ├── forms/[formName]/  # Dynamic routes
+│   │   ├── admin/             # Admin panel
+│   │   ├── docs/              # This page!
+│   │   └── api/               # API routes
+│   ├── .env.local        # CREATE THIS
+│   └── dev-credentials.js # CREATE THIS
+│
+├── backend-api/          # FastAPI backend
+│   ├── main.py
+│   ├── requirements.txt
+│   └── venv/
+│
+├── forms-examples/       # Git submodule
+│   ├── my-form/
+│   │   ├── src/
+│   │   ├── dist/
+│   │   └── upload/       # Deployment ZIPs
+│   └── build-form.js
+│
+├── start-all.sh         # Start everything
+└── logs/                # Runtime logs`}</CodeBlock>
+            </SubSection>
+          </Section>
+
+          {/* Authentication Section */}
+          <Section id="authentication" title="🔐 Authentication System">
+            <p className="text-slate-300 mb-6">
+              Forms use JWT tokens from the Dashboard. Dev mode bypasses this for local development.
+            </p>
+
+            <SubSection title="Production Flow">
+              <div className="space-y-4">
+                <Step number={1} title="User in Dashboard clicks 'Open Form'">
+                  Dashboard generates JWT token with user context
+                </Step>
+                <Step number={2} title="Form loads with token in URL">
+                  <code className="text-orange-400 text-sm">
+                    /forms/my-form?token=eyJhbGc...
+                  </code>
+                </Step>
+                <Step number={3} title="Runtime validates token">
+                  Backend API verifies token authenticity
+                </Step>
+                <Step number={4} title="Form executes with user context">
+                  userName, roles, processName available in form
+                </Step>
               </div>
-              <p className="text-slate-400 mb-4">
-                Token-based authentication with development and production modes
+            </SubSection>
+
+            <SubSection title="Development Mode">
+              <p className="text-slate-300 mb-4">
+                For local development, use dev credentials instead of Dashboard tokens:
               </p>
-              <div className="space-y-3">
-                <div className="bg-slate-900/50 rounded-lg p-3">
-                  <p className="text-sm font-mono text-orange-400 mb-2">Production</p>
-                  <p className="text-sm text-slate-300">JWT token from Dashboard required</p>
-                </div>
-                <div className="bg-slate-900/50 rounded-lg p-3">
-                  <p className="text-sm font-mono text-green-400 mb-2">Development</p>
-                  <p className="text-sm text-slate-300">Dev credentials for local testing</p>
-                  <pre className="mt-2 text-xs text-slate-400 overflow-x-auto">
-                    <code>NEXT_PUBLIC_ALLOW_DEV_MODE=true</code>
-                  </pre>
-                </div>
-              </div>
-            </div>
+              <CodeBlock language="javascript">{`// dev-credentials.js
+export const DEV_CREDENTIALS = {
+  username: 'your.email@company.com',
+  password: 'YourDashboardPassword',
+  apiUrl: 'https://test.bizuit.com/tenantBizuitDashboardapi/api/'
+}`}</CodeBlock>
 
-            {/* Environment Variables */}
-            <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6 hover:border-orange-500/50 transition">
-              <div className="flex items-center space-x-3 mb-4">
-                <span className="text-3xl">🔧</span>
-                <h3 className="text-xl font-semibold text-white">Environment Config</h3>
-              </div>
-              <p className="text-slate-400 mb-4">
-                Two types of environment variables with different behaviors
-              </p>
-              <div className="space-y-3">
-                <div className="bg-slate-900/50 rounded-lg p-3">
-                  <p className="text-sm font-mono text-blue-400 mb-2">Build-Time</p>
-                  <p className="text-sm text-slate-300 mb-2">NEXT_PUBLIC_* variables</p>
-                  <p className="text-xs text-slate-400">Baked into JS, rebuild required</p>
-                </div>
-                <div className="bg-slate-900/50 rounded-lg p-3">
-                  <p className="text-sm font-mono text-purple-400 mb-2">Server-Side</p>
-                  <p className="text-sm text-slate-300 mb-2">No prefix</p>
-                  <p className="text-xs text-slate-400">Runtime, restart required</p>
-                </div>
-              </div>
-            </div>
+              <InfoBox type="warning" title="Security Warning">
+                <ul className="space-y-1 text-sm">
+                  <li>⚠️ <code className="text-orange-400">ALLOW_DEV_MODE=true</code> ONLY for local development</li>
+                  <li>⚠️ Production MUST have <code className="text-orange-400">ALLOW_DEV_MODE=false</code></li>
+                  <li>✅ Server-side variable (different per environment, no rebuild)</li>
+                </ul>
+              </InfoBox>
+            </SubSection>
+          </Section>
 
-            {/* Development Modes */}
-            <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6 hover:border-orange-500/50 transition">
-              <div className="flex items-center space-x-3 mb-4">
-                <span className="text-3xl">💻</span>
-                <h3 className="text-xl font-semibold text-white">Development Modes</h3>
-              </div>
-              <p className="text-slate-400 mb-4">
-                Two workflows for different development scenarios
-              </p>
-              <div className="space-y-3">
-                <div className="bg-slate-900/50 rounded-lg p-3">
-                  <p className="text-sm font-semibold text-green-400 mb-2">Full Stack</p>
-                  <p className="text-sm text-slate-300 mb-1">Backend + Frontend</p>
-                  <p className="text-xs text-slate-400">For form functionality development</p>
-                </div>
-                <div className="bg-slate-900/50 rounded-lg p-3">
-                  <p className="text-sm font-semibold text-orange-400 mb-2">Fat Bundle</p>
-                  <p className="text-sm text-slate-300 mb-1">Standalone dev.html</p>
-                  <p className="text-xs text-slate-400">For quick UI iterations</p>
-                </div>
-              </div>
-            </div>
+          {/* Environment Configuration Section */}
+          <Section id="environment" title="🔧 Environment Configuration">
+            <p className="text-slate-300 mb-6">
+              Next.js has two types of environment variables with different behaviors.
+            </p>
 
-            {/* Testing */}
-            <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6 hover:border-orange-500/50 transition">
-              <div className="flex items-center space-x-3 mb-4">
-                <span className="text-3xl">🧪</span>
-                <h3 className="text-xl font-semibold text-white">Testing Your Form</h3>
-              </div>
-              <p className="text-slate-400 mb-4">
-                Multiple testing approaches for different stages
-              </p>
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2 text-sm text-slate-300">
-                  <span className="text-green-400">✓</span>
-                  <span>Local: <code className="text-orange-400">localhost:8080/dev.html</code></span>
+            <SubSection title="Build-Time vs Server-Side">
+              <div className="grid md:grid-cols-2 gap-4 mb-6">
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                  <h4 className="text-blue-400 font-semibold mb-2">Build-Time (NEXT_PUBLIC_*)</h4>
+                  <ul className="space-y-1 text-sm text-slate-300">
+                    <li>✅ Client-side accessible</li>
+                    <li>⚠️ Baked into JavaScript</li>
+                    <li>🔄 Rebuild required on change</li>
+                  </ul>
+                  <CodeBlock language="typescript" className="mt-3">{`const url = process.env.NEXT_PUBLIC_API_URL`}</CodeBlock>
                 </div>
-                <div className="flex items-center space-x-2 text-sm text-slate-300">
-                  <span className="text-green-400">✓</span>
-                  <span>Runtime: <code className="text-orange-400">localhost:3001/forms/my-form</code></span>
-                </div>
-                <div className="flex items-center space-x-2 text-sm text-slate-300">
-                  <span className="text-green-400">✓</span>
-                  <span>Production: Upload ZIP via admin panel</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Development Workflows */}
-        <div className="max-w-5xl mx-auto bg-slate-800/50 rounded-2xl border border-slate-700 p-8 mb-8">
-          <h2 className="text-3xl font-bold text-white mb-6">Development Workflows</h2>
-
-          <div className="space-y-8">
-            {/* Workflow 1 */}
-            <div>
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                  <span className="text-2xl">🔄</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-white">Option 1: Full Stack Development</h3>
-                  <p className="text-sm text-slate-400">Recommended for form functionality</p>
+                <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
+                  <h4 className="text-purple-400 font-semibold mb-2">Server-Side (no prefix)</h4>
+                  <ul className="space-y-1 text-sm text-slate-300">
+                    <li>✅ Server-only access</li>
+                    <li>✅ Runtime changeable</li>
+                    <li>🔄 Restart only (no rebuild)</li>
+                  </ul>
+                  <CodeBlock language="typescript" className="mt-3">{`const url = process.env.FASTAPI_URL`}</CodeBlock>
                 </div>
               </div>
-              <div className="bg-slate-900/50 rounded-lg p-4">
-                <pre className="text-sm text-slate-300 overflow-x-auto">
-                  <code>{`# Terminal 1: Start all services
+            </SubSection>
+
+            <SubSection title="Complete .env.local Reference">
+              <CodeBlock language="bash">{`# =============================================================================
+# BIZUIT Dashboard API
+# =============================================================================
+# Build-time variable - accessible in client code
+NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=/api/bizuit
+# Production: https://test.bizuit.com/tenantBizuitDashboardapi/api
+
+# HTTP timeout (milliseconds)
+NEXT_PUBLIC_BIZUIT_TIMEOUT=30000
+
+# =============================================================================
+# Backend FastAPI
+# =============================================================================
+# Server-side only - NOT exposed to client
+FASTAPI_URL=http://127.0.0.1:8000
+
+# =============================================================================
+# Development Mode - CRITICAL SECURITY
+# =============================================================================
+# Allow forms without Dashboard token
+# Server-side variable - can differ per deployment
+#
+# DEVELOPMENT: true  → Uses dev-credentials.js
+# PRODUCTION:  false → Requires Dashboard token
+#
+ALLOW_DEV_MODE=true
+
+# =============================================================================
+# Deployment Configuration
+# =============================================================================
+# Base path for subdirectory deployment
+# Local: Leave commented out
+# Production: /BIZUITCustomForms
+# NEXT_PUBLIC_BASE_PATH=/BIZUITCustomForms
+
+# Admin session timeout (minutes)
+NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30
+
+# =============================================================================
+# Iframe Security (Standalone Forms)
+# =============================================================================
+# Allowed origins for iframe embedding
+NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://test.bizuit.com
+
+# Allow localhost for dev iframe testing
+NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=true
+
+# Webhook secret for GitHub Actions
+# Generate: openssl rand -hex 32
+WEBHOOK_SECRET=your-webhook-secret-here`}</CodeBlock>
+
+              <InfoBox type="info" title="Remember">
+                <ul className="space-y-1 text-sm">
+                  <li>🔄 Changed <code className="text-orange-400">NEXT_PUBLIC_*</code>? → <strong>Rebuild</strong></li>
+                  <li>🔄 Changed server variable? → <strong>Restart</strong> only</li>
+                </ul>
+              </InfoBox>
+            </SubSection>
+
+            <SubSection title="Environment Variables Reference Table">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-900/50 border-b border-slate-700">
+                    <tr>
+                      <th className="text-left p-3 text-slate-300">Variable</th>
+                      <th className="text-left p-3 text-slate-300">Type</th>
+                      <th className="text-center p-3 text-slate-300">Rebuild?</th>
+                      <th className="text-left p-3 text-slate-300">Purpose</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-slate-400">
+                    <EnvVarRow
+                      name="NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL"
+                      type="Build-time"
+                      rebuild={true}
+                      purpose="Dashboard API base URL"
+                    />
+                    <EnvVarRow
+                      name="NEXT_PUBLIC_BASE_PATH"
+                      type="Build-time"
+                      rebuild={true}
+                      purpose="Deployment subdirectory path"
+                    />
+                    <EnvVarRow
+                      name="FASTAPI_URL"
+                      type="Server-side"
+                      rebuild={false}
+                      purpose="Backend API internal URL"
+                    />
+                    <EnvVarRow
+                      name="ALLOW_DEV_MODE"
+                      type="Server-side"
+                      rebuild={false}
+                      purpose="Enable dev credentials"
+                      critical={true}
+                    />
+                    <EnvVarRow
+                      name="WEBHOOK_SECRET"
+                      type="Server-side"
+                      rebuild={false}
+                      purpose="GitHub webhook authentication"
+                    />
+                  </tbody>
+                </table>
+              </div>
+            </SubSection>
+          </Section>
+
+          {/* Dev Credentials Section */}
+          <Section id="dev-credentials" title="🔑 Development Credentials Setup">
+            <p className="text-slate-300 mb-6">
+              Dev credentials let you test forms locally without Dashboard access.
+            </p>
+
+            <SubSection title="Why Dev Credentials?">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+                  <h4 className="text-red-400 font-semibold mb-2">Without Dev Credentials</h4>
+                  <ul className="space-y-1 text-sm text-slate-300">
+                    <li>❌ Can't test locally</li>
+                    <li>❌ Need Dashboard access</li>
+                    <li>❌ Can't work offline</li>
+                    <li>❌ Slow iteration</li>
+                  </ul>
+                </div>
+                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+                  <h4 className="text-green-400 font-semibold mb-2">With Dev Credentials</h4>
+                  <ul className="space-y-1 text-sm text-slate-300">
+                    <li>✅ Test instantly</li>
+                    <li>✅ No Dashboard needed</li>
+                    <li>✅ Work offline</li>
+                    <li>✅ Fast iteration</li>
+                  </ul>
+                </div>
+              </div>
+            </SubSection>
+
+            <SubSection title="Setup Steps">
+              <div className="space-y-6">
+                <Step number={1} title="Enable Dev Mode">
+                  <p className="text-slate-400 mb-2">Edit <code className="text-orange-400">runtime-app/.env.local</code>:</p>
+                  <CodeBlock language="bash">{`ALLOW_DEV_MODE=true  # ← Add this line`}</CodeBlock>
+                </Step>
+
+                <Step number={2} title="Create Credentials File">
+                  <CodeBlock language="bash">{`cd runtime-app
+cp dev-credentials.example.js dev-credentials.js`}</CodeBlock>
+                </Step>
+
+                <Step number={3} title="Add Your Credentials">
+                  <p className="text-slate-400 mb-2">Get credentials from your team lead or use your test account:</p>
+                  <CodeBlock language="javascript">{`// dev-credentials.js
+export const DEV_CREDENTIALS = {
+  username: 'your.email@company.com',
+  password: 'YourPassword123',
+  apiUrl: 'https://test.bizuit.com/yourTenantBizuitDashboardapi/api/'
+  //                                    ^^^^^^^^^^^^
+  //                                    Your tenant name
+}`}</CodeBlock>
+                  <InfoBox type="info" title="Tenant Name Examples">
+                    <ul className="space-y-1 text-sm">
+                      <li>• <code className="text-orange-400">arielsch</code> → <code className="text-slate-400">arielschBizuitDashboardapi</code></li>
+                      <li>• <code className="text-orange-400">recubiz</code> → <code className="text-slate-400">recubizBizuitDashboardapi</code></li>
+                      <li>• Pattern: <code className="text-slate-400">{`{tenant}BizuitDashboardapi/api/`}</code></li>
+                    </ul>
+                  </InfoBox>
+                </Step>
+
+                <Step number={4} title="Verify Setup">
+                  <CodeBlock language="bash">{`npm run dev
+open http://localhost:3001/forms/test-form
+
+# Check browser console
+# Should see: "Authenticated with dev credentials"
+# Should NOT see: "Token validation failed"`}</CodeBlock>
+                </Step>
+              </div>
+            </SubSection>
+
+            <SubSection title="Security Checklist">
+              <div className="bg-slate-900/50 rounded-lg p-4 space-y-2">
+                <ChecklistItem checked>dev-credentials.js in .gitignore (already done)</ChecklistItem>
+                <ChecklistItem checked={false}>Never commit real credentials</ChecklistItem>
+                <ChecklistItem checked={false}>Use test accounts only (NOT production)</ChecklistItem>
+                <ChecklistItem checked={false}>ALLOW_DEV_MODE=true only in local .env.local</ChecklistItem>
+                <ChecklistItem checked={false}>Production: ALLOW_DEV_MODE=false</ChecklistItem>
+              </div>
+            </SubSection>
+          </Section>
+
+          {/* Workflows Section */}
+          <Section id="workflows" title="💻 Development Workflows">
+            <p className="text-slate-300 mb-6">
+              Three workflows for different development scenarios.
+            </p>
+
+            <WorkflowCard
+              title="Workflow 1: Full Stack Development"
+              icon="🔄"
+              color="green"
+              useWhen="Developing form functionality that needs backend"
+            >
+              <CodeBlock language="bash">{`# Start all services
 ./start-all.sh
 
-# Terminal 2: View logs
-tail -f logs/backend-api.log
-tail -f logs/runtime-app.log
+# Services running:
+# • Backend (8000)
+# • Showcase (3000) - optional
+# • Runtime (3001)
 
-# Test your form
-open http://localhost:3001/forms/my-form`}</code>
-                </pre>
-              </div>
-            </div>
+# Develop your form
+cd forms-examples/my-form
+code src/index.tsx
 
-            {/* Workflow 2 */}
-            <div>
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center">
-                  <span className="text-2xl">⚡</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-white">Option 2: Fast Development (Fat Bundle)</h3>
-                  <p className="text-sm text-slate-400">For UI-only iterations</p>
-                </div>
-              </div>
-              <div className="bg-slate-900/50 rounded-lg p-4">
-                <pre className="text-sm text-slate-300 overflow-x-auto">
-                  <code>{`# Terminal 1: Build fat bundle
+# Test form
+open http://localhost:3001/forms/my-form
+
+# Watch logs
+tail -f logs/backend-api.log`}</CodeBlock>
+
+              <InfoBox type="success" title="Best for">
+                <ul className="space-y-1 text-sm">
+                  <li>✅ SDK integration testing</li>
+                  <li>✅ Process calls (raiseEvent, initialize)</li>
+                  <li>✅ Full integration testing</li>
+                  <li>✅ Backend dependency work</li>
+                </ul>
+              </InfoBox>
+            </WorkflowCard>
+
+            <WorkflowCard
+              title="Workflow 2: Fat Bundle Development"
+              icon="⚡"
+              color="orange"
+              useWhen="Quick UI iterations, styling, component testing"
+            >
+              <CodeBlock language="bash">{`# Build fat bundle
 cd forms-examples/my-form
 npm run build
 
-# Terminal 2: Serve via HTTP
+# Creates:
+# ✅ dist/form.js     (fat bundle - ALL dependencies)
+# ✅ dist/dev.html    (test page)
+
+# Serve via HTTP
 cd dist
 python3 -m http.server 8080
 
-# Terminal 3: Open dev.html
-open http://localhost:8080/dev.html`}</code>
-                </pre>
-              </div>
-              <div className="mt-3 bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
-                <p className="text-sm text-blue-300">
-                  <strong>Fat Bundle:</strong> Self-contained JavaScript with React, UI libs, and your form code. Perfect for quick UI testing!
+# Open test page
+open http://localhost:8080/dev.html`}</CodeBlock>
+
+              <div className="bg-slate-900/50 rounded-lg p-4 mb-4">
+                <h4 className="text-white font-semibold mb-2">What's a Fat Bundle?</h4>
+                <p className="text-slate-400 text-sm mb-3">
+                  A self-contained JavaScript file with EVERYTHING included:
                 </p>
+                <ul className="space-y-1 text-sm text-slate-300">
+                  <li>• Your form code</li>
+                  <li>• React library</li>
+                  <li>• UI components</li>
+                  <li>• Bizuit SDK</li>
+                  <li>• All dependencies</li>
+                </ul>
               </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Testing on Port 3001 */}
-        <div className="max-w-5xl mx-auto bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/30 rounded-2xl p-8 mb-8">
-          <div className="flex items-start space-x-4 mb-4">
-            <span className="text-4xl">⚠️</span>
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-2">Important: Testing on Port 3001</h2>
-              <p className="text-slate-300">
-                Port 3001 loads forms <strong>from the database</strong>, not from your local filesystem
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="bg-slate-900/50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-white mb-3">Requirements:</h3>
-              <ul className="space-y-2 text-slate-300">
-                <li className="flex items-start space-x-2">
-                  <span className="text-orange-400 mt-0.5">1.</span>
-                  <span>Form must be <strong>built</strong> and packaged as ZIP</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <span className="text-orange-400 mt-0.5">2.</span>
-                  <span>ZIP must be <strong>uploaded</strong> via admin panel</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <span className="text-orange-400 mt-0.5">3.</span>
-                  <span>Form must exist in <code className="text-orange-400">CustomForms</code> table</span>
-                </li>
-                <li className="flex items-start space-x-2">
-                  <span className="text-orange-400 mt-0.5">4.</span>
-                  <span>Backend API must be running on port 8000</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="bg-slate-900/50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-white mb-3">Upload Process:</h3>
-              <pre className="text-sm text-slate-300 overflow-x-auto">
-                <code>{`# 1. Build your form
-cd forms-examples/my-form
-npm run build
-
-# 2. Get latest ZIP from upload/
-cd upload
-ls -t *.zip | head -1  # Latest ZIP
-
-# 3. Go to admin panel
-open http://localhost:3001/admin
-
-# 4. Upload ZIP and test
-open http://localhost:3001/forms/my-form`}</code>
-              </pre>
-            </div>
-          </div>
-        </div>
-
-        {/* Deployment */}
-        <div className="max-w-5xl mx-auto bg-slate-800/50 rounded-2xl border border-slate-700 p-8 mb-8">
-          <h2 className="text-3xl font-bold text-white mb-6">Deployment Process</h2>
-
-          <div className="space-y-6">
-            {/* GitHub Workflow */}
-            <div>
-              <div className="flex items-center space-x-3 mb-4">
-                <span className="text-3xl">🤖</span>
-                <h3 className="text-xl font-semibold text-white">Automatic (GitHub Actions)</h3>
-              </div>
-              <div className="bg-slate-900/50 rounded-lg p-4 space-y-3">
-                <p className="text-slate-300">
-                  <strong>Triggers:</strong> Push to <code className="text-orange-400">main</code> branch with changes in <code className="text-orange-400">forms-examples/*/src/**</code>
-                </p>
-                <div className="border-l-4 border-green-500 pl-4 space-y-2 text-sm text-slate-300">
-                  <p>✅ Detects changed forms</p>
-                  <p>✅ Builds each form independently</p>
-                  <p>✅ Bumps version (semantic versioning)</p>
-                  <p>✅ Creates deployment ZIP</p>
-                  <p>✅ Uploads to GitHub Actions artifacts</p>
-                  <p>✅ Commits ZIP to repo</p>
-                  <p>✅ Creates git tag (e.g., <code className="text-orange-400">my-form-v1.0.5</code>)</p>
-                </div>
-                <div className="bg-blue-500/10 border border-blue-500/30 rounded p-3 mt-3">
-                  <p className="text-sm text-blue-300">
-                    <strong>Download:</strong> Go to <strong>Actions</strong> → Latest run → <strong>Artifacts</strong>
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Manual */}
-            <div>
-              <div className="flex items-center space-x-3 mb-4">
-                <span className="text-3xl">✋</span>
-                <h3 className="text-xl font-semibold text-white">Manual Deployment</h3>
-              </div>
               <div className="bg-slate-900/50 rounded-lg p-4">
-                <pre className="text-sm text-slate-300 overflow-x-auto">
-                  <code>{`# Build and package
-cd forms-examples/my-form
-npm run build
-
-# Create ZIP
-cd dist
-zip -r ../my-form-deployment.zip .
-
-# Upload via admin panel
-# http://localhost:3001/admin/upload-forms`}</code>
-                </pre>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Troubleshooting */}
-        <div className="max-w-5xl mx-auto bg-slate-800/50 rounded-2xl border border-slate-700 p-8">
-          <h2 className="text-3xl font-bold text-white mb-6">🐛 Troubleshooting</h2>
-
-          <div className="space-y-6">
-            {/* Port in use */}
-            <div className="bg-slate-900/50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-red-400 mb-2">Port Already in Use</h3>
-              <pre className="text-sm text-slate-300 overflow-x-auto">
-                <code>{`# Kill processes
-lsof -ti:8000 | xargs kill -9  # Backend
-lsof -ti:3000 | xargs kill -9  # Showcase
-lsof -ti:3001 | xargs kill -9  # Runtime
-
-# Or use automation
-./stop-all.sh && ./start-all.sh`}</code>
-              </pre>
-            </div>
-
-            {/* Form not loading */}
-            <div className="bg-slate-900/50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-red-400 mb-2">Form Not Loading on Port 3001</h3>
-              <p className="text-slate-300 mb-3">
-                <strong>Error:</strong> "Form not found" or blank page
-              </p>
-              <div className="space-y-2 text-sm text-slate-400">
-                <p><strong>Solution:</strong></p>
-                <ol className="list-decimal ml-6 space-y-1">
-                  <li>Check backend is running: <code className="text-orange-400">http://localhost:8000/docs</code></li>
-                  <li>Upload form via admin panel</li>
-                  <li>Verify in database: <code className="text-orange-400">SELECT FormName FROM CustomForms</code></li>
+                <h4 className="text-white font-semibold mb-2">Development Loop:</h4>
+                <ol className="space-y-2 text-sm text-slate-300 list-decimal ml-5">
+                  <li>Edit <code className="text-orange-400">src/index.tsx</code></li>
+                  <li>Run <code className="text-orange-400">npm run build</code> (fast!)</li>
+                  <li>Refresh browser (Cmd+R)</li>
+                  <li>See changes instantly!</li>
                 </ol>
               </div>
-            </div>
 
-            {/* Token validation */}
-            <div className="bg-slate-900/50 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-red-400 mb-2">Token Validation Failed</h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm font-semibold text-slate-300 mb-1">Development mode:</p>
-                  <pre className="text-xs text-slate-400">
-                    <code>NEXT_PUBLIC_ALLOW_DEV_MODE=true</code>
-                  </pre>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-300 mb-1">Production mode:</p>
-                  <p className="text-xs text-slate-400">Use real Dashboard token in URL</p>
+              <InfoBox type="success" title="Best for">
+                <ul className="space-y-1 text-sm">
+                  <li>✅ Styling and layout</li>
+                  <li>✅ Component behavior</li>
+                  <li>✅ Form validation UI</li>
+                  <li>✅ Quick iterations</li>
+                </ul>
+              </InfoBox>
+
+              <InfoBox type="warning" title="Limitations">
+                <ul className="space-y-1 text-sm">
+                  <li>❌ Can't call real Bizuit APIs</li>
+                  <li>❌ Can't test process integration</li>
+                  <li>✅ Perfect for UI-only work</li>
+                </ul>
+              </InfoBox>
+            </WorkflowCard>
+
+            <WorkflowCard
+              title="Workflow 3: Runtime Testing (Port 3001)"
+              icon="🧪"
+              color="purple"
+              useWhen="Testing as it will run in production"
+            >
+              <InfoBox type="warning" title="CRITICAL Understanding">
+                <p className="text-sm font-semibold mb-2">
+                  Port 3001 loads forms from the DATABASE, NOT from your filesystem!
+                </p>
+                <p className="text-sm">
+                  This means you must <strong>upload</strong> your form before testing on port 3001.
+                </p>
+              </InfoBox>
+
+              <div className="my-4">
+                <h4 className="text-white font-semibold mb-3">Requirements:</h4>
+                <div className="space-y-2">
+                  <ChecklistItem checked={false}>Form built (npm run build)</ChecklistItem>
+                  <ChecklistItem checked={false}>ZIP created (manually or from workflow)</ChecklistItem>
+                  <ChecklistItem checked={false}>ZIP uploaded via admin panel</ChecklistItem>
+                  <ChecklistItem checked={false}>Form exists in CustomForms table</ChecklistItem>
+                  <ChecklistItem checked={false}>Backend API running</ChecklistItem>
                 </div>
               </div>
+
+              <CodeBlock language="bash">{`# Full testing process
+cd forms-examples/my-form
+
+# 1. Build form
+npm run build
+
+# 2. Get or create ZIP
+ls -lt upload/*.zip | head -1
+# OR: cd dist && zip -r ../my-form.zip .
+
+# 3. Start services
+cd ../../
+./start-all.sh
+
+# 4. Upload ZIP
+open http://localhost:3001/admin/upload-forms
+# Drag and drop ZIP
+
+# 5. Test form
+open http://localhost:3001/forms/my-form`}</CodeBlock>
+
+              <InfoBox type="success" title="Why this workflow?">
+                <ul className="space-y-1 text-sm">
+                  <li>✅ Tests real production behavior</li>
+                  <li>✅ Tests database loading</li>
+                  <li>✅ Catches deployment issues early</li>
+                </ul>
+              </InfoBox>
+            </WorkflowCard>
+          </Section>
+
+          {/* Testing Section */}
+          <Section id="testing" title="🧪 Testing Strategies">
+            <SubSection title="Testing Matrix">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-900/50 border-b border-slate-700">
+                    <tr>
+                      <th className="text-left p-3 text-slate-300">Test Type</th>
+                      <th className="text-left p-3 text-slate-300">Workflow</th>
+                      <th className="text-center p-3 text-slate-300">Backend</th>
+                      <th className="text-left p-3 text-slate-300">Speed</th>
+                      <th className="text-left p-3 text-slate-300">Use Case</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-slate-800">
+                      <td className="p-3 text-white">UI Only</td>
+                      <td className="p-3">Fat Bundle</td>
+                      <td className="p-3 text-center">❌</td>
+                      <td className="p-3">⚡ Instant</td>
+                      <td className="p-3">Styling, layout, components</td>
+                    </tr>
+                    <tr className="border-b border-slate-800">
+                      <td className="p-3 text-white">Integration</td>
+                      <td className="p-3">Full Stack</td>
+                      <td className="p-3 text-center">✅</td>
+                      <td className="p-3">🐢 Moderate</td>
+                      <td className="p-3">SDK calls, process integration</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 text-white">Production-Like</td>
+                      <td className="p-3">Runtime (3001)</td>
+                      <td className="p-3 text-center">✅</td>
+                      <td className="p-3">🐌 Slow</td>
+                      <td className="p-3">Final validation, deployment prep</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </SubSection>
+
+            <SubSection title="Pre-Deployment Checklist">
+              <div className="bg-slate-900/50 rounded-lg p-4 space-y-2">
+                <ChecklistItem checked={false}>UI looks correct (Fat Bundle)</ChecklistItem>
+                <ChecklistItem checked={false}>Form validation works (Fat Bundle)</ChecklistItem>
+                <ChecklistItem checked={false}>SDK integration works (Full Stack)</ChecklistItem>
+                <ChecklistItem checked={false}>Process calls succeed (Full Stack)</ChecklistItem>
+                <ChecklistItem checked={false}>Form loads from database (Runtime 3001)</ChecklistItem>
+                <ChecklistItem checked={false}>No console errors (All workflows)</ChecklistItem>
+                <ChecklistItem checked={false}>Mobile responsive (Browser DevTools)</ChecklistItem>
+                <ChecklistItem checked={false}>Dark mode works (If applicable)</ChecklistItem>
+              </div>
+            </SubSection>
+          </Section>
+
+          {/* Deployment Section */}
+          <Section id="deployment" title="📦 Deployment Process">
+            <p className="text-slate-300 mb-6">
+              Automated deployment via GitHub Actions with semantic versioning.
+            </p>
+
+            <SubSection title="Deployment Flow">
+              <CodeBlock language="text">{`Local Development
+      ↓
+ Git Commit (feat: new feature)
+      ↓
+ Push to main
+      ↓
+GitHub Actions Workflow
+      ↓
+  ✅ Detects changed forms
+  ✅ Builds each form
+  ✅ Bumps version (feat: → minor)
+  ✅ Creates deployment ZIP
+  ✅ Uploads to Artifacts (90 days)
+  ✅ Commits ZIP to repo
+  ✅ Creates git tag
+      ↓
+Download from Artifacts
+      ↓
+Upload to Admin Panel
+      ↓
+  Production! 🎉`}</CodeBlock>
+            </SubSection>
+
+            <SubSection title="Semantic Versioning">
+              <div className="space-y-4">
+                <div className="bg-slate-900/50 rounded-lg p-4">
+                  <h4 className="text-green-400 font-semibold mb-2">Patch Bump (1.0.5 → 1.0.6)</h4>
+                  <CodeBlock language="bash">{`git commit -m "fix: correct validation bug"
+git commit -m "chore: update dependencies"`}</CodeBlock>
+                </div>
+
+                <div className="bg-slate-900/50 rounded-lg p-4">
+                  <h4 className="text-blue-400 font-semibold mb-2">Minor Bump (1.0.5 → 1.1.0)</h4>
+                  <CodeBlock language="bash">{`git commit -m "feat: add new export feature"`}</CodeBlock>
+                </div>
+
+                <div className="bg-slate-900/50 rounded-lg p-4">
+                  <h4 className="text-red-400 font-semibold mb-2">Major Bump (1.0.5 → 2.0.0)</h4>
+                  <CodeBlock language="bash">{`git commit -m "feat: redesign form layout
+
+BREAKING CHANGE: old API removed"`}</CodeBlock>
+                </div>
+              </div>
+            </SubSection>
+
+            <SubSection title="Download Artifact">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="bg-slate-900/50 rounded-lg p-4">
+                  <h4 className="text-white font-semibold mb-3">Option A: GitHub Actions</h4>
+                  <CodeBlock language="bash">{`# Via web UI
+# Actions → Latest run → Artifacts
+
+# Via CLI
+gh run list --limit 1
+gh run download <run-id>`}</CodeBlock>
+                </div>
+
+                <div className="bg-slate-900/50 rounded-lg p-4">
+                  <h4 className="text-white font-semibold mb-3">Option B: Repository</h4>
+                  <CodeBlock language="bash">{`# Pull latest
+git pull origin main
+
+# ZIP already committed
+ls forms-examples/my-form/upload/*.zip`}</CodeBlock>
+                </div>
+              </div>
+            </SubSection>
+          </Section>
+
+          {/* Troubleshooting Section */}
+          <Section id="troubleshooting" title="🐛 Common Issues & Solutions">
+            <TroubleshootingItem
+              problem="Port Already in Use"
+              error="EADDRINUSE: address already in use :::3001"
+            >
+              <CodeBlock language="bash">{`# Quick fix: Use automated scripts
+./stop-all.sh
+./start-all.sh
+
+# Manual fix: Kill specific ports
+lsof -ti:8000 | xargs kill -9  # Backend
+lsof -ti:3000 | xargs kill -9  # Showcase
+lsof -ti:3001 | xargs kill -9  # Runtime`}</CodeBlock>
+            </TroubleshootingItem>
+
+            <TroubleshootingItem
+              problem="Form Not Loading on Port 3001"
+              error='"Form not found" or blank page'
+            >
+              <div className="space-y-3">
+                <p className="text-slate-400 text-sm">Remember: Port 3001 loads from DATABASE!</p>
+                <CodeBlock language="bash">{`# Checklist:
+# 1. Backend running?
+curl http://localhost:8000/docs
+
+# 2. Form uploaded?
+open http://localhost:3001/admin
+# Check forms list
+
+# 3. Correct form name?
+# URL: /forms/my-form (lowercase, hyphens)
+# NOT: /forms/MyForm`}</CodeBlock>
+              </div>
+            </TroubleshootingItem>
+
+            <TroubleshootingItem
+              problem="Authentication Failed"
+              error="Invalid token or 401 Unauthorized"
+            >
+              <CodeBlock language="bash">{`# For dev mode:
+# 1. Check ALLOW_DEV_MODE
+grep ALLOW_DEV_MODE runtime-app/.env.local
+# Should be: ALLOW_DEV_MODE=true
+
+# 2. Check dev-credentials.js exists
+ls runtime-app/dev-credentials.js
+
+# 3. Check format
+cat runtime-app/dev-credentials.js
+# Must export: { username, password, apiUrl }
+
+# 4. Test credentials
+# Try logging into Dashboard manually
+
+# For production mode:
+# Check token in URL: ?token=eyJhbGc...`}</CodeBlock>
+            </TroubleshootingItem>
+
+            <TroubleshootingItem
+              problem="Changes Not Reflecting"
+              error="Old code still running after changes"
+            >
+              <div className="space-y-4">
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+                  <p className="text-blue-300 text-sm font-semibold mb-1">Changed NEXT_PUBLIC_* variable?</p>
+                  <CodeBlock language="bash">{`npm run build  # Rebuild required!
+npm start`}</CodeBlock>
+                </div>
+
+                <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-3">
+                  <p className="text-purple-300 text-sm font-semibold mb-1">Changed server variable?</p>
+                  <CodeBlock language="bash">{`./stop-all.sh && ./start-all.sh  # Just restart`}</CodeBlock>
+                </div>
+
+                <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3">
+                  <p className="text-orange-300 text-sm font-semibold mb-1">Changed form code on port 3001?</p>
+                  <CodeBlock language="bash">{`npm run build
+# Upload new ZIP via admin panel!`}</CodeBlock>
+                </div>
+              </div>
+            </TroubleshootingItem>
+          </Section>
+
+          {/* FAQs Section */}
+          <Section id="faqs" title="❓ Frequently Asked Questions">
+            <div className="space-y-6">
+              <FAQ question="Do I need the Dashboard running locally?">
+                <p className="text-slate-300">
+                  <strong>No!</strong> That's the point of dev credentials. The runtime app authenticates
+                  with the <strong>test Dashboard</strong> (test.bizuit.com) using your dev credentials.
+                </p>
+              </FAQ>
+
+              <FAQ question="Can I work offline?">
+                <p className="text-slate-300 mb-2">Partially:</p>
+                <ul className="space-y-1 text-sm text-slate-300 ml-4">
+                  <li>✅ Edit form code</li>
+                  <li>✅ Build fat bundle</li>
+                  <li>✅ Test UI via dev.html</li>
+                  <li>❌ Can't test SDK calls (need Dashboard API)</li>
+                  <li>❌ Can't test process integration</li>
+                </ul>
+              </FAQ>
+
+              <FAQ question="Why does my form work in dev but not production?">
+                <p className="text-slate-300 mb-2">Common causes:</p>
+                <ol className="space-y-2 text-sm text-slate-300 list-decimal ml-5">
+                  <li><strong>ALLOW_DEV_MODE</strong>: Production should be <code className="text-orange-400">false</code></li>
+                  <li><strong>Environment variables</strong>: Different .env.local in production</li>
+                  <li><strong>Base path</strong>: Production uses <code className="text-orange-400">/BIZUITCustomForms</code></li>
+                  <li><strong>API URLs</strong>: Different Dashboard API endpoints</li>
+                  <li><strong>Credentials</strong>: Dev credentials don't work in production</li>
+                </ol>
+              </FAQ>
+
+              <FAQ question="How do I rollback a bad deployment?">
+                <CodeBlock language="bash">{`# Option 1: Upload previous version
+cd forms-examples/my-form/upload
+ls -lt *.zip  # Find previous working version
+# Upload old ZIP via admin panel
+
+# Option 2: Git revert
+git revert HEAD
+git push origin main
+# Workflow rebuilds and creates new artifact`}</CodeBlock>
+              </FAQ>
+
+              <FAQ question="Can I have multiple forms in one repo?">
+                <p className="text-slate-300 mb-2">
+                  <strong>Yes!</strong> That's the design. Each form has:
+                </p>
+                <ul className="space-y-1 text-sm text-slate-300 ml-4">
+                  <li>✅ Independent versioning</li>
+                  <li>✅ Independent deployment</li>
+                  <li>✅ Own <code className="text-orange-400">upload/</code> directory</li>
+                  <li>✅ Own git tags (<code className="text-orange-400">form-name-v1.0.0</code>)</li>
+                </ul>
+              </FAQ>
+
+              <FAQ question="What if I manually change package.json version?">
+                <p className="text-slate-300">
+                  The workflow will <strong>auto-correct</strong> it! Git tags are the source of truth.
+                  The workflow reads the last tag, calculates next version, and overwrites package.json.
+                </p>
+                <InfoBox type="warning" title="Best Practice" className="mt-3">
+                  <p className="text-sm">Don't manually change package.json versions. Let the workflow handle it!</p>
+                </InfoBox>
+              </FAQ>
             </div>
-          </div>
-        </div>
+          </Section>
 
-        {/* Resources */}
-        <div className="max-w-5xl mx-auto mt-12 text-center">
-          <h2 className="text-2xl font-bold text-white mb-6">📚 Additional Resources</h2>
-          <div className="grid md:grid-cols-3 gap-4">
-            <a
+          {/* Learning Path */}
+          <Section id="learning-path" title="🎓 Learning Path for Junior Developers">
+            <div className="space-y-6">
+              <WeekPlan week={1} title="Setup and Basics">
+                <div className="space-y-4">
+                  <div>
+                    <h5 className="text-white font-semibold mb-2">Day 1-2: Environment Setup</h5>
+                    <div className="space-y-1">
+                      <ChecklistItem checked={false}>Clone repository</ChecklistItem>
+                      <ChecklistItem checked={false}>Install dependencies</ChecklistItem>
+                      <ChecklistItem checked={false}>Setup .env.local</ChecklistItem>
+                      <ChecklistItem checked={false}>Setup dev-credentials.js</ChecklistItem>
+                      <ChecklistItem checked={false}>Start all services successfully</ChecklistItem>
+                    </div>
+                  </div>
+                  <div>
+                    <h5 className="text-white font-semibold mb-2">Day 3-4: Explore Examples</h5>
+                    <div className="space-y-1">
+                      <ChecklistItem checked={false}>Browse showcase examples</ChecklistItem>
+                      <ChecklistItem checked={false}>Open forms in browser</ChecklistItem>
+                      <ChecklistItem checked={false}>Inspect with DevTools</ChecklistItem>
+                      <ChecklistItem checked={false}>Read form source code</ChecklistItem>
+                    </div>
+                  </div>
+                  <div>
+                    <h5 className="text-white font-semibold mb-2">Day 5: First Form</h5>
+                    <div className="space-y-1">
+                      <ChecklistItem checked={false}>Copy example form</ChecklistItem>
+                      <ChecklistItem checked={false}>Modify UI</ChecklistItem>
+                      <ChecklistItem checked={false}>Test with fat bundle</ChecklistItem>
+                    </div>
+                  </div>
+                </div>
+              </WeekPlan>
+
+              <WeekPlan week={2} title="Development Skills">
+                <div className="space-y-4">
+                  <div>
+                    <h5 className="text-white font-semibold mb-2">Day 1-3: Fat Bundle Workflow</h5>
+                    <div className="space-y-1">
+                      <ChecklistItem checked={false}>Create simple form</ChecklistItem>
+                      <ChecklistItem checked={false}>Style with Tailwind CSS</ChecklistItem>
+                      <ChecklistItem checked={false}>Add form validation</ChecklistItem>
+                      <ChecklistItem checked={false}>Test in dev.html</ChecklistItem>
+                    </div>
+                  </div>
+                  <div>
+                    <h5 className="text-white font-semibold mb-2">Day 4-5: Full Stack Workflow</h5>
+                    <div className="space-y-1">
+                      <ChecklistItem checked={false}>Use Bizuit SDK</ChecklistItem>
+                      <ChecklistItem checked={false}>Make API calls</ChecklistItem>
+                      <ChecklistItem checked={false}>Handle responses</ChecklistItem>
+                      <ChecklistItem checked={false}>Test with dev credentials</ChecklistItem>
+                    </div>
+                  </div>
+                </div>
+              </WeekPlan>
+
+              <WeekPlan week={3} title="Integration & Deployment">
+                <div className="space-y-4">
+                  <div>
+                    <h5 className="text-white font-semibold mb-2">Day 1-2: Runtime Testing</h5>
+                    <div className="space-y-1">
+                      <ChecklistItem checked={false}>Upload form via admin</ChecklistItem>
+                      <ChecklistItem checked={false}>Test on port 3001</ChecklistItem>
+                      <ChecklistItem checked={false}>Verify database loading</ChecklistItem>
+                    </div>
+                  </div>
+                  <div>
+                    <h5 className="text-white font-semibold mb-2">Day 3-5: Deployment</h5>
+                    <div className="space-y-1">
+                      <ChecklistItem checked={false}>Commit with semantic message</ChecklistItem>
+                      <ChecklistItem checked={false}>Push to main</ChecklistItem>
+                      <ChecklistItem checked={false}>Monitor GitHub Actions</ChecklistItem>
+                      <ChecklistItem checked={false}>Download artifact</ChecklistItem>
+                      <ChecklistItem checked={false}>Upload to admin panel</ChecklistItem>
+                    </div>
+                  </div>
+                </div>
+              </WeekPlan>
+            </div>
+          </Section>
+
+          {/* Resources */}
+          <div className="mt-12 grid md:grid-cols-3 gap-4">
+            <ResourceLink
               href="http://localhost:8000/docs"
-              target="_blank"
-              className="bg-slate-800/50 rounded-xl border border-slate-700 p-6 hover:border-orange-500 transition group"
-            >
-              <div className="text-3xl mb-3">📡</div>
-              <h3 className="text-lg font-semibold text-white group-hover:text-orange-400 transition">Backend API Docs</h3>
-              <p className="text-sm text-slate-400 mt-2">FastAPI Swagger UI</p>
-            </a>
-            <a
+              icon="📡"
+              title="Backend API Docs"
+              description="FastAPI Swagger UI"
+              external
+            />
+            <ResourceLink
               href="http://localhost:3000"
-              target="_blank"
-              className="bg-slate-800/50 rounded-xl border border-slate-700 p-6 hover:border-orange-500 transition group"
-            >
-              <div className="text-3xl mb-3">🎨</div>
-              <h3 className="text-lg font-semibold text-white group-hover:text-orange-400 transition">Showcase Examples</h3>
-              <p className="text-sm text-slate-400 mt-2">Live form demonstrations</p>
-            </a>
-            <Link
+              icon="🎨"
+              title="Showcase Examples"
+              description="Live demonstrations"
+              external
+            />
+            <ResourceLink
               href="/admin"
-              className="bg-slate-800/50 rounded-xl border border-slate-700 p-6 hover:border-orange-500 transition group"
-            >
-              <div className="text-3xl mb-3">⚙️</div>
-              <h3 className="text-lg font-semibold text-white group-hover:text-orange-400 transition">Admin Panel</h3>
-              <p className="text-sm text-slate-400 mt-2">Upload and manage forms</p>
-            </Link>
+              icon="⚙️"
+              title="Admin Panel"
+              description="Upload & manage forms"
+            />
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className="max-w-5xl mx-auto mt-16 pt-8 border-t border-slate-700 text-center">
-          <p className="text-slate-400">
-            Need help? Check the <Link href="/" className="text-orange-400 hover:text-orange-300">main documentation</Link> or ask the team!
-          </p>
-          <p className="text-slate-500 mt-2 text-sm">
-            Happy coding! 🚀
-          </p>
-        </div>
-      </main>
+          {/* Footer */}
+          <div className="mt-16 pt-8 border-t border-slate-700 text-center">
+            <p className="text-slate-400">
+              Need help? Check the{' '}
+              <a href="https://github.com/your-org/your-repo" className="text-orange-400 hover:text-orange-300">
+                repository
+              </a>{' '}
+              or ask the team!
+            </p>
+            <p className="text-slate-500 mt-2 text-sm">Happy coding! 🚀</p>
+          </div>
+        </main>
+      </div>
     </div>
+  )
+}
+
+// Components
+function NavItem({ href, active, onClick, children }: { href: string; active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <li>
+      <a
+        href={href}
+        onClick={onClick}
+        className={`block px-3 py-2 rounded-lg text-sm transition ${
+          active
+            ? 'bg-orange-500/20 text-orange-400 font-medium'
+            : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+        }`}
+      >
+        {children}
+      </a>
+    </li>
+  )
+}
+
+function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
+  return (
+    <section id={id} className="mb-16 scroll-mt-24">
+      <h2 className="text-3xl font-bold text-white mb-6 pb-2 border-b border-slate-700">
+        {title}
+      </h2>
+      {children}
+    </section>
+  )
+}
+
+function SubSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="mb-8">
+      <h3 className="text-xl font-semibold text-white mb-4">{title}</h3>
+      {children}
+    </div>
+  )
+}
+
+function CodeBlock({ language, children, className = '' }: { language?: string; children: string; className?: string }) {
+  return (
+    <div className={`bg-slate-950 rounded-lg border border-slate-700 overflow-hidden ${className}`}>
+      {language && (
+        <div className="bg-slate-900 border-b border-slate-700 px-4 py-2">
+          <span className="text-xs text-slate-500 uppercase font-mono">{language}</span>
+        </div>
+      )}
+      <pre className="p-4 overflow-x-auto">
+        <code className="text-sm text-slate-300 font-mono">{children}</code>
+      </pre>
+    </div>
+  )
+}
+
+function InfoBox({
+  type,
+  title,
+  children,
+  className = '',
+}: {
+  type: 'info' | 'success' | 'warning' | 'error'
+  title?: string
+  children: React.ReactNode
+  className?: string
+}) {
+  const styles = {
+    info: 'bg-blue-500/10 border-blue-500/30 text-blue-300',
+    success: 'bg-green-500/10 border-green-500/30 text-green-300',
+    warning: 'bg-orange-500/10 border-orange-500/30 text-orange-300',
+    error: 'bg-red-500/10 border-red-500/30 text-red-300',
+  }
+
+  const icons = {
+    info: 'ℹ️',
+    success: '✅',
+    warning: '⚠️',
+    error: '❌',
+  }
+
+  return (
+    <div className={`border rounded-lg p-4 ${styles[type]} ${className}`}>
+      <div className="flex items-start gap-3">
+        <span className="text-2xl">{icons[type]}</span>
+        <div className="flex-1">
+          {title && <h4 className="font-semibold mb-2">{title}</h4>}
+          <div className="text-slate-300">{children}</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function Step({ number, title, children }: { number: number; title: string; children?: React.ReactNode }) {
+  return (
+    <div className="flex gap-4">
+      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold">
+        {number}
+      </div>
+      <div className="flex-1">
+        <h4 className="text-white font-semibold mb-2">{title}</h4>
+        {children && <div className="text-slate-400">{children}</div>}
+      </div>
+    </div>
+  )
+}
+
+function EnvVarRow({
+  name,
+  type,
+  rebuild,
+  purpose,
+  critical,
+}: {
+  name: string
+  type: string
+  rebuild: boolean
+  purpose: string
+  critical?: boolean
+}) {
+  return (
+    <tr className="border-b border-slate-800 hover:bg-slate-800/30">
+      <td className="p-3">
+        <code className={`text-sm ${critical ? 'text-orange-400 font-semibold' : 'text-slate-300'}`}>
+          {name}
+        </code>
+      </td>
+      <td className="p-3">
+        <span className={`text-xs px-2 py-1 rounded ${type === 'Build-time' ? 'bg-blue-500/20 text-blue-400' : 'bg-purple-500/20 text-purple-400'}`}>
+          {type}
+        </span>
+      </td>
+      <td className="p-3 text-center">
+        {rebuild ? <span className="text-orange-400">✅</span> : <span className="text-slate-600">❌</span>}
+      </td>
+      <td className="p-3">{purpose}</td>
+    </tr>
+  )
+}
+
+function ChecklistItem({ checked, children }: { checked: boolean; children: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-2">
+      <div className={`flex-shrink-0 w-5 h-5 rounded border mt-0.5 flex items-center justify-center ${
+        checked ? 'bg-green-500/20 border-green-500' : 'border-slate-600'
+      }`}>
+        {checked && <span className="text-green-400 text-xs">✓</span>}
+      </div>
+      <span className="text-sm text-slate-300">{children}</span>
+    </div>
+  )
+}
+
+function WorkflowCard({
+  title,
+  icon,
+  color,
+  useWhen,
+  children,
+}: {
+  title: string
+  icon: string
+  color: string
+  useWhen: string
+  children: React.ReactNode
+}) {
+  const colors = {
+    green: 'from-green-500/10 to-emerald-500/10 border-green-500/30',
+    orange: 'from-orange-500/10 to-red-500/10 border-orange-500/30',
+    purple: 'from-purple-500/10 to-pink-500/10 border-purple-500/30',
+  }
+
+  return (
+    <div className={`bg-gradient-to-br ${colors[color as keyof typeof colors]} border rounded-xl p-6 mb-6`}>
+      <div className="flex items-start gap-4 mb-4">
+        <div className="w-12 h-12 rounded-lg bg-slate-900/50 flex items-center justify-center text-2xl">
+          {icon}
+        </div>
+        <div className="flex-1">
+          <h3 className="text-xl font-bold text-white mb-1">{title}</h3>
+          <p className="text-sm text-slate-400">Use when: {useWhen}</p>
+        </div>
+      </div>
+      {children}
+    </div>
+  )
+}
+
+function TroubleshootingItem({
+  problem,
+  error,
+  children,
+}: {
+  problem: string
+  error: string
+  children: React.ReactNode
+}) {
+  return (
+    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6 mb-6">
+      <div className="flex items-start gap-3 mb-4">
+        <span className="text-2xl">🐛</span>
+        <div>
+          <h3 className="text-lg font-semibold text-red-400">{problem}</h3>
+          <code className="text-sm text-slate-400">{error}</code>
+        </div>
+      </div>
+      <div>{children}</div>
+    </div>
+  )
+}
+
+function FAQ({ question, children }: { question: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-5">
+      <h3 className="text-lg font-semibold text-white mb-3">Q: {question}</h3>
+      <div className="pl-4 border-l-2 border-orange-500">{children}</div>
+    </div>
+  )
+}
+
+function WeekPlan({ week, title, children }: { week: number; title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center">
+          <span className="text-orange-400 font-bold">W{week}</span>
+        </div>
+        <h3 className="text-xl font-bold text-white">{title}</h3>
+      </div>
+      {children}
+    </div>
+  )
+}
+
+function ResourceLink({
+  href,
+  icon,
+  title,
+  description,
+  external,
+}: {
+  href: string
+  icon: string
+  title: string
+  description: string
+  external?: boolean
+}) {
+  const Component = external ? 'a' : Link
+  const props = external ? { target: '_blank', rel: 'noopener noreferrer' } : {}
+
+  return (
+    <Component
+      href={href}
+      {...props}
+      className="bg-slate-800/50 rounded-xl border border-slate-700 p-6 hover:border-orange-500 transition group"
+    >
+      <div className="text-3xl mb-3">{icon}</div>
+      <h3 className="text-lg font-semibold text-white group-hover:text-orange-400 transition">
+        {title}
+      </h3>
+      <p className="text-sm text-slate-400 mt-2">{description}</p>
+      {external && <span className="text-xs text-slate-500 mt-1 block">Opens in new tab ↗</span>}
+    </Component>
   )
 }
