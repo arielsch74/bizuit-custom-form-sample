@@ -718,61 +718,49 @@ jobs:
             fi
           done
 
-      # Upload sample-form-2 artifact if it was changed
-      - name: Prepare sample-form-2 artifact name
-        if: contains(steps.changed_forms.outputs.changed_forms, 'sample-form-2')
+      # Upload ALL form artifacts dynamically
+      # This step uploads all ZIPs from */upload/*.zip as individual artifacts
+      - name: Upload form artifacts (dynamic)
+        if: steps.changed_forms.outputs.no_changes != 'true'
         run: |
-          # Get the NEWEST ZIP file (sort by modification time)
-          ZIP_FILE=$(ls -t sample-form-2/upload/*.zip | head -1)
-          ZIP_BASENAME=$(basename "$ZIP_FILE" .zip)
-          echo "SAMPLE_FORM_2_ARTIFACT=$ZIP_BASENAME" >> $GITHUB_ENV
+          echo "📤 Uploading artifacts for all changed forms..."
 
-      - name: Upload sample-form-2
-        if: contains(steps.changed_forms.outputs.changed_forms, 'sample-form-2')
+          CHANGED_FORMS="${{ steps.changed_forms.outputs.changed_forms }}"
+
+          for form_name in $CHANGED_FORMS; do
+            if [ -d "$form_name/upload" ] && ls "$form_name/upload/"*.zip 1> /dev/null 2>&1; then
+              # Get the NEWEST ZIP filename (the one we just created)
+              ZIP_FILE=$(ls -t "$form_name/upload/"*.zip | head -1)
+              ZIP_BASENAME=$(basename "$ZIP_FILE" .zip)
+
+              echo ""
+              echo "📦 Form: $form_name"
+              echo "   ZIP: $(basename $ZIP_FILE)"
+              echo "   Artifact name: $ZIP_BASENAME"
+
+              # Store artifact info for GitHub Actions artifact upload step
+              # We'll use this in the next step with upload-artifact action
+              mkdir -p .artifacts-metadata
+              echo "$ZIP_FILE" > ".artifacts-metadata/${form_name}.path"
+              echo "$ZIP_BASENAME" > ".artifacts-metadata/${form_name}.name"
+            fi
+          done
+
+          echo ""
+          echo "✅ Artifact metadata prepared"
+          ls -la .artifacts-metadata/ || echo "No artifacts to upload"
+
+      # GitHub Actions requires separate upload-artifact steps for each artifact
+      # We use a workaround: upload all ZIPs with merge-multiple
+      - name: Upload all deployment packages
+        if: steps.changed_forms.outputs.no_changes != 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.SAMPLE_FORM_2_ARTIFACT }}
-          path: sample-form-2/upload/*.zip
+          name: deployment-packages-${{ steps.build_metadata.outputs.short_hash }}
+          path: |
+            */upload/*.zip
           retention-days: 90
-
-      # Upload dashboard-integration-demo artifact if it was changed
-      - name: Prepare dashboard-integration-demo artifact name
-        if: contains(steps.changed_forms.outputs.changed_forms, 'dashboard-integration-demo')
-        run: |
-          # Get the NEWEST ZIP file (sort by modification time)
-          ZIP_FILE=$(ls -t dashboard-integration-demo/upload/*.zip | head -1)
-          ZIP_BASENAME=$(basename "$ZIP_FILE" .zip)
-          echo "DASHBOARD_DEMO_ARTIFACT=$ZIP_BASENAME" >> $GITHUB_ENV
-
-      - name: Upload dashboard-integration-demo
-        if: contains(steps.changed_forms.outputs.changed_forms, 'dashboard-integration-demo')
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.DASHBOARD_DEMO_ARTIFACT }}
-          path: dashboard-integration-demo/upload/*.zip
-          retention-days: 90
-
-      # Upload recubiz-gestion artifact if it was changed
-      - name: Prepare recubiz-gestion artifact name
-        if: contains(steps.changed_forms.outputs.changed_forms, 'recubiz-gestion')
-        run: |
-          # Get the NEWEST ZIP file (sort by modification time)
-          ZIP_FILE=$(ls -t recubiz-gestion/upload/*.zip | head -1)
-          ZIP_BASENAME=$(basename "$ZIP_FILE" .zip)
-          echo "RECUBIZ_GESTION_ARTIFACT=$ZIP_BASENAME" >> $GITHUB_ENV
-
-      - name: Upload recubiz-gestion
-        if: contains(steps.changed_forms.outputs.changed_forms, 'recubiz-gestion')
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.RECUBIZ_GESTION_ARTIFACT }}
-          path: recubiz-gestion/upload/*.zip
-          retention-days: 90
-
-      # Add more forms here as needed
-      # For any new form, follow the same pattern:
-      # 1. Prepare {form-name} artifact name
-      # 2. Upload {form-name}
+          if-no-files-found: warn
 
       - name: Commit and push deployment ZIPs and updated package.json files
         if: steps.changed_forms.outputs.no_changes != 'true'
