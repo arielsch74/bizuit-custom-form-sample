@@ -1,64 +1,59 @@
-/* Bizuit Custom Form: recubiz-gestion (DEV BUILD - FAT BUNDLE) */
-/* Built: 2025-11-23T15:11:58.987Z */
-/* React: window.React (external via plugin) */
-/* ReactDOM: window.ReactDOM (external via plugin) */
-/* Bizuit Packages: BUNDLED */
+var __create = Object.create;
 var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __commonJS = (cb, mod) => function __require() {
+  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+};
 var __export = (target, all3) => {
   for (var name in all3)
     __defProp(target, name, { get: all3[name], enumerable: true });
 };
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
 
 // global-react:react
-var react_exports = {};
-__export(react_exports, {
-  Children: () => Children,
-  Component: () => Component,
-  Fragment: () => Fragment,
-  PureComponent: () => PureComponent,
-  Suspense: () => Suspense,
-  cloneElement: () => cloneElement,
-  createContext: () => createContext,
-  createElement: () => createElement,
-  default: () => react_default,
-  forwardRef: () => forwardRef,
-  isValidElement: () => isValidElement,
-  lazy: () => lazy,
-  memo: () => memo,
-  useCallback: () => useCallback,
-  useContext: () => useContext,
-  useEffect: () => useEffect,
-  useLayoutEffect: () => useLayoutEffect,
-  useMemo: () => useMemo,
-  useReducer: () => useReducer,
-  useRef: () => useRef,
-  useState: () => useState
+var require_react = __commonJS({
+  "global-react:react"(exports, module) {
+    module.exports = window.React;
+  }
 });
-var React = window.React;
-var react_default = React;
-var useState = React.useState;
-var useEffect = React.useEffect;
-var useContext = React.useContext;
-var createContext = React.createContext;
-var useCallback = React.useCallback;
-var useMemo = React.useMemo;
-var useRef = React.useRef;
-var useReducer = React.useReducer;
-var useLayoutEffect = React.useLayoutEffect;
-var Fragment = React.Fragment;
-var createElement = React.createElement;
-var forwardRef = React.forwardRef;
-var Children = React.Children;
-var isValidElement = React.isValidElement;
-var cloneElement = React.cloneElement;
-var Component = React.Component;
-var PureComponent = React.PureComponent;
-var memo = React.memo;
-var lazy = React.lazy;
-var Suspense = React.Suspense;
+
+// global-react:react/jsx-runtime
+var require_jsx_runtime = __commonJS({
+  "global-react:react/jsx-runtime"(exports, module) {
+    module.exports = { jsx: window.React.createElement, jsxs: window.React.createElement, Fragment: window.React.Fragment };
+  }
+});
+
+// global-react:react-dom
+var require_react_dom = __commonJS({
+  "global-react:react-dom"(exports, module) {
+    module.exports = window.ReactDOM;
+  }
+});
+
+// src/index.tsx
+var import_react8 = __toESM(require_react());
 
 // package.json
-var version = "1.0.9";
+var version = "1.0.13";
 
 // node_modules/clsx/dist/clsx.mjs
 function r(e) {
@@ -2535,10 +2530,13 @@ var getDefaultConfig = () => {
 };
 var twMerge = /* @__PURE__ */ createTailwindMerge(getDefaultConfig);
 
-// global-react:react/jsx-runtime
-var jsx = window.React.createElement;
-var jsxs = window.React.createElement;
-var Fragment2 = window.React.Fragment;
+// node_modules/@tyconsa/bizuit-ui-components/dist/index.mjs
+var React17 = __toESM(require_react(), 1);
+var import_jsx_runtime11 = __toESM(require_jsx_runtime(), 1);
+var React26 = __toESM(require_react(), 1);
+
+// node_modules/lucide-react/dist/esm/createLucideIcon.js
+var import_react = __toESM(require_react());
 
 // node_modules/lucide-react/dist/esm/defaultAttributes.js
 var defaultAttributes = {
@@ -2556,8 +2554,8 @@ var defaultAttributes = {
 // node_modules/lucide-react/dist/esm/createLucideIcon.js
 var toKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase().trim();
 var createLucideIcon = (iconName, iconNode) => {
-  const Component2 = forwardRef(
-    ({ color = "currentColor", size = 24, strokeWidth = 2, absoluteStrokeWidth, className = "", children, ...rest }, ref) => createElement(
+  const Component = (0, import_react.forwardRef)(
+    ({ color = "currentColor", size = 24, strokeWidth = 2, absoluteStrokeWidth, className = "", children, ...rest }, ref) => (0, import_react.createElement)(
       "svg",
       {
         ref,
@@ -2570,13 +2568,13 @@ var createLucideIcon = (iconName, iconNode) => {
         ...rest
       },
       [
-        ...iconNode.map(([tag, attrs]) => createElement(tag, attrs)),
+        ...iconNode.map(([tag, attrs]) => (0, import_react.createElement)(tag, attrs)),
         ...Array.isArray(children) ? children : [children]
       ]
     )
   );
-  Component2.displayName = `${iconName}`;
-  return Component2;
+  Component.displayName = `${iconName}`;
+  return Component;
 };
 
 // node_modules/lucide-react/dist/esm/icons/alert-circle.js
@@ -2745,6 +2743,10 @@ var X = createLucideIcon("X", [
   ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
 ]);
 
+// node_modules/@tyconsa/bizuit-ui-components/dist/index.mjs
+var import_jsx_runtime12 = __toESM(require_jsx_runtime(), 1);
+var React32 = __toESM(require_react(), 1);
+
 // node_modules/@radix-ui/primitive/dist/index.mjs
 var canUseDOM = !!(typeof window !== "undefined" && window.document && window.document.createElement);
 function composeEventHandlers(originalEventHandler, ourEventHandler, { checkForDefaultPrevented = true } = {}) {
@@ -2757,6 +2759,7 @@ function composeEventHandlers(originalEventHandler, ourEventHandler, { checkForD
 }
 
 // node_modules/@radix-ui/react-compose-refs/dist/index.mjs
+var React = __toESM(require_react(), 1);
 function setRef(ref, value) {
   if (typeof ref === "function") {
     return ref(value);
@@ -2789,46 +2792,48 @@ function composeRefs(...refs) {
   };
 }
 function useComposedRefs(...refs) {
-  return useCallback(composeRefs(...refs), refs);
+  return React.useCallback(composeRefs(...refs), refs);
 }
 
 // node_modules/@radix-ui/react-context/dist/index.mjs
+var React2 = __toESM(require_react(), 1);
+var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
 function createContextScope(scopeName, createContextScopeDeps = []) {
   let defaultContexts = [];
-  function createContext3(rootComponentName, defaultContext) {
-    const BaseContext = createContext(defaultContext);
+  function createContext32(rootComponentName, defaultContext) {
+    const BaseContext = React2.createContext(defaultContext);
     const index = defaultContexts.length;
     defaultContexts = [...defaultContexts, defaultContext];
     const Provider = (props) => {
       const { scope, children, ...context } = props;
       const Context = scope?.[scopeName]?.[index] || BaseContext;
-      const value = useMemo(() => context, Object.values(context));
-      return /* @__PURE__ */ jsx(Context.Provider, { value, children });
+      const value = React2.useMemo(() => context, Object.values(context));
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Context.Provider, { value, children });
     };
     Provider.displayName = rootComponentName + "Provider";
-    function useContext2(consumerName, scope) {
+    function useContext23(consumerName, scope) {
       const Context = scope?.[scopeName]?.[index] || BaseContext;
-      const context = useContext(Context);
+      const context = React2.useContext(Context);
       if (context) return context;
       if (defaultContext !== void 0) return defaultContext;
       throw new Error(`\`${consumerName}\` must be used within \`${rootComponentName}\``);
     }
-    return [Provider, useContext2];
+    return [Provider, useContext23];
   }
   const createScope = () => {
     const scopeContexts = defaultContexts.map((defaultContext) => {
-      return createContext(defaultContext);
+      return React2.createContext(defaultContext);
     });
     return function useScope(scope) {
       const contexts = scope?.[scopeName] || scopeContexts;
-      return useMemo(
+      return React2.useMemo(
         () => ({ [`__scope${scopeName}`]: { ...scope, [scopeName]: contexts } }),
         [scope, contexts]
       );
     };
   };
   createScope.scopeName = scopeName;
-  return [createContext3, composeContextScopes(createScope, ...createContextScopeDeps)];
+  return [createContext32, composeContextScopes(createScope, ...createContextScopeDeps)];
 }
 function composeContextScopes(...scopes) {
   const baseScope = scopes[0];
@@ -2844,64 +2849,64 @@ function composeContextScopes(...scopes) {
         const currentScope = scopeProps[`__scope${scopeName}`];
         return { ...nextScopes2, ...currentScope };
       }, {});
-      return useMemo(() => ({ [`__scope${baseScope.scopeName}`]: nextScopes }), [nextScopes]);
+      return React2.useMemo(() => ({ [`__scope${baseScope.scopeName}`]: nextScopes }), [nextScopes]);
     };
   };
   createScope.scopeName = baseScope.scopeName;
   return createScope;
 }
 
-// global-react:react-dom
-var ReactDOM = window.ReactDOM;
-var createRoot = ReactDOM.createRoot;
-var render = ReactDOM.render;
-var flushSync = ReactDOM.flushSync;
+// node_modules/@radix-ui/react-primitive/dist/index.mjs
+var React4 = __toESM(require_react(), 1);
+var ReactDOM = __toESM(require_react_dom(), 1);
 
 // node_modules/@radix-ui/react-slot/dist/index.mjs
+var React3 = __toESM(require_react(), 1);
+var import_jsx_runtime2 = __toESM(require_jsx_runtime(), 1);
 // @__NO_SIDE_EFFECTS__
 function createSlot(ownerName) {
   const SlotClone = /* @__PURE__ */ createSlotClone(ownerName);
-  const Slot2 = forwardRef((props, forwardedRef) => {
+  const Slot2 = React3.forwardRef((props, forwardedRef) => {
     const { children, ...slotProps } = props;
-    const childrenArray = Children.toArray(children);
+    const childrenArray = React3.Children.toArray(children);
     const slottable = childrenArray.find(isSlottable);
     if (slottable) {
       const newElement = slottable.props.children;
       const newChildren = childrenArray.map((child) => {
         if (child === slottable) {
-          if (Children.count(newElement) > 1) return Children.only(null);
-          return isValidElement(newElement) ? newElement.props.children : null;
+          if (React3.Children.count(newElement) > 1) return React3.Children.only(null);
+          return React3.isValidElement(newElement) ? newElement.props.children : null;
         } else {
           return child;
         }
       });
-      return /* @__PURE__ */ jsx(SlotClone, { ...slotProps, ref: forwardedRef, children: isValidElement(newElement) ? cloneElement(newElement, void 0, newChildren) : null });
+      return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(SlotClone, { ...slotProps, ref: forwardedRef, children: React3.isValidElement(newElement) ? React3.cloneElement(newElement, void 0, newChildren) : null });
     }
-    return /* @__PURE__ */ jsx(SlotClone, { ...slotProps, ref: forwardedRef, children });
+    return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(SlotClone, { ...slotProps, ref: forwardedRef, children });
   });
   Slot2.displayName = `${ownerName}.Slot`;
   return Slot2;
 }
 // @__NO_SIDE_EFFECTS__
 function createSlotClone(ownerName) {
-  const SlotClone = forwardRef((props, forwardedRef) => {
+  const SlotClone = React3.forwardRef((props, forwardedRef) => {
     const { children, ...slotProps } = props;
-    if (isValidElement(children)) {
+    if (React3.isValidElement(children)) {
       const childrenRef = getElementRef(children);
       const props2 = mergeProps(slotProps, children.props);
-      if (children.type !== Fragment) {
+      if (children.type !== React3.Fragment) {
         props2.ref = forwardedRef ? composeRefs(forwardedRef, childrenRef) : childrenRef;
       }
-      return cloneElement(children, props2);
+      return React3.cloneElement(children, props2);
     }
-    return Children.count(children) > 1 ? Children.only(null) : null;
+    return React3.Children.count(children) > 1 ? React3.Children.only(null) : null;
   });
   SlotClone.displayName = `${ownerName}.SlotClone`;
   return SlotClone;
 }
 var SLOTTABLE_IDENTIFIER = Symbol("radix.slottable");
 function isSlottable(child) {
-  return isValidElement(child) && typeof child.type === "function" && "__radixId" in child.type && child.type.__radixId === SLOTTABLE_IDENTIFIER;
+  return React3.isValidElement(child) && typeof child.type === "function" && "__radixId" in child.type && child.type.__radixId === SLOTTABLE_IDENTIFIER;
 }
 function mergeProps(slotProps, childProps) {
   const overrideProps = { ...childProps };
@@ -2942,6 +2947,7 @@ function getElementRef(element) {
 }
 
 // node_modules/@radix-ui/react-primitive/dist/index.mjs
+var import_jsx_runtime3 = __toESM(require_jsx_runtime(), 1);
 var NODES = [
   "a",
   "button",
@@ -2963,36 +2969,41 @@ var NODES = [
 ];
 var Primitive = NODES.reduce((primitive, node) => {
   const Slot = createSlot(`Primitive.${node}`);
-  const Node2 = forwardRef((props, forwardedRef) => {
+  const Node2 = React4.forwardRef((props, forwardedRef) => {
     const { asChild, ...primitiveProps } = props;
     const Comp = asChild ? Slot : node;
     if (typeof window !== "undefined") {
       window[Symbol.for("radix-ui")] = true;
     }
-    return /* @__PURE__ */ jsx(Comp, { ...primitiveProps, ref: forwardedRef });
+    return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Comp, { ...primitiveProps, ref: forwardedRef });
   });
   Node2.displayName = `Primitive.${node}`;
   return { ...primitive, [node]: Node2 };
 }, {});
 
 // node_modules/@radix-ui/react-use-callback-ref/dist/index.mjs
+var React5 = __toESM(require_react(), 1);
 function useCallbackRef(callback) {
-  const callbackRef = useRef(callback);
-  useEffect(() => {
+  const callbackRef = React5.useRef(callback);
+  React5.useEffect(() => {
     callbackRef.current = callback;
   });
-  return useMemo(() => (...args) => callbackRef.current?.(...args), []);
+  return React5.useMemo(() => (...args) => callbackRef.current?.(...args), []);
 }
 
+// node_modules/@radix-ui/react-id/dist/index.mjs
+var React7 = __toESM(require_react(), 1);
+
 // node_modules/@radix-ui/react-use-layout-effect/dist/index.mjs
-var useLayoutEffect2 = globalThis?.document ? useLayoutEffect : () => {
+var React6 = __toESM(require_react(), 1);
+var useLayoutEffect2 = globalThis?.document ? React6.useLayoutEffect : () => {
 };
 
 // node_modules/@radix-ui/react-id/dist/index.mjs
-var useReactId = react_exports[" useId ".trim().toString()] || (() => void 0);
+var useReactId = React7[" useId ".trim().toString()] || (() => void 0);
 var count = 0;
 function useId(deterministicId) {
-  const [id, setId] = useState(useReactId());
+  const [id, setId] = React7.useState(useReactId());
   useLayoutEffect2(() => {
     if (!deterministicId) setId((reactId) => reactId ?? String(count++));
   }, [deterministicId]);
@@ -3000,8 +3011,9 @@ function useId(deterministicId) {
 }
 
 // node_modules/@radix-ui/react-use-size/dist/index.mjs
+var React8 = __toESM(require_react(), 1);
 function useSize(element) {
-  const [size, setSize] = useState(void 0);
+  const [size, setSize] = React8.useState(void 0);
   useLayoutEffect2(() => {
     if (element) {
       setSize({ width: element.offsetWidth, height: element.offsetHeight });
@@ -3036,8 +3048,10 @@ function useSize(element) {
 }
 
 // node_modules/@radix-ui/react-presence/dist/index.mjs
+var React22 = __toESM(require_react(), 1);
+var React9 = __toESM(require_react(), 1);
 function useStateMachine(initialState2, machine) {
-  return useReducer((state, event) => {
+  return React9.useReducer((state, event) => {
     const nextState = machine[state][event];
     return nextState ?? state;
   }, initialState2);
@@ -3045,17 +3059,17 @@ function useStateMachine(initialState2, machine) {
 var Presence = (props) => {
   const { present, children } = props;
   const presence = usePresence(present);
-  const child = typeof children === "function" ? children({ present: presence.isPresent }) : Children.only(children);
+  const child = typeof children === "function" ? children({ present: presence.isPresent }) : React22.Children.only(children);
   const ref = useComposedRefs(presence.ref, getElementRef2(child));
   const forceMount = typeof children === "function";
-  return forceMount || presence.isPresent ? cloneElement(child, { ref }) : null;
+  return forceMount || presence.isPresent ? React22.cloneElement(child, { ref }) : null;
 };
 Presence.displayName = "Presence";
 function usePresence(present) {
-  const [node, setNode] = useState();
-  const stylesRef = useRef(null);
-  const prevPresentRef = useRef(present);
-  const prevAnimationNameRef = useRef("none");
+  const [node, setNode] = React22.useState();
+  const stylesRef = React22.useRef(null);
+  const prevPresentRef = React22.useRef(present);
+  const prevAnimationNameRef = React22.useRef("none");
   const initialState2 = present ? "mounted" : "unmounted";
   const [state, send] = useStateMachine(initialState2, {
     mounted: {
@@ -3070,7 +3084,7 @@ function usePresence(present) {
       MOUNT: "mounted"
     }
   });
-  useEffect(() => {
+  React22.useEffect(() => {
     const currentAnimationName = getAnimationName(stylesRef.current);
     prevAnimationNameRef.current = state === "mounted" ? currentAnimationName : "none";
   }, [state]);
@@ -3136,7 +3150,7 @@ function usePresence(present) {
   }, [node, send]);
   return {
     isPresent: ["mounted", "unmountSuspended"].includes(state),
-    ref: useCallback((node2) => {
+    ref: React22.useCallback((node2) => {
       stylesRef.current = node2 ? getComputedStyle(node2) : null;
       setNode(node2);
     }, [])
@@ -3160,7 +3174,9 @@ function getElementRef2(element) {
 }
 
 // node_modules/@radix-ui/react-use-controllable-state/dist/index.mjs
-var useInsertionEffect = react_exports[" useInsertionEffect ".trim().toString()] || useLayoutEffect2;
+var React10 = __toESM(require_react(), 1);
+var React23 = __toESM(require_react(), 1);
+var useInsertionEffect = React10[" useInsertionEffect ".trim().toString()] || useLayoutEffect2;
 function useControllableState({
   prop,
   defaultProp,
@@ -3175,8 +3191,8 @@ function useControllableState({
   const isControlled = prop !== void 0;
   const value = isControlled ? prop : uncontrolledProp;
   if (true) {
-    const isControlledRef = useRef(prop !== void 0);
-    useEffect(() => {
+    const isControlledRef = React10.useRef(prop !== void 0);
+    React10.useEffect(() => {
       const wasControlled = isControlledRef.current;
       if (wasControlled !== isControlled) {
         const from = wasControlled ? "controlled" : "uncontrolled";
@@ -3188,7 +3204,7 @@ function useControllableState({
       isControlledRef.current = isControlled;
     }, [isControlled, caller]);
   }
-  const setValue = useCallback(
+  const setValue = React10.useCallback(
     (nextValue) => {
       if (isControlled) {
         const value2 = isFunction(nextValue) ? nextValue(prop) : nextValue;
@@ -3207,13 +3223,13 @@ function useUncontrolledState({
   defaultProp,
   onChange
 }) {
-  const [value, setValue] = useState(defaultProp);
-  const prevValueRef = useRef(value);
-  const onChangeRef = useRef(onChange);
+  const [value, setValue] = React10.useState(defaultProp);
+  const prevValueRef = React10.useRef(value);
+  const onChangeRef = React10.useRef(onChange);
   useInsertionEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
-  useEffect(() => {
+  React10.useEffect(() => {
     if (prevValueRef.current !== value) {
       onChangeRef.current?.(value);
       prevValueRef.current = value;
@@ -3226,17 +3242,26 @@ function isFunction(value) {
 }
 var SYNC_STATE = Symbol("RADIX:SYNC_STATE");
 
+// node_modules/@tyconsa/bizuit-ui-components/dist/index.mjs
+var import_jsx_runtime13 = __toESM(require_jsx_runtime(), 1);
+var React42 = __toESM(require_react(), 1);
+var import_jsx_runtime14 = __toESM(require_jsx_runtime(), 1);
+var React52 = __toESM(require_react(), 1);
+
 // node_modules/@radix-ui/react-direction/dist/index.mjs
-var DirectionContext = createContext(void 0);
+var React11 = __toESM(require_react(), 1);
+var import_jsx_runtime4 = __toESM(require_jsx_runtime(), 1);
+var DirectionContext = React11.createContext(void 0);
 function useDirection(localDir) {
-  const globalDir = useContext(DirectionContext);
+  const globalDir = React11.useContext(DirectionContext);
   return localDir || globalDir || "ltr";
 }
 
 // node_modules/@radix-ui/react-use-previous/dist/index.mjs
+var React12 = __toESM(require_react(), 1);
 function usePrevious(value) {
-  const ref = useRef({ value, previous: value });
-  return useMemo(() => {
+  const ref = React12.useRef({ value, previous: value });
+  return React12.useMemo(() => {
     if (ref.current.value !== value) {
       ref.current.previous = ref.current.value;
       ref.current.value = value;
@@ -3246,6 +3271,10 @@ function usePrevious(value) {
 }
 
 // node_modules/@radix-ui/react-collection/dist/index.mjs
+var import_react2 = __toESM(require_react(), 1);
+var import_jsx_runtime5 = __toESM(require_jsx_runtime(), 1);
+var import_react3 = __toESM(require_react(), 1);
+var import_jsx_runtime6 = __toESM(require_jsx_runtime(), 1);
 function createCollection(name) {
   const PROVIDER_NAME = name + "CollectionProvider";
   const [createCollectionContext, createCollectionScope2] = createContextScope(PROVIDER_NAME);
@@ -3255,42 +3284,42 @@ function createCollection(name) {
   );
   const CollectionProvider = (props) => {
     const { scope, children } = props;
-    const ref = react_default.useRef(null);
-    const itemMap = react_default.useRef(/* @__PURE__ */ new Map()).current;
-    return /* @__PURE__ */ jsx(CollectionProviderImpl, { scope, itemMap, collectionRef: ref, children });
+    const ref = import_react2.default.useRef(null);
+    const itemMap = import_react2.default.useRef(/* @__PURE__ */ new Map()).current;
+    return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(CollectionProviderImpl, { scope, itemMap, collectionRef: ref, children });
   };
   CollectionProvider.displayName = PROVIDER_NAME;
   const COLLECTION_SLOT_NAME = name + "CollectionSlot";
   const CollectionSlotImpl = createSlot(COLLECTION_SLOT_NAME);
-  const CollectionSlot = react_default.forwardRef(
+  const CollectionSlot = import_react2.default.forwardRef(
     (props, forwardedRef) => {
       const { scope, children } = props;
       const context = useCollectionContext(COLLECTION_SLOT_NAME, scope);
       const composedRefs = useComposedRefs(forwardedRef, context.collectionRef);
-      return /* @__PURE__ */ jsx(CollectionSlotImpl, { ref: composedRefs, children });
+      return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(CollectionSlotImpl, { ref: composedRefs, children });
     }
   );
   CollectionSlot.displayName = COLLECTION_SLOT_NAME;
   const ITEM_SLOT_NAME = name + "CollectionItemSlot";
   const ITEM_DATA_ATTR = "data-radix-collection-item";
   const CollectionItemSlotImpl = createSlot(ITEM_SLOT_NAME);
-  const CollectionItemSlot = react_default.forwardRef(
+  const CollectionItemSlot = import_react2.default.forwardRef(
     (props, forwardedRef) => {
       const { scope, children, ...itemData } = props;
-      const ref = react_default.useRef(null);
+      const ref = import_react2.default.useRef(null);
       const composedRefs = useComposedRefs(forwardedRef, ref);
       const context = useCollectionContext(ITEM_SLOT_NAME, scope);
-      react_default.useEffect(() => {
+      import_react2.default.useEffect(() => {
         context.itemMap.set(ref, { ref, ...itemData });
         return () => void context.itemMap.delete(ref);
       });
-      return /* @__PURE__ */ jsx(CollectionItemSlotImpl, { ...{ [ITEM_DATA_ATTR]: "" }, ref: composedRefs, children });
+      return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(CollectionItemSlotImpl, { ...{ [ITEM_DATA_ATTR]: "" }, ref: composedRefs, children });
     }
   );
   CollectionItemSlot.displayName = ITEM_SLOT_NAME;
   function useCollection2(scope) {
     const context = useCollectionContext(name + "CollectionConsumer", scope);
-    const getItems = react_default.useCallback(() => {
+    const getItems = import_react2.default.useCallback(() => {
       const collectionNode = context.collectionRef.current;
       if (!collectionNode) return [];
       const orderedNodes = Array.from(collectionNode.querySelectorAll(`[${ITEM_DATA_ATTR}]`));
@@ -3309,7 +3338,19 @@ function createCollection(name) {
   ];
 }
 
+// node_modules/@tyconsa/bizuit-ui-components/dist/index.mjs
+var import_jsx_runtime15 = __toESM(require_jsx_runtime(), 1);
+var React62 = __toESM(require_react(), 1);
+var import_jsx_runtime16 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime17 = __toESM(require_jsx_runtime(), 1);
+var React72 = __toESM(require_react(), 1);
+
+// node_modules/@radix-ui/react-radio-group/dist/index.mjs
+var React25 = __toESM(require_react(), 1);
+
 // node_modules/@radix-ui/react-roving-focus/dist/index.mjs
+var React14 = __toESM(require_react(), 1);
+var import_jsx_runtime7 = __toESM(require_jsx_runtime(), 1);
 var ENTRY_FOCUS = "rovingFocusGroup.onEntryFocus";
 var EVENT_OPTIONS = { bubbles: false, cancelable: true };
 var GROUP_NAME = "RovingFocusGroup";
@@ -3319,13 +3360,13 @@ var [createRovingFocusGroupContext, createRovingFocusGroupScope] = createContext
   [createCollectionScope]
 );
 var [RovingFocusProvider, useRovingFocusContext] = createRovingFocusGroupContext(GROUP_NAME);
-var RovingFocusGroup = forwardRef(
+var RovingFocusGroup = React14.forwardRef(
   (props, forwardedRef) => {
-    return /* @__PURE__ */ jsx(Collection.Provider, { scope: props.__scopeRovingFocusGroup, children: /* @__PURE__ */ jsx(Collection.Slot, { scope: props.__scopeRovingFocusGroup, children: /* @__PURE__ */ jsx(RovingFocusGroupImpl, { ...props, ref: forwardedRef }) }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Collection.Provider, { scope: props.__scopeRovingFocusGroup, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Collection.Slot, { scope: props.__scopeRovingFocusGroup, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(RovingFocusGroupImpl, { ...props, ref: forwardedRef }) }) });
   }
 );
 RovingFocusGroup.displayName = GROUP_NAME;
-var RovingFocusGroupImpl = forwardRef((props, forwardedRef) => {
+var RovingFocusGroupImpl = React14.forwardRef((props, forwardedRef) => {
   const {
     __scopeRovingFocusGroup,
     orientation,
@@ -3338,7 +3379,7 @@ var RovingFocusGroupImpl = forwardRef((props, forwardedRef) => {
     preventScrollOnEntryFocus = false,
     ...groupProps
   } = props;
-  const ref = useRef(null);
+  const ref = React14.useRef(null);
   const composedRefs = useComposedRefs(forwardedRef, ref);
   const direction = useDirection(dir);
   const [currentTabStopId, setCurrentTabStopId] = useControllableState({
@@ -3347,19 +3388,19 @@ var RovingFocusGroupImpl = forwardRef((props, forwardedRef) => {
     onChange: onCurrentTabStopIdChange,
     caller: GROUP_NAME
   });
-  const [isTabbingBackOut, setIsTabbingBackOut] = useState(false);
+  const [isTabbingBackOut, setIsTabbingBackOut] = React14.useState(false);
   const handleEntryFocus = useCallbackRef(onEntryFocus);
   const getItems = useCollection(__scopeRovingFocusGroup);
-  const isClickFocusRef = useRef(false);
-  const [focusableItemsCount, setFocusableItemsCount] = useState(0);
-  useEffect(() => {
+  const isClickFocusRef = React14.useRef(false);
+  const [focusableItemsCount, setFocusableItemsCount] = React14.useState(0);
+  React14.useEffect(() => {
     const node = ref.current;
     if (node) {
       node.addEventListener(ENTRY_FOCUS, handleEntryFocus);
       return () => node.removeEventListener(ENTRY_FOCUS, handleEntryFocus);
     }
   }, [handleEntryFocus]);
-  return /* @__PURE__ */ jsx(
+  return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
     RovingFocusProvider,
     {
       scope: __scopeRovingFocusGroup,
@@ -3367,20 +3408,20 @@ var RovingFocusGroupImpl = forwardRef((props, forwardedRef) => {
       dir: direction,
       loop,
       currentTabStopId,
-      onItemFocus: useCallback(
+      onItemFocus: React14.useCallback(
         (tabStopId) => setCurrentTabStopId(tabStopId),
         [setCurrentTabStopId]
       ),
-      onItemShiftTab: useCallback(() => setIsTabbingBackOut(true), []),
-      onFocusableItemAdd: useCallback(
+      onItemShiftTab: React14.useCallback(() => setIsTabbingBackOut(true), []),
+      onFocusableItemAdd: React14.useCallback(
         () => setFocusableItemsCount((prevCount) => prevCount + 1),
         []
       ),
-      onFocusableItemRemove: useCallback(
+      onFocusableItemRemove: React14.useCallback(
         () => setFocusableItemsCount((prevCount) => prevCount - 1),
         []
       ),
-      children: /* @__PURE__ */ jsx(
+      children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
         Primitive.div,
         {
           tabIndex: isTabbingBackOut || focusableItemsCount === 0 ? -1 : 0,
@@ -3416,7 +3457,7 @@ var RovingFocusGroupImpl = forwardRef((props, forwardedRef) => {
   );
 });
 var ITEM_NAME = "RovingFocusGroupItem";
-var RovingFocusGroupItem = forwardRef(
+var RovingFocusGroupItem = React14.forwardRef(
   (props, forwardedRef) => {
     const {
       __scopeRovingFocusGroup,
@@ -3432,20 +3473,20 @@ var RovingFocusGroupItem = forwardRef(
     const isCurrentTabStop = context.currentTabStopId === id;
     const getItems = useCollection(__scopeRovingFocusGroup);
     const { onFocusableItemAdd, onFocusableItemRemove, currentTabStopId } = context;
-    useEffect(() => {
+    React14.useEffect(() => {
       if (focusable) {
         onFocusableItemAdd();
         return () => onFocusableItemRemove();
       }
     }, [focusable, onFocusableItemAdd, onFocusableItemRemove]);
-    return /* @__PURE__ */ jsx(
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
       Collection.ItemSlot,
       {
         scope: __scopeRovingFocusGroup,
         id,
         focusable,
         active,
-        children: /* @__PURE__ */ jsx(
+        children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
           Primitive.span,
           {
             tabIndex: isCurrentTabStop ? 0 : -1,
@@ -3521,10 +3562,13 @@ var Root = RovingFocusGroup;
 var Item = RovingFocusGroupItem;
 
 // node_modules/@radix-ui/react-radio-group/dist/index.mjs
+var React15 = __toESM(require_react(), 1);
+var import_jsx_runtime8 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime9 = __toESM(require_jsx_runtime(), 1);
 var RADIO_NAME = "Radio";
 var [createRadioContext, createRadioScope] = createContextScope(RADIO_NAME);
 var [RadioProvider, useRadioContext] = createRadioContext(RADIO_NAME);
-var Radio = forwardRef(
+var Radio = React15.forwardRef(
   (props, forwardedRef) => {
     const {
       __scopeRadio,
@@ -3537,12 +3581,12 @@ var Radio = forwardRef(
       form,
       ...radioProps
     } = props;
-    const [button, setButton] = useState(null);
+    const [button, setButton] = React15.useState(null);
     const composedRefs = useComposedRefs(forwardedRef, (node) => setButton(node));
-    const hasConsumerStoppedPropagationRef = useRef(false);
+    const hasConsumerStoppedPropagationRef = React15.useRef(false);
     const isFormControl = button ? form || !!button.closest("form") : true;
-    return /* @__PURE__ */ jsxs(RadioProvider, { scope: __scopeRadio, checked, disabled, children: [
-      /* @__PURE__ */ jsx(
+    return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(RadioProvider, { scope: __scopeRadio, checked, disabled, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
         Primitive.button,
         {
           type: "button",
@@ -3563,7 +3607,7 @@ var Radio = forwardRef(
           })
         }
       ),
-      isFormControl && /* @__PURE__ */ jsx(
+      isFormControl && /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
         RadioBubbleInput,
         {
           control: button,
@@ -3582,11 +3626,11 @@ var Radio = forwardRef(
 );
 Radio.displayName = RADIO_NAME;
 var INDICATOR_NAME = "RadioIndicator";
-var RadioIndicator = forwardRef(
+var RadioIndicator = React15.forwardRef(
   (props, forwardedRef) => {
     const { __scopeRadio, forceMount, ...indicatorProps } = props;
     const context = useRadioContext(INDICATOR_NAME, __scopeRadio);
-    return /* @__PURE__ */ jsx(Presence, { present: forceMount || context.checked, children: /* @__PURE__ */ jsx(
+    return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(Presence, { present: forceMount || context.checked, children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
       Primitive.span,
       {
         "data-state": getState(context.checked),
@@ -3599,7 +3643,7 @@ var RadioIndicator = forwardRef(
 );
 RadioIndicator.displayName = INDICATOR_NAME;
 var BUBBLE_INPUT_NAME = "RadioBubbleInput";
-var RadioBubbleInput = forwardRef(
+var RadioBubbleInput = React15.forwardRef(
   ({
     __scopeRadio,
     control,
@@ -3607,11 +3651,11 @@ var RadioBubbleInput = forwardRef(
     bubbles = true,
     ...props
   }, forwardedRef) => {
-    const ref = useRef(null);
+    const ref = React15.useRef(null);
     const composedRefs = useComposedRefs(ref, forwardedRef);
     const prevChecked = usePrevious(checked);
     const controlSize = useSize(control);
-    useEffect(() => {
+    React15.useEffect(() => {
       const input = ref.current;
       if (!input) return;
       const inputProto = window.HTMLInputElement.prototype;
@@ -3626,7 +3670,7 @@ var RadioBubbleInput = forwardRef(
         input.dispatchEvent(event);
       }
     }, [prevChecked, checked, bubbles]);
-    return /* @__PURE__ */ jsx(
+    return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
       Primitive.input,
       {
         type: "radio",
@@ -3660,7 +3704,7 @@ var [createRadioGroupContext, createRadioGroupScope] = createContextScope(RADIO_
 var useRovingFocusGroupScope = createRovingFocusGroupScope();
 var useRadioScope = createRadioScope();
 var [RadioGroupProvider, useRadioGroupContext] = createRadioGroupContext(RADIO_GROUP_NAME);
-var RadioGroup = forwardRef(
+var RadioGroup = React25.forwardRef(
   (props, forwardedRef) => {
     const {
       __scopeRadioGroup,
@@ -3683,7 +3727,7 @@ var RadioGroup = forwardRef(
       onChange: onValueChange,
       caller: RADIO_GROUP_NAME
     });
-    return /* @__PURE__ */ jsx(
+    return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
       RadioGroupProvider,
       {
         scope: __scopeRadioGroup,
@@ -3692,7 +3736,7 @@ var RadioGroup = forwardRef(
         disabled,
         value,
         onValueChange: setValue,
-        children: /* @__PURE__ */ jsx(
+        children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
           Root,
           {
             asChild: true,
@@ -3700,7 +3744,7 @@ var RadioGroup = forwardRef(
             orientation,
             dir: direction,
             loop,
-            children: /* @__PURE__ */ jsx(
+            children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
               Primitive.div,
               {
                 role: "radiogroup",
@@ -3720,18 +3764,18 @@ var RadioGroup = forwardRef(
 );
 RadioGroup.displayName = RADIO_GROUP_NAME;
 var ITEM_NAME2 = "RadioGroupItem";
-var RadioGroupItem = forwardRef(
+var RadioGroupItem = React25.forwardRef(
   (props, forwardedRef) => {
     const { __scopeRadioGroup, disabled, ...itemProps } = props;
     const context = useRadioGroupContext(ITEM_NAME2, __scopeRadioGroup);
     const isDisabled = context.disabled || disabled;
     const rovingFocusGroupScope = useRovingFocusGroupScope(__scopeRadioGroup);
     const radioScope = useRadioScope(__scopeRadioGroup);
-    const ref = useRef(null);
+    const ref = React25.useRef(null);
     const composedRefs = useComposedRefs(forwardedRef, ref);
     const checked = context.value === itemProps.value;
-    const isArrowKeyPressedRef = useRef(false);
-    useEffect(() => {
+    const isArrowKeyPressedRef = React25.useRef(false);
+    React25.useEffect(() => {
       const handleKeyDown = (event) => {
         if (ARROW_KEYS.includes(event.key)) {
           isArrowKeyPressedRef.current = true;
@@ -3745,14 +3789,14 @@ var RadioGroupItem = forwardRef(
         document.removeEventListener("keyup", handleKeyUp);
       };
     }, []);
-    return /* @__PURE__ */ jsx(
+    return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
       Item,
       {
         asChild: true,
         ...rovingFocusGroupScope,
         focusable: !isDisabled,
         active: checked,
-        children: /* @__PURE__ */ jsx(
+        children: /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(
           Radio,
           {
             disabled: isDisabled,
@@ -3777,11 +3821,11 @@ var RadioGroupItem = forwardRef(
 );
 RadioGroupItem.displayName = ITEM_NAME2;
 var INDICATOR_NAME2 = "RadioGroupIndicator";
-var RadioGroupIndicator = forwardRef(
+var RadioGroupIndicator = React25.forwardRef(
   (props, forwardedRef) => {
     const { __scopeRadioGroup, ...indicatorProps } = props;
     const radioScope = useRadioScope(__scopeRadioGroup);
-    return /* @__PURE__ */ jsx(RadioIndicator, { ...radioScope, ...indicatorProps, ref: forwardedRef });
+    return /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(RadioIndicator, { ...radioScope, ...indicatorProps, ref: forwardedRef });
   }
 );
 RadioGroupIndicator.displayName = INDICATOR_NAME2;
@@ -3789,14 +3833,28 @@ var Root2 = RadioGroup;
 var Item2 = RadioGroupItem;
 var Indicator = RadioGroupIndicator;
 
+// node_modules/@tyconsa/bizuit-ui-components/dist/index.mjs
+var import_jsx_runtime18 = __toESM(require_jsx_runtime(), 1);
+var React82 = __toESM(require_react(), 1);
+var import_jsx_runtime19 = __toESM(require_jsx_runtime(), 1);
+var React92 = __toESM(require_react(), 1);
+var import_jsx_runtime20 = __toESM(require_jsx_runtime(), 1);
+var React102 = __toESM(require_react(), 1);
+var import_jsx_runtime21 = __toESM(require_jsx_runtime(), 1);
+var React112 = __toESM(require_react(), 1);
+var import_jsx_runtime22 = __toESM(require_jsx_runtime(), 1);
+var React122 = __toESM(require_react(), 1);
+
 // node_modules/@radix-ui/react-tabs/dist/index.mjs
+var React16 = __toESM(require_react(), 1);
+var import_jsx_runtime10 = __toESM(require_jsx_runtime(), 1);
 var TABS_NAME = "Tabs";
 var [createTabsContext, createTabsScope] = createContextScope(TABS_NAME, [
   createRovingFocusGroupScope
 ]);
 var useRovingFocusGroupScope2 = createRovingFocusGroupScope();
 var [TabsProvider, useTabsContext] = createTabsContext(TABS_NAME);
-var Tabs = forwardRef(
+var Tabs = React16.forwardRef(
   (props, forwardedRef) => {
     const {
       __scopeTabs,
@@ -3815,7 +3873,7 @@ var Tabs = forwardRef(
       defaultProp: defaultValue ?? "",
       caller: TABS_NAME
     });
-    return /* @__PURE__ */ jsx(
+    return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
       TabsProvider,
       {
         scope: __scopeTabs,
@@ -3825,7 +3883,7 @@ var Tabs = forwardRef(
         orientation,
         dir: direction,
         activationMode,
-        children: /* @__PURE__ */ jsx(
+        children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
           Primitive.div,
           {
             dir: direction,
@@ -3840,12 +3898,12 @@ var Tabs = forwardRef(
 );
 Tabs.displayName = TABS_NAME;
 var TAB_LIST_NAME = "TabsList";
-var TabsList = forwardRef(
+var TabsList = React16.forwardRef(
   (props, forwardedRef) => {
     const { __scopeTabs, loop = true, ...listProps } = props;
     const context = useTabsContext(TAB_LIST_NAME, __scopeTabs);
     const rovingFocusGroupScope = useRovingFocusGroupScope2(__scopeTabs);
-    return /* @__PURE__ */ jsx(
+    return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
       Root,
       {
         asChild: true,
@@ -3853,7 +3911,7 @@ var TabsList = forwardRef(
         orientation: context.orientation,
         dir: context.dir,
         loop,
-        children: /* @__PURE__ */ jsx(
+        children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
           Primitive.div,
           {
             role: "tablist",
@@ -3868,7 +3926,7 @@ var TabsList = forwardRef(
 );
 TabsList.displayName = TAB_LIST_NAME;
 var TRIGGER_NAME = "TabsTrigger";
-var TabsTrigger = forwardRef(
+var TabsTrigger = React16.forwardRef(
   (props, forwardedRef) => {
     const { __scopeTabs, value, disabled = false, ...triggerProps } = props;
     const context = useTabsContext(TRIGGER_NAME, __scopeTabs);
@@ -3876,14 +3934,14 @@ var TabsTrigger = forwardRef(
     const triggerId = makeTriggerId(context.baseId, value);
     const contentId = makeContentId(context.baseId, value);
     const isSelected = value === context.value;
-    return /* @__PURE__ */ jsx(
+    return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
       Item,
       {
         asChild: true,
         ...rovingFocusGroupScope,
         focusable: !disabled,
         active: isSelected,
-        children: /* @__PURE__ */ jsx(
+        children: /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
           Primitive.button,
           {
             type: "button",
@@ -3920,19 +3978,19 @@ var TabsTrigger = forwardRef(
 );
 TabsTrigger.displayName = TRIGGER_NAME;
 var CONTENT_NAME = "TabsContent";
-var TabsContent = forwardRef(
+var TabsContent = React16.forwardRef(
   (props, forwardedRef) => {
     const { __scopeTabs, value, forceMount, children, ...contentProps } = props;
     const context = useTabsContext(CONTENT_NAME, __scopeTabs);
     const triggerId = makeTriggerId(context.baseId, value);
     const contentId = makeContentId(context.baseId, value);
     const isSelected = value === context.value;
-    const isMountAnimationPreventedRef = useRef(isSelected);
-    useEffect(() => {
+    const isMountAnimationPreventedRef = React16.useRef(isSelected);
+    React16.useEffect(() => {
       const rAF = requestAnimationFrame(() => isMountAnimationPreventedRef.current = false);
       return () => cancelAnimationFrame(rAF);
     }, []);
-    return /* @__PURE__ */ jsx(Presence, { present: forceMount || isSelected, children: ({ present }) => /* @__PURE__ */ jsx(
+    return /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(Presence, { present: forceMount || isSelected, children: ({ present }) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(
       Primitive.div,
       {
         "data-state": isSelected ? "active" : "inactive",
@@ -3966,12 +4024,34 @@ var Trigger = TabsTrigger;
 var Content = TabsContent;
 
 // node_modules/@tyconsa/bizuit-ui-components/dist/index.mjs
+var import_jsx_runtime23 = __toESM(require_jsx_runtime(), 1);
+var React132 = __toESM(require_react(), 1);
+var import_jsx_runtime24 = __toESM(require_jsx_runtime(), 1);
+var React142 = __toESM(require_react(), 1);
+var import_jsx_runtime25 = __toESM(require_jsx_runtime(), 1);
+var React152 = __toESM(require_react(), 1);
+var import_jsx_runtime26 = __toESM(require_jsx_runtime(), 1);
+var React162 = __toESM(require_react(), 1);
+var import_jsx_runtime27 = __toESM(require_jsx_runtime(), 1);
+var React172 = __toESM(require_react(), 1);
+var import_jsx_runtime28 = __toESM(require_jsx_runtime(), 1);
+var React18 = __toESM(require_react(), 1);
+var import_jsx_runtime29 = __toESM(require_jsx_runtime(), 1);
+var React19 = __toESM(require_react(), 1);
+var import_jsx_runtime30 = __toESM(require_jsx_runtime(), 1);
+var React20 = __toESM(require_react(), 1);
+var import_jsx_runtime31 = __toESM(require_jsx_runtime(), 1);
+var import_react4 = __toESM(require_react(), 1);
+var import_jsx_runtime32 = __toESM(require_jsx_runtime(), 1);
+var import_react5 = __toESM(require_react(), 1);
+var import_jsx_runtime33 = __toESM(require_jsx_runtime(), 1);
+var import_jsx_runtime34 = __toESM(require_jsx_runtime(), 1);
 function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
-var Button = forwardRef(
+var Button = React17.forwardRef(
   ({ className, variant = "default", size = "default", ...props }, ref) => {
-    return /* @__PURE__ */ jsx(
+    return /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
       "button",
       {
         className: cn(
@@ -4009,7 +4089,7 @@ var Button = forwardRef(
   }
 );
 Button.displayName = "Button";
-var BizuitRadioButton = forwardRef(
+var BizuitRadioButton = React72.forwardRef(
   ({
     options,
     value,
@@ -4022,12 +4102,12 @@ var BizuitRadioButton = forwardRef(
     label,
     error
   }, ref) => {
-    return /* @__PURE__ */ jsxs("div", { className: cn("space-y-2", className), children: [
-      label && /* @__PURE__ */ jsxs("label", { className: "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: cn("space-y-2", className), children: [
+      label && /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("label", { className: "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", children: [
         label,
-        required && /* @__PURE__ */ jsx("span", { className: "text-red-500 ml-1", children: "*" })
+        required && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("span", { className: "text-red-500 ml-1", children: "*" })
       ] }),
-      /* @__PURE__ */ jsx(
+      /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
         Root2,
         {
           ref,
@@ -4040,8 +4120,8 @@ var BizuitRadioButton = forwardRef(
           disabled,
           name,
           required,
-          children: options.map((option) => /* @__PURE__ */ jsxs("div", { className: "flex items-start space-x-2", children: [
-            /* @__PURE__ */ jsx(
+          children: options.map((option) => /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "flex items-start space-x-2", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
               Item2,
               {
                 value: option.value,
@@ -4054,11 +4134,11 @@ var BizuitRadioButton = forwardRef(
                   "mt-0.5"
                   // Align with text
                 ),
-                children: /* @__PURE__ */ jsx(Indicator, { className: "flex items-center justify-center", children: /* @__PURE__ */ jsx(Circle, { className: "h-2.5 w-2.5 fill-current text-current" }) })
+                children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Indicator, { className: "flex items-center justify-center", children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Circle, { className: "h-2.5 w-2.5 fill-current text-current" }) })
               }
             ),
-            /* @__PURE__ */ jsxs("div", { className: "grid gap-1.5 leading-none", children: [
-              /* @__PURE__ */ jsx(
+            /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)("div", { className: "grid gap-1.5 leading-none", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(
                 "label",
                 {
                   htmlFor: option.value,
@@ -4069,17 +4149,17 @@ var BizuitRadioButton = forwardRef(
                   children: option.label
                 }
               ),
-              option.description && /* @__PURE__ */ jsx("p", { className: "text-sm text-muted-foreground", children: option.description })
+              option.description && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("p", { className: "text-sm text-muted-foreground", children: option.description })
             ] })
           ] }, option.value))
         }
       ),
-      error && /* @__PURE__ */ jsx("p", { className: "text-sm text-red-500 mt-1", children: error })
+      error && /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("p", { className: "text-sm text-red-500 mt-1", children: error })
     ] });
   }
 );
 BizuitRadioButton.displayName = "BizuitRadioButton";
-var BizuitSignature = forwardRef(
+var BizuitSignature = React82.forwardRef(
   ({
     value,
     onChange,
@@ -4095,12 +4175,12 @@ var BizuitSignature = forwardRef(
     disabled = false,
     showDownload = true
   }, ref) => {
-    const canvasRef = useRef(null);
-    const [isDrawing, setIsDrawing] = useState(false);
-    const [history, setHistory] = useState([]);
-    const [currentHistoryIndex, setCurrentHistoryIndex] = useState(-1);
-    (void 0)(ref, () => canvasRef.current);
-    useEffect(() => {
+    const canvasRef = React82.useRef(null);
+    const [isDrawing, setIsDrawing] = React82.useState(false);
+    const [history, setHistory] = React82.useState([]);
+    const [currentHistoryIndex, setCurrentHistoryIndex] = React82.useState(-1);
+    React82.useImperativeHandle(ref, () => canvasRef.current);
+    React82.useEffect(() => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const ctx = canvas.getContext("2d");
@@ -4213,12 +4293,12 @@ var BizuitSignature = forwardRef(
       link.href = dataURL;
       link.click();
     };
-    return /* @__PURE__ */ jsxs("div", { className: cn("space-y-2", className), children: [
-      label && /* @__PURE__ */ jsxs("label", { className: "text-sm font-medium leading-none", children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: cn("space-y-2", className), children: [
+      label && /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("label", { className: "text-sm font-medium leading-none", children: [
         label,
-        required && /* @__PURE__ */ jsx("span", { className: "text-red-500 ml-1", children: "*" })
+        required && /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("span", { className: "text-red-500 ml-1", children: "*" })
       ] }),
-      /* @__PURE__ */ jsx(
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(
         "div",
         {
           className: cn(
@@ -4227,7 +4307,7 @@ var BizuitSignature = forwardRef(
             disabled && "opacity-50 cursor-not-allowed"
           ),
           style: { width: `${width}px` },
-          children: /* @__PURE__ */ jsx(
+          children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(
             "canvas",
             {
               ref: canvasRef,
@@ -4248,8 +4328,8 @@ var BizuitSignature = forwardRef(
           )
         }
       ),
-      /* @__PURE__ */ jsxs("div", { className: "flex gap-2", children: [
-        /* @__PURE__ */ jsxs(
+      /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)("div", { className: "flex gap-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(
           Button,
           {
             type: "button",
@@ -4259,12 +4339,12 @@ var BizuitSignature = forwardRef(
             disabled,
             className: "flex items-center gap-2",
             children: [
-              /* @__PURE__ */ jsx(Eraser, { className: "h-4 w-4" }),
+              /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Eraser, { className: "h-4 w-4" }),
               "Clear"
             ]
           }
         ),
-        /* @__PURE__ */ jsxs(
+        /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(
           Button,
           {
             type: "button",
@@ -4274,12 +4354,12 @@ var BizuitSignature = forwardRef(
             disabled: disabled || currentHistoryIndex <= 0,
             className: "flex items-center gap-2",
             children: [
-              /* @__PURE__ */ jsx(Undo, { className: "h-4 w-4" }),
+              /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Undo, { className: "h-4 w-4" }),
               "Undo"
             ]
           }
         ),
-        showDownload && /* @__PURE__ */ jsxs(
+        showDownload && /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(
           Button,
           {
             type: "button",
@@ -4289,18 +4369,18 @@ var BizuitSignature = forwardRef(
             disabled,
             className: "flex items-center gap-2",
             children: [
-              /* @__PURE__ */ jsx(Download, { className: "h-4 w-4" }),
+              /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Download, { className: "h-4 w-4" }),
               "Download"
             ]
           }
         )
       ] }),
-      error && /* @__PURE__ */ jsx("p", { className: "text-sm text-red-500", children: error })
+      error && /* @__PURE__ */ (0, import_jsx_runtime19.jsx)("p", { className: "text-sm text-red-500", children: error })
     ] });
   }
 );
 BizuitSignature.displayName = "BizuitSignature";
-var BizuitDocumentInput = forwardRef(
+var BizuitDocumentInput = React92.forwardRef(
   ({
     value = [],
     onChange,
@@ -4315,8 +4395,8 @@ var BizuitDocumentInput = forwardRef(
     required = false,
     error
   }, ref) => {
-    const inputRef = useRef(null);
-    const [isDragging, setIsDragging] = useState(false);
+    const inputRef = React92.useRef(null);
+    const [isDragging, setIsDragging] = React92.useState(false);
     const handleFiles = (files) => {
       if (!files || !onChange) return;
       const newFiles = [];
@@ -4358,13 +4438,13 @@ var BizuitDocumentInput = forwardRef(
       setIsDragging(false);
       handleFiles(e.dataTransfer.files);
     };
-    return /* @__PURE__ */ jsxs("div", { ref, className: cn("space-y-2", className), children: [
-      label && /* @__PURE__ */ jsxs("label", { className: "text-sm font-medium leading-none", children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { ref, className: cn("space-y-2", className), children: [
+      label && /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("label", { className: "text-sm font-medium leading-none", children: [
         label,
-        required && /* @__PURE__ */ jsx("span", { className: "text-red-500 ml-1", children: "*" })
+        required && /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("span", { className: "text-red-500 ml-1", children: "*" })
       ] }),
-      description && /* @__PURE__ */ jsx("p", { className: "text-sm text-muted-foreground", children: description }),
-      /* @__PURE__ */ jsxs(
+      description && /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("p", { className: "text-sm text-muted-foreground", children: description }),
+      /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)(
         "div",
         {
           onDragOver: handleDragOver,
@@ -4378,9 +4458,9 @@ var BizuitDocumentInput = forwardRef(
             error && "border-red-500"
           ),
           children: [
-            /* @__PURE__ */ jsx(Upload, { className: "h-10 w-10 mx-auto text-muted-foreground mb-2" }),
-            /* @__PURE__ */ jsx("p", { className: "text-sm text-muted-foreground", children: "Arrastra archivos aqu\xED o haz clic para seleccionar" }),
-            /* @__PURE__ */ jsxs("p", { className: "text-xs text-muted-foreground mt-1", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Upload, { className: "h-10 w-10 mx-auto text-muted-foreground mb-2" }),
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("p", { className: "text-sm text-muted-foreground", children: "Arrastra archivos aqu\xED o haz clic para seleccionar" }),
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("p", { className: "text-xs text-muted-foreground mt-1", children: [
               "M\xE1x. ",
               maxFiles,
               " archivos, ",
@@ -4390,7 +4470,7 @@ var BizuitDocumentInput = forwardRef(
           ]
         }
       ),
-      /* @__PURE__ */ jsx(
+      /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(
         "input",
         {
           ref: inputRef,
@@ -4402,20 +4482,20 @@ var BizuitDocumentInput = forwardRef(
           className: "hidden"
         }
       ),
-      value.length > 0 && /* @__PURE__ */ jsx("div", { className: "space-y-2", children: value.map((doc) => /* @__PURE__ */ jsxs(
+      value.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("div", { className: "space-y-2", children: value.map((doc) => /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)(
         "div",
         {
           className: "flex items-center gap-3 p-3 border rounded-lg bg-card",
           children: [
-            doc.preview ? /* @__PURE__ */ jsx(Image2, { className: "h-8 w-8 text-muted-foreground shrink-0" }) : /* @__PURE__ */ jsx(FileText, { className: "h-8 w-8 text-muted-foreground shrink-0" }),
-            /* @__PURE__ */ jsxs("div", { className: "flex-1 min-w-0", children: [
-              /* @__PURE__ */ jsx("p", { className: "text-sm font-medium truncate", children: doc.file.name }),
-              /* @__PURE__ */ jsxs("p", { className: "text-xs text-muted-foreground", children: [
+            doc.preview ? /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Image2, { className: "h-8 w-8 text-muted-foreground shrink-0" }) : /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(FileText, { className: "h-8 w-8 text-muted-foreground shrink-0" }),
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("div", { className: "flex-1 min-w-0", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("p", { className: "text-sm font-medium truncate", children: doc.file.name }),
+              /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)("p", { className: "text-xs text-muted-foreground", children: [
                 (doc.file.size / 1024).toFixed(2),
                 " KB"
               ] })
             ] }),
-            /* @__PURE__ */ jsx(
+            /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(
               "button",
               {
                 onClick: (e) => {
@@ -4424,19 +4504,19 @@ var BizuitDocumentInput = forwardRef(
                 },
                 className: "text-muted-foreground hover:text-destructive transition-colors",
                 disabled,
-                children: /* @__PURE__ */ jsx(X, { className: "h-5 w-5" })
+                children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(X, { className: "h-5 w-5" })
               }
             )
           ]
         },
         doc.id
       )) }),
-      error && /* @__PURE__ */ jsx("p", { className: "text-sm text-red-500", children: error })
+      error && /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("p", { className: "text-sm text-red-500", children: error })
     ] });
   }
 );
 BizuitDocumentInput.displayName = "BizuitDocumentInput";
-var BizuitGeolocation = forwardRef(
+var BizuitGeolocation = React102.forwardRef(
   ({
     value,
     onChange,
@@ -4448,8 +4528,8 @@ var BizuitGeolocation = forwardRef(
     required = false,
     error
   }, ref) => {
-    const [loading, setLoading] = useState(false);
-    const [geoError, setGeoError] = useState();
+    const [loading, setLoading] = React102.useState(false);
+    const [geoError, setGeoError] = React102.useState();
     const getCurrentLocation = () => {
       if (!navigator.geolocation) {
         setGeoError("Geolocalizaci\xF3n no soportada en este navegador");
@@ -4475,13 +4555,13 @@ var BizuitGeolocation = forwardRef(
         { enableHighAccuracy: true }
       );
     };
-    return /* @__PURE__ */ jsxs("div", { ref, className: cn("space-y-2", className), children: [
-      label && /* @__PURE__ */ jsxs("label", { className: "text-sm font-medium leading-none", children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { ref, className: cn("space-y-2", className), children: [
+      label && /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("label", { className: "text-sm font-medium leading-none", children: [
         label,
-        required && /* @__PURE__ */ jsx("span", { className: "text-red-500 ml-1", children: "*" })
+        required && /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("span", { className: "text-red-500 ml-1", children: "*" })
       ] }),
-      description && /* @__PURE__ */ jsx("p", { className: "text-sm text-muted-foreground", children: description }),
-      /* @__PURE__ */ jsx("div", { className: "flex gap-2", children: /* @__PURE__ */ jsxs(
+      description && /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("p", { className: "text-sm text-muted-foreground", children: description }),
+      /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("div", { className: "flex gap-2", children: /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)(
         Button,
         {
           type: "button",
@@ -4490,30 +4570,30 @@ var BizuitGeolocation = forwardRef(
           variant: "outline",
           className: "w-full",
           children: [
-            loading ? /* @__PURE__ */ jsx(Loader2, { className: "h-4 w-4 animate-spin mr-2" }) : /* @__PURE__ */ jsx(MapPin, { className: "h-4 w-4 mr-2" }),
+            loading ? /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Loader2, { className: "h-4 w-4 animate-spin mr-2" }) : /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(MapPin, { className: "h-4 w-4 mr-2" }),
             loading ? "Obteniendo ubicaci\xF3n..." : "Obtener ubicaci\xF3n actual"
           ]
         }
       ) }),
-      value && /* @__PURE__ */ jsxs("div", { className: "p-4 border rounded-lg bg-card space-y-2", children: [
-        /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-2 gap-2 text-sm", children: [
-          /* @__PURE__ */ jsxs("div", { children: [
-            /* @__PURE__ */ jsx("span", { className: "text-muted-foreground", children: "Latitud:" }),
-            /* @__PURE__ */ jsx("p", { className: "font-mono", children: value.latitude.toFixed(6) })
+      value && /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { className: "p-4 border rounded-lg bg-card space-y-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { className: "grid grid-cols-2 gap-2 text-sm", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("span", { className: "text-muted-foreground", children: "Latitud:" }),
+            /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("p", { className: "font-mono", children: value.latitude.toFixed(6) })
           ] }),
-          /* @__PURE__ */ jsxs("div", { children: [
-            /* @__PURE__ */ jsx("span", { className: "text-muted-foreground", children: "Longitud:" }),
-            /* @__PURE__ */ jsx("p", { className: "font-mono", children: value.longitude.toFixed(6) })
+          /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("span", { className: "text-muted-foreground", children: "Longitud:" }),
+            /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("p", { className: "font-mono", children: value.longitude.toFixed(6) })
           ] }),
-          value.accuracy && /* @__PURE__ */ jsxs("div", { className: "col-span-2", children: [
-            /* @__PURE__ */ jsx("span", { className: "text-muted-foreground", children: "Precisi\xF3n:" }),
-            /* @__PURE__ */ jsxs("p", { className: "font-mono", children: [
+          value.accuracy && /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { className: "col-span-2", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("span", { className: "text-muted-foreground", children: "Precisi\xF3n:" }),
+            /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("p", { className: "font-mono", children: [
               value.accuracy.toFixed(2),
               " metros"
             ] })
           ] })
         ] }),
-        showMap && /* @__PURE__ */ jsx("div", { className: "mt-2", children: /* @__PURE__ */ jsx(
+        showMap && /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("div", { className: "mt-2", children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
           "a",
           {
             href: `https://www.google.com/maps?q=${value.latitude},${value.longitude}`,
@@ -4524,15 +4604,15 @@ var BizuitGeolocation = forwardRef(
           }
         ) })
       ] }),
-      (geoError || error) && /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 text-sm text-red-500", children: [
-        /* @__PURE__ */ jsx(AlertCircle, { className: "h-4 w-4" }),
-        /* @__PURE__ */ jsx("span", { children: geoError || error })
+      (geoError || error) && /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)("div", { className: "flex items-center gap-2 text-sm text-red-500", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(AlertCircle, { className: "h-4 w-4" }),
+        /* @__PURE__ */ (0, import_jsx_runtime21.jsx)("span", { children: geoError || error })
       ] })
     ] });
   }
 );
 BizuitGeolocation.displayName = "BizuitGeolocation";
-var BizuitSubForm = forwardRef(
+var BizuitSubForm = React112.forwardRef(
   ({
     fields,
     value = [],
@@ -4565,27 +4645,27 @@ var BizuitSubForm = forwardRef(
         )
       );
     };
-    return /* @__PURE__ */ jsxs("div", { ref, className: cn("space-y-4", className), children: [
-      label && /* @__PURE__ */ jsx("label", { className: "text-sm font-medium leading-none", children: label }),
-      description && /* @__PURE__ */ jsx("p", { className: "text-sm text-muted-foreground", children: description }),
-      /* @__PURE__ */ jsxs("div", { className: "border rounded-lg overflow-hidden", children: [
-        value.length > 0 && /* @__PURE__ */ jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxs("table", { className: "w-full", children: [
-          /* @__PURE__ */ jsx("thead", { className: "bg-muted border-b", children: /* @__PURE__ */ jsxs("tr", { children: [
-            fields.map((field) => /* @__PURE__ */ jsxs(
+    return /* @__PURE__ */ (0, import_jsx_runtime22.jsxs)("div", { ref, className: cn("space-y-4", className), children: [
+      label && /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("label", { className: "text-sm font-medium leading-none", children: label }),
+      description && /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("p", { className: "text-sm text-muted-foreground", children: description }),
+      /* @__PURE__ */ (0, import_jsx_runtime22.jsxs)("div", { className: "border rounded-lg overflow-hidden", children: [
+        value.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("div", { className: "overflow-x-auto", children: /* @__PURE__ */ (0, import_jsx_runtime22.jsxs)("table", { className: "w-full", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("thead", { className: "bg-muted border-b", children: /* @__PURE__ */ (0, import_jsx_runtime22.jsxs)("tr", { children: [
+            fields.map((field) => /* @__PURE__ */ (0, import_jsx_runtime22.jsxs)(
               "th",
               {
                 className: "text-left p-3 text-sm font-medium",
                 children: [
                   field.label,
-                  field.required && /* @__PURE__ */ jsx("span", { className: "text-red-500 ml-1", children: "*" })
+                  field.required && /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("span", { className: "text-red-500 ml-1", children: "*" })
                 ]
               },
               field.name
             )),
-            /* @__PURE__ */ jsx("th", { className: "w-16" })
+            /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("th", { className: "w-16" })
           ] }) }),
-          /* @__PURE__ */ jsx("tbody", { children: value.map((row, rowIndex) => /* @__PURE__ */ jsxs("tr", { className: "border-b last:border-b-0", children: [
-            fields.map((field) => /* @__PURE__ */ jsx("td", { className: "p-2", children: field.type === "select" ? /* @__PURE__ */ jsxs(
+          /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("tbody", { children: value.map((row, rowIndex) => /* @__PURE__ */ (0, import_jsx_runtime22.jsxs)("tr", { className: "border-b last:border-b-0", children: [
+            fields.map((field) => /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("td", { className: "p-2", children: field.type === "select" ? /* @__PURE__ */ (0, import_jsx_runtime22.jsxs)(
               "select",
               {
                 value: row[field.name] || "",
@@ -4593,11 +4673,11 @@ var BizuitSubForm = forwardRef(
                 disabled,
                 className: "w-full px-3 py-2 border rounded-md bg-background",
                 children: [
-                  /* @__PURE__ */ jsx("option", { value: "", children: "Seleccionar..." }),
-                  field.options?.map((opt) => /* @__PURE__ */ jsx("option", { value: opt.value, children: opt.label }, opt.value))
+                  /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("option", { value: "", children: "Seleccionar..." }),
+                  field.options?.map((opt) => /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("option", { value: opt.value, children: opt.label }, opt.value))
                 ]
               }
-            ) : /* @__PURE__ */ jsx(
+            ) : /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(
               "input",
               {
                 type: field.type,
@@ -4607,7 +4687,7 @@ var BizuitSubForm = forwardRef(
                 className: "w-full px-3 py-2 border rounded-md bg-background"
               }
             ) }, field.name)),
-            /* @__PURE__ */ jsx("td", { className: "p-2", children: /* @__PURE__ */ jsx(
+            /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("td", { className: "p-2", children: /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(
               Button,
               {
                 type: "button",
@@ -4615,14 +4695,14 @@ var BizuitSubForm = forwardRef(
                 size: "sm",
                 onClick: () => removeRow(row.id),
                 disabled: disabled || value.length <= minRows,
-                children: /* @__PURE__ */ jsx(Trash2, { className: "h-4 w-4 text-destructive" })
+                children: /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(Trash2, { className: "h-4 w-4 text-destructive" })
               }
             ) })
           ] }, row.id)) })
         ] }) }),
-        value.length === 0 && /* @__PURE__ */ jsx("div", { className: "p-8 text-center text-muted-foreground", children: "No hay filas agregadas" })
+        value.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime22.jsx)("div", { className: "p-8 text-center text-muted-foreground", children: "No hay filas agregadas" })
       ] }),
-      /* @__PURE__ */ jsxs(
+      /* @__PURE__ */ (0, import_jsx_runtime22.jsxs)(
         Button,
         {
           type: "button",
@@ -4631,12 +4711,12 @@ var BizuitSubForm = forwardRef(
           disabled: disabled || value.length >= maxRows,
           className: "w-full",
           children: [
-            /* @__PURE__ */ jsx(Plus, { className: "h-4 w-4 mr-2" }),
+            /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(Plus, { className: "h-4 w-4 mr-2" }),
             "Agregar fila"
           ]
         }
       ),
-      value.length >= maxRows && /* @__PURE__ */ jsxs("p", { className: "text-xs text-muted-foreground", children: [
+      value.length >= maxRows && /* @__PURE__ */ (0, import_jsx_runtime22.jsxs)("p", { className: "text-xs text-muted-foreground", children: [
         "M\xE1ximo ",
         maxRows,
         " filas permitidas"
@@ -4645,7 +4725,7 @@ var BizuitSubForm = forwardRef(
   }
 );
 BizuitSubForm.displayName = "BizuitSubForm";
-var BizuitTabs = forwardRef(
+var BizuitTabs = React122.forwardRef(
   ({
     items,
     defaultValue,
@@ -4655,7 +4735,7 @@ var BizuitTabs = forwardRef(
     className,
     variant = "default"
   }, ref) => {
-    return /* @__PURE__ */ jsxs(
+    return /* @__PURE__ */ (0, import_jsx_runtime23.jsxs)(
       Root22,
       {
         ref,
@@ -4665,7 +4745,7 @@ var BizuitTabs = forwardRef(
         onValueChange: onChange,
         orientation,
         children: [
-          /* @__PURE__ */ jsx(
+          /* @__PURE__ */ (0, import_jsx_runtime23.jsx)(
             List,
             {
               className: cn(
@@ -4674,7 +4754,7 @@ var BizuitTabs = forwardRef(
                 variant === "underline" && "bg-transparent p-0 border-b",
                 variant === "pills" && "bg-transparent p-0 gap-2"
               ),
-              children: items.map((item) => /* @__PURE__ */ jsxs(
+              children: items.map((item) => /* @__PURE__ */ (0, import_jsx_runtime23.jsxs)(
                 Trigger,
                 {
                   value: item.value,
@@ -4693,7 +4773,7 @@ var BizuitTabs = forwardRef(
                     orientation === "vertical" && "w-full justify-start"
                   ),
                   children: [
-                    item.icon && /* @__PURE__ */ jsx("span", { className: "mr-2", children: item.icon }),
+                    item.icon && /* @__PURE__ */ (0, import_jsx_runtime23.jsx)("span", { className: "mr-2", children: item.icon }),
                     item.label
                   ]
                 },
@@ -4701,7 +4781,7 @@ var BizuitTabs = forwardRef(
               ))
             }
           ),
-          items.map((item) => /* @__PURE__ */ jsx(
+          items.map((item) => /* @__PURE__ */ (0, import_jsx_runtime23.jsx)(
             Content,
             {
               value: item.value,
@@ -4719,7 +4799,7 @@ var BizuitTabs = forwardRef(
   }
 );
 BizuitTabs.displayName = "BizuitTabs";
-var BizuitCard = forwardRef(
+var BizuitCard = React132.forwardRef(
   ({
     className,
     title,
@@ -4732,7 +4812,7 @@ var BizuitCard = forwardRef(
     clickable = false,
     ...props
   }, ref) => {
-    return /* @__PURE__ */ jsxs(
+    return /* @__PURE__ */ (0, import_jsx_runtime24.jsxs)(
       "div",
       {
         ref,
@@ -4746,20 +4826,20 @@ var BizuitCard = forwardRef(
         ),
         ...props,
         children: [
-          header && /* @__PURE__ */ jsx("div", { className: "p-6 pb-0", children: header }),
-          (title || description) && /* @__PURE__ */ jsxs("div", { className: cn("p-6", header && "pt-2", footer && children && "pb-0"), children: [
-            title && /* @__PURE__ */ jsx("h3", { className: "text-2xl font-semibold leading-none tracking-tight", children: title }),
-            description && /* @__PURE__ */ jsx("p", { className: "text-sm text-muted-foreground mt-1.5", children: description })
+          header && /* @__PURE__ */ (0, import_jsx_runtime24.jsx)("div", { className: "p-6 pb-0", children: header }),
+          (title || description) && /* @__PURE__ */ (0, import_jsx_runtime24.jsxs)("div", { className: cn("p-6", header && "pt-2", footer && children && "pb-0"), children: [
+            title && /* @__PURE__ */ (0, import_jsx_runtime24.jsx)("h3", { className: "text-2xl font-semibold leading-none tracking-tight", children: title }),
+            description && /* @__PURE__ */ (0, import_jsx_runtime24.jsx)("p", { className: "text-sm text-muted-foreground mt-1.5", children: description })
           ] }),
-          children && /* @__PURE__ */ jsx("div", { className: cn("p-6", (title || description) && "pt-0"), children }),
-          footer && /* @__PURE__ */ jsx("div", { className: "flex items-center p-6 pt-0", children: footer })
+          children && /* @__PURE__ */ (0, import_jsx_runtime24.jsx)("div", { className: cn("p-6", (title || description) && "pt-0"), children }),
+          footer && /* @__PURE__ */ (0, import_jsx_runtime24.jsx)("div", { className: "flex items-center p-6 pt-0", children: footer })
         ]
       }
     );
   }
 );
 BizuitCard.displayName = "BizuitCard";
-var BizuitStepper = forwardRef(
+var BizuitStepper = React142.forwardRef(
   ({
     steps,
     currentStep,
@@ -4773,7 +4853,7 @@ var BizuitStepper = forwardRef(
         onChange(index);
       }
     };
-    return /* @__PURE__ */ jsx(
+    return /* @__PURE__ */ (0, import_jsx_runtime25.jsx)(
       "div",
       {
         ref,
@@ -4786,8 +4866,8 @@ var BizuitStepper = forwardRef(
           const isCompleted = index < currentStep;
           const isCurrent = index === currentStep;
           const isUpcoming = index > currentStep;
-          return /* @__PURE__ */ jsxs(Fragment, { children: [
-            /* @__PURE__ */ jsxs(
+          return /* @__PURE__ */ (0, import_jsx_runtime25.jsxs)(React142.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime25.jsxs)(
               "div",
               {
                 className: cn(
@@ -4795,7 +4875,7 @@ var BizuitStepper = forwardRef(
                   orientation === "vertical" && "w-full"
                 ),
                 children: [
-                  /* @__PURE__ */ jsx(
+                  /* @__PURE__ */ (0, import_jsx_runtime25.jsx)(
                     "div",
                     {
                       className: cn(
@@ -4807,10 +4887,10 @@ var BizuitStepper = forwardRef(
                         clickable && "cursor-pointer hover:scale-110"
                       ),
                       onClick: () => handleStepClick(index),
-                      children: isCompleted ? /* @__PURE__ */ jsx(Check, { className: "h-5 w-5" }) : step.icon ? step.icon : /* @__PURE__ */ jsx("span", { className: "text-sm font-semibold", children: index + 1 })
+                      children: isCompleted ? /* @__PURE__ */ (0, import_jsx_runtime25.jsx)(Check, { className: "h-5 w-5" }) : step.icon ? step.icon : /* @__PURE__ */ (0, import_jsx_runtime25.jsx)("span", { className: "text-sm font-semibold", children: index + 1 })
                     }
                   ),
-                  /* @__PURE__ */ jsxs(
+                  /* @__PURE__ */ (0, import_jsx_runtime25.jsxs)(
                     "div",
                     {
                       className: cn(
@@ -4818,7 +4898,7 @@ var BizuitStepper = forwardRef(
                         orientation === "horizontal" && "max-w-[150px]"
                       ),
                       children: [
-                        /* @__PURE__ */ jsx(
+                        /* @__PURE__ */ (0, import_jsx_runtime25.jsx)(
                           "div",
                           {
                             className: cn(
@@ -4829,14 +4909,14 @@ var BizuitStepper = forwardRef(
                             children: step.label
                           }
                         ),
-                        step.description && /* @__PURE__ */ jsx("div", { className: "text-xs text-muted-foreground mt-0.5", children: step.description })
+                        step.description && /* @__PURE__ */ (0, import_jsx_runtime25.jsx)("div", { className: "text-xs text-muted-foreground mt-0.5", children: step.description })
                       ]
                     }
                   )
                 ]
               }
             ),
-            index < steps.length - 1 && /* @__PURE__ */ jsx(
+            index < steps.length - 1 && /* @__PURE__ */ (0, import_jsx_runtime25.jsx)(
               "div",
               {
                 className: cn(
@@ -4853,7 +4933,7 @@ var BizuitStepper = forwardRef(
   }
 );
 BizuitStepper.displayName = "BizuitStepper";
-var BizuitMedia = forwardRef(
+var BizuitMedia = React152.forwardRef(
   ({
     src,
     type,
@@ -4871,18 +4951,18 @@ var BizuitMedia = forwardRef(
     onQRCodeDetected,
     facingMode = "environment"
   }, ref) => {
-    const [isPlaying, setIsPlaying] = useState(autoPlay);
-    const [isMuted, setIsMuted] = useState(muted);
-    const [isCameraActive, setIsCameraActive] = useState(false);
-    const [capturedImage, setCapturedImage] = useState(null);
-    const [currentFacingMode, setCurrentFacingMode] = useState(facingMode);
-    const [qrDetected, setQrDetected] = useState(null);
-    const mediaRef = useRef(null);
-    const cameraVideoRef = useRef(null);
-    const canvasRef = useRef(null);
-    const streamRef = useRef(null);
-    const qrScanIntervalRef = useRef(null);
-    useEffect(() => {
+    const [isPlaying, setIsPlaying] = React152.useState(autoPlay);
+    const [isMuted, setIsMuted] = React152.useState(muted);
+    const [isCameraActive, setIsCameraActive] = React152.useState(false);
+    const [capturedImage, setCapturedImage] = React152.useState(null);
+    const [currentFacingMode, setCurrentFacingMode] = React152.useState(facingMode);
+    const [qrDetected, setQrDetected] = React152.useState(null);
+    const mediaRef = React152.useRef(null);
+    const cameraVideoRef = React152.useRef(null);
+    const canvasRef = React152.useRef(null);
+    const streamRef = React152.useRef(null);
+    const qrScanIntervalRef = React152.useRef(null);
+    React152.useEffect(() => {
       return () => {
         stopCamera();
       };
@@ -4996,7 +5076,7 @@ var BizuitMedia = forwardRef(
       }
     };
     if (type === "image") {
-      return /* @__PURE__ */ jsx("div", { ref, className: cn("relative overflow-hidden rounded-lg", className), children: /* @__PURE__ */ jsx(
+      return /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("div", { ref, className: cn("relative overflow-hidden rounded-lg", className), children: /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(
         "img",
         {
           src,
@@ -5010,8 +5090,8 @@ var BizuitMedia = forwardRef(
       ) });
     }
     if (type === "video") {
-      return /* @__PURE__ */ jsxs("div", { ref, className: cn("relative overflow-hidden rounded-lg bg-black", className), style: { width, height }, children: [
-        /* @__PURE__ */ jsx(
+      return /* @__PURE__ */ (0, import_jsx_runtime26.jsxs)("div", { ref, className: cn("relative overflow-hidden rounded-lg bg-black", className), style: { width, height }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(
           "video",
           {
             ref: mediaRef,
@@ -5025,39 +5105,39 @@ var BizuitMedia = forwardRef(
             controls
           }
         ),
-        !controls && /* @__PURE__ */ jsxs("div", { className: "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 flex items-center gap-2", children: [
-          /* @__PURE__ */ jsx(
+        !controls && /* @__PURE__ */ (0, import_jsx_runtime26.jsxs)("div", { className: "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 flex items-center gap-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(
             "button",
             {
               onClick: togglePlay,
               className: "text-white hover:text-primary transition-colors",
               "aria-label": isPlaying ? "Pause" : "Play",
-              children: isPlaying ? /* @__PURE__ */ jsx(Pause, { className: "h-6 w-6" }) : /* @__PURE__ */ jsx(Play, { className: "h-6 w-6" })
+              children: isPlaying ? /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(Pause, { className: "h-6 w-6" }) : /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(Play, { className: "h-6 w-6" })
             }
           ),
-          /* @__PURE__ */ jsx(
+          /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(
             "button",
             {
               onClick: toggleMute,
               className: "text-white hover:text-primary transition-colors",
               "aria-label": isMuted ? "Unmute" : "Mute",
-              children: isMuted ? /* @__PURE__ */ jsx(VolumeX, { className: "h-6 w-6" }) : /* @__PURE__ */ jsx(Volume2, { className: "h-6 w-6" })
+              children: isMuted ? /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(VolumeX, { className: "h-6 w-6" }) : /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(Volume2, { className: "h-6 w-6" })
             }
           ),
-          /* @__PURE__ */ jsx(
+          /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(
             "button",
             {
               onClick: toggleFullscreen,
               className: "text-white hover:text-primary transition-colors ml-auto",
               "aria-label": "Fullscreen",
-              children: /* @__PURE__ */ jsx(Maximize, { className: "h-6 w-6" })
+              children: /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(Maximize, { className: "h-6 w-6" })
             }
           )
         ] })
       ] });
     }
     if (type === "audio") {
-      return /* @__PURE__ */ jsx("div", { ref, className: cn("rounded-lg bg-card border p-4", className), children: /* @__PURE__ */ jsx(
+      return /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("div", { ref, className: cn("rounded-lg bg-card border p-4", className), children: /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(
         "audio",
         {
           ref: mediaRef,
@@ -5073,21 +5153,21 @@ var BizuitMedia = forwardRef(
       ) });
     }
     if (type === "camera") {
-      return /* @__PURE__ */ jsxs("div", { ref, className: cn("relative overflow-hidden rounded-lg bg-black", className), style: { width: width || "100%", height: height || 400 }, children: [
-        /* @__PURE__ */ jsx("canvas", { ref: canvasRef, className: "hidden" }),
-        !isCameraActive && !capturedImage && /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center h-full", children: /* @__PURE__ */ jsxs(
+      return /* @__PURE__ */ (0, import_jsx_runtime26.jsxs)("div", { ref, className: cn("relative overflow-hidden rounded-lg bg-black", className), style: { width: width || "100%", height: height || 400 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("canvas", { ref: canvasRef, className: "hidden" }),
+        !isCameraActive && !capturedImage && /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("div", { className: "flex items-center justify-center h-full", children: /* @__PURE__ */ (0, import_jsx_runtime26.jsxs)(
           "button",
           {
             onClick: startCamera,
             className: "flex flex-col items-center gap-2 text-white hover:text-primary transition-colors",
             children: [
-              /* @__PURE__ */ jsx(Camera, { className: "h-12 w-12" }),
-              /* @__PURE__ */ jsx("span", { children: "Activar C\xE1mara" })
+              /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(Camera, { className: "h-12 w-12" }),
+              /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("span", { children: "Activar C\xE1mara" })
             ]
           }
         ) }),
-        isCameraActive && !capturedImage && /* @__PURE__ */ jsxs(Fragment2, { children: [
-          /* @__PURE__ */ jsx(
+        isCameraActive && !capturedImage && /* @__PURE__ */ (0, import_jsx_runtime26.jsxs)(import_jsx_runtime26.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(
             "video",
             {
               ref: cameraVideoRef,
@@ -5097,39 +5177,39 @@ var BizuitMedia = forwardRef(
               className: "w-full h-full object-cover"
             }
           ),
-          /* @__PURE__ */ jsxs("div", { className: "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 flex items-center justify-center gap-4", children: [
-            /* @__PURE__ */ jsx(
+          /* @__PURE__ */ (0, import_jsx_runtime26.jsxs)("div", { className: "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 flex items-center justify-center gap-4", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(
               "button",
               {
                 onClick: switchCamera,
                 className: "text-white hover:text-primary transition-colors",
                 "aria-label": "Switch camera",
-                children: /* @__PURE__ */ jsx(RotateCw, { className: "h-6 w-6" })
+                children: /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(RotateCw, { className: "h-6 w-6" })
               }
             ),
-            /* @__PURE__ */ jsx(
+            /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(
               "button",
               {
                 onClick: capturePhoto,
                 className: "bg-white rounded-full p-4 hover:bg-gray-200 transition-colors",
                 "aria-label": "Capture photo",
-                children: /* @__PURE__ */ jsx(Camera, { className: "h-8 w-8 text-black" })
+                children: /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(Camera, { className: "h-8 w-8 text-black" })
               }
             ),
-            /* @__PURE__ */ jsx(
+            /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(
               "button",
               {
                 onClick: stopCamera,
                 className: "text-white hover:text-primary transition-colors",
                 "aria-label": "Close camera",
-                children: /* @__PURE__ */ jsx(X, { className: "h-6 w-6" })
+                children: /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(X, { className: "h-6 w-6" })
               }
             )
           ] })
         ] }),
-        capturedImage && /* @__PURE__ */ jsxs(Fragment2, { children: [
-          /* @__PURE__ */ jsx("img", { src: capturedImage, alt: "Captured", className: "w-full h-full object-cover" }),
-          /* @__PURE__ */ jsx("div", { className: "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 flex items-center justify-center gap-4", children: /* @__PURE__ */ jsx(
+        capturedImage && /* @__PURE__ */ (0, import_jsx_runtime26.jsxs)(import_jsx_runtime26.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("img", { src: capturedImage, alt: "Captured", className: "w-full h-full object-cover" }),
+          /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("div", { className: "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 flex items-center justify-center gap-4", children: /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(
             "button",
             {
               onClick: retakePhoto,
@@ -5141,21 +5221,21 @@ var BizuitMedia = forwardRef(
       ] });
     }
     if (type === "qr-scanner") {
-      return /* @__PURE__ */ jsxs("div", { ref, className: cn("relative overflow-hidden rounded-lg bg-black", className), style: { width: width || "100%", height: height || 400 }, children: [
-        /* @__PURE__ */ jsx("canvas", { ref: canvasRef, className: "hidden" }),
-        !isCameraActive && !qrDetected && /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center h-full", children: /* @__PURE__ */ jsxs(
+      return /* @__PURE__ */ (0, import_jsx_runtime26.jsxs)("div", { ref, className: cn("relative overflow-hidden rounded-lg bg-black", className), style: { width: width || "100%", height: height || 400 }, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("canvas", { ref: canvasRef, className: "hidden" }),
+        !isCameraActive && !qrDetected && /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("div", { className: "flex items-center justify-center h-full", children: /* @__PURE__ */ (0, import_jsx_runtime26.jsxs)(
           "button",
           {
             onClick: startCamera,
             className: "flex flex-col items-center gap-2 text-white hover:text-primary transition-colors",
             children: [
-              /* @__PURE__ */ jsx(QrCode, { className: "h-12 w-12" }),
-              /* @__PURE__ */ jsx("span", { children: "Escanear C\xF3digo QR" })
+              /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(QrCode, { className: "h-12 w-12" }),
+              /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("span", { children: "Escanear C\xF3digo QR" })
             ]
           }
         ) }),
-        isCameraActive && !qrDetected && /* @__PURE__ */ jsxs(Fragment2, { children: [
-          /* @__PURE__ */ jsx(
+        isCameraActive && !qrDetected && /* @__PURE__ */ (0, import_jsx_runtime26.jsxs)(import_jsx_runtime26.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(
             "video",
             {
               ref: cameraVideoRef,
@@ -5165,23 +5245,23 @@ var BizuitMedia = forwardRef(
               className: "w-full h-full object-cover"
             }
           ),
-          /* @__PURE__ */ jsx("div", { className: "absolute inset-0 flex items-center justify-center", children: /* @__PURE__ */ jsx("div", { className: "border-4 border-primary w-64 h-64 rounded-lg" }) }),
-          /* @__PURE__ */ jsx("div", { className: "absolute top-4 left-0 right-0 text-center", children: /* @__PURE__ */ jsx("p", { className: "text-white bg-black/50 inline-block px-4 py-2 rounded-md", children: "Coloca el c\xF3digo QR dentro del recuadro" }) }),
-          /* @__PURE__ */ jsx("div", { className: "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 flex items-center justify-center", children: /* @__PURE__ */ jsx(
+          /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("div", { className: "absolute inset-0 flex items-center justify-center", children: /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("div", { className: "border-4 border-primary w-64 h-64 rounded-lg" }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("div", { className: "absolute top-4 left-0 right-0 text-center", children: /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("p", { className: "text-white bg-black/50 inline-block px-4 py-2 rounded-md", children: "Coloca el c\xF3digo QR dentro del recuadro" }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("div", { className: "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 flex items-center justify-center", children: /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(
             "button",
             {
               onClick: stopCamera,
               className: "text-white hover:text-primary transition-colors",
               "aria-label": "Close scanner",
-              children: /* @__PURE__ */ jsx(X, { className: "h-6 w-6" })
+              children: /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(X, { className: "h-6 w-6" })
             }
           ) })
         ] }),
-        qrDetected && /* @__PURE__ */ jsxs("div", { className: "flex flex-col items-center justify-center h-full p-8 text-center", children: [
-          /* @__PURE__ */ jsx("div", { className: "bg-green-500 text-white p-4 rounded-full mb-4", children: /* @__PURE__ */ jsx(QrCode, { className: "h-12 w-12" }) }),
-          /* @__PURE__ */ jsx("h3", { className: "text-white text-xl font-semibold mb-2", children: "\xA1C\xF3digo QR detectado!" }),
-          /* @__PURE__ */ jsx("p", { className: "text-gray-300 mb-4 break-all max-w-md", children: qrDetected }),
-          /* @__PURE__ */ jsx(
+        qrDetected && /* @__PURE__ */ (0, import_jsx_runtime26.jsxs)("div", { className: "flex flex-col items-center justify-center h-full p-8 text-center", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("div", { className: "bg-green-500 text-white p-4 rounded-full mb-4", children: /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(QrCode, { className: "h-12 w-12" }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("h3", { className: "text-white text-xl font-semibold mb-2", children: "\xA1C\xF3digo QR detectado!" }),
+          /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("p", { className: "text-gray-300 mb-4 break-all max-w-md", children: qrDetected }),
+          /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(
             "button",
             {
               onClick: () => {
@@ -5199,7 +5279,7 @@ var BizuitMedia = forwardRef(
   }
 );
 BizuitMedia.displayName = "BizuitMedia";
-var BizuitIFrame = forwardRef(
+var BizuitIFrame = React162.forwardRef(
   ({
     src,
     title,
@@ -5212,8 +5292,8 @@ var BizuitIFrame = forwardRef(
     className,
     ...props
   }, ref) => {
-    const [isLoading, setIsLoading] = useState(showLoader);
-    const [hasError, setHasError] = useState(false);
+    const [isLoading, setIsLoading] = React162.useState(showLoader);
+    const [hasError, setHasError] = React162.useState(false);
     const handleLoad = () => {
       setIsLoading(false);
       onLoad?.();
@@ -5223,16 +5303,16 @@ var BizuitIFrame = forwardRef(
       setHasError(true);
       onError?.();
     };
-    return /* @__PURE__ */ jsxs("div", { className: cn("relative w-full", className), style: { width, height }, children: [
-      isLoading && showLoader && /* @__PURE__ */ jsx("div", { className: "absolute inset-0 flex items-center justify-center bg-muted rounded-lg border", children: /* @__PURE__ */ jsx(Loader2, { className: "h-8 w-8 animate-spin text-muted-foreground" }) }),
-      hasError && /* @__PURE__ */ jsx("div", { className: "absolute inset-0 flex items-center justify-center bg-muted rounded-lg border", children: /* @__PURE__ */ jsxs("div", { className: "text-center p-6", children: [
-        /* @__PURE__ */ jsx("p", { className: "text-sm font-medium text-muted-foreground", children: "Error al cargar el contenido" }),
-        /* @__PURE__ */ jsxs("p", { className: "text-xs text-muted-foreground mt-1", children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime27.jsxs)("div", { className: cn("relative w-full", className), style: { width, height }, children: [
+      isLoading && showLoader && /* @__PURE__ */ (0, import_jsx_runtime27.jsx)("div", { className: "absolute inset-0 flex items-center justify-center bg-muted rounded-lg border", children: /* @__PURE__ */ (0, import_jsx_runtime27.jsx)(Loader2, { className: "h-8 w-8 animate-spin text-muted-foreground" }) }),
+      hasError && /* @__PURE__ */ (0, import_jsx_runtime27.jsx)("div", { className: "absolute inset-0 flex items-center justify-center bg-muted rounded-lg border", children: /* @__PURE__ */ (0, import_jsx_runtime27.jsxs)("div", { className: "text-center p-6", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime27.jsx)("p", { className: "text-sm font-medium text-muted-foreground", children: "Error al cargar el contenido" }),
+        /* @__PURE__ */ (0, import_jsx_runtime27.jsxs)("p", { className: "text-xs text-muted-foreground mt-1", children: [
           "No se pudo cargar: ",
           src
         ] })
       ] }) }),
-      /* @__PURE__ */ jsx(
+      /* @__PURE__ */ (0, import_jsx_runtime27.jsx)(
         "iframe",
         {
           ref,
@@ -5263,7 +5343,7 @@ var initialState = {
   language: "es",
   setLanguage: () => null
 };
-var ThemeProviderContext = createContext(initialState);
+var ThemeProviderContext = React172.createContext(initialState);
 function BizuitThemeProvider({
   children,
   defaultTheme = "system",
@@ -5274,16 +5354,16 @@ function BizuitThemeProvider({
   languageStorageKey = "bizuit-ui-language",
   ...props
 }) {
-  const [theme, setTheme] = useState(
+  const [theme, setTheme] = React172.useState(
     () => typeof window !== "undefined" && localStorage.getItem(storageKey) || defaultTheme
   );
-  const [colorTheme, setColorTheme] = useState(
+  const [colorTheme, setColorTheme] = React172.useState(
     () => typeof window !== "undefined" && localStorage.getItem(colorStorageKey) || defaultColorTheme
   );
-  const [language, setLanguage] = useState(
+  const [language, setLanguage] = React172.useState(
     () => typeof window !== "undefined" && localStorage.getItem(languageStorageKey) || defaultLanguage
   );
-  useEffect(() => {
+  React172.useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove("light", "dark");
     if (theme === "system") {
@@ -5293,12 +5373,12 @@ function BizuitThemeProvider({
     }
     root.classList.add(theme);
   }, [theme]);
-  useEffect(() => {
+  React172.useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove("theme-blue", "theme-green", "theme-purple", "theme-orange", "theme-red", "theme-slate");
     root.classList.add(`theme-${colorTheme}`);
   }, [colorTheme]);
-  useEffect(() => {
+  React172.useEffect(() => {
     const root = window.document.documentElement;
     root.setAttribute("lang", language);
   }, [language]);
@@ -5319,9 +5399,9 @@ function BizuitThemeProvider({
       setLanguage(language2);
     }
   };
-  return /* @__PURE__ */ jsx(ThemeProviderContext.Provider, { ...props, value, children });
+  return /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(ThemeProviderContext.Provider, { ...props, value, children });
 }
-var BizuitAuthContext = createContext(void 0);
+var BizuitAuthContext = (0, import_react4.createContext)(void 0);
 
 // ../../../packages/bizuit-form-sdk/node_modules/axios/lib/helpers/bind.js
 function bind(fn, thisArg) {
@@ -7930,6 +8010,9 @@ var {
 } = axios_default;
 
 // ../../../packages/bizuit-form-sdk/dist/index.mjs
+var import_react6 = __toESM(require_react(), 1);
+var import_jsx_runtime35 = __toESM(require_jsx_runtime(), 1);
+var import_react7 = __toESM(require_react(), 1);
 var BizuitHttpClient = class {
   constructor(config) {
     this.config = config;
@@ -8780,10 +8863,10 @@ function guessTypeFromValue(value) {
   if (!isNaN(Number(value)) && value.toString().trim() !== "") return "int";
   return "string";
 }
-async function loadInstanceDataForContinue(sdk2, options, token) {
+async function loadInstanceDataForContinue(sdk, options, token) {
   const opts = typeof options === "string" ? { instanceId: options, autoLock: false } : options;
   const { instanceId, activityName, processName, autoLock = false, lockOperation = 1 } = opts;
-  const instanceData = await sdk2.process.getInstanceData(instanceId, token);
+  const instanceData = await sdk.process.getInstanceData(instanceId, token);
   let formParameters = [];
   let formData = {};
   let lockInfo;
@@ -8803,7 +8886,7 @@ async function loadInstanceDataForContinue(sdk2, options, token) {
       throw new Error("activityName and processName are required when autoLock is true");
     }
     try {
-      const lockResult = await sdk2.lock.lock(
+      const lockResult = await sdk.lock.lock(
         {
           instanceId,
           activityName,
@@ -8842,9 +8925,9 @@ async function loadInstanceDataForContinue(sdk2, options, token) {
     lockInfo
   };
 }
-async function releaseInstanceLock(sdk2, options, token) {
+async function releaseInstanceLock(sdk, options, token) {
   try {
-    await sdk2.lock.unlock(options, token);
+    await sdk.lock.unlock(options, token);
   } catch (err) {
     if (true) {
       console.warn("[releaseInstanceLock] Failed to release lock:", err.message);
@@ -8892,8 +8975,8 @@ function buildParameters(mapping, formData) {
   return parameters;
 }
 var BizuitFormService = class {
-  constructor(sdk2) {
-    this.sdk = sdk2;
+  constructor(sdk) {
+    this.sdk = sdk;
   }
   /**
    * Prepares a form for STARTING a new process
@@ -9111,17 +9194,18 @@ var BizuitSDK = class {
     this.forms = new BizuitFormService(this);
   }
 };
-var BizuitSDKContext = createContext(null);
+var BizuitSDKContext = (0, import_react6.createContext)(null);
 
 // src/index.tsx
+var import_jsx_runtime36 = __toESM(require_jsx_runtime());
 var SDK_CONFIG = {
-  apiUrl: "https://test.bizuit.com/recubizBizuitDashboardapi/api/",
-  username: "admin",
-  password: "admin123",
-  processName: "RB_ObtenerProximaGestion",
-  idGestor: 999
+  defaultApiUrl: "https://test.bizuit.com/recubizBizuitDashboardapi/api/",
+  processName: "RB_ObtenerProximaGestion"
 };
-var sdk = new BizuitSDK({ apiUrl: SDK_CONFIG.apiUrl });
+async function obtenerIdGestorPorUsuario(sdk, userName, token) {
+  console.log(`\u{1F4DD} obtenerIdGestorPorUsuario('${userName}') \u2192 999 (hardcoded)`);
+  return Promise.resolve(999);
+}
 var MOCK_DEUDAS_HISTORIAL = [
   {
     id: "D-2023-089",
@@ -9219,17 +9303,17 @@ function DeudaRow({ deuda, onClick, index }) {
     return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(amount);
   };
   const totalDeuda = deuda.detalles.reduce((sum, d) => sum + d.importe, 0);
-  return /* @__PURE__ */ jsxs(
+  return /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)(
     "tr",
     {
       onClick,
       className: `hover:bg-orange-50 cursor-pointer transition-colors ${index % 2 === 0 ? "bg-gray-50" : "bg-white"}`,
       children: [
-        /* @__PURE__ */ jsx("td", { className: "px-6 py-4 whitespace-nowrap", children: /* @__PURE__ */ jsx("span", { className: "text-sm font-medium text-gray-900", children: deuda.id }) }),
-        /* @__PURE__ */ jsx("td", { className: "px-6 py-4", children: /* @__PURE__ */ jsx("div", { className: "text-sm font-medium text-gray-900", children: deuda.deudor }) }),
-        /* @__PURE__ */ jsx("td", { className: "px-6 py-4", children: /* @__PURE__ */ jsx("span", { className: "text-sm text-gray-600", children: deuda.numeroDocumento }) }),
-        /* @__PURE__ */ jsx("td", { className: "px-6 py-4", children: /* @__PURE__ */ jsx("span", { className: "text-sm font-semibold text-gray-900", children: formatCurrency(totalDeuda) }) }),
-        /* @__PURE__ */ jsx("td", { className: "px-6 py-4", children: /* @__PURE__ */ jsx("span", { className: "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800", children: deuda.estado }) })
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4 whitespace-nowrap", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "text-sm font-medium text-gray-900", children: deuda.id }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "text-sm font-medium text-gray-900", children: deuda.deudor }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "text-sm text-gray-600", children: deuda.numeroDocumento }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "text-sm font-semibold text-gray-900", children: formatCurrency(totalDeuda) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800", children: deuda.estado }) })
       ]
     }
   );
@@ -9245,25 +9329,25 @@ function DetalleDeudaRow({ detalle, index }) {
       day: "numeric"
     });
   };
-  return /* @__PURE__ */ jsxs("tr", { className: index % 2 === 0 ? "bg-gray-50" : "bg-white", children: [
-    /* @__PURE__ */ jsx("td", { className: "px-6 py-4 whitespace-nowrap text-sm text-gray-900", children: formatDate(detalle.fecha) }),
-    /* @__PURE__ */ jsx("td", { className: "px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900", children: formatCurrency(detalle.importeOriginal) }),
-    /* @__PURE__ */ jsx("td", { className: "px-6 py-4 whitespace-nowrap text-sm font-bold text-orange-600", children: formatCurrency(detalle.importe) }),
-    /* @__PURE__ */ jsx("td", { className: "px-6 py-4 whitespace-nowrap text-sm text-gray-600", children: detalle.producto || "-" }),
-    /* @__PURE__ */ jsx("td", { className: "px-6 py-4 text-sm text-gray-900", children: detalle.descripcion || "-" })
+  return /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("tr", { className: index % 2 === 0 ? "bg-gray-50" : "bg-white", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4 whitespace-nowrap text-sm text-gray-900", children: formatDate(detalle.fecha) }),
+    /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900", children: formatCurrency(detalle.importeOriginal) }),
+    /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4 whitespace-nowrap text-sm font-bold text-orange-600", children: formatCurrency(detalle.importe) }),
+    /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4 whitespace-nowrap text-sm text-gray-600", children: detalle.producto || "-" }),
+    /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4 text-sm text-gray-900", children: detalle.descripcion || "-" })
   ] });
 }
 function ContactoCard({ contacto, onClick }) {
-  return /* @__PURE__ */ jsx(
+  return /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
     "div",
     {
       onClick,
       className: "bg-gray-50 rounded-xl shadow-sm hover:shadow-xl hover:bg-orange-50 hover:border-l-8 transition-all border-l-4 border-orange-500 p-4 cursor-pointer",
-      children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
-        /* @__PURE__ */ jsx("div", { className: "w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center", children: getContactIcon(contacto.tipoContacto || contacto.tipo) }),
-        /* @__PURE__ */ jsxs("div", { children: [
-          /* @__PURE__ */ jsx("p", { className: "text-xs font-semibold text-gray-700 uppercase tracking-wide", children: contacto.tipoContacto || contacto.tipo || "Contacto" }),
-          /* @__PURE__ */ jsx("p", { className: "text-base font-bold text-gray-900", children: contacto.contacto || contacto.valor || "Sin informaci\xF3n" })
+      children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center gap-3", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center", children: getContactIcon(contacto.tipoContacto || contacto.tipo) }),
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-xs font-semibold text-gray-700 uppercase tracking-wide", children: contacto.tipoContacto || contacto.tipo || "Contacto" }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-base font-bold text-gray-900", children: contacto.contacto || contacto.valor || "Sin informaci\xF3n" })
         ] })
       ] })
     }
@@ -9274,17 +9358,17 @@ function AccionRow({ accion, index, onClick }) {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + "...";
   };
-  return /* @__PURE__ */ jsxs(
+  return /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)(
     "tr",
     {
       onClick,
       className: `cursor-pointer hover:bg-orange-50 transition-colors ${index % 2 === 0 ? "bg-gray-50" : "bg-white"}`,
       children: [
-        /* @__PURE__ */ jsx("td", { className: "px-6 py-4 whitespace-nowrap text-sm text-gray-900", children: accion.fecha }),
-        /* @__PURE__ */ jsx("td", { className: "px-6 py-4 whitespace-nowrap text-sm text-gray-900", children: accion.hora }),
-        /* @__PURE__ */ jsx("td", { className: "px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900", children: accion.tipo }),
-        /* @__PURE__ */ jsx("td", { className: "px-6 py-4 text-sm text-gray-600", children: accion.contacto }),
-        /* @__PURE__ */ jsx("td", { className: "px-6 py-4 text-sm text-gray-900", children: truncateText(accion.observaciones) })
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4 whitespace-nowrap text-sm text-gray-900", children: accion.fecha }),
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4 whitespace-nowrap text-sm text-gray-900", children: accion.hora }),
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900", children: accion.tipo }),
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4 text-sm text-gray-600", children: accion.contacto }),
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4 text-sm text-gray-900", children: truncateText(accion.observaciones) })
       ]
     }
   );
@@ -9292,54 +9376,75 @@ function AccionRow({ accion, index, onClick }) {
 function getContactIcon(tipoContacto) {
   const tipo = (tipoContacto || "").toLowerCase();
   if (tipo.includes("tel\xE9fono") || tipo.includes("telefono") || tipo.includes("m\xF3vil") || tipo.includes("movil") || tipo.includes("celular") || tipo.includes("phone")) {
-    return /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" }) });
   }
   if (tipo.includes("email") || tipo.includes("correo") || tipo.includes("mail")) {
-    return /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" }) });
   }
   if (tipo.includes("whatsapp") || tipo.includes("wpp")) {
-    return /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" }) });
   }
   if (tipo.includes("instagram") || tipo.includes("facebook") || tipo.includes("twitter") || tipo.includes("social")) {
-    return /* @__PURE__ */ jsxs("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: [
-      /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" }),
-      /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M15 13a3 3 0 11-6 0 3 3 0 016 0z" })
+    return /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" }),
+      /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M15 13a3 3 0 11-6 0 3 3 0 016 0z" })
     ] });
   }
-  return /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" }) });
+  return /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" }) });
 }
 function RecubizGestionFormInner({ dashboardParams }) {
-  const [screen, setScreen] = useState("dashboard");
-  const [deudaActual, setDeudaActual] = useState(null);
-  const [contactoSeleccionado, setContactoSeleccionado] = useState(null);
-  const [observaciones, setObservaciones] = useState("");
-  const [accionesHistorial, setAccionesHistorial] = useState(MOCK_ACCIONES_PREVIAS);
-  const [mostrarRechazo, setMostrarRechazo] = useState(false);
-  const [motivoRechazo, setMotivoRechazo] = useState("");
-  const [descripcionRechazo, setDescripcionRechazo] = useState("");
-  const [mostrarConfirmacionFinalizar, setMostrarConfirmacionFinalizar] = useState(false);
-  const [mostrarConfirmacionSolicitar, setMostrarConfirmacionSolicitar] = useState(false);
-  const [accionSeleccionada, setAccionSeleccionada] = useState(null);
-  const [mostrarHistorial, setMostrarHistorial] = useState(false);
-  const [mostrarModalRegistrarAccion, setMostrarModalRegistrarAccion] = useState(false);
-  const [authToken, setAuthToken] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState("");
-  const [error, setError] = useState(null);
-  useEffect(() => {
+  const [screen, setScreen] = (0, import_react8.useState)("dashboard");
+  const [deudaActual, setDeudaActual] = (0, import_react8.useState)(null);
+  const [contactoSeleccionado, setContactoSeleccionado] = (0, import_react8.useState)(null);
+  const [observaciones, setObservaciones] = (0, import_react8.useState)("");
+  const [accionesHistorial, setAccionesHistorial] = (0, import_react8.useState)(MOCK_ACCIONES_PREVIAS);
+  const [mostrarRechazo, setMostrarRechazo] = (0, import_react8.useState)(false);
+  const [motivoRechazo, setMotivoRechazo] = (0, import_react8.useState)("");
+  const [descripcionRechazo, setDescripcionRechazo] = (0, import_react8.useState)("");
+  const [mostrarConfirmacionFinalizar, setMostrarConfirmacionFinalizar] = (0, import_react8.useState)(false);
+  const [mostrarConfirmacionSolicitar, setMostrarConfirmacionSolicitar] = (0, import_react8.useState)(false);
+  const [accionSeleccionada, setAccionSeleccionada] = (0, import_react8.useState)(null);
+  const [mostrarHistorial, setMostrarHistorial] = (0, import_react8.useState)(false);
+  const [mostrarModalRegistrarAccion, setMostrarModalRegistrarAccion] = (0, import_react8.useState)(false);
+  const apiUrl = dashboardParams?.apiUrl || dashboardParams?.devApiUrl || SDK_CONFIG.defaultApiUrl;
+  const sdk = (0, import_react8.useMemo)(() => new BizuitSDK({ apiUrl }), [apiUrl]);
+  console.log(`\u{1F517} Using API URL: ${apiUrl}`);
+  const [authToken, setAuthToken] = (0, import_react8.useState)("");
+  const [idGestor, setIdGestor] = (0, import_react8.useState)(null);
+  const [isLoading, setIsLoading] = (0, import_react8.useState)(false);
+  const [loadingMessage, setLoadingMessage] = (0, import_react8.useState)("");
+  const [error, setError] = (0, import_react8.useState)(null);
+  (0, import_react8.useEffect)(() => {
     const authenticate = async () => {
       try {
         setIsLoading(true);
         setLoadingMessage("Autenticando...");
-        const loginResult = await sdk.auth.login({
-          username: SDK_CONFIG.username,
-          password: SDK_CONFIG.password
-        });
-        if (loginResult.Token) {
-          setAuthToken(loginResult.Token);
+        let token = "";
+        if (dashboardParams?.token) {
+          console.log("\u2705 Using Dashboard token");
+          token = dashboardParams.token;
+          setAuthToken(token);
+        } else if (dashboardParams?.devUsername && dashboardParams?.devPassword) {
+          console.warn("\u26A0\uFE0F Dev mode: Using credentials from dashboardParams");
+          const loginResult = await sdk.auth.login({
+            username: dashboardParams.devUsername,
+            password: dashboardParams.devPassword
+          });
+          if (loginResult.Token) {
+            token = loginResult.Token;
+            setAuthToken(token);
+          } else {
+            throw new Error("Error al autenticar. Verifique las credenciales de dev.");
+          }
         } else {
-          throw new Error("Error al autenticar. Verifique las credenciales.");
+          throw new Error(
+            "No token provided. In production, token must come from Dashboard. In dev mode, provide devUsername and devPassword in dashboardParams."
+          );
         }
+        const userName = dashboardParams?.userName || "Gestor Demo";
+        const gestorId = await obtenerIdGestorPorUsuario(sdk, userName, token);
+        setIdGestor(gestorId);
+        console.log(`\u2705 ID Gestor: ${gestorId} para usuario: ${userName}`);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Error desconocido al autenticar";
         setError({
@@ -9355,7 +9460,7 @@ function RecubizGestionFormInner({ dashboardParams }) {
       }
     };
     authenticate();
-  }, []);
+  }, [dashboardParams?.token]);
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS" }).format(amount);
   };
@@ -9378,21 +9483,16 @@ function RecubizGestionFormInner({ dashboardParams }) {
     try {
       setIsLoading(true);
       setLoadingMessage("Solicitando nueva deuda...");
-      const result = await sdk.process.start(
-        {
-          processName: SDK_CONFIG.processName,
-          parameters: [
-            {
-              name: "idGestor",
-              value: String(SDK_CONFIG.idGestor),
-              type: "SingleValue",
-              direction: "In"
-            }
-          ]
-        },
-        [],
-        authToken
-      );
+      if (!idGestor) {
+        throw new Error("ID Gestor no disponible. Por favor espere a que se complete la autenticaci\xF3n.");
+      }
+      const result = await sdk.forms.startProcess({
+        processName: SDK_CONFIG.processName,
+        additionalParameters: sdk.forms.createParameters([
+          { name: "idGestor", value: String(idGestor) }
+        ]),
+        token: authToken
+      });
       console.log("\u{1F50D} SDK Response (raw):", JSON.stringify(result, null, 2));
       const datosParam = result.parameters?.find((p) => p.name === "Datosgestion");
       console.log("\u{1F50D} Datosgestion parameterType:", datosParam?.parameterType);
@@ -9502,33 +9602,18 @@ function RecubizGestionFormInner({ dashboardParams }) {
     try {
       setIsLoading(true);
       setLoadingMessage("Iniciando gesti\xF3n...");
-      const result = await sdk.process.start(
-        {
-          processName: "RB_IniciarGestion",
-          parameters: [
-            {
-              name: "idGestor",
-              value: String(SDK_CONFIG.idGestor),
-              type: "SingleValue",
-              direction: "In"
-            },
-            {
-              name: "idDeudor",
-              value: String(deudaActual.idDeudor),
-              type: "SingleValue",
-              direction: "In"
-            },
-            {
-              name: "idDeuda",
-              value: String(deudaActual.idDeuda),
-              type: "SingleValue",
-              direction: "In"
-            }
-          ]
-        },
-        [],
-        authToken
-      );
+      if (!idGestor) {
+        throw new Error("ID Gestor no disponible.");
+      }
+      const result = await sdk.forms.startProcess({
+        processName: "RB_IniciarGestion",
+        additionalParameters: sdk.forms.createParameters([
+          { name: "idGestor", value: String(idGestor) },
+          { name: "idDeudor", value: String(deudaActual.idDeudor) },
+          { name: "idDeuda", value: String(deudaActual.idDeuda) }
+        ]),
+        token: authToken
+      });
       console.log("\u{1F50D} RB_IniciarGestion response:", result);
       if (result.status === "Error") {
         throw new Error(result.errorMessage || "Error al iniciar gesti\xF3n");
@@ -9616,47 +9701,47 @@ Total de acciones: ${totalAcciones}`);
     setContactoSeleccionado(null);
     setScreen("dashboard");
   };
-  return /* @__PURE__ */ jsxs("div", { className: "min-h-screen bg-[#faf9f7]", children: [
-    /* @__PURE__ */ jsx("div", { className: "bg-white shadow-sm border-b border-gray-200", children: /* @__PURE__ */ jsx("div", { className: "max-w-7xl mx-auto px-8 py-6", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
-      /* @__PURE__ */ jsx("div", { children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3 mb-2", children: [
-        /* @__PURE__ */ jsx("div", { className: "w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center", children: /* @__PURE__ */ jsx("span", { className: "text-white text-2xl font-bold", children: "R" }) }),
-        /* @__PURE__ */ jsxs("div", { children: [
-          /* @__PURE__ */ jsx("h1", { className: "text-2xl font-bold text-gray-900", children: "Recubiz" }),
-          /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-500", children: "Sistema de Gesti\xF3n de Cobranzas" })
+  return /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "min-h-screen bg-[#faf9f7]", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "bg-white shadow-sm border-b border-gray-200", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "max-w-7xl mx-auto px-8 py-6", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center justify-between", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center gap-3 mb-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "text-white text-2xl font-bold", children: "R" }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h1", { className: "text-2xl font-bold text-gray-900", children: "Recubiz" }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-sm text-gray-500", children: "Sistema de Gesti\xF3n de Cobranzas" })
         ] })
       ] }) }),
-      /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-4", children: [
-        screen !== "dashboard" && /* @__PURE__ */ jsx(Button, { variant: "default", onClick: handleVolverDashboard, children: "\u2190 Dashboard" }),
-        /* @__PURE__ */ jsxs("div", { className: "text-right", children: [
-          /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600", children: dashboardParams?.userName || "Gestor" }),
-          /* @__PURE__ */ jsxs("p", { className: "text-xs text-gray-400", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center gap-4", children: [
+        screen !== "dashboard" && /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Button, { variant: "default", onClick: handleVolverDashboard, children: "\u2190 Dashboard" }),
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "text-right", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-sm text-gray-600", children: dashboardParams?.userName || "Gestor" }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("p", { className: "text-xs text-gray-400", children: [
             "v",
             version
           ] })
         ] })
       ] })
     ] }) }) }),
-    /* @__PURE__ */ jsxs("div", { className: "max-w-7xl mx-auto px-8 py-8", children: [
-      screen === "dashboard" && /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
-        /* @__PURE__ */ jsxs("div", { className: "mb-6", children: [
-          /* @__PURE__ */ jsx("h2", { className: "text-3xl font-bold text-gray-900 mb-2", children: "Dashboard" }),
-          /* @__PURE__ */ jsx("p", { className: "text-gray-600", children: "Vista general del sistema de gesti\xF3n de cobranzas" })
+    /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "max-w-7xl mx-auto px-8 py-8", children: [
+      screen === "dashboard" && /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "space-y-6", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "mb-6", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h2", { className: "text-3xl font-bold text-gray-900 mb-2", children: "Dashboard" }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-gray-600", children: "Vista general del sistema de gesti\xF3n de cobranzas" })
         ] }),
-        /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6", children: [
-          /* @__PURE__ */ jsxs(
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)(
             "div",
             {
               className: "bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border-l-4 border-emerald-500 p-6 cursor-pointer",
               onClick: handleSolicitarNuevaDeuda,
               children: [
-                /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between mb-3", children: [
-                  /* @__PURE__ */ jsxs("div", { children: [
-                    /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600 mb-1", children: "Nueva Gesti\xF3n" }),
-                    /* @__PURE__ */ jsx("p", { className: "text-lg font-bold text-gray-900", children: "Solicitar deuda" })
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center justify-between mb-3", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-sm text-gray-600 mb-1", children: "Nueva Gesti\xF3n" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-lg font-bold text-gray-900", children: "Solicitar deuda" })
                   ] }),
-                  /* @__PURE__ */ jsx("div", { className: "w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center", children: /* @__PURE__ */ jsx("svg", { className: "w-6 h-6 text-emerald-500", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M12 4v16m8-8H4" }) }) })
+                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-6 h-6 text-emerald-500", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M12 4v16m8-8H4" }) }) })
                 ] }),
-                /* @__PURE__ */ jsx("div", { className: "mt-2", children: /* @__PURE__ */ jsx(
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "mt-2", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
                   Button,
                   {
                     size: "sm",
@@ -9671,63 +9756,63 @@ Total de acciones: ${totalAcciones}`);
               ]
             }
           ),
-          /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border-l-4 border-orange-500 p-6", children: [
-            /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
-              /* @__PURE__ */ jsxs("div", { children: [
-                /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600 mb-1", children: "Gestiones Activas" }),
-                /* @__PURE__ */ jsx("p", { className: "text-3xl font-bold text-gray-900", children: MOCK_DEUDAS_HISTORIAL.length })
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border-l-4 border-orange-500 p-6", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center justify-between", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-sm text-gray-600 mb-1", children: "Gestiones Activas" }),
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-3xl font-bold text-gray-900", children: MOCK_DEUDAS_HISTORIAL.length })
               ] }),
-              /* @__PURE__ */ jsx("div", { className: "w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center", children: /* @__PURE__ */ jsx("svg", { className: "w-6 h-6 text-orange-500", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" }) }) })
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-6 h-6 text-orange-500", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" }) }) })
             ] }),
-            /* @__PURE__ */ jsxs("div", { className: "mt-2", children: [
-              /* @__PURE__ */ jsx("svg", { className: "w-4 h-4 inline text-green-500", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" }) }),
-              /* @__PURE__ */ jsx("span", { className: "text-xs text-gray-600 ml-1", children: "En proceso" })
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "mt-2", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-4 h-4 inline text-green-500", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "text-xs text-gray-600 ml-1", children: "En proceso" })
             ] })
           ] }),
-          /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border-l-4 border-blue-500 p-6", children: [
-            /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
-              /* @__PURE__ */ jsxs("div", { children: [
-                /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600 mb-1", children: "Acciones (7d)" }),
-                /* @__PURE__ */ jsx("p", { className: "text-3xl font-bold text-gray-900", children: "12" })
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border-l-4 border-blue-500 p-6", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center justify-between", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-sm text-gray-600 mb-1", children: "Acciones (7d)" }),
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-3xl font-bold text-gray-900", children: "12" })
               ] }),
-              /* @__PURE__ */ jsx("div", { className: "w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center", children: /* @__PURE__ */ jsx("svg", { className: "w-6 h-6 text-blue-500", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" }) }) })
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-6 h-6 text-blue-500", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" }) }) })
             ] }),
-            /* @__PURE__ */ jsxs("div", { className: "mt-2", children: [
-              /* @__PURE__ */ jsx("svg", { className: "w-4 h-4 inline text-blue-500", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" }) }),
-              /* @__PURE__ */ jsx("span", { className: "text-xs text-gray-600 ml-1", children: "\xDAltimos 7 d\xEDas" })
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "mt-2", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-4 h-4 inline text-blue-500", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "text-xs text-gray-600 ml-1", children: "\xDAltimos 7 d\xEDas" })
             ] })
           ] }),
-          /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border-l-4 border-green-500 p-6", children: [
-            /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
-              /* @__PURE__ */ jsxs("div", { children: [
-                /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600 mb-1", children: "Monto en Gesti\xF3n" }),
-                /* @__PURE__ */ jsx("p", { className: "text-3xl font-bold text-gray-900", children: "$ 180K" })
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border-l-4 border-green-500 p-6", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center justify-between", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-sm text-gray-600 mb-1", children: "Monto en Gesti\xF3n" }),
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-3xl font-bold text-gray-900", children: "$ 180K" })
               ] }),
-              /* @__PURE__ */ jsx("div", { className: "w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center", children: /* @__PURE__ */ jsx("svg", { className: "w-6 h-6 text-green-500", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" }) }) })
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-6 h-6 text-green-500", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" }) }) })
             ] }),
-            /* @__PURE__ */ jsx("div", { className: "mt-2", children: /* @__PURE__ */ jsx("span", { className: "text-xs text-gray-600", children: "2 deudas activas" }) })
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "mt-2", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { className: "text-xs text-gray-600", children: "2 deudas activas" }) })
           ] })
         ] }),
-        /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden", children: [
-          /* @__PURE__ */ jsx("div", { className: "px-6 py-4 border-b border-gray-200", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
-            /* @__PURE__ */ jsx("div", { className: "w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center", children: /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" }) }) }),
-            /* @__PURE__ */ jsxs("div", { children: [
-              /* @__PURE__ */ jsx("h3", { className: "text-lg font-bold text-gray-900", children: "Mis Gestiones" }),
-              /* @__PURE__ */ jsxs("p", { className: "text-sm text-gray-600 mt-1", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "px-6 py-4 border-b border-gray-200", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center gap-3", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" }) }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h3", { className: "text-lg font-bold text-gray-900", children: "Mis Gestiones" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("p", { className: "text-sm text-gray-600 mt-1", children: [
                 MOCK_DEUDAS_HISTORIAL.length,
                 " gestiones en proceso"
               ] })
             ] })
           ] }) }),
-          /* @__PURE__ */ jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxs("table", { className: "w-full", children: [
-            /* @__PURE__ */ jsx("thead", { className: "bg-gray-100 border-b border-gray-200", children: /* @__PURE__ */ jsxs("tr", { children: [
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "ID" }),
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Deudor" }),
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Documento" }),
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Deuda Actual" }),
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Estado" })
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "overflow-x-auto", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("table", { className: "w-full", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("thead", { className: "bg-gray-100 border-b border-gray-200", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("tr", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "ID" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Deudor" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Documento" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Deuda Actual" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Estado" })
             ] }) }),
-            /* @__PURE__ */ jsx("tbody", { className: "divide-y divide-gray-100", children: MOCK_DEUDAS_HISTORIAL.map((d, index) => /* @__PURE__ */ jsx(
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("tbody", { className: "divide-y divide-gray-100", children: MOCK_DEUDAS_HISTORIAL.map((d, index) => /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
               DeudaRow,
               {
                 deuda: d,
@@ -9739,59 +9824,59 @@ Total de acciones: ${totalAcciones}`);
           ] }) })
         ] })
       ] }),
-      screen === "detail" && deudaActual && /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
-        /* @__PURE__ */ jsxs("div", { className: "mb-6", children: [
-          /* @__PURE__ */ jsx("h2", { className: "text-3xl font-bold text-gray-900 mb-2", children: "Detalle de Deuda" }),
-          /* @__PURE__ */ jsx("p", { className: "text-gray-600", children: deudaActual.id })
+      screen === "detail" && deudaActual && /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "space-y-6", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "mb-6", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h2", { className: "text-3xl font-bold text-gray-900 mb-2", children: "Detalle de Deuda" }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-gray-600", children: deudaActual.id })
         ] }),
-        /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden", children: [
-          /* @__PURE__ */ jsx("div", { className: "px-6 py-4 border-b border-gray-200 bg-gray-100", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
-            /* @__PURE__ */ jsx("div", { className: "w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center", children: /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" }) }) }),
-            /* @__PURE__ */ jsxs("div", { children: [
-              /* @__PURE__ */ jsx("h3", { className: "text-lg font-bold text-gray-900", children: "Datos del Deudor" }),
-              /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600", children: "Informaci\xF3n personal" })
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "px-6 py-4 border-b border-gray-200 bg-gray-100", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center gap-3", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" }) }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h3", { className: "text-lg font-bold text-gray-900", children: "Datos del Deudor" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-sm text-gray-600", children: "Informaci\xF3n personal" })
             ] })
           ] }) }),
-          /* @__PURE__ */ jsx("div", { className: "p-8", children: /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6", children: [
-            /* @__PURE__ */ jsxs("div", { children: [
-              /* @__PURE__ */ jsx("label", { className: "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2", children: "Nombre" }),
-              /* @__PURE__ */ jsx("p", { className: "text-base font-semibold text-gray-900", children: deudaActual.deudor })
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "p-8", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("label", { className: "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2", children: "Nombre" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-base font-semibold text-gray-900", children: deudaActual.deudor })
             ] }),
-            /* @__PURE__ */ jsxs("div", { children: [
-              /* @__PURE__ */ jsx("label", { className: "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2", children: "N\xFAmero Documento" }),
-              /* @__PURE__ */ jsx("p", { className: "text-base font-semibold text-gray-900", children: deudaActual.numeroDocumento })
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("label", { className: "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2", children: "N\xFAmero Documento" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-base font-semibold text-gray-900", children: deudaActual.numeroDocumento })
             ] }),
-            /* @__PURE__ */ jsxs("div", { children: [
-              /* @__PURE__ */ jsx("label", { className: "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2", children: "CUIT" }),
-              /* @__PURE__ */ jsx("p", { className: "text-base font-semibold text-gray-900", children: deudaActual.cuit })
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("label", { className: "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2", children: "CUIT" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-base font-semibold text-gray-900", children: deudaActual.cuit })
             ] }),
-            /* @__PURE__ */ jsxs("div", { children: [
-              /* @__PURE__ */ jsx("label", { className: "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2", children: "Fecha Nacimiento" }),
-              /* @__PURE__ */ jsx("p", { className: "text-base text-gray-900", children: formatDate(deudaActual.fechaNacimiento) })
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("label", { className: "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2", children: "Fecha Nacimiento" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-base text-gray-900", children: formatDate(deudaActual.fechaNacimiento) })
             ] })
           ] }) })
         ] }),
-        /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden", children: [
-          /* @__PURE__ */ jsx("div", { className: "px-6 py-4 border-b border-gray-200 bg-gray-100", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
-            /* @__PURE__ */ jsx("div", { className: "w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center", children: /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-red-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" }) }) }),
-            /* @__PURE__ */ jsxs("div", { children: [
-              /* @__PURE__ */ jsx("h3", { className: "text-lg font-bold text-gray-900", children: "Datos de la Deuda" }),
-              /* @__PURE__ */ jsxs("p", { className: "text-sm text-gray-600", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "px-6 py-4 border-b border-gray-200 bg-gray-100", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center gap-3", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-5 h-5 text-red-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" }) }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h3", { className: "text-lg font-bold text-gray-900", children: "Datos de la Deuda" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("p", { className: "text-sm text-gray-600", children: [
                 deudaActual.detalles.length,
                 " ",
                 deudaActual.detalles.length === 1 ? "registro" : "registros"
               ] })
             ] })
           ] }) }),
-          /* @__PURE__ */ jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxs("table", { className: "w-full", children: [
-            /* @__PURE__ */ jsx("thead", { className: "bg-gray-100 border-b border-gray-200", children: /* @__PURE__ */ jsxs("tr", { children: [
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Fecha" }),
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Importe Original" }),
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Importe Actual" }),
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Producto" }),
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Descripci\xF3n" })
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "overflow-x-auto", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("table", { className: "w-full", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("thead", { className: "bg-gray-100 border-b border-gray-200", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("tr", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Fecha" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Importe Original" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Importe Actual" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Producto" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Descripci\xF3n" })
             ] }) }),
-            /* @__PURE__ */ jsx("tbody", { className: "divide-y divide-gray-100", children: deudaActual.detalles.map((detalle, index) => /* @__PURE__ */ jsx(
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("tbody", { className: "divide-y divide-gray-100", children: deudaActual.detalles.map((detalle, index) => /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
               DetalleDeudaRow,
               {
                 detalle,
@@ -9799,95 +9884,95 @@ Total de acciones: ${totalAcciones}`);
               },
               detalle.id
             )) }),
-            /* @__PURE__ */ jsx("tfoot", { className: "bg-gray-100 border-t-2 border-gray-300", children: /* @__PURE__ */ jsxs("tr", { children: [
-              /* @__PURE__ */ jsx("td", { className: "px-6 py-4 text-sm font-bold text-gray-900", colSpan: 2, children: "TOTAL" }),
-              /* @__PURE__ */ jsx("td", { className: "px-6 py-4 whitespace-nowrap text-lg font-bold text-red-600", children: formatCurrency(deudaActual.detalles.reduce((sum, d) => sum + d.importe, 0)) }),
-              /* @__PURE__ */ jsx("td", { colSpan: 2 })
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("tfoot", { className: "bg-gray-100 border-t-2 border-gray-300", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("tr", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4 text-sm font-bold text-gray-900", colSpan: 2, children: "TOTAL" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4 whitespace-nowrap text-lg font-bold text-red-600", children: formatCurrency(deudaActual.detalles.reduce((sum, d) => sum + d.importe, 0)) }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { colSpan: 2 })
             ] }) })
           ] }) })
         ] }),
-        /* @__PURE__ */ jsxs("div", { className: "flex gap-3 justify-end", children: [
-          /* @__PURE__ */ jsx(Button, { variant: "destructive", size: "lg", onClick: handleRechazarDeuda, children: "Rechazar" }),
-          /* @__PURE__ */ jsx(Button, { variant: "default", size: "lg", onClick: handleAceptarDeuda, children: "Aceptar y Gestionar" })
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex gap-3 justify-end", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Button, { variant: "destructive", size: "lg", onClick: handleRechazarDeuda, children: "Rechazar" }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Button, { variant: "default", size: "lg", onClick: handleAceptarDeuda, children: "Aceptar y Gestionar" })
         ] })
       ] }),
-      screen === "management" && deudaActual && /* @__PURE__ */ jsxs("div", { className: "space-y-6", children: [
-        /* @__PURE__ */ jsxs("div", { className: "mb-6", children: [
-          /* @__PURE__ */ jsx("h2", { className: "text-3xl font-bold text-gray-900 mb-2", children: "Gesti\xF3n Activa" }),
-          /* @__PURE__ */ jsxs("p", { className: "text-gray-600", children: [
+      screen === "management" && deudaActual && /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "space-y-6", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "mb-6", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h2", { className: "text-3xl font-bold text-gray-900 mb-2", children: "Gesti\xF3n Activa" }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("p", { className: "text-gray-600", children: [
             deudaActual.id,
             " - ",
             deudaActual.deudor
           ] })
         ] }),
-        /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-xl shadow-sm border-l-4 border-orange-500 p-6", children: [
-          /* @__PURE__ */ jsxs("div", { className: "flex items-start gap-4 mb-6", children: [
-            /* @__PURE__ */ jsx("div", { className: "w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0", children: /* @__PURE__ */ jsx("svg", { className: "w-6 h-6 text-orange-500", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" }) }) }),
-            /* @__PURE__ */ jsxs("div", { className: "flex-1", children: [
-              /* @__PURE__ */ jsx("h3", { className: "text-xl font-bold text-gray-900 mb-1", children: "Informaci\xF3n del Deudor" }),
-              /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600", children: "Datos personales y deuda total" })
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "bg-white rounded-xl shadow-sm border-l-4 border-orange-500 p-6", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-start gap-4 mb-6", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-6 h-6 text-orange-500", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" }) }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex-1", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h3", { className: "text-xl font-bold text-gray-900 mb-1", children: "Informaci\xF3n del Deudor" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-sm text-gray-600", children: "Datos personales y deuda total" })
             ] })
           ] }),
-          /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6", children: [
-            /* @__PURE__ */ jsxs("div", { children: [
-              /* @__PURE__ */ jsx("label", { className: "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1", children: "Nombre" }),
-              /* @__PURE__ */ jsx("p", { className: "text-base font-semibold text-gray-900", children: deudaActual.deudor })
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("label", { className: "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1", children: "Nombre" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-base font-semibold text-gray-900", children: deudaActual.deudor })
             ] }),
-            /* @__PURE__ */ jsxs("div", { children: [
-              /* @__PURE__ */ jsx("label", { className: "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1", children: "Documento" }),
-              /* @__PURE__ */ jsx("p", { className: "text-base font-medium text-gray-900", children: deudaActual.numeroDocumento })
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("label", { className: "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1", children: "Documento" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-base font-medium text-gray-900", children: deudaActual.numeroDocumento })
             ] }),
-            /* @__PURE__ */ jsxs("div", { children: [
-              /* @__PURE__ */ jsx("label", { className: "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1", children: "CUIT" }),
-              /* @__PURE__ */ jsx("p", { className: "text-base font-medium text-gray-900", children: deudaActual.cuit })
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("label", { className: "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1", children: "CUIT" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-base font-medium text-gray-900", children: deudaActual.cuit })
             ] }),
-            /* @__PURE__ */ jsxs("div", { children: [
-              /* @__PURE__ */ jsx("label", { className: "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1", children: "Fecha Nacimiento" }),
-              /* @__PURE__ */ jsx("p", { className: "text-base text-gray-900", children: formatDate(deudaActual.fechaNacimiento) })
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("label", { className: "block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1", children: "Fecha Nacimiento" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-base text-gray-900", children: formatDate(deudaActual.fechaNacimiento) })
             ] })
           ] }),
-          /* @__PURE__ */ jsx("div", { className: "pt-4 border-t border-gray-200", children: /* @__PURE__ */ jsxs("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [
-            /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
-              /* @__PURE__ */ jsx("div", { className: "w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center", children: /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-blue-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" }) }) }),
-              /* @__PURE__ */ jsxs("div", { children: [
-                /* @__PURE__ */ jsx("p", { className: "text-xs font-semibold text-gray-500 uppercase tracking-wide", children: "Productos" }),
-                /* @__PURE__ */ jsxs("p", { className: "text-lg font-bold text-gray-900", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "pt-4 border-t border-gray-200", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center gap-3", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-5 h-5 text-blue-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" }) }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-xs font-semibold text-gray-500 uppercase tracking-wide", children: "Productos" }),
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("p", { className: "text-lg font-bold text-gray-900", children: [
                   deudaActual.detalles.length,
                   " ",
                   deudaActual.detalles.length === 1 ? "producto" : "productos"
                 ] })
               ] })
             ] }),
-            /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
-              /* @__PURE__ */ jsx("div", { className: "w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center", children: /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-red-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" }) }) }),
-              /* @__PURE__ */ jsxs("div", { children: [
-                /* @__PURE__ */ jsx("p", { className: "text-xs font-semibold text-gray-500 uppercase tracking-wide", children: "Deuda Total" }),
-                /* @__PURE__ */ jsx("p", { className: "text-xl font-bold text-red-600", children: formatCurrency(deudaActual.detalles.reduce((sum, d) => sum + d.importe, 0)) })
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center gap-3", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-5 h-5 text-red-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" }) }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-xs font-semibold text-gray-500 uppercase tracking-wide", children: "Deuda Total" }),
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-xl font-bold text-red-600", children: formatCurrency(deudaActual.detalles.reduce((sum, d) => sum + d.importe, 0)) })
               ] })
             ] })
           ] }) })
         ] }),
-        /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden", children: [
-          /* @__PURE__ */ jsx("div", { className: "px-6 py-4 border-b border-gray-200 bg-gray-100", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
-            /* @__PURE__ */ jsx("div", { className: "w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center", children: /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-red-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" }) }) }),
-            /* @__PURE__ */ jsxs("div", { children: [
-              /* @__PURE__ */ jsx("h3", { className: "text-lg font-bold text-gray-900", children: "Datos de la Deuda" }),
-              /* @__PURE__ */ jsxs("p", { className: "text-sm text-gray-600", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "px-6 py-4 border-b border-gray-200 bg-gray-100", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center gap-3", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-5 h-5 text-red-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" }) }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h3", { className: "text-lg font-bold text-gray-900", children: "Datos de la Deuda" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("p", { className: "text-sm text-gray-600", children: [
                 deudaActual.detalles.length,
                 " ",
                 deudaActual.detalles.length === 1 ? "registro" : "registros"
               ] })
             ] })
           ] }) }),
-          /* @__PURE__ */ jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxs("table", { className: "w-full", children: [
-            /* @__PURE__ */ jsx("thead", { className: "bg-gray-100 border-b border-gray-200", children: /* @__PURE__ */ jsxs("tr", { children: [
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Fecha" }),
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Importe Original" }),
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Importe Actual" }),
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Producto" }),
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Descripci\xF3n" })
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "overflow-x-auto", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("table", { className: "w-full", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("thead", { className: "bg-gray-100 border-b border-gray-200", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("tr", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Fecha" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Importe Original" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Importe Actual" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Producto" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Descripci\xF3n" })
             ] }) }),
-            /* @__PURE__ */ jsx("tbody", { className: "divide-y divide-gray-100", children: deudaActual.detalles.map((detalle, index) => /* @__PURE__ */ jsx(
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("tbody", { className: "divide-y divide-gray-100", children: deudaActual.detalles.map((detalle, index) => /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
               DetalleDeudaRow,
               {
                 detalle,
@@ -9895,52 +9980,52 @@ Total de acciones: ${totalAcciones}`);
               },
               detalle.id
             )) }),
-            /* @__PURE__ */ jsx("tfoot", { className: "bg-gray-100 border-t-2 border-gray-300", children: /* @__PURE__ */ jsxs("tr", { children: [
-              /* @__PURE__ */ jsx("td", { className: "px-6 py-4 text-sm font-bold text-gray-900", colSpan: 2, children: "TOTAL" }),
-              /* @__PURE__ */ jsx("td", { className: "px-6 py-4 whitespace-nowrap text-lg font-bold text-red-600", children: formatCurrency(deudaActual.detalles.reduce((sum, d) => sum + d.importe, 0)) }),
-              /* @__PURE__ */ jsx("td", { colSpan: 2 })
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("tfoot", { className: "bg-gray-100 border-t-2 border-gray-300", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("tr", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4 text-sm font-bold text-gray-900", colSpan: 2, children: "TOTAL" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { className: "px-6 py-4 whitespace-nowrap text-lg font-bold text-red-600", children: formatCurrency(deudaActual.detalles.reduce((sum, d) => sum + d.importe, 0)) }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("td", { colSpan: 2 })
             ] }) })
           ] }) })
         ] }),
-        accionesHistorial.length > 0 && /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden", children: [
-          /* @__PURE__ */ jsx(
+        accionesHistorial.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
             "div",
             {
               className: "px-6 py-4 border-b border-gray-200 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors",
               onClick: () => setMostrarHistorial(!mostrarHistorial),
-              children: /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
-                /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
-                  /* @__PURE__ */ jsx("div", { className: "w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center", children: /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-blue-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" }) }) }),
-                  /* @__PURE__ */ jsxs("div", { children: [
-                    /* @__PURE__ */ jsx("h3", { className: "text-lg font-bold text-gray-900", children: "Historial de Acciones" }),
-                    /* @__PURE__ */ jsxs("p", { className: "text-sm text-gray-600 mt-1", children: [
+              children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center justify-between", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center gap-3", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-5 h-5 text-blue-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" }) }) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h3", { className: "text-lg font-bold text-gray-900", children: "Historial de Acciones" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("p", { className: "text-sm text-gray-600 mt-1", children: [
                       accionesHistorial.length,
                       " acciones registradas"
                     ] })
                   ] })
                 ] }),
-                /* @__PURE__ */ jsx(
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
                   "svg",
                   {
                     className: `w-6 h-6 text-gray-600 transition-transform ${mostrarHistorial ? "rotate-180" : ""}`,
                     fill: "none",
                     stroke: "currentColor",
                     viewBox: "0 0 24 24",
-                    children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M19 9l-7 7-7-7" })
+                    children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M19 9l-7 7-7-7" })
                   }
                 )
               ] })
             }
           ),
-          mostrarHistorial && /* @__PURE__ */ jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxs("table", { className: "w-full", children: [
-            /* @__PURE__ */ jsx("thead", { className: "bg-gray-100 border-b border-gray-200", children: /* @__PURE__ */ jsxs("tr", { children: [
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Fecha" }),
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Hora" }),
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Tipo" }),
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Contacto" }),
-              /* @__PURE__ */ jsx("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Observaciones" })
+          mostrarHistorial && /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "overflow-x-auto", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("table", { className: "w-full", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("thead", { className: "bg-gray-100 border-b border-gray-200", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("tr", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Fecha" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Hora" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Tipo" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Contacto" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("th", { className: "px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider", children: "Observaciones" })
             ] }) }),
-            /* @__PURE__ */ jsx("tbody", { className: "divide-y divide-gray-100", children: accionesHistorial.map((a, index) => /* @__PURE__ */ jsx(
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("tbody", { className: "divide-y divide-gray-100", children: accionesHistorial.map((a, index) => /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
               AccionRow,
               {
                 accion: a,
@@ -9951,15 +10036,15 @@ Total de acciones: ${totalAcciones}`);
             )) })
           ] }) })
         ] }),
-        /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-xl shadow-sm border border-gray-200 p-6", children: [
-          /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3 mb-6", children: [
-            /* @__PURE__ */ jsx("div", { className: "w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center", children: /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" }) }) }),
-            /* @__PURE__ */ jsxs("div", { children: [
-              /* @__PURE__ */ jsx("h3", { className: "text-lg font-bold text-gray-900", children: "Contactos del Deudor" }),
-              /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600", children: "Click en un contacto para registrar acci\xF3n" })
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "bg-white rounded-xl shadow-sm border border-gray-200 p-6", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center gap-3 mb-6", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" }) }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h3", { className: "text-lg font-bold text-gray-900", children: "Contactos del Deudor" }),
+              /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-sm text-gray-600", children: "Click en un contacto para registrar acci\xF3n" })
             ] })
           ] }),
-          /* @__PURE__ */ jsx("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4", children: deudaActual.contactos && deudaActual.contactos.length > 0 ? deudaActual.contactos.map((contacto) => /* @__PURE__ */ jsx(
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4", children: deudaActual.contactos && deudaActual.contactos.length > 0 ? deudaActual.contactos.map((contacto) => /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
             ContactoCard,
             {
               contacto,
@@ -9969,24 +10054,24 @@ Total de acciones: ${totalAcciones}`);
               }
             },
             contacto.id
-          )) : /* @__PURE__ */ jsx("div", { className: "col-span-full text-center py-8 text-gray-500", children: "No hay contactos disponibles para este deudor" }) })
+          )) : /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "col-span-full text-center py-8 text-gray-500", children: "No hay contactos disponibles para este deudor" }) })
         ] }),
-        /* @__PURE__ */ jsx("div", { className: "flex justify-center pt-4", children: /* @__PURE__ */ jsx(Button, { size: "lg", onClick: handleFinalizarGestion, children: "\u2713 Finalizar Gesti\xF3n" }) })
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "flex justify-center pt-4", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Button, { size: "lg", onClick: handleFinalizarGestion, children: "\u2713 Finalizar Gesti\xF3n" }) })
       ] }),
-      mostrarConfirmacionSolicitar && /* @__PURE__ */ jsx("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50", children: /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-xl shadow-2xl max-w-md w-full p-8", children: [
-        /* @__PURE__ */ jsxs("div", { className: "flex items-start gap-4 mb-6", children: [
-          /* @__PURE__ */ jsx("div", { className: "w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center flex-shrink-0", children: /* @__PURE__ */ jsx("svg", { className: "w-6 h-6 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" }) }) }),
-          /* @__PURE__ */ jsxs("div", { children: [
-            /* @__PURE__ */ jsx("h2", { className: "text-xl font-bold text-gray-900 mb-1", children: "Solicitar Nueva Deuda" }),
-            /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600", children: "Confirmar solicitud" })
+      mostrarConfirmacionSolicitar && /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "bg-white rounded-xl shadow-2xl max-w-md w-full p-8", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-start gap-4 mb-6", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center flex-shrink-0", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-6 h-6 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" }) }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h2", { className: "text-xl font-bold text-gray-900 mb-1", children: "Solicitar Nueva Deuda" }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-sm text-gray-600", children: "Confirmar solicitud" })
           ] })
         ] }),
-        /* @__PURE__ */ jsxs("div", { className: "mb-8", children: [
-          /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-700", children: "\xBFEst\xE1 seguro que desea solicitar una nueva deuda para gestionar?" }),
-          /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600 mt-2", children: "Se le asignar\xE1 la pr\xF3xima deuda disponible en el sistema." })
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "mb-8", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-sm text-gray-700", children: "\xBFEst\xE1 seguro que desea solicitar una nueva deuda para gestionar?" }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-sm text-gray-600 mt-2", children: "Se le asignar\xE1 la pr\xF3xima deuda disponible en el sistema." })
         ] }),
-        /* @__PURE__ */ jsxs("div", { className: "flex gap-3", children: [
-          /* @__PURE__ */ jsx(
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex gap-3", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
             Button,
             {
               variant: "outline",
@@ -9995,30 +10080,30 @@ Total de acciones: ${totalAcciones}`);
               children: "Cancelar"
             }
           ),
-          /* @__PURE__ */ jsx(Button, { variant: "default", onClick: handleConfirmarSolicitud, className: "flex-1", children: "Confirmar Solicitud" })
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Button, { variant: "default", onClick: handleConfirmarSolicitud, className: "flex-1", children: "Confirmar Solicitud" })
         ] })
       ] }) }),
-      mostrarConfirmacionFinalizar && /* @__PURE__ */ jsx("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50", children: /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-xl shadow-2xl max-w-md w-full p-8", children: [
-        /* @__PURE__ */ jsxs("div", { className: "flex items-start gap-4 mb-6", children: [
-          /* @__PURE__ */ jsx("div", { className: "w-12 h-12 bg-green-50 rounded-full flex items-center justify-center flex-shrink-0", children: /* @__PURE__ */ jsx("svg", { className: "w-6 h-6 text-green-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" }) }) }),
-          /* @__PURE__ */ jsxs("div", { children: [
-            /* @__PURE__ */ jsx("h2", { className: "text-xl font-bold text-gray-900 mb-1", children: "Finalizar Gesti\xF3n" }),
-            /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600", children: deudaActual?.id })
+      mostrarConfirmacionFinalizar && /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "bg-white rounded-xl shadow-2xl max-w-md w-full p-8", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-start gap-4 mb-6", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-12 h-12 bg-green-50 rounded-full flex items-center justify-center flex-shrink-0", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-6 h-6 text-green-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" }) }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h2", { className: "text-xl font-bold text-gray-900 mb-1", children: "Finalizar Gesti\xF3n" }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-sm text-gray-600", children: deudaActual?.id })
           ] })
         ] }),
-        /* @__PURE__ */ jsxs("div", { className: "mb-8", children: [
-          /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-700", children: "\xBFEst\xE1 seguro que desea finalizar la gesti\xF3n de esta deuda?" }),
-          /* @__PURE__ */ jsxs("p", { className: "text-sm text-gray-600 mt-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "mb-8", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-sm text-gray-700", children: "\xBFEst\xE1 seguro que desea finalizar la gesti\xF3n de esta deuda?" }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("p", { className: "text-sm text-gray-600 mt-2", children: [
             "Se han registrado ",
-            /* @__PURE__ */ jsxs("span", { className: "font-bold", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("span", { className: "font-bold", children: [
               accionesHistorial.length,
               " acciones"
             ] }),
             " en total."
           ] })
         ] }),
-        /* @__PURE__ */ jsxs("div", { className: "flex gap-3", children: [
-          /* @__PURE__ */ jsx(
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex gap-3", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
             Button,
             {
               variant: "outline",
@@ -10027,36 +10112,36 @@ Total de acciones: ${totalAcciones}`);
               children: "Cancelar"
             }
           ),
-          /* @__PURE__ */ jsx(Button, { variant: "default", onClick: handleConfirmarFinalizar, className: "flex-1", children: "Confirmar Finalizaci\xF3n" })
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Button, { variant: "default", onClick: handleConfirmarFinalizar, className: "flex-1", children: "Confirmar Finalizaci\xF3n" })
         ] })
       ] }) }),
-      mostrarRechazo && /* @__PURE__ */ jsx("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50", children: /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-xl shadow-2xl max-w-md w-full p-8", children: [
-        /* @__PURE__ */ jsxs("div", { className: "flex items-start gap-4 mb-6", children: [
-          /* @__PURE__ */ jsx("div", { className: "w-12 h-12 bg-red-50 rounded-full flex items-center justify-center flex-shrink-0", children: /* @__PURE__ */ jsx("svg", { className: "w-6 h-6 text-red-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" }) }) }),
-          /* @__PURE__ */ jsxs("div", { children: [
-            /* @__PURE__ */ jsx("h2", { className: "text-xl font-bold text-gray-900 mb-1", children: "Rechazar Deuda" }),
-            /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600", children: deudaActual?.id })
+      mostrarRechazo && /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "bg-white rounded-xl shadow-2xl max-w-md w-full p-8", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-start gap-4 mb-6", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-12 h-12 bg-red-50 rounded-full flex items-center justify-center flex-shrink-0", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-6 h-6 text-red-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" }) }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h2", { className: "text-xl font-bold text-gray-900 mb-1", children: "Rechazar Deuda" }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-sm text-gray-600", children: deudaActual?.id })
           ] })
         ] }),
-        /* @__PURE__ */ jsxs("div", { className: "space-y-5 mb-8", children: [
-          /* @__PURE__ */ jsxs("div", { children: [
-            /* @__PURE__ */ jsx("label", { className: "block text-sm font-semibold text-gray-700 mb-2", children: "Motivo de Rechazo *" }),
-            /* @__PURE__ */ jsxs(
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "space-y-5 mb-8", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("label", { className: "block text-sm font-semibold text-gray-700 mb-2", children: "Motivo de Rechazo *" }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)(
               "select",
               {
                 value: motivoRechazo,
                 onChange: (e) => setMotivoRechazo(e.target.value),
                 className: "w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-0 focus:border-gray-300 transition-colors",
                 children: [
-                  /* @__PURE__ */ jsx("option", { value: "", children: "Seleccione un motivo..." }),
-                  MOTIVOS_RECHAZO.map((m) => /* @__PURE__ */ jsx("option", { value: m.value, children: m.label }, m.value))
+                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("option", { value: "", children: "Seleccione un motivo..." }),
+                  MOTIVOS_RECHAZO.map((m) => /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("option", { value: m.value, children: m.label }, m.value))
                 ]
               }
             )
           ] }),
-          /* @__PURE__ */ jsxs("div", { children: [
-            /* @__PURE__ */ jsx("label", { className: "block text-sm font-semibold text-gray-700 mb-2", children: "Descripci\xF3n *" }),
-            /* @__PURE__ */ jsx(
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("label", { className: "block text-sm font-semibold text-gray-700 mb-2", children: "Descripci\xF3n *" }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
               "textarea",
               {
                 value: descripcionRechazo,
@@ -10068,8 +10153,8 @@ Total de acciones: ${totalAcciones}`);
             )
           ] })
         ] }),
-        /* @__PURE__ */ jsxs("div", { className: "flex gap-3", children: [
-          /* @__PURE__ */ jsx(
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex gap-3", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
             Button,
             {
               variant: "outline",
@@ -10082,13 +10167,13 @@ Total de acciones: ${totalAcciones}`);
               children: "Cancelar"
             }
           ),
-          /* @__PURE__ */ jsx(Button, { variant: "destructive", onClick: handleConfirmarRechazo, className: "flex-1", children: "Confirmar Rechazo" })
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Button, { variant: "destructive", onClick: handleConfirmarRechazo, className: "flex-1", children: "Confirmar Rechazo" })
         ] })
       ] }) }),
-      mostrarModalRegistrarAccion && contactoSeleccionado && /* @__PURE__ */ jsx("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50", children: /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-xl shadow-2xl max-w-lg w-full p-8", children: [
-        /* @__PURE__ */ jsxs("div", { className: "flex items-start justify-between mb-6", children: [
-          /* @__PURE__ */ jsx("div", { className: "flex-1", children: /* @__PURE__ */ jsx("h2", { className: "text-2xl font-bold text-gray-900 mb-1", children: "Registrar Nueva Acci\xF3n" }) }),
-          /* @__PURE__ */ jsx(
+      mostrarModalRegistrarAccion && contactoSeleccionado && /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "bg-white rounded-xl shadow-2xl max-w-lg w-full p-8", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-start justify-between mb-6", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "flex-1", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h2", { className: "text-2xl font-bold text-gray-900 mb-1", children: "Registrar Nueva Acci\xF3n" }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
             "button",
             {
               onClick: () => {
@@ -10097,24 +10182,24 @@ Total de acciones: ${totalAcciones}`);
                 setObservaciones("");
               },
               className: "text-gray-400 hover:text-gray-600 transition-colors",
-              children: /* @__PURE__ */ jsx("svg", { className: "w-6 h-6", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M6 18L18 6M6 6l12 12" }) })
+              children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-6 h-6", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M6 18L18 6M6 6l12 12" }) })
             }
           )
         ] }),
-        /* @__PURE__ */ jsx("div", { className: "mb-6 p-4 bg-gray-50 border-l-4 border-orange-500 rounded-lg", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
-          /* @__PURE__ */ jsx("div", { className: "w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0", children: (contactoSeleccionado.tipo || "").toLowerCase().includes("email") ? /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" }) }) : (contactoSeleccionado.tipo || "").toLowerCase().includes("whatsapp") ? /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" }) }) : (contactoSeleccionado.tipo || "").toLowerCase().includes("instagram") ? /* @__PURE__ */ jsxs("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: [
-            /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" }),
-            /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M15 13a3 3 0 11-6 0 3 3 0 016 0z" })
-          ] }) : /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" }) }) }),
-          /* @__PURE__ */ jsxs("div", { children: [
-            /* @__PURE__ */ jsx("p", { className: "text-xs font-semibold text-orange-700 uppercase tracking-wide mb-1", children: "Contacto seleccionado" }),
-            /* @__PURE__ */ jsx("p", { className: "text-xs font-semibold text-gray-700 uppercase tracking-wide", children: contactoSeleccionado.tipo }),
-            /* @__PURE__ */ jsx("p", { className: "text-base font-bold text-gray-900", children: contactoSeleccionado.valor })
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "mb-6 p-4 bg-gray-50 border-l-4 border-orange-500 rounded-lg", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center gap-3", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0", children: (contactoSeleccionado.tipo || "").toLowerCase().includes("email") ? /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" }) }) : (contactoSeleccionado.tipo || "").toLowerCase().includes("whatsapp") ? /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" }) }) : (contactoSeleccionado.tipo || "").toLowerCase().includes("instagram") ? /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M15 13a3 3 0 11-6 0 3 3 0 016 0z" })
+          ] }) : /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-5 h-5 text-orange-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" }) }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-xs font-semibold text-orange-700 uppercase tracking-wide mb-1", children: "Contacto seleccionado" }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-xs font-semibold text-gray-700 uppercase tracking-wide", children: contactoSeleccionado.tipo }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-base font-bold text-gray-900", children: contactoSeleccionado.valor })
           ] })
         ] }) }),
-        /* @__PURE__ */ jsxs("div", { className: "mb-6", children: [
-          /* @__PURE__ */ jsx("label", { className: "block text-sm font-semibold text-gray-700 mb-2", children: "Observaciones *" }),
-          /* @__PURE__ */ jsx(
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "mb-6", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("label", { className: "block text-sm font-semibold text-gray-700 mb-2", children: "Observaciones *" }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
             "textarea",
             {
               value: observaciones,
@@ -10126,8 +10211,8 @@ Total de acciones: ${totalAcciones}`);
             }
           )
         ] }),
-        /* @__PURE__ */ jsxs("div", { className: "flex gap-3", children: [
-          /* @__PURE__ */ jsx(
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex gap-3", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
             Button,
             {
               variant: "outline",
@@ -10140,7 +10225,7 @@ Total de acciones: ${totalAcciones}`);
               children: "Cancelar"
             }
           ),
-          /* @__PURE__ */ jsx(
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
             Button,
             {
               variant: "default",
@@ -10151,22 +10236,22 @@ Total de acciones: ${totalAcciones}`);
           )
         ] })
       ] }) }),
-      isLoading && /* @__PURE__ */ jsx("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50", children: /* @__PURE__ */ jsx("div", { className: "bg-white rounded-xl shadow-2xl max-w-md w-full p-8", children: /* @__PURE__ */ jsxs("div", { className: "flex flex-col items-center", children: [
-        /* @__PURE__ */ jsx("div", { className: "w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-4" }),
-        /* @__PURE__ */ jsx("h2", { className: "text-xl font-bold text-gray-900 mb-2", children: loadingMessage || "Procesando..." }),
-        /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600 text-center", children: "Por favor espere..." })
+      isLoading && /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "bg-white rounded-xl shadow-2xl max-w-md w-full p-8", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex flex-col items-center", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-4" }),
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h2", { className: "text-xl font-bold text-gray-900 mb-2", children: loadingMessage || "Procesando..." }),
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-sm text-gray-600 text-center", children: "Por favor espere..." })
       ] }) }) }),
-      error && /* @__PURE__ */ jsx("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50", children: /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-xl shadow-2xl max-w-md w-full p-8", children: [
-        /* @__PURE__ */ jsxs("div", { className: "flex items-start gap-4 mb-6", children: [
-          /* @__PURE__ */ jsx("div", { className: "w-12 h-12 bg-red-50 rounded-full flex items-center justify-center flex-shrink-0", children: /* @__PURE__ */ jsx("svg", { className: "w-6 h-6 text-red-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" }) }) }),
-          /* @__PURE__ */ jsxs("div", { className: "flex-1", children: [
-            /* @__PURE__ */ jsx("h2", { className: "text-xl font-bold text-gray-900 mb-1", children: "Error" }),
-            /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-600", children: "Ha ocurrido un error" })
+      error && /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "bg-white rounded-xl shadow-2xl max-w-md w-full p-8", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-start gap-4 mb-6", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-12 h-12 bg-red-50 rounded-full flex items-center justify-center flex-shrink-0", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-6 h-6 text-red-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" }) }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex-1", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h2", { className: "text-xl font-bold text-gray-900 mb-1", children: "Error" }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-sm text-gray-600", children: "Ha ocurrido un error" })
           ] })
         ] }),
-        /* @__PURE__ */ jsx("div", { className: "mb-8", children: /* @__PURE__ */ jsx("p", { className: "text-sm text-gray-700", children: error.message }) }),
-        /* @__PURE__ */ jsxs("div", { className: "flex gap-3", children: [
-          /* @__PURE__ */ jsx(
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "mb-8", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-sm text-gray-700", children: error.message }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex gap-3", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
             Button,
             {
               variant: "outline",
@@ -10175,7 +10260,7 @@ Total de acciones: ${totalAcciones}`);
               children: "Cerrar"
             }
           ),
-          error.retry && /* @__PURE__ */ jsx(
+          error.retry && /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
             Button,
             {
               variant: "default",
@@ -10189,11 +10274,11 @@ Total de acciones: ${totalAcciones}`);
           )
         ] })
       ] }) }),
-      accionSeleccionada && /* @__PURE__ */ jsx("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50", children: /* @__PURE__ */ jsxs("div", { className: "bg-white rounded-xl shadow-2xl max-w-lg w-full p-8", children: [
-        /* @__PURE__ */ jsxs("div", { className: "flex items-start justify-between mb-6", children: [
-          /* @__PURE__ */ jsxs("div", { className: "flex-1", children: [
-            /* @__PURE__ */ jsx("h2", { className: "text-2xl font-bold text-gray-900 mb-1", children: "Detalle de Acci\xF3n" }),
-            /* @__PURE__ */ jsxs("p", { className: "text-sm text-gray-600", children: [
+      accionSeleccionada && /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "bg-white rounded-xl shadow-2xl max-w-lg w-full p-8", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-start justify-between mb-6", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex-1", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("h2", { className: "text-2xl font-bold text-gray-900 mb-1", children: "Detalle de Acci\xF3n" }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("p", { className: "text-sm text-gray-600", children: [
               accionSeleccionada.tipo,
               " - ",
               accionSeleccionada.fecha,
@@ -10201,28 +10286,28 @@ Total de acciones: ${totalAcciones}`);
               accionSeleccionada.hora
             ] })
           ] }),
-          /* @__PURE__ */ jsx(
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
             "button",
             {
               onClick: () => setAccionSeleccionada(null),
               className: "text-gray-400 hover:text-gray-600 transition-colors",
-              children: /* @__PURE__ */ jsx("svg", { className: "w-6 h-6", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M6 18L18 6M6 6l12 12" }) })
+              children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-6 h-6", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M6 18L18 6M6 6l12 12" }) })
             }
           )
         ] }),
-        /* @__PURE__ */ jsx("div", { className: "mb-6 p-4 bg-gray-50 border-l-4 border-blue-500 rounded-lg", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-3", children: [
-          /* @__PURE__ */ jsx("div", { className: "w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0", children: accionSeleccionada.contacto.toLowerCase().includes("email") ? /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-blue-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" }) }) : accionSeleccionada.contacto.toLowerCase().includes("whatsapp") ? /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-blue-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" }) }) : accionSeleccionada.contacto.toLowerCase().includes("instagram") ? /* @__PURE__ */ jsxs("svg", { className: "w-5 h-5 text-blue-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: [
-            /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" }),
-            /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M15 13a3 3 0 11-6 0 3 3 0 016 0z" })
-          ] }) : /* @__PURE__ */ jsx("svg", { className: "w-5 h-5 text-blue-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" }) }) }),
-          /* @__PURE__ */ jsxs("div", { children: [
-            /* @__PURE__ */ jsx("p", { className: "text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1", children: "Contacto utilizado" }),
-            /* @__PURE__ */ jsx("p", { className: "text-base font-bold text-gray-900", children: accionSeleccionada.contacto })
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "mb-6 p-4 bg-gray-50 border-l-4 border-blue-500 rounded-lg", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "flex items-center gap-3", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0", children: accionSeleccionada.contacto.toLowerCase().includes("email") ? /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-5 h-5 text-blue-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" }) }) : accionSeleccionada.contacto.toLowerCase().includes("whatsapp") ? /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-5 h-5 text-blue-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" }) }) : accionSeleccionada.contacto.toLowerCase().includes("instagram") ? /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("svg", { className: "w-5 h-5 text-blue-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M15 13a3 3 0 11-6 0 3 3 0 016 0z" })
+          ] }) : /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("svg", { className: "w-5 h-5 text-blue-600", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" }) }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1", children: "Contacto utilizado" }),
+            /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("p", { className: "text-base font-bold text-gray-900", children: accionSeleccionada.contacto })
           ] })
         ] }) }),
-        /* @__PURE__ */ jsxs("div", { className: "mb-6", children: [
-          /* @__PURE__ */ jsx("label", { className: "block text-sm font-semibold text-gray-700 mb-2", children: "Observaciones" }),
-          /* @__PURE__ */ jsx(
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "mb-6", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("label", { className: "block text-sm font-semibold text-gray-700 mb-2", children: "Observaciones" }),
+          /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
             "textarea",
             {
               value: accionSeleccionada.observaciones,
@@ -10232,13 +10317,13 @@ Total de acciones: ${totalAcciones}`);
             }
           )
         ] }),
-        /* @__PURE__ */ jsx("div", { className: "flex justify-end", children: /* @__PURE__ */ jsx(Button, { variant: "outline", onClick: () => setAccionSeleccionada(null), children: "Cerrar" }) })
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("div", { className: "flex justify-end", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Button, { variant: "outline", onClick: () => setAccionSeleccionada(null), children: "Cerrar" }) })
       ] }) })
     ] })
   ] });
 }
 function RecubizGestionForm(props) {
-  return /* @__PURE__ */ jsx(BizuitThemeProvider, { defaultTheme: "light", defaultColorTheme: "orange", children: /* @__PURE__ */ jsx(RecubizGestionFormInner, { ...props }) });
+  return /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(BizuitThemeProvider, { defaultTheme: "light", defaultColorTheme: "orange", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(RecubizGestionFormInner, { ...props }) });
 }
 export {
   RecubizGestionForm as default

@@ -3,7 +3,7 @@
  * Professional debt collection management system
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { version as FORM_VERSION } from '../package.json';
 import {
   BizuitCard,
@@ -510,7 +510,7 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
     || dashboardParams?.devApiUrl
     || SDK_CONFIG.defaultApiUrl;
 
-  const sdk = useState(() => new BizuitSDK({ apiUrl }))[0];
+  const sdk = useMemo(() => new BizuitSDK({ apiUrl }), [apiUrl]);
 
   console.log(`🔗 Using API URL: ${apiUrl}`);
 
