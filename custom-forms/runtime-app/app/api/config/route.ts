@@ -17,5 +17,8 @@ export async function GET() {
     // Add other runtime configs here as needed
     apiUrl: process.env.FASTAPI_URL || 'http://localhost:8000',
     environment: process.env.NODE_ENV || 'development',
+    // Allow dev mode (direct form access without Dashboard token)
+    // Defaults to false if not set (secure by default)
+    allowDevMode: process.env.ALLOW_DEV_MODE === 'true',
   })
 }
