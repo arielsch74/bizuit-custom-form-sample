@@ -57,7 +57,7 @@ export function extractDashboardParams(): DashboardQueryParams | null {
   const searchParams = new URLSearchParams(window.location.search)
 
   const params: DashboardQueryParams = {
-    s: searchParams.get('s') || undefined,
+    s: searchParams.get('s') || searchParams.get('bz-auth') || undefined,  // Support both 's' and 'bz-auth'
     InstanceId: searchParams.get('InstanceId') || undefined,
     UserName: searchParams.get('UserName') || undefined,
     eventName: searchParams.get('eventName') || undefined,
@@ -65,7 +65,7 @@ export function extractDashboardParams(): DashboardQueryParams | null {
     token: searchParams.get('token') || undefined,
   }
 
-  // Return null if no 's' parameter (not from Dashboard)
+  // Return null if no 's' or 'bz-auth' parameter (not from Dashboard)
   if (!params.s) {
     return null
   }
