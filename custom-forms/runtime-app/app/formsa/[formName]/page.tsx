@@ -72,18 +72,47 @@ export default function StandaloneDynamicFormPage({ params }: Props) {
 
       console.log(`[Standalone Form Page] ✅ Iframe validation passed - origin: ${iframeValidation.parentOrigin}`)
 
+      // Fetch config for dev credentials and apiUrl
+      const configUrl = `${window.location.origin}${window.location.pathname.split('/form')[0]}/api/config`
+      const configResponse = await fetch(configUrl)
+      const config = await configResponse.json()
+
       // Optional: Try to get Dashboard parameters if provided
       // (Not required for standalone forms, but if present, we'll use them)
+      let params: DashboardParameters | null = null
+
       try {
         const validation = await getDashboardParameters()
         if (validation.valid && validation.parameters) {
           console.log('[Standalone Form Page] ✅ Dashboard token provided and validated:', validation.parameters)
-          setDashboardParams(validation.parameters)
+          params = {
+            ...validation.parameters,
+            apiUrl: config.dashboardApiUrl
+          }
         }
       } catch (err) {
         // Dashboard params are optional for standalone loader
         console.log('[Standalone Form Page] ℹ️ No Dashboard parameters provided (optional)')
       }
+
+      // If no Dashboard params, use dev credentials (if available)
+      if (!params && config.devCredentials) {
+        const devCreds = config.devCredentials
+        const devApiUrl = config.dashboardApiUrl || devCreds.apiUrl || ''
+
+        params = {
+          userName: 'Dev User',
+          apiUrl: devApiUrl,
+          devUsername: devCreds.username || '',
+          devPassword: devCreds.password || '',
+          devApiUrl: devApiUrl
+        }
+
+        console.log('[Standalone Form Page] ✅ Using dev credentials from config')
+        console.log('[Standalone Form Page] API URL:', devApiUrl)
+      }
+
+      setDashboardParams(params)
 
       // 1. Fetch metadata from API
       const basePath = window.location.pathname.split('/form')[0]
