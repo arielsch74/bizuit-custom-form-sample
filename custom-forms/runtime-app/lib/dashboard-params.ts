@@ -26,12 +26,18 @@ export interface DashboardParameters {
   eventName?: string
   activityName?: string
   token?: string
+  apiUrl?: string
 
   // From SecurityTokens table (after validation)
   tokenId?: string
   operation?: number
   requesterAddress?: string
   expirationDate?: string
+
+  // Dev mode only (for local testing without Dashboard)
+  devUsername?: string
+  devPassword?: string
+  devApiUrl?: string
 }
 
 export interface ValidateDashboardTokenResponse {

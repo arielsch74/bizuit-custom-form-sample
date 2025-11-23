@@ -70,6 +70,21 @@ export default function DynamicFormPage({ params }: Props) {
           '[Dynamic Form Page] ⚠️ DEVELOPMENT MODE: Direct access allowed. ' +
           'This should NEVER happen in production!'
         )
+
+        // Load dev credentials for forms that need authentication
+        try {
+          const { DEV_CREDENTIALS } = await import('../../../dev-credentials.js')
+          setDashboardParams({
+            userName: 'Dev User',
+            devUsername: DEV_CREDENTIALS.username,
+            devPassword: DEV_CREDENTIALS.password,
+            devApiUrl: DEV_CREDENTIALS.apiUrl
+          })
+          console.log('[Dynamic Form Page] ✅ Dev credentials loaded')
+        } catch (err) {
+          console.warn('[Dynamic Form Page] ⚠️ No dev-credentials.js found, forms may fail to authenticate')
+          console.warn('[Dynamic Form Page] Create dev-credentials.js from dev-credentials.example.js')
+        }
       }
 
       // 1. Fetch metadata from API (simula consulta a BD)
