@@ -1,5 +1,5 @@
 /* Bizuit Custom Form: recubiz-gestion */
-/* Built: 2025-11-23T17:56:52.412Z */
+/* Built: 2025-11-23T18:00:56.222Z */
 /* React: window.React (external) */
 /* ReactDOM: window.ReactDOM (external) */
 
