@@ -86,7 +86,7 @@ export default function StandaloneDynamicFormPage({ params }: Props) {
       }
 
       // 1. Fetch metadata from API
-      const basePath = window.location.pathname.split('/formsa/')[0]
+      const basePath = window.location.pathname.split('/form')[0]
       const metadataUrl = `${window.location.origin}${basePath}/api/custom-forms/${formName}/metadata`
       const metadataResponse = await fetch(metadataUrl)
 

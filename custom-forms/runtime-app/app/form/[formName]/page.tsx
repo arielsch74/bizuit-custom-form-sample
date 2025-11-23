@@ -39,7 +39,7 @@ export default function DynamicFormPage({ params }: Props) {
       // Fetch runtime configuration (allows different deployments to have different settings without rebuild)
       // Note: We need to use window.location.origin for absolute URL because client-side fetch
       // doesn't automatically apply Next.js basePath
-      const configUrl = `${window.location.origin}${window.location.pathname.split('/form/')[0]}/api/config`
+      const configUrl = `${window.location.origin}${window.location.pathname.split('/form')[0]}/api/config`
       console.log('[Dynamic Form Page] 🔧 Fetching config from:', configUrl)
       const configResponse = await fetch(configUrl)
       const config = await configResponse.json()
@@ -73,7 +73,7 @@ export default function DynamicFormPage({ params }: Props) {
       }
 
       // 1. Fetch metadata from API (simula consulta a BD)
-      const metadataUrl = `${window.location.origin}${window.location.pathname.split('/form/')[0]}/api/custom-forms/${formName}/metadata`
+      const metadataUrl = `${window.location.origin}${window.location.pathname.split('/form')[0]}/api/custom-forms/${formName}/metadata`
       const metadataResponse = await fetch(metadataUrl)
 
       if (!metadataResponse.ok) {
