@@ -33,7 +33,10 @@ export async function loadDynamicForm(
 
   try {
     // 1. Fetch código compilado desde API (simula SELECT compiled_code FROM CustomFormVersions)
-    const url = `${FORMS_API}/${formName}/code${
+    const basePath = typeof window !== 'undefined'
+      ? window.location.pathname.split('/form/')[0]
+      : ''
+    const url = `${window.location.origin}${basePath}${FORMS_API}/${formName}/code${
       options.version ? `?version=${options.version}` : ''
     }`
 
