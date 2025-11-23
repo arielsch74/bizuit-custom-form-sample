@@ -58,6 +58,9 @@ export default function DocsPage() {
               <NavItem href="#architecture" active={activeSection === 'architecture'} onClick={() => setActiveSection('architecture')}>
                 Architecture
               </NavItem>
+              <NavItem href="#routes" active={activeSection === 'routes'} onClick={() => setActiveSection('routes')}>
+                Routes & Loaders
+              </NavItem>
               <NavItem href="#authentication" active={activeSection === 'authentication'} onClick={() => setActiveSection('authentication')}>
                 Authentication
               </NavItem>
@@ -204,6 +207,245 @@ cd ..
 │
 ├── start-all.sh         # Start everything
 └── logs/                # Runtime logs`}</CodeBlock>
+            </SubSection>
+          </Section>
+
+          {/* Form Routes & Loaders Section */}
+          <Section id="routes" title="🔀 Form Routes & Loaders">
+            <p className="text-slate-300 mb-6">
+              The runtime app has two different routes for loading forms, each with specific security models and use cases.
+            </p>
+
+            <SubSection title="Two Routes Comparison">
+              <div className="overflow-x-auto mb-6">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-900/50 border-b border-slate-700">
+                    <tr>
+                      <th className="text-left p-3 text-slate-300">Feature</th>
+                      <th className="text-left p-3 text-slate-300">/form</th>
+                      <th className="text-left p-3 text-slate-300">/formsa</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-slate-400">
+                    <tr className="border-b border-slate-800">
+                      <td className="p-3 font-semibold text-white">Dashboard token</td>
+                      <td className="p-3">Required (prod)<br/>Optional (dev)</td>
+                      <td className="p-3">Optional (always)</td>
+                    </tr>
+                    <tr className="border-b border-slate-800">
+                      <td className="p-3 font-semibold text-white">ALLOW_DEV_MODE</td>
+                      <td className="p-3 text-green-400">✅ Checked</td>
+                      <td className="p-3 text-slate-600">❌ Ignored</td>
+                    </tr>
+                    <tr className="border-b border-slate-800">
+                      <td className="p-3 font-semibold text-white">Iframe required</td>
+                      <td className="p-3 text-slate-600">❌ No</td>
+                      <td className="p-3 text-green-400">✅ MUST be iframe</td>
+                    </tr>
+                    <tr className="border-b border-slate-800">
+                      <td className="p-3 font-semibold text-white">Origin validation</td>
+                      <td className="p-3 text-slate-600">❌ Not validated</td>
+                      <td className="p-3 text-green-400">✅ Always validated</td>
+                    </tr>
+                    <tr className="border-b border-slate-800">
+                      <td className="p-3 font-semibold text-white">Direct browser access</td>
+                      <td className="p-3 text-green-400">✅ Allowed (dev mode)</td>
+                      <td className="p-3 text-red-400">❌ Blocked</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-semibold text-white">Use case</td>
+                      <td className="p-3 text-blue-400">Dashboard forms</td>
+                      <td className="p-3 text-purple-400">External embedding</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </SubSection>
+
+            <SubSection title="Route 1: /form/[formName] (Standard)">
+              <InfoBox type="info" title="Purpose">
+                <p className="text-sm">Standard form loading from BIZUIT Dashboard</p>
+              </InfoBox>
+
+              <div className="mt-4 space-y-4">
+                <div className="bg-slate-900/50 rounded-lg p-4">
+                  <h4 className="text-white font-semibold mb-2">Security Model:</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-start gap-2">
+                      <span className="text-green-400">✅</span>
+                      <span className="text-slate-300">
+                        <strong>Production</strong> (ALLOW_DEV_MODE=false): Requires Dashboard token 's'
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-orange-400">⚠️</span>
+                      <span className="text-slate-300">
+                        <strong>Development</strong> (ALLOW_DEV_MODE=true): Allows direct access with dev-credentials.js
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-900/50 rounded-lg p-4">
+                  <h4 className="text-white font-semibold mb-2">URL Examples:</h4>
+                  <CodeBlock language="bash">{`# Production (from Dashboard)
+https://server.com/form/my-form?s=aAAV/9xqhAE=&InstanceId=123
+
+# Development (local)
+http://localhost:3001/form/my-form
+# ← Uses dev-credentials.js`}</CodeBlock>
+                </div>
+
+                <div className="bg-slate-900/50 rounded-lg p-4">
+                  <h4 className="text-white font-semibold mb-2">Parameters Received by Form:</h4>
+                  <CodeBlock language="typescript">{`export default function MyForm({ dashboardParams }) {
+  const {
+    userName,      // "john.doe"
+    instanceId,    // "12345"
+    eventName,     // "MyProcess"
+    activityName,  // "Task1"
+    tokenId,       // Internal token ID
+    operation,     // 1=edit, 2=view
+    apiUrl,        // Dashboard API URL
+
+    // Dev mode only:
+    devUsername,   // From dev-credentials.js
+    devPassword,   // From dev-credentials.js
+    devApiUrl      // From dev-credentials.js
+  } = dashboardParams
+}`}</CodeBlock>
+                </div>
+              </div>
+            </SubSection>
+
+            <SubSection title="Route 2: /formsa/[formName] (Standalone)">
+              <InfoBox type="warning" title="Iframe Only">
+                <p className="text-sm">This route ONLY works inside iframes. Direct browser access is blocked.</p>
+              </InfoBox>
+
+              <div className="mt-4 space-y-4">
+                <div className="bg-slate-900/50 rounded-lg p-4">
+                  <h4 className="text-white font-semibold mb-2">Security Model:</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-start gap-2">
+                      <span className="text-green-400">✅</span>
+                      <span className="text-slate-300">MUST be loaded inside iframe</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-green-400">✅</span>
+                      <span className="text-slate-300">MUST be from allowed origin</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-red-400">❌</span>
+                      <span className="text-slate-300">Direct browser access blocked</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-orange-400">⚠️</span>
+                      <span className="text-slate-300">Dashboard token optional</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-900/50 rounded-lg p-4">
+                  <h4 className="text-white font-semibold mb-2">Configuration:</h4>
+                  <CodeBlock language="bash">{`# Allowed origins (comma-separated, supports wildcards)
+NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://test.bizuit.com,https://*.example.com
+
+# Allow localhost (development only)
+NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=true`}</CodeBlock>
+                </div>
+
+                <div className="bg-slate-900/50 rounded-lg p-4">
+                  <h4 className="text-white font-semibold mb-2">Embedding Example:</h4>
+                  <CodeBlock language="html">{`<!-- External app embedding the form -->
+<iframe
+  src="https://server.com/formsa/my-form?version=1.0.5"
+  width="100%"
+  height="800px"
+  frameborder="0"
+></iframe>
+
+<!-- With Dashboard token (optional) -->
+<iframe
+  src="https://server.com/formsa/my-form?s=encrypted..."
+></iframe>`}</CodeBlock>
+                </div>
+
+                <div className="bg-slate-900/50 rounded-lg p-4">
+                  <h4 className="text-white font-semibold mb-2">Form Must Handle Null Parameters:</h4>
+                  <CodeBlock language="typescript">{`export default function MyForm({ dashboardParams }) {
+  if (!dashboardParams) {
+    // Guest/anonymous mode
+    return <GuestModeUI />
+  }
+
+  // Authenticated mode
+  const { userName, ... } = dashboardParams
+}`}</CodeBlock>
+                </div>
+              </div>
+            </SubSection>
+
+            <SubSection title="Query Parameters Supported">
+              <div className="bg-slate-900/50 rounded-lg p-4">
+                <h4 className="text-white font-semibold mb-3">All Query Parameters:</h4>
+                <div className="space-y-3 text-sm">
+                  <div>
+                    <code className="text-orange-400">?version=1.0.5</code>
+                    <p className="text-slate-400 mt-1">Load specific version (optional, defaults to currentVersion)</p>
+                  </div>
+                  <div>
+                    <code className="text-orange-400">?s=aAAV/9xqhAE=</code>
+                    <p className="text-slate-400 mt-1">Encrypted Dashboard token (TripleDES)</p>
+                  </div>
+                  <div>
+                    <code className="text-orange-400">?InstanceId=12345</code>
+                    <p className="text-slate-400 mt-1">Process instance ID (from Dashboard)</p>
+                  </div>
+                  <div>
+                    <code className="text-orange-400">?UserName=john.doe</code>
+                    <p className="text-slate-400 mt-1">Authenticated user name</p>
+                  </div>
+                  <div>
+                    <code className="text-orange-400">?eventName=MyProcess</code>
+                    <p className="text-slate-400 mt-1">Process name</p>
+                  </div>
+                  <div>
+                    <code className="text-orange-400">?activityName=Task1</code>
+                    <p className="text-slate-400 mt-1">Activity name (workflow step)</p>
+                  </div>
+                  <div>
+                    <code className="text-orange-400">?token=Basic123</code>
+                    <p className="text-slate-400 mt-1">Additional auth token (legacy support)</p>
+                  </div>
+                </div>
+              </div>
+            </SubSection>
+
+            <SubSection title="dashboardParams Object Structure">
+              <CodeBlock language="typescript">{`interface DashboardParameters {
+  // From Dashboard query string
+  instanceId?: string         // Process instance ID
+  userName?: string          // Authenticated user
+  eventName?: string         // Process name
+  activityName?: string      // Activity name
+  token?: string             // Additional auth token
+  apiUrl?: string           // Dashboard API URL (from config)
+
+  // From backend validation (after 's' token decrypt)
+  tokenId?: string          // Internal token ID
+  operation?: number        // 1=edit, 2=view
+  requesterAddress?: string // IP address
+  expirationDate?: string   // Token expiration
+
+  // Dev mode only (ALLOW_DEV_MODE=true)
+  devUsername?: string      // From dev-credentials.js
+  devPassword?: string      // From dev-credentials.js
+  devApiUrl?: string        // From dev-credentials.js
+}
+
+// Your form receives this:
+<FormComponent dashboardParams={dashboardParams} />`}</CodeBlock>
             </SubSection>
           </Section>
 

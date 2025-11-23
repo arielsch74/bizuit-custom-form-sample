@@ -136,6 +136,249 @@ custom-forms/
 
 ---
 
+## 🔀 Form Routes & Loaders
+
+### Overview: Two Different Routes
+
+The runtime app has **TWO ways** to load forms, each with different security and use cases:
+
+| Route | URL Pattern | Security | Use Case |
+|-------|-------------|----------|----------|
+| `/form/[formName]` | `/form/my-form?s=...` | Dashboard token required (prod) | **Standard**: Forms opened from Dashboard |
+| `/formsa/[formName]` | `/formsa/my-form` | **iframe only** | **Standalone**: Embedded in external apps |
+
+### Route 1: `/form/[formName]` (Standard Loader)
+
+**File**: `runtime-app/app/form/[formName]/page.tsx`
+
+**Purpose**: Standard form loading from BIZUIT Dashboard
+
+**Security Model**:
+```typescript
+// Production (ALLOW_DEV_MODE=false):
+✅ Requires Dashboard token 's' in URL
+❌ Blocks direct browser access without token
+
+// Development (ALLOW_DEV_MODE=true):
+✅ Allows direct access with dev credentials
+⚠️ Bypasses Dashboard token requirement
+```
+
+**URL Examples**:
+
+```bash
+# Production (from Dashboard)
+https://server.com/form/my-form?s=aAAV/9xqhAE=&InstanceId=123&UserName=john
+
+# Development (local testing)
+http://localhost:3001/form/my-form
+# Uses dev-credentials.js automatically
+```
+
+**Parameters Received by Form**:
+
+```typescript
+// Your form component receives:
+export default function MyForm({ dashboardParams }) {
+  // dashboardParams contains:
+  const {
+    userName,      // "john.doe" (from Dashboard or dev creds)
+    instanceId,    // "12345" (from Dashboard query string)
+    eventName,     // "MyProcess" (from Dashboard)
+    activityName,  // "Task1" (from Dashboard)
+    tokenId,       // Internal token ID (from backend validation)
+    operation,     // 1 or 2 (edit or view)
+    apiUrl,        // Dashboard API URL (from config)
+
+    // Dev mode only:
+    devUsername,   // From dev-credentials.js
+    devPassword,   // From dev-credentials.js
+    devApiUrl      // From dev-credentials.js
+  } = dashboardParams
+}
+```
+
+**Flow Diagram**:
+
+```
+User clicks form in Dashboard
+         ↓
+Dashboard generates URL:
+/form/my-form?s=encrypted&InstanceId=123&UserName=john
+         ↓
+Runtime validates 's' token with backend
+         ↓
+Backend decrypts token → returns user context
+         ↓
+Form loads with dashboardParams:
+{ userName, instanceId, tokenId, apiUrl, ... }
+         ↓
+Form renders with user context
+```
+
+---
+
+### Route 2: `/formsa/[formName]` (Standalone Loader)
+
+**File**: `runtime-app/app/formsa/[formName]/page.tsx`
+
+**Purpose**: Standalone forms for iframe embedding in external applications
+
+**Security Model**:
+```typescript
+// ALWAYS enforced (no dev mode bypass):
+✅ MUST be loaded inside an iframe
+✅ MUST be from allowed origin
+❌ Blocks direct browser access
+❌ Blocks unauthorized origins
+
+// Dashboard token 's':
+⚠️ Optional (not required)
+✅ If provided, validates normally
+```
+
+**Configuration**:
+
+```env
+# .env.local
+# Allowed origins for iframe (comma-separated, supports wildcards)
+NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://test.bizuit.com,https://*.example.com
+
+# Allow localhost iframes (development only)
+NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=true
+```
+
+**URL Examples**:
+
+```html
+<!-- Embedding in external app -->
+<iframe src="https://server.com/formsa/my-form?version=1.0.5"></iframe>
+
+<!-- With Dashboard token (optional) -->
+<iframe src="https://server.com/formsa/my-form?s=aAAV/9xqhAE="></iframe>
+
+<!-- Local development -->
+<iframe src="http://localhost:3001/formsa/my-form"></iframe>
+```
+
+**Parameters Received by Form**:
+
+```typescript
+// Same dashboardParams structure as /form route
+// BUT: Can be null if no token provided
+
+export default function MyForm({ dashboardParams }) {
+  if (!dashboardParams) {
+    // No Dashboard token provided
+    // Form must handle anonymous/guest mode
+    return <GuestModeUI />
+  }
+
+  // Has Dashboard parameters
+  const { userName, apiUrl, ... } = dashboardParams
+}
+```
+
+**Origin Validation**:
+
+```typescript
+// lib/iframe-origin-validator.ts
+export function validateIframeOrigin() {
+  // 1. Check if in iframe
+  const isInIframe = window !== window.parent
+
+  // 2. Get parent origin
+  const parentOrigin = document.referrer || window.parent.location.origin
+
+  // 3. Check against allowed list
+  const allowed = [
+    'https://test.bizuit.com',
+    'https://*.example.com',  // Wildcard support
+    'http://localhost:3000'   // If ALLOW_LOCALHOST_IFRAME=true
+  ]
+
+  // 4. Return validation result
+  return {
+    isInIframe,
+    isAllowedOrigin,
+    parentOrigin,
+    error
+  }
+}
+```
+
+---
+
+### Comparison: `/form` vs `/formsa`
+
+| Feature | `/form` | `/formsa` |
+|---------|---------|-----------|
+| **Dashboard token 's'** | Required (prod) / Optional (dev) | Optional (always) |
+| **ALLOW_DEV_MODE** | ✅ Checked | ❌ Ignored |
+| **Iframe requirement** | ❌ Not required | ✅ MUST be iframe |
+| **Origin validation** | ❌ Not validated | ✅ Always validated |
+| **Dev credentials** | ✅ Yes (if ALLOW_DEV_MODE=true) | ✅ Yes (always available) |
+| **Direct browser access** | ✅ Allowed (if dev mode) | ❌ Blocked |
+| **External embedding** | ❌ Not designed for | ✅ Designed for |
+
+### When to Use Each Route
+
+**Use `/form/[formName]`** when:
+- ✅ Forms opened from BIZUIT Dashboard
+- ✅ Standard workflow
+- ✅ Dashboard token available
+- ✅ Local development with dev credentials
+
+**Use `/formsa/[formName]`** when:
+- ✅ Embedding in external applications
+- ✅ Third-party integrations
+- ✅ Iframe contexts only
+- ✅ Optional Dashboard token
+- ✅ Need origin restriction
+
+### Query Parameters Reference
+
+Both routes support these query parameters:
+
+```typescript
+// Version selection (optional)
+?version=1.0.5
+// Loads specific version instead of currentVersion
+
+// Dashboard parameters (from Dashboard)
+?s=aAAV/9xqhAE=           // Encrypted token (REQUIRED in prod for /form)
+&InstanceId=12345          // Process instance ID
+&UserName=john.doe         // Authenticated user
+&eventName=MyProcess       // Process name
+&activityName=Task1        // Activity name
+&token=Basic123            // Additional auth token
+```
+
+### Examples with Full URLs
+
+**Standard form (from Dashboard)**:
+```
+https://test.bizuit.com/BIZUITCustomForms/form/recubiz-gestion?s=xJ9kL2mN...&InstanceId=98765&UserName=admin&eventName=RB_ObtenerProximaGestion
+```
+
+**Standalone form (iframe)**:
+```html
+<!-- In external app -->
+<iframe
+  src="https://test.bizuit.com/BIZUITCustomForms/formsa/recubiz-gestion?version=1.0.20"
+  width="100%"
+  height="800px"
+></iframe>
+```
+
+**Development (local)**:
+```
+http://localhost:3001/form/my-form
+# Uses dev-credentials.js automatically
+```
+
+---
+
 ## 🔐 Understanding Authentication
 
 ### Production Authentication Flow

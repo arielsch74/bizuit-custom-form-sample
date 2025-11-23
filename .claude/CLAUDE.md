@@ -357,3 +357,73 @@ All components support latest versions of:
 - Component naming: PascalCase
 - Hooks: camelCase with `use` prefix
 - File naming: kebab-case for components, camelCase for utilities
+
+---
+
+## Session Handoff - Pending Tasks
+
+**Last Updated:** 2025-11-23
+
+### 🔧 Technical Debt
+
+#### 1. React Warnings in bizuit-ui-components
+**Priority:** Medium
+**Status:** Pending investigation
+
+- **Issue:** React warnings detected during build/runtime of `@tyconsa/bizuit-ui-components`
+- **Context:** Warnings appear when using UI components in forms
+- **Next Steps:**
+  1. Run `cd packages/bizuit-ui-components && npm run build` and capture all warnings
+  2. Identify specific components causing warnings
+  3. Fix React best practices violations (likely: missing keys, incorrect hooks usage, or deprecated patterns)
+  4. Run tests to ensure fixes don't break functionality
+  5. Bump patch version and republish to npm
+
+#### 2. forms-examples Cleanup
+**Priority:** High
+**Status:** Needs planning
+
+- **Issue:** `custom-forms/runtime-app/forms-examples/` has multiple example forms, making it hard for new developers to start
+- **Goal:** Create single, clean base example for developers
+- **Current State:**
+  - Multiple example forms with varying quality
+  - No clear "start here" template
+  - Some examples may have outdated patterns
+- **Next Steps:**
+  1. Audit all forms in `forms-examples/`
+  2. Identify best example to use as base template
+  3. Create `forms-examples/base-template/` with:
+     - Minimal, clean code
+     - Best practices
+     - Comprehensive comments
+     - README explaining structure
+  4. Archive or remove outdated examples
+  5. Update `DEVELOPER_GUIDE.md` to reference new base template
+
+#### 3. Admin Token Authentication - Multi-Tenant Collision
+**Priority:** High
+**Status:** Active issue in production
+
+- **Issue:** Admin panel authentication tokens don't differentiate between sites/tenants
+- **Impact:** On `test.bizuit.com`, tokens from `arielschBIZUITCustomForms` are valid for `recubizBIZUITCustomForms` and vice versa
+- **Security Risk:** High - Cross-tenant access in shared test environment
+- **Current Behavior:**
+  ```
+  User logs into arielsch admin panel → gets token
+  Same token works on recubiz admin panel ❌
+  ```
+- **Root Cause:** Likely JWT secret key is shared or token validation doesn't check tenant/site
+- **Next Steps:**
+  1. Review `custom-forms/backend-api/` authentication logic
+  2. Check if `JWT_SECRET_KEY` is per-deployment or shared
+  3. Verify token validation includes tenant/site identifier
+  4. Implement tenant isolation in token generation/validation
+  5. Test with both arielsch and recubiz deployments
+  6. Document deployment-specific `.env.local` requirements
+
+**Files to investigate:**
+- `custom-forms/backend-api/main.py` - Token validation
+- `custom-forms/runtime-app/.env.local` - JWT configuration
+- Backend API authentication middleware
+
+---
