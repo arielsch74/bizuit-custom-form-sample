@@ -3,7 +3,7 @@
  * Professional debt collection management system
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { version as FORM_VERSION } from '../package.json';
 import {
   BizuitCard,
@@ -12,6 +12,22 @@ import {
   BizuitCombo,
   type ComboOption
 } from '@tyconsa/bizuit-ui-components';
+import { BizuitSDK } from '@tyconsa/bizuit-form-sdk';
+
+// ============================================================================
+// SDK CONFIGURATION
+// ============================================================================
+
+const SDK_CONFIG = {
+  apiUrl: 'https://test.bizuit.com/recubizBizuitDashboardapi/api/',
+  username: 'admin',
+  password: 'admin123',
+  processName: 'RB_ObtenerProximaGestion',
+  idGestor: 999
+};
+
+// Initialize SDK instance
+const sdk = new BizuitSDK({ apiUrl: SDK_CONFIG.apiUrl });
 
 // ============================================================================
 // TYPES
@@ -374,6 +390,7 @@ function AccionRow({ accion, index, onClick }: { accion: Accion; index: number; 
 // ============================================================================
 
 function RecubizGestionFormInner({ dashboardParams }: FormProps) {
+  // UI State
   const [screen, setScreen] = useState<'dashboard' | 'detail' | 'management'>('dashboard');
   const [deudaActual, setDeudaActual] = useState<Deuda | null>(null);
   const [contactoSeleccionado, setContactoSeleccionado] = useState<Contacto | null>(null);
@@ -387,6 +404,47 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
   const [accionSeleccionada, setAccionSeleccionada] = useState<Accion | null>(null);
   const [mostrarHistorial, setMostrarHistorial] = useState(false);
   const [mostrarModalRegistrarAccion, setMostrarModalRegistrarAccion] = useState(false);
+
+  // SDK State
+  const [authToken, setAuthToken] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
+  const [error, setError] = useState<{ message: string; retry?: () => void } | null>(null);
+
+  // Authenticate on mount
+  useEffect(() => {
+    const authenticate = async () => {
+      try {
+        setIsLoading(true);
+        setLoadingMessage('Autenticando...');
+
+        const loginResult = await sdk.auth.login({
+          username: SDK_CONFIG.username,
+          password: SDK_CONFIG.password
+        });
+
+        if (loginResult.Token) {
+          setAuthToken(loginResult.Token);
+        } else {
+          throw new Error('Error al autenticar. Verifique las credenciales.');
+        }
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Error desconocido al autenticar';
+        setError({
+          message: errorMessage,
+          retry: () => {
+            setError(null);
+            authenticate();
+          }
+        });
+      } finally {
+        setIsLoading(false);
+        setLoadingMessage('');
+      }
+    };
+
+    authenticate();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
@@ -409,10 +467,93 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
     setMostrarConfirmacionSolicitar(true);
   };
 
-  const handleConfirmarSolicitud = () => {
+  const handleConfirmarSolicitud = async () => {
     setMostrarConfirmacionSolicitar(false);
-    setDeudaActual(MOCK_DEUDAS_NUEVAS[0]);
-    setScreen('detail');
+
+    try {
+      setIsLoading(true);
+      setLoadingMessage('Solicitando nueva deuda...');
+
+      // Call the RB_ObtenerProximaGestion process
+      const result = await sdk.process.start(
+        {
+          processName: SDK_CONFIG.processName,
+          parameters: [
+            {
+              name: 'idGestor',
+              value: String(SDK_CONFIG.idGestor),
+              type: 'SingleValue',
+              direction: 'In'
+            }
+          ]
+        },
+        [],
+        authToken
+      );
+
+      // Check for errors
+      if (result.status === 'Error') {
+        throw new Error(result.errorMessage || 'Error al solicitar nueva deuda');
+      }
+
+      // Parse DatosGestion parameter from output
+      const datosGestionParam = result.parameters?.find((p) => p.name === 'DatosGestion');
+
+      if (!datosGestionParam || !datosGestionParam.value) {
+        throw new Error('No se recibieron datos de gestión del proceso');
+      }
+
+      // Parse the value - it could be JSON string or already parsed
+      let datosGestion: any;
+      if (typeof datosGestionParam.value === 'string') {
+        try {
+          datosGestion = JSON.parse(datosGestionParam.value);
+        } catch {
+          // If not JSON, assume it's already parsed
+          datosGestion = datosGestionParam.value;
+        }
+      } else {
+        datosGestion = datosGestionParam.value;
+      }
+
+      // Map DatosGestion to Deuda interface
+      const nuevaDeuda: Deuda = {
+        id: datosGestion.id || `D-${Date.now()}`,
+        deudor: datosGestion.datosPersonales?.nombre || 'Sin nombre',
+        numeroDocumento: datosGestion.datosPersonales?.numeroDocumento || 'Sin documento',
+        cuit: datosGestion.datosPersonales?.cuit || 'Sin CUIT',
+        fechaNacimiento: datosGestion.datosPersonales?.fechaNacimiento || new Date().toISOString(),
+        fechaAlta: new Date().toISOString().split('T')[0],
+        estado: 'nueva',
+        detalles: (datosGestion.deudas || []).flatMap((deudaItem: DeudaItem) =>
+          (deudaItem.detalles || []).map((detalle: DetalleDeuda) => ({
+            id: detalle.id,
+            fecha: detalle.fecha,
+            importeOriginal: detalle.importeOriginal,
+            importe: detalle.importe,
+            producto: detalle.producto,
+            descripcion: detalle.descripcion,
+            acreedorOriginal: detalle.acreedorOriginal,
+            active: detalle.active
+          }))
+        )
+      };
+
+      setDeudaActual(nuevaDeuda);
+      setScreen('detail');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido al solicitar deuda';
+      setError({
+        message: errorMessage,
+        retry: () => {
+          setError(null);
+          setMostrarConfirmacionSolicitar(true);
+        }
+      });
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage('');
+    }
   };
 
   const handleAceptarDeuda = () => {
@@ -1361,6 +1502,78 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
                 >
                   Guardar Acción
                 </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================ */}
+        {/* MODAL LOADING */}
+        {/* ============================================================ */}
+        {isLoading && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-8">
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                <h2 className="text-xl font-bold text-gray-900 mb-2">
+                  {loadingMessage || 'Procesando...'}
+                </h2>
+                <p className="text-sm text-gray-600 text-center">
+                  Por favor espere...
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================ */}
+        {/* MODAL ERROR */}
+        {/* ============================================================ */}
+        {error && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-8">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-xl font-bold text-gray-900 mb-1">
+                    Error
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    Ha ocurrido un error
+                  </p>
+                </div>
+              </div>
+
+              <div className="mb-8">
+                <p className="text-sm text-gray-700">
+                  {error.message}
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setError(null)}
+                  className="flex-1"
+                >
+                  Cerrar
+                </Button>
+                {error.retry && (
+                  <Button
+                    variant="default"
+                    onClick={() => {
+                      const retryFn = error.retry;
+                      if (retryFn) retryFn();
+                    }}
+                    className="flex-1"
+                  >
+                    Reintentar
+                  </Button>
+                )}
               </div>
             </div>
           </div>
