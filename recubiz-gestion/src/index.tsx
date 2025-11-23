@@ -20,8 +20,6 @@ import { BizuitSDK } from '@tyconsa/bizuit-form-sdk';
 
 const SDK_CONFIG = {
   apiUrl: 'https://test.bizuit.com/recubizBizuitDashboardapi/api/',
-  username: 'admin',
-  password: 'admin123',
   processName: 'RB_ObtenerProximaGestion',
   idGestor: 999
 };
@@ -39,6 +37,9 @@ interface DashboardParameters {
   eventName?: string;
   activityName?: string;
   token?: string;
+  // Dev mode credentials (optional, for local testing)
+  devUsername?: string;
+  devPassword?: string;
   [key: string]: any;
 }
 
@@ -496,17 +497,24 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
           return;
         }
 
-        // Fallback: Hardcoded login (ONLY for dev mode testing)
-        console.warn('⚠️ No Dashboard token found, using hardcoded credentials (dev mode)');
-        const loginResult = await sdk.auth.login({
-          username: SDK_CONFIG.username,
-          password: SDK_CONFIG.password
-        });
+        // Fallback: Dev mode login (requires devUsername/devPassword in dashboardParams)
+        if (dashboardParams?.devUsername && dashboardParams?.devPassword) {
+          console.warn('⚠️ Dev mode: Using credentials from dashboardParams');
+          const loginResult = await sdk.auth.login({
+            username: dashboardParams.devUsername,
+            password: dashboardParams.devPassword
+          });
 
-        if (loginResult.Token) {
-          setAuthToken(loginResult.Token);
+          if (loginResult.Token) {
+            setAuthToken(loginResult.Token);
+          } else {
+            throw new Error('Error al autenticar. Verifique las credenciales de dev.');
+          }
         } else {
-          throw new Error('Error al autenticar. Verifique las credenciales.');
+          throw new Error(
+            'No token provided. In production, token must come from Dashboard. ' +
+            'In dev mode, provide devUsername and devPassword in dashboardParams.'
+          );
         }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Error desconocido al autenticar';
