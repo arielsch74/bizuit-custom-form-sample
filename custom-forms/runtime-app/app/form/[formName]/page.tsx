@@ -35,7 +35,11 @@ export default function DynamicFormPage({ params }: Props) {
 
       // 0. Security: Check if loaded from Dashboard with token 's'
       const fromDashboard = isFromDashboard()
-      const allowDevMode = process.env.NEXT_PUBLIC_ALLOW_DEV_MODE === 'true'
+
+      // Fetch runtime configuration (allows different deployments to have different settings without rebuild)
+      const configResponse = await fetch('/api/config')
+      const config = await configResponse.json()
+      const allowDevMode = config.allowDevMode ?? false // Default to false if not set
 
       // 🔒 PRODUCTION SECURITY: Require Dashboard token
       if (!fromDashboard && !allowDevMode) {

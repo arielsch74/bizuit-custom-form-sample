@@ -93,7 +93,6 @@ stages:
                 "NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://test.bizuit.com/arielschBIZUITCustomFormsbackend" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                "NEXT_PUBLIC_ALLOW_DEV_MODE=false" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "# Standalone Forms (Iframe) Configuration" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=$(allowedIframeOrigins)" | Out-File -FilePath ".env.local" -Append -Encoding utf8

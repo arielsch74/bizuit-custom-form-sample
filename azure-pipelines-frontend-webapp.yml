@@ -100,9 +100,6 @@ stages:
                 # Session timeout
                 NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30
 
-                # 🔒 CRITICAL SECURITY: Production mode (no dev access)
-                NEXT_PUBLIC_ALLOW_DEV_MODE=false
-
                 # 🔒 Standalone Forms (Iframe) Configuration
                 # Allowed origins for iframe embedding (/formsa/* routes)
                 # Comma-separated list of domains, supports wildcards: https://*.bizuit.com
@@ -114,6 +111,10 @@ stages:
                 # Server-side Environment Variables (not baked into build)
                 # FASTAPI_URL is used by Next.js API routes (server-side only)
                 FASTAPI_URL=$(backendApiUrl)
+
+                # 🔒 Form Security - Server-side only (configurable at runtime)
+                # Set to 'false' for production (requires Dashboard token)
+                ALLOW_DEV_MODE=false
 
                 # Environment
                 NODE_ENV=production
