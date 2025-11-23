@@ -481,12 +481,23 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
   const [error, setError] = useState<{ message: string; retry?: () => void } | null>(null);
 
   // Authenticate on mount
+  // Priority: 1) Use Dashboard token, 2) Fallback to hardcoded login (dev mode only)
   useEffect(() => {
     const authenticate = async () => {
       try {
         setIsLoading(true);
         setLoadingMessage('Autenticando...');
 
+        // Check if token comes from Dashboard
+        if (dashboardParams?.token) {
+          console.log('✅ Using Dashboard token');
+          setAuthToken(dashboardParams.token);
+          setIsLoading(false);
+          return;
+        }
+
+        // Fallback: Hardcoded login (ONLY for dev mode testing)
+        console.warn('⚠️ No Dashboard token found, using hardcoded credentials (dev mode)');
         const loginResult = await sdk.auth.login({
           username: SDK_CONFIG.username,
           password: SDK_CONFIG.password
@@ -513,7 +524,7 @@ function RecubizGestionFormInner({ dashboardParams }: FormProps) {
     };
 
     authenticate();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dashboardParams?.token]); // Re-authenticate if token changes
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
