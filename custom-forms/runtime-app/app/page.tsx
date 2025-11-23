@@ -49,6 +49,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 gap-6">
             {/* Admin CTA */}
             <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg p-8 text-center">
+              <div className="text-4xl mb-3">⚙️</div>
               <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-4">
                 {t('home.adminPanel')}
               </h2>
