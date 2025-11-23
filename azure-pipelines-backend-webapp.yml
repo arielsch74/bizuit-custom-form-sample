@@ -10,6 +10,12 @@ trigger:
     include:
       - custom-forms/backend-api/**
 
+resources:
+  pipelines:
+    - pipeline: frontendPipeline
+      source: 'Custom Forms - Azure Front'
+      trigger: true  # Trigger this pipeline when frontend completes successfully
+
 variables:
   pythonVersion: '3.10'
   azureSubscription: 'Azure BIZUIT'  # Service Connection name
