@@ -72,14 +72,14 @@
 <body>
   <div id="root"></div>
 
-  <!-- Load the built form as ES module -->
+  <!-- Load the built form as ES module (DEV - Fat Bundle with all dependencies) -->
   <script type="module">
     // Force light theme and orange color
     localStorage.setItem('bizuit-ui-theme', 'light');
     localStorage.setItem('bizuit-ui-color-theme', 'orange');
 
-    // Import the form component
-    import RecubizGestionForm from './dist/form.js?v=300';
+    // Import the form component (use form.dev.js for development)
+    import RecubizGestionForm from './dist/form.dev.js';
 
     // Mount the form with mock dashboard params
     const container = document.getElementById('root');
