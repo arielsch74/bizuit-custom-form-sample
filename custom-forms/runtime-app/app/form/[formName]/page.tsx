@@ -80,40 +80,21 @@ export default function DynamicFormPage({ params }: Props) {
           'This should NEVER happen in production!'
         )
 
-        // Load dev credentials for forms that need authentication
-        // Try local dev-credentials.js first, fallback to default
-        let DEV_CREDENTIALS = null
-
-        try {
-          // Try local credentials (gitignored)
-          // Use dynamic string to bypass TypeScript static analysis
-          const credPath = '../../../dev-credentials' + '.js'
-          const module = await import(credPath).catch(() => null)
-          if (module) {
-            DEV_CREDENTIALS = module.DEV_CREDENTIALS
-            console.log('[Dynamic Form Page] ✅ Dev credentials loaded from dev-credentials.js')
-          }
-        } catch {}
-
-        // Fallback to default (empty credentials)
-        if (!DEV_CREDENTIALS) {
-          const defaultModule = await import('../../../dev-credentials.default.js')
-          DEV_CREDENTIALS = defaultModule.DEV_CREDENTIALS
-          console.warn('[Dynamic Form Page] ⚠️ Using default credentials (empty)')
-          console.warn('[Dynamic Form Page] Copy dev-credentials.example.js to dev-credentials.js')
-        }
-
-        // Get apiUrl from config or dev credentials
-        const apiUrl = config.dashboardApiUrl || DEV_CREDENTIALS.apiUrl
+        // Load dev credentials from config endpoint (server-side env vars)
+        const devCreds = config.devCredentials || {}
+        const devApiUrl = config.dashboardApiUrl || devCreds.apiUrl || ''
 
         setDashboardParams({
           userName: 'Dev User',
-          apiUrl: apiUrl,  // Pass to forms for SDK initialization
-          devUsername: DEV_CREDENTIALS.username,
-          devPassword: DEV_CREDENTIALS.password,
-          devApiUrl: DEV_CREDENTIALS.apiUrl
+          apiUrl: devApiUrl,  // Pass to forms for SDK initialization
+          devUsername: devCreds.username || '',
+          devPassword: devCreds.password || '',
+          devApiUrl: devApiUrl
         })
-        console.log('[Dynamic Form Page] API URL:', apiUrl)
+
+        console.log('[Dynamic Form Page] ✅ Dev credentials loaded from config')
+        console.log('[Dynamic Form Page] API URL:', devApiUrl)
+        console.log('[Dynamic Form Page] Username:', devCreds.username || '(not set)')
       }
 
       // 1. Fetch metadata from API (simula consulta a BD)

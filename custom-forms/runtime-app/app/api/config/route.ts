@@ -20,5 +20,15 @@ export async function GET() {
     // Allow dev mode (direct form access without Dashboard token)
     // Defaults to false if not set (secure by default)
     allowDevMode: process.env.ALLOW_DEV_MODE === 'true',
+    // Dashboard API URL (for forms to connect to Bizuit BPM)
+    dashboardApiUrl: process.env.DASHBOARD_API_URL || '',
+    // Dev credentials (only sent if allowDevMode=true)
+    ...(process.env.ALLOW_DEV_MODE === 'true' && {
+      devCredentials: {
+        username: process.env.DEV_USERNAME || '',
+        password: process.env.DEV_PASSWORD || '',
+        apiUrl: process.env.DEV_API_URL || ''
+      }
+    })
   })
 }
