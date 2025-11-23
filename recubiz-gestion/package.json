@@ -1,0 +1,32 @@
+{
+  "name": "@tyconsa/bizuit-form-recubiz-gestion",
+  "version": "1.0.0",
+  "description": "Formulario de gestión de cobranzas Recubiz",
+  "main": "dist/form.js",
+  "scripts": {
+    "build": "node ../build-form.js ./src/index.tsx ./dist/form.js recubiz-gestion",
+    "dev": "node ../build-form.js ./src/index.tsx ./dist/form.js recubiz-gestion --watch"
+  },
+  "dependencies": {
+    "@tyconsa/bizuit-ui-components": "latest"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.26",
+    "@types/react-dom": "^18.3.7",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "bizuit",
+    "custom-form",
+    "recubiz",
+    "gestion",
+    "cobranzas"
+  ],
+  "author": "Tyconsa",
+  "license": "MIT"
+}
