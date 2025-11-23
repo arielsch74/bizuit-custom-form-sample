@@ -6,7 +6,7 @@ import { SettingsToolbarFloating } from '@/components/settings-toolbar-floating'
 
 export default function HomePage() {
   const backendApiUrl = process.env.NEXT_PUBLIC_API_URL
-  const { t } = useAppTranslation()
+  const { t, language } = useAppTranslation()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 dark:from-slate-900 dark:to-slate-800">
@@ -70,16 +70,16 @@ export default function HomePage() {
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg shadow-lg p-8 text-center">
               <div className="text-4xl mb-3">📚</div>
               <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-4">
-                Developer Documentation
+                {t('home.developerDocs')}
               </h2>
               <p className="text-slate-600 dark:text-slate-300 mb-6">
-                Complete guide for building and deploying custom forms
+                {t('home.developerDocsDescription')}
               </p>
               <Link
-                href="/docs"
+                href={`/docs${language === 'es' ? '/es' : ''}`}
                 className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-semibold px-8 py-3 rounded-lg transition-colors shadow-lg hover:shadow-xl"
               >
-                View Docs
+                {t('home.viewDocs')}
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>

@@ -23,6 +23,11 @@ export const translations = {
     'info.formPath': '/form/[form-name]',
     'info.whenNeeded': 'when needed.',
 
+    // Documentation link (home page)
+    'home.developerDocs': 'Developer Documentation',
+    'home.developerDocsDescription': 'Complete guide for building and deploying custom forms',
+    'home.viewDocs': 'View Docs',
+
     // Login page
     'login.title': 'Admin Login',
     'login.subtitle': 'BIZUIT Custom Forms - Administration Panel',
@@ -166,6 +171,11 @@ export const translations = {
     'info.description': 'Los formularios se cargan dinámicamente cuando BIZUIT los solicita mediante tokens de seguridad. No es necesario navegar manualmente a los formularios - BIZUIT los abrirá automáticamente en',
     'info.formPath': '/form/[nombre-formulario]',
     'info.whenNeeded': 'cuando sea necesario.',
+
+    // Documentation link (home page)
+    'home.developerDocs': 'Documentación para Desarrolladores',
+    'home.developerDocsDescription': 'Guía completa para construir y deployar formularios customizados',
+    'home.viewDocs': 'Ver Documentación',
 
     // Login page
     'login.title': 'Admin Login',
