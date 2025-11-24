@@ -1407,6 +1407,250 @@ git push origin main
 
 ---
 
+## 📋 Manifest.json & Validation Rules
+
+### Understanding manifest.json
+
+Every deployment ZIP contains a `manifest.json` file with metadata about the forms:
+
+```json
+{
+  "packageVersion": "1.0.202511231900",
+  "buildDate": "2025-11-23T19:00:00.000Z",
+  "commitHash": "abc1234...",
+  "commitShortHash": "abc1234",
+  "repositoryUrl": "https://github.com/org/repo",
+  "commitUrl": "https://github.com/org/repo/commit/abc1234",
+  "workflowRunUrl": "https://github.com/org/repo/actions/runs/123",
+  "forms": [
+    {
+      "formName": "my-form",
+      "processName": "MyForm",
+      "version": "1.0.5",
+      "gitTag": "my-form-v1.0.5",
+      "author": "Tyconsa",
+      "description": "My custom form description",
+      "releaseNotes": "- Added new feature\n- Fixed bug",
+      "sizeBytes": 12345,
+      "path": "forms/my-form/form.js"
+    }
+  ]
+}
+```
+
+### Field Validation Rules
+
+The backend validates ALL fields with strict regex patterns for security:
+
+#### formName Validation
+
+**Regex**: `^[a-zA-Z0-9_-]+$`
+
+**Allowed**:
+- Letters (a-z, A-Z)
+- Numbers (0-9)
+- Underscore (_)
+- Hyphen (-)
+
+**NOT allowed**:
+- ❌ Spaces
+- ❌ Special characters
+- ❌ Dots (except in exceptions)
+
+**Examples**:
+```javascript
+✅ "my-form"
+✅ "form_123"
+✅ "my-form-v2"
+❌ "my form"         // Space
+❌ "my.form"         // Dot (not allowed in formName)
+❌ "my-form!"        // Special char
+```
+
+#### author Validation
+
+**Regex**: `^[a-zA-Z0-9._@-]+$`
+
+**Allowed**:
+- Letters (a-z, A-Z)
+- Numbers (0-9)
+- Dot (.)
+- Underscore (_)
+- At sign (@)
+- Hyphen (-)
+
+**NOT allowed**:
+- ❌ **Spaces** (most common mistake!)
+- ❌ Special characters (&, !, $, etc.)
+
+**Examples**:
+```javascript
+✅ "Tyconsa"
+✅ "john.doe@bizuit.com"
+✅ "Tycon-SA"
+✅ "Tycon_SA"
+❌ "Tycon S.A."      // Space AND dot at end
+❌ "Tycon SA"        // Space
+❌ "Tycon & Co"      // Space and &
+```
+
+**Why no spaces?** Security and parsing:
+- Prevents SQL injection
+- Prevents command injection
+- Prevents XSS attacks
+- Easier log parsing
+- Compatible with legacy systems
+
+#### version Validation
+
+**Regex**: `^\d+\.\d+\.\d+$` (Semantic Versioning)
+
+**Format**: MAJOR.MINOR.PATCH
+
+**Examples**:
+```javascript
+✅ "1.0.0"
+✅ "2.15.3"
+✅ "10.0.1"
+❌ "1.0"            // Missing patch
+❌ "v1.0.0"         // Has 'v' prefix
+❌ "1.0.0-beta"     // Has suffix
+```
+
+#### processName Validation
+
+**Regex**: `^[a-zA-Z0-9 _-]+$`
+
+**Allowed**:
+- Letters, numbers
+- **Spaces** (unlike formName and author!)
+- Underscore, hyphen
+
+**Examples**:
+```javascript
+✅ "Expense Approval Process"
+✅ "Process-123_v2"
+✅ "MyProcess"
+❌ "Process'; DROP--"
+```
+
+**Note**: processName DOES allow spaces (unlike author).
+
+### Complete Field Reference
+
+| Field | Regex | Allows Spaces? | Max Length | Example |
+|-------|-------|----------------|------------|---------|
+| **formName** | `^[a-zA-Z0-9_-]+$` | ❌ No | 100 | `my-form` |
+| **author** | `^[a-zA-Z0-9._@-]+$` | ❌ No | 100 | `Tyconsa` |
+| **version** | `^\d+\.\d+\.\d+$` | ❌ No | - | `1.0.5` |
+| **processName** | `^[a-zA-Z0-9 _-]+$` | ✅ Yes | 200 | `My Process` |
+| **description** | (no strict validation) | ✅ Yes | - | Any text |
+| **tokenId** | GUID or integer | ❌ No | - | `550e8400-...` |
+| **commitHash** | `^[a-fA-F0-9]{40}$` | ❌ No | 40 | SHA-1 hash |
+
+### Common Validation Errors
+
+#### Error: "Invalid author format"
+
+```json
+// ❌ WRONG
+{
+  "author": "Tycon S.A."  // Has space and dot
+}
+
+// ❌ WRONG
+{
+  "author": "Tycon SA"  // Has space
+}
+
+// ✅ CORRECT
+{
+  "author": "Tyconsa"  // No spaces
+}
+
+// ✅ ALSO CORRECT
+{
+  "author": "Tycon-SA"     // Hyphen instead of space
+  "author": "Tycon_SA"     // Underscore instead of space
+  "author": "john.doe"     // Dot allowed
+  "author": "admin@bizuit" // @ allowed
+}
+```
+
+#### Error: "Invalid formName format"
+
+```json
+// ❌ WRONG
+{
+  "formName": "my form"  // Has space
+}
+
+// ✅ CORRECT
+{
+  "formName": "my-form"  // Use hyphen
+}
+```
+
+#### Error: "Invalid version format"
+
+```json
+// ❌ WRONG
+{
+  "version": "1.0"     // Missing patch number
+}
+
+// ❌ WRONG
+{
+  "version": "v1.0.0"  // Has 'v' prefix
+}
+
+// ✅ CORRECT
+{
+  "version": "1.0.0"  // MAJOR.MINOR.PATCH
+}
+```
+
+### package.json Best Practices
+
+Your `package.json` becomes the manifest metadata:
+
+```json
+{
+  "name": "@tyconsa/bizuit-form-my-form",
+  "version": "1.0.0",  // ← Managed by workflow, don't change manually
+  "description": "My form description (can have spaces)",
+  "author": "Tyconsa",  // ← NO SPACES! Only: a-z A-Z 0-9 . _ @ -
+  "license": "ISC"
+}
+```
+
+**Rules**:
+- ✅ `name`: Can have scope (@tyconsa/) and hyphens
+- ⚠️ `version`: Managed by workflow (git tags are source of truth)
+- ✅ `description`: Free text, can have spaces
+- ⚠️ `author`: **NO SPACES** - Use `Tyconsa`, `John-Doe`, `admin@bizuit`, etc.
+
+### Why These Validations?
+
+**Security (Defense in Depth)**:
+1. **SQL Injection Prevention**: Even with prepared statements, whitelist validation adds security
+2. **Command Injection**: If metadata is used in shell commands
+3. **XSS Prevention**: Metadata displayed in admin panel HTML
+4. **Log Injection**: Clean logs without special characters
+5. **Path Traversal**: Prevent `../../../` attacks
+
+**Consistency**:
+- Same validation rules across all forms
+- Predictable behavior
+- Easier debugging
+
+**Compatibility**:
+- Works with all databases
+- Works with all file systems
+- Works with legacy systems
+
+---
+
 ## 🎓 Common Scenarios
 
 ### Scenario: Starting a New Form
