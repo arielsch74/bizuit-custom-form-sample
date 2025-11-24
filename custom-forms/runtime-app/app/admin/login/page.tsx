@@ -11,10 +11,19 @@ export default function AdminLoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [checking, setChecking] = useState(true)
+  const [showExpiredMessage, setShowExpiredMessage] = useState(false)
   const { username, password, loading, error, setUsername, setPassword, handleLogin } = useLoginForm('/admin')
 
-  // Check if redirected due to expired session
-  const sessionExpired = searchParams.get('expired') === 'true'
+  useEffect(() => {
+    // Check if redirected due to expired session
+    const expired = searchParams.get('expired') === 'true'
+    if (expired) {
+      setShowExpiredMessage(true)
+      // Clean URL by removing the expired parameter
+      const newUrl = window.location.pathname
+      window.history.replaceState({}, '', newUrl)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     // Check if already authenticated
@@ -65,7 +74,7 @@ export default function AdminLoginPage() {
           BIZUIT Custom Forms
         </p>
 
-        {sessionExpired && (
+        {showExpiredMessage && (
           <div className="mb-6 bg-orange-900/20 border border-orange-700 rounded-lg p-4">
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-orange-400 mt-0.5 flex-shrink-0" />
