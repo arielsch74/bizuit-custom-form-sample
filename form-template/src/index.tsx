@@ -103,7 +103,13 @@ export default function FormTemplate({ dashboardParams }: { dashboardParams?: Da
       console.log('[Form Template] Username:', username);
 
       // 1. Authenticate with Dashboard API
-      const token = await sdk.auth.login(username, password, apiUrl);
+      const loginResult = await sdk.auth.login({
+        username: username,
+        password: password,
+        baseURL: apiUrl
+      });
+
+      const token = loginResult.Token;
 
       console.log('[Form Template] ✅ Authenticated successfully');
 
