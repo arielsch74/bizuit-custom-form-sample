@@ -7,6 +7,7 @@ import { LayoutDashboard, Upload, FileText, LogOut, User, Menu, X } from 'lucide
 import { SettingsToolbar } from '@/components/settings-toolbar'
 import { useAppTranslation } from '@/lib/useAppTranslation'
 import { apiFetch } from '@/lib/api-client'
+import { getTenantId } from '@/lib/navigation'
 
 export default function AdminLayout({
   children,
@@ -87,8 +88,13 @@ export default function AdminLayout({
     }
 
     const basePath = getBasePath()
-    document.cookie = `admin_token=; path=${basePath}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
-    document.cookie = `admin_user_data=; path=${basePath}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+
+    // SECURITY: Clear cookies with tenant prefix for multi-tenant isolation
+    const tenantId = getTenantId()
+    const cookiePrefix = tenantId !== 'default' ? `${tenantId}_` : ''
+
+    document.cookie = `${cookiePrefix}admin_token=; path=${basePath}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+    document.cookie = `${cookiePrefix}admin_user_data=; path=${basePath}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
 
     router.push('/')
   }

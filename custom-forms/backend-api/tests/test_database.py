@@ -173,7 +173,7 @@ class TestValidateSecurityToken:
         # Mock token data (expires in 1 hour)
         future_expiration = datetime.now() + timedelta(hours=1)
         mock_cursor.fetchone.return_value = (
-            "token123",  # TokenId
+            "141191",  # TokenId (valid integer format)
             "testuser",  # UserName
             1,  # Operation
             "FormEvent",  # EventName
@@ -183,11 +183,11 @@ class TestValidateSecurityToken:
         )
 
         # Act
-        result = validate_security_token("token123")
+        result = validate_security_token("141191")
 
         # Assert
         assert result is not None
-        assert result["tokenId"] == "token123"
+        assert result["tokenId"] == "141191"
         assert result["userName"] == "testuser"
         assert result["operation"] == 1
         assert result["is_valid"] is True  # Not expired
@@ -204,7 +204,7 @@ class TestValidateSecurityToken:
         # Mock expired token (expired 1 hour ago)
         past_expiration = datetime.now() - timedelta(hours=1)
         mock_cursor.fetchone.return_value = (
-            "token123",
+            "141192",
             "testuser",
             1,
             "FormEvent",
@@ -214,7 +214,7 @@ class TestValidateSecurityToken:
         )
 
         # Act
-        result = validate_security_token("token123")
+        result = validate_security_token("141192")
 
         # Assert
         assert result is not None
@@ -233,7 +233,7 @@ class TestValidateSecurityToken:
         mock_cursor.fetchone.return_value = None
 
         # Act
-        result = validate_security_token("nonexistent_token")
+        result = validate_security_token("999999")
 
         # Assert
         assert result is None
@@ -255,7 +255,7 @@ class TestDeleteSecurityToken:
         mock_cursor.rowcount = 1
 
         # Act
-        result = delete_security_token("token123")
+        result = delete_security_token("141193")
 
         # Assert
         assert result is True
@@ -275,7 +275,7 @@ class TestDeleteSecurityToken:
         mock_cursor.rowcount = 0
 
         # Act
-        result = delete_security_token("nonexistent_token")
+        result = delete_security_token("999998")
 
         # Assert
         assert result is False  # Token not found

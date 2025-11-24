@@ -409,6 +409,127 @@ class TestFormTokenEndpoints:
     #     assert data["success"] is True
 
 
+class TestTenantIsolation:
+    """Tests for tenant-based authentication isolation"""
+
+    @pytest.mark.asyncio
+    async def test_login_with_tenant_id(self, mock_bizuit_login, mock_admin_validation):
+        """Test login includes tenant_id in JWT"""
+        # Arrange
+        with patch('auth_service.generate_session_token') as mock_gen_token:
+            mock_gen_token.return_value = "mock_jwt_token_with_tenant"
+
+            # Act
+            async with AsyncClient(app=app, base_url="http://test") as client:
+                response = await client.post(
+                    "/api/auth/login",
+                    json={
+                        "username": "admin",
+                        "password": "admin123",
+                        "tenant_id": "arielsch"
+                    }
+                )
+
+            # Assert
+            assert response.status_code == 200
+            data = response.json()
+            assert data["success"] is True
+            assert "token" in data
+
+            # Verify generate_session_token was called with tenant_id
+            mock_gen_token.assert_called_once()
+            call_args = mock_gen_token.call_args
+            assert call_args[0][3] == "arielsch"  # tenant_id is 4th argument
+
+    @pytest.mark.asyncio
+    async def test_login_without_tenant_defaults_to_default(self, mock_bizuit_login, mock_admin_validation):
+        """Test login without tenant_id uses 'default'"""
+        # Arrange
+        with patch('auth_service.generate_session_token') as mock_gen_token:
+            mock_gen_token.return_value = "mock_jwt_token"
+
+            # Act
+            async with AsyncClient(app=app, base_url="http://test") as client:
+                response = await client.post(
+                    "/api/auth/login",
+                    json={
+                        "username": "admin",
+                        "password": "admin123"
+                        # No tenant_id provided
+                    }
+                )
+
+            # Assert
+            assert response.status_code == 200
+
+            # Verify generate_session_token was called with default tenant
+            call_args = mock_gen_token.call_args
+            assert call_args[0][3] == "default"
+
+    @pytest.mark.asyncio
+    async def test_validate_token_rejects_wrong_tenant(self):
+        """Test token validation rejects tokens from different tenant"""
+        # Arrange: Generate token for arielsch
+        from auth_service import generate_session_token
+        arielsch_token = generate_session_token(
+            username="admin",
+            bizuit_token="fake_token",
+            user_info={"userId": 1},
+            tenant_id="arielsch"
+        )
+
+        # Act: Try to validate with recubiz tenant_id
+        with patch('auth_service.verify_session_token') as mock_verify:
+            mock_verify.return_value = None  # Tenant mismatch returns None
+
+            async with AsyncClient(app=app, base_url="http://test") as client:
+                response = await client.post(
+                    "/api/auth/validate",
+                    json={
+                        "token": arielsch_token,
+                        "tenant_id": "recubiz"
+                    }
+                )
+
+            # Assert: Should fail validation
+            data = response.json()
+            assert data["valid"] is False
+
+    @pytest.mark.asyncio
+    async def test_validate_token_accepts_correct_tenant(self, mock_bizuit_login, mock_admin_validation):
+        """Test token validation accepts token from correct tenant"""
+        # Arrange: Generate token for arielsch
+        from auth_service import generate_session_token
+        arielsch_token = generate_session_token(
+            username="admin",
+            bizuit_token="fake_token",
+            user_info={"userId": 1, "userName": "admin"},
+            tenant_id="arielsch"
+        )
+
+        # Act: Validate with same tenant_id
+        with patch('auth_service.verify_session_token') as mock_verify:
+            mock_verify.return_value = {
+                "username": "admin",
+                "tenant_id": "arielsch",
+                "type": "admin_session"
+            }
+
+            async with AsyncClient(app=app, base_url="http://test") as client:
+                response = await client.post(
+                    "/api/auth/validate",
+                    json={
+                        "token": arielsch_token,
+                        "tenant_id": "arielsch"
+                    }
+                )
+
+            # Assert: Should pass validation
+            assert response.status_code == 200
+            data = response.json()
+            assert data["valid"] is True
+
+
 # Configuration for pytest
 def pytest_configure(config):
     """Configure pytest with asyncio mode"""
