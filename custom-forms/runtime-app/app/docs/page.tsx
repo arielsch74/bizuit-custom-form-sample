@@ -133,10 +133,10 @@ cd custom-forms
 # 2. Install dependencies
 npm install
 
-# 3. Setup forms-examples submodule
+# 3. Setup bizuit-custom-form-sample submodule
 git submodule init
 git submodule update
-cd forms-examples && npm install && cd ..
+cd bizuit-custom-form-sample && npm install && cd ..
 
 # 4. Setup environment files
 cd runtime-app
@@ -160,6 +160,52 @@ cd ..
               </InfoBox>
             </SubSection>
           </Section>
+
+          {/* Form Examples Repository Callout */}
+          <div className="mb-12">
+            <InfoBox type="info" title="📦 Form Examples Repository">
+              <div className="text-slate-300">
+                <p className="mb-3">
+                  Complete working examples and a ready-to-use template are available in the{' '}
+                  <a
+                    href="https://github.com/TYCON-SA/bizuit-custom-form-sample"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-orange-400 hover:text-orange-300 underline font-semibold"
+                  >
+                    TYCON-SA/bizuit-custom-form-sample
+                  </a>
+                  {' '}repository on GitHub.
+                </p>
+                <div className="grid md:grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="font-semibold text-white mb-2">What's included:</p>
+                    <ul className="space-y-1">
+                      <li>✅ Base form template (<code className="text-orange-400">form-template/</code>)</li>
+                      <li>✅ Build scripts with esbuild</li>
+                      <li>✅ Fat bundle workflow examples</li>
+                      <li>✅ Complete documentation</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white mb-2">Ready for:</p>
+                    <ul className="space-y-1">
+                      <li>🚀 GitHub Actions CI/CD</li>
+                      <li>📦 Offline deployment workflow</li>
+                      <li>🔄 Independent versioning per form</li>
+                      <li>📝 Semantic versioning automation</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-600">
+                  <p className="text-sm">
+                    <strong>Local path:</strong> <code className="text-orange-400">custom-forms/bizuit-custom-form-sample/</code>
+                    {' '}(Git submodule)
+                  </p>
+                </div>
+              </div>
+            </InfoBox>
+          </div>
 
           {/* Architecture Section */}
           <Section id="architecture" title={t('docs.architecture.title')}>
@@ -201,11 +247,12 @@ cd ..
 │   ├── requirements.txt
 │   └── venv/
 │
-├── forms-examples/       # Git submodule
-│   ├── my-form/
+├── bizuit-custom-form-sample/  # Git submodule
+│   ├── form-template/   # Base template
+│   ├── my-form/         # Your forms
 │   │   ├── src/
 │   │   ├── dist/
-│   │   └── upload/       # Deployment ZIPs
+│   │   └── upload/      # Deployment ZIPs
 │   └── build-form.js
 │
 ├── start-all.sh         # Start everything
@@ -740,7 +787,7 @@ open http://localhost:3001/forms/test-form
 # • Runtime (3001)
 
 # Develop your form
-cd forms-examples/my-form
+cd bizuit-custom-form-sample/my-form
 code src/index.tsx
 
 # Test form
@@ -766,7 +813,7 @@ tail -f logs/backend-api.log`}</CodeBlock>
               useWhen="Quick UI iterations, styling, component testing"
             >
               <CodeBlock language="bash">{`# Build fat bundle
-cd forms-examples/my-form
+cd bizuit-custom-form-sample/my-form
 npm run build
 
 # Creates:
@@ -849,7 +896,7 @@ open http://localhost:8080/dev.html`}</CodeBlock>
               </div>
 
               <CodeBlock language="bash">{`# Full testing process
-cd forms-examples/my-form
+cd bizuit-custom-form-sample/my-form
 
 # 1. Build form
 npm run build
@@ -1004,7 +1051,7 @@ gh run download <run-id>`}</CodeBlock>
 git pull origin main
 
 # ZIP already committed
-ls forms-examples/my-form/upload/*.zip`}</CodeBlock>
+ls bizuit-custom-form-sample/my-form/upload/*.zip`}</CodeBlock>
                 </div>
               </div>
             </SubSection>
@@ -1128,7 +1175,7 @@ npm start`}</CodeBlock>
 
               <FAQ question="How do I rollback a bad deployment?">
                 <CodeBlock language="bash">{`# Option 1: Upload previous version
-cd forms-examples/my-form/upload
+cd bizuit-custom-form-sample/my-form/upload
 ls -lt *.zip  # Find previous working version
 # Upload old ZIP via admin panel
 
