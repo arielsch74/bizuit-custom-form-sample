@@ -24,6 +24,8 @@ BizuitFormTemplate/
 
 ## 🚀 Inicio Rápido
 
+> 📖 **Para una guía completa de inicio**, ver [QUICK_START.md](./QUICK_START.md) - Incluye fat bundle workflow y desarrollo paso a paso.
+
 ### Opción 1: Iniciar Todos los Servicios (Recomendado)
 
 ```bash
@@ -472,17 +474,21 @@ Después de la configuración inicial, los deployments futuros son **completamen
 
 No se requiere intervención manual.
 
-### URLs de Producción
+### URLs de Producción (Ejemplos)
 
-- **Showcase:** `http://test.bizuit.com/BIZUITCustomForms`
-- **Runtime App:** `http://test.bizuit.com/arielschBIZUITCustomForms`
-- **Backend API:** `http://test.bizuit.com/arielschBIZUITCustomFormsbackend`
+- **Showcase:** `https://<your-server>/BIZUITCustomForms`
+- **Runtime App:** `https://<your-server>/<tenant>BIZUITCustomForms`
+- **Backend API:** `https://<your-server>/<tenant>BIZUITCustomFormsbackend`
+
+**Ejemplo para tenant "contoso":**
+- Runtime App: `https://server.company.com/contosoBIZUITCustomForms`
+- Backend API: `https://server.company.com/contosoBIZUITCustomFormsbackend`
 
 ### Verificación de Deployment
 
 ```powershell
 # Backend health check
-curl http://test.bizuit.com/arielschBIZUITCustomFormsbackend/health
+curl https://<your-server>/<tenant>BIZUITCustomFormsbackend/health
 
 # PM2 status
 pm2 list
