@@ -131,15 +131,18 @@ export async function apiFetch(
 
       // Only redirect if NOT already on login page
       if (currentPath.startsWith(adminPrefix) && currentPath !== loginPath) {
-        // SECURITY: Clear admin cookies with tenant prefix for multi-tenant isolation
+        // SECURITY: Check if there were cookies (session expired) or not (never authenticated)
         const tenantId = getTenantIdUtil()
         const cookiePrefix = tenantId !== 'default' ? `${tenantId}_` : ''
+        const hadSession = document.cookie.includes(`${cookiePrefix}admin_token=`)
 
+        // Clear admin cookies with tenant prefix for multi-tenant isolation
         document.cookie = `${cookiePrefix}admin_token=; path=${basePath || '/'}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
         document.cookie = `${cookiePrefix}admin_user_data=; path=${basePath || '/'}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
 
-        // Redirect to login with return URL
-        window.location.href = `${loginPath}?expired=true`
+        // Redirect to login - add ?expired=true ONLY if there was a session
+        const redirectUrl = hadSession ? `${loginPath}?expired=true` : loginPath
+        window.location.href = redirectUrl
       }
     }
   }
