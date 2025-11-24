@@ -2,7 +2,7 @@
   "name": "@tyconsa/bizuit-form-template",
   "version": "1.0.1",
   "description": "BIZUIT Custom Form Template - Base template for creating new forms with best practices",
-  "author": "Tycon SA",
+  "author": "Tyconsa",
   "license": "ISC",
   "type": "module",
   "scripts": {
