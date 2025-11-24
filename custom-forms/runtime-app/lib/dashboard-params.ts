@@ -57,7 +57,7 @@ export function extractDashboardParams(): DashboardQueryParams | null {
   const searchParams = new URLSearchParams(window.location.search)
 
   const params: DashboardQueryParams = {
-    s: searchParams.get('s') || undefined,  // Encrypted token (needs validation)
+    s: searchParams.get('s') || searchParams.get('bz-auth') || undefined,  // Encrypted token (needs validation)
     InstanceId: searchParams.get('InstanceId') || undefined,
     UserName: searchParams.get('UserName') || undefined,
     eventName: searchParams.get('eventName') || undefined,
@@ -65,7 +65,7 @@ export function extractDashboardParams(): DashboardQueryParams | null {
     token: searchParams.get('token') || undefined,
   }
 
-  // Return null if no 's' parameter (not from Dashboard with encrypted token)
+  // Return null if no 's' or 'bz-auth' parameter (not from Dashboard with encrypted token)
   if (!params.s) {
     return null
   }
@@ -149,16 +149,21 @@ export async function getDashboardParameters(): Promise<{
   try {
     console.log('[Dashboard Params] Checking for Dashboard parameters...')
 
-    // Check for bz-auth first (JWT token, no encryption)
+    // Check for bz-auth first (unencrypted token from formsa)
     const searchParams = new URLSearchParams(window.location.search)
     const bzAuth = searchParams.get('bz-auth')
 
     if (bzAuth) {
-      console.log('[Dashboard Params] Found bz-auth (JWT token, no validation needed)')
+      // bz-auth needs to be URL-encoded and prefixed with "Basic" for API auth
+      const encodedToken = encodeURIComponent(bzAuth)
+      console.log('[Dashboard Params] Found bz-auth, re-encoding for API')
+      console.log('[Dashboard Params] Original length:', bzAuth.length)
+      console.log('[Dashboard Params] Encoded length:', encodedToken.length)
+
       return {
         valid: true,
         parameters: {
-          token: bzAuth,
+          token: `Basic ${encodedToken}`,  // Format: "Basic {url-encoded-token}"
           userName: searchParams.get('UserName') || 'User',
           instanceId: searchParams.get('InstanceId') || undefined,
           eventName: searchParams.get('eventName') || undefined,
@@ -167,7 +172,7 @@ export async function getDashboardParameters(): Promise<{
       }
     }
 
-    // 1. Extract query params (for 's' encrypted token)
+    // 1. Extract query params (supports 's' encrypted token)
     const queryParams = extractDashboardParams()
 
     if (!queryParams) {
