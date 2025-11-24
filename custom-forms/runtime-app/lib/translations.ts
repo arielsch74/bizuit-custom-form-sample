@@ -92,6 +92,24 @@ export const translations = {
     'docs.resources.adminDesc': 'Upload & manage forms',
     'docs.resources.newTab': 'Opens in new tab',
 
+    // Form Examples Repository Callout
+    'docs.examplesRepo.title': '📦 Form Examples Repository',
+    'docs.examplesRepo.description': 'Complete working examples and a ready-to-use template are available in the',
+    'docs.examplesRepo.link': 'TYCON-SA/bizuit-custom-form-sample',
+    'docs.examplesRepo.onGithub': 'repository on GitHub.',
+    'docs.examplesRepo.whatsIncluded': 'What\'s included:',
+    'docs.examplesRepo.baseTemplate': 'Base form template',
+    'docs.examplesRepo.buildScripts': 'Build scripts with esbuild',
+    'docs.examplesRepo.fatBundle': 'Fat bundle workflow examples',
+    'docs.examplesRepo.documentation': 'Complete documentation',
+    'docs.examplesRepo.readyFor': 'Ready for:',
+    'docs.examplesRepo.githubActions': 'GitHub Actions CI/CD',
+    'docs.examplesRepo.offlineDeployment': 'Offline deployment workflow',
+    'docs.examplesRepo.versioning': 'Independent versioning per form',
+    'docs.examplesRepo.semanticVersioning': 'Semantic versioning automation',
+    'docs.examplesRepo.localPath': 'Local path:',
+    'docs.examplesRepo.submodule': '(Git submodule)',
+
     // Footer
     'docs.footer.help': 'Need help? Check the',
     'docs.footer.repository': 'repository',
@@ -310,6 +328,24 @@ export const translations = {
     'docs.resources.admin': 'Panel Admin',
     'docs.resources.adminDesc': 'Subir y gestionar forms',
     'docs.resources.newTab': 'Abre en nueva pestaña',
+
+    // Form Examples Repository Callout
+    'docs.examplesRepo.title': '📦 Repositorio de Ejemplos de Forms',
+    'docs.examplesRepo.description': 'Ejemplos completos funcionando y un template listo para usar están disponibles en el repositorio',
+    'docs.examplesRepo.link': 'TYCON-SA/bizuit-custom-form-sample',
+    'docs.examplesRepo.onGithub': 'en GitHub.',
+    'docs.examplesRepo.whatsIncluded': 'Qué incluye:',
+    'docs.examplesRepo.baseTemplate': 'Template base de formulario',
+    'docs.examplesRepo.buildScripts': 'Scripts de compilación con esbuild',
+    'docs.examplesRepo.fatBundle': 'Ejemplos de workflow fat bundle',
+    'docs.examplesRepo.documentation': 'Documentación completa',
+    'docs.examplesRepo.readyFor': 'Listo para:',
+    'docs.examplesRepo.githubActions': 'GitHub Actions CI/CD',
+    'docs.examplesRepo.offlineDeployment': 'Workflow deployment offline',
+    'docs.examplesRepo.versioning': 'Versionado independiente por form',
+    'docs.examplesRepo.semanticVersioning': 'Versionado semántico automatizado',
+    'docs.examplesRepo.localPath': 'Path local:',
+    'docs.examplesRepo.submodule': '(Git submodule)',
 
     // Footer
     'docs.footer.help': '¿Necesitás ayuda? Consultá el',
