@@ -56,6 +56,30 @@ Ejemplos de código copiables y reutilizables.
 
 ## 🔧 Documentación Adicional
 
+### [Repositorio de Ejemplos](../../../custom-forms/bizuit-custom-form-sample)
+**👉 Ubicación local:** `custom-forms/bizuit-custom-form-sample/`
+**👉 GitHub:** [TYCON-SA/bizuit-custom-form-sample](https://github.com/TYCON-SA/bizuit-custom-form-sample)
+
+Repositorio con ejemplos completos de custom forms listos para compilar y deployar.
+
+**Incluye:**
+- ✅ Plantilla base (`form-template/`) con estructura completa
+- ✅ Scripts de compilación con esbuild
+- ✅ Ejemplos de testing local con fat bundle
+- ✅ Guías de deployment offline via GitHub Actions
+- ✅ Documentación de versionado independiente por form
+- ✅ Setup de pipelines CI/CD
+
+**Documentación disponible:**
+- [README.md](../../../custom-forms/bizuit-custom-form-sample/README.md) - Inicio rápido y estructura
+- [DEVELOPMENT.md](../../../custom-forms/bizuit-custom-form-sample/DEVELOPMENT.md) - Desarrollo local y debugging
+- [DEPLOYMENT_GUIDE.md](../../../custom-forms/bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md) - Deployment a diferentes entornos
+- [VERSIONING.md](../../../custom-forms/bizuit-custom-form-sample/VERSIONING.md) - Sistema de versionado
+
+**Cuándo usar:** Para ver ejemplos completos de forms en producción, aprender el flujo de deployment, o crear tu propio form desde la plantilla base.
+
+---
+
 ### [RUNTIME_CONFIG.md](../RUNTIME_CONFIG.md)
 Guía completa sobre configuración dinámica vs estática.
 
@@ -83,7 +107,8 @@ Guía completa sobre configuración dinámica vs estática.
 1. 📋 Consulta [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) como cheatsheet
 2. 📦 Revisa la [documentación de NPM](https://www.npmjs.com/package/@tyconsa/bizuit-form-sdk)
 3. 💻 Copia código de [examples/](./examples/)
-4. 🔧 Lee [RUNTIME_CONFIG.md](../RUNTIME_CONFIG.md) para configuración avanzada
+4. 🧪 Clona el [repositorio de ejemplos](../../../custom-forms/bizuit-custom-form-sample) para ver forms completos
+5. 🔧 Lee [RUNTIME_CONFIG.md](../RUNTIME_CONFIG.md) para configuración avanzada
 
 ---
 

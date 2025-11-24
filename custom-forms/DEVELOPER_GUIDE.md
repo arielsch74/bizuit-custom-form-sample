@@ -124,9 +124,9 @@ custom-forms/
 │   ├── requirements.txt    # Python dependencies
 │   └── venv/               # Virtual environment
 │
-├── forms-examples/          # Git submodule
-│   ├── recubiz-gestion/    # Example form
-│   ├── my-form/            # Your forms here
+├── bizuit-custom-form-sample/  # Git submodule (example forms)
+│   ├── form-template/       # Base form template
+│   ├── my-form/            # Your custom forms here
 │   └── build-form.js       # Shared build script
 │
 ├── start-all.sh            # Start all services
@@ -242,7 +242,7 @@ Form renders with user context
 ```env
 # .env.local
 # Allowed origins for iframe (comma-separated, supports wildcards)
-NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://test.bizuit.com,https://*.example.com
+NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://<your-server>,https://*.example.com
 
 # Allow localhost iframes (development only)
 NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=true
@@ -292,7 +292,7 @@ export function validateIframeOrigin() {
 
   // 3. Check against allowed list
   const allowed = [
-    'https://test.bizuit.com',
+    'https://<your-server>',
     'https://*.example.com',  // Wildcard support
     'http://localhost:3000'   // If ALLOW_LOCALHOST_IFRAME=true
   ]
@@ -358,14 +358,14 @@ Both routes support these query parameters:
 
 **Standard form (from Dashboard)**:
 ```
-https://test.bizuit.com/BIZUITCustomForms/form/recubiz-gestion?s=xJ9kL2mN...&InstanceId=98765&UserName=admin&eventName=RB_ObtenerProximaGestion
+https://<your-server>/<tenant>BIZUITCustomForms/form/my-form?s=xJ9kL2mN...&InstanceId=98765&UserName=admin&eventName=MyProcess
 ```
 
 **Standalone form (iframe)**:
 ```html
 <!-- In external app -->
 <iframe
-  src="https://test.bizuit.com/BIZUITCustomForms/formsa/recubiz-gestion?version=1.0.20"
+  src="https://<your-server>/<tenant>BIZUITCustomForms/formsa/my-form?version=1.0.20"
   width="100%"
   height="800px"
 ></iframe>
@@ -427,7 +427,7 @@ http://localhost:3001/form/my-form
 export const DEV_CREDENTIALS = {
   username: 'john.doe@company.com',
   password: 'YourPassword123',
-  apiUrl: 'https://test.bizuit.com/yourTenantBizuitDashboardapi/api/'
+  apiUrl: 'https://<your-server>/<tenant>BizuitDashboardapi/api/'
 }
 ```
 
@@ -464,8 +464,8 @@ Next.js has **TWO types** of environment variables:
 
 ```env
 # .env.local
-NEXT_PUBLIC_BASE_PATH=/BIZUITCustomForms
-NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/api
+NEXT_PUBLIC_BASE_PATH=/<tenant>BIZUITCustomForms
+NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://<your-server>/<tenant>BizuitDashboardapi/api
 NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30
 ```
 
@@ -536,7 +536,7 @@ Create this file: `runtime-app/.env.local`
 NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=/api/bizuit
 
 # For production (direct URL):
-# NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/yourTenantBizuitDashboardapi/api
+# NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://<your-server>/<tenant>BizuitDashboardapi/api
 
 # HTTP timeout (milliseconds)
 NEXT_PUBLIC_BIZUIT_TIMEOUT=30000
@@ -591,7 +591,7 @@ NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30
 
 # Allowed origins for iframe embedding (comma-separated)
 # Supports wildcards: https://*.example.com
-NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://test.bizuit.com
+NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://<your-server>
 
 # Allow localhost for iframe testing (development only)
 NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=true
@@ -647,13 +647,13 @@ NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30
 WEBHOOK_SECRET=dev-webhook-secret-local
 ```
 
-#### Test Server (test.bizuit.com/arielschBIZUITCustomForms)
+#### Test/Staging Server (Tenant A - Dev/Test Environment)
 
-**File**: `E:\BIZUITSites\arielsch\arielschBIZUITCustomForms\.env.local`
+**File**: `<deployment-path>/tenantA/tenantABIZUITCustomForms\.env.local`
 
 ```env
 # Dashboard API (direct URL - tenant specific)
-NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/arielschBizuitDashboardapi/api
+NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://<your-server>/tenantABizuitDashboardapi/api
 
 # Backend API (same server, port 8000)
 FASTAPI_URL=http://127.0.0.1:8000
@@ -662,10 +662,10 @@ FASTAPI_URL=http://127.0.0.1:8000
 ALLOW_DEV_MODE=true
 
 # Base path (subdirectory deployment)
-NEXT_PUBLIC_BASE_PATH=/arielschBIZUITCustomForms
+NEXT_PUBLIC_BASE_PATH=/tenantABIZUITCustomForms
 
 # Production iframe origins
-NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://test.bizuit.com
+NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://<your-server>
 
 # Localhost iframe NOT allowed
 NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=false
@@ -674,16 +674,16 @@ NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=false
 NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30
 
 # Webhook secret (production secret)
-WEBHOOK_SECRET=<production-secret-from-azure-keyvault>
+WEBHOOK_SECRET=<production-secret-from-vault>
 ```
 
-#### Production Server (test.bizuit.com/recubizBIZUITCustomForms)
+#### Production Server (Tenant B - Production Environment)
 
-**File**: `E:\BIZUITSites\recubiz\recubizBIZUITCustomForms\.env.local`
+**File**: `<deployment-path>/tenantB/tenantBBIZUITCustomForms\.env.local`
 
 ```env
 # Dashboard API (direct URL - different tenant)
-NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/recubizBizuitDashboardapi/api
+NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://<your-server>/tenantBBizuitDashboardapi/api
 
 # Backend API (same server, port 8000)
 FASTAPI_URL=http://127.0.0.1:8000
@@ -692,10 +692,10 @@ FASTAPI_URL=http://127.0.0.1:8000
 ALLOW_DEV_MODE=false
 
 # Base path (different subdirectory)
-NEXT_PUBLIC_BASE_PATH=/recubizBIZUITCustomForms
+NEXT_PUBLIC_BASE_PATH=/tenantBBIZUITCustomForms
 
 # Production iframe origins
-NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://test.bizuit.com
+NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=https://<your-server>
 
 # Localhost iframe NOT allowed
 NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=false
@@ -704,17 +704,17 @@ NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=false
 NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30
 
 # Webhook secret (same as other deployments)
-WEBHOOK_SECRET=<production-secret-from-azure-keyvault>
+WEBHOOK_SECRET=<production-secret-from-vault>
 ```
 
 ### Key Differences by Environment
 
-| Setting | Local Dev | Test Server (arielsch) | Prod Server (recubiz) |
+| Setting | Local Dev | Test/Staging (Tenant A) | Production (Tenant B) |
 |---------|-----------|------------------------|----------------------|
-| **NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL** | `/api/bizuit` (proxy) | `https://test.bizuit.com/arielschBizuitDashboardapi/api` | `https://test.bizuit.com/recubizBizuitDashboardapi/api` |
+| **NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL** | `/api/bizuit` (proxy) | `https://<server>/tenantABizuitDashboardapi/api` | `https://<server>/tenantBBizuitDashboardapi/api` |
 | **FASTAPI_URL** | `http://127.0.0.1:8000` | `http://127.0.0.1:8000` | `http://127.0.0.1:8000` |
 | **ALLOW_DEV_MODE** | `true` | `true` (testing) | `false` (secure) |
-| **NEXT_PUBLIC_BASE_PATH** | (empty) | `/arielschBIZUITCustomForms` | `/recubizBIZUITCustomForms` |
+| **NEXT_PUBLIC_BASE_PATH** | (empty) | `/tenantABIZUITCustomForms` | `/tenantBBIZUITCustomForms` |
 | **NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME** | `true` | `false` | `false` |
 
 ### Multi-Tenant Deployment Strategy
@@ -728,16 +728,16 @@ Single Build Artifact
         ↓
 ┌─────────────────┬─────────────────┐
 │  Tenant A       │  Tenant B       │
-│  (arielsch)     │  (recubiz)      │
+│  (Test/Staging) │  (Production)   │
 ├─────────────────┼─────────────────┤
 │ ALLOW_DEV_MODE  │ ALLOW_DEV_MODE  │
 │ = true          │ = false         │
 │                 │                 │
 │ BASE_PATH       │ BASE_PATH       │
-│ = /arielsch...  │ = /recubiz...   │
+│ = /tenantA...   │ = /tenantB...   │
 │                 │                 │
 │ API URL         │ API URL         │
-│ = .../arielsch..│ = .../recubiz.. │
+│ = .../tenantA...│ = .../tenantB...│
 └─────────────────┴─────────────────┘
 
 Each tenant has different .env.local
@@ -750,20 +750,20 @@ NO rebuild needed (server-side vars)
 
 ```bash
 # Without server-side variable (old way):
-# Build for arielsch with ALLOW_DEV_MODE=true
+# Build for Tenant A with ALLOW_DEV_MODE=true
 NEXT_PUBLIC_ALLOW_DEV_MODE=true npm run build
 
-# Same build used for recubiz
-# Problem: recubiz also has ALLOW_DEV_MODE=true (insecure!)
+# Same build used for Tenant B
+# Problem: Tenant B also has ALLOW_DEV_MODE=true (insecure!)
 
 # With server-side variable (new way):
 # Single build (no ALLOW_DEV_MODE baked in)
 npm run build
 
-# Deploy to arielsch with .env.local:
-ALLOW_DEV_MODE=true  # Test environment
+# Deploy to Tenant A with .env.local:
+ALLOW_DEV_MODE=true  # Test/Staging environment
 
-# Deploy to recubiz with .env.local:
+# Deploy to Tenant B with .env.local:
 ALLOW_DEV_MODE=false  # Production secure
 
 # ✅ Same artifact, different security per tenant
@@ -822,16 +822,16 @@ export const DEV_CREDENTIALS = {
 
 **Option B: Use your own test account**
 
-1. Get your tenant name (e.g., `arielsch`, `recubiz`)
+1. Get your tenant name (e.g., `contoso`, `acme`)
 2. Get your test Dashboard credentials
 3. Construct API URL:
 
 ```javascript
-// Pattern: https://test.bizuit.com/{tenant}BizuitDashboardapi/api/
+// Pattern: https://<your-server>/{tenant}BizuitDashboardapi/api/
 export const DEV_CREDENTIALS = {
   username: 'your.email@company.com',
   password: 'YourDashboardPassword',
-  apiUrl: 'https://test.bizuit.com/yourTenantBizuitDashboardapi/api/'
+  apiUrl: 'https://<your-server>/<tenant>BizuitDashboardapi/api/'
 }
 ```
 
@@ -1714,18 +1714,18 @@ tail -f logs/backend-api.log
 
 ```bash
 # You have multiple deployments:
-# - test.bizuit.com/arielschBIZUITCustomForms (ALLOW_DEV_MODE=true)
-# - test.bizuit.com/recubizBIZUITCustomForms (ALLOW_DEV_MODE=false)
+# - server.com/tenantABIZUITCustomForms (ALLOW_DEV_MODE=true)
+# - server.com/tenantBBIZUITCustomForms (ALLOW_DEV_MODE=false)
 
 # Same codebase, different .env.local per deployment
 
 # Deployment 1 (.env.local):
 ALLOW_DEV_MODE=true
-NEXT_PUBLIC_BASE_PATH=/arielschBIZUITCustomForms
+NEXT_PUBLIC_BASE_PATH=/tenantABIZUITCustomForms
 
 # Deployment 2 (.env.local):
 ALLOW_DEV_MODE=false  # Secure!
-NEXT_PUBLIC_BASE_PATH=/recubizBIZUITCustomForms
+NEXT_PUBLIC_BASE_PATH=/tenantBBIZUITCustomForms
 
 # Restart app (NO rebuild needed for ALLOW_DEV_MODE!)
 ./stop-all.sh && ./start-all.sh
