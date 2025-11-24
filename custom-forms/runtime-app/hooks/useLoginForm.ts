@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { apiFetch } from '@/lib/api-client'
+import { getTenantId } from '@/lib/navigation'
 
 interface LoginFormState {
   username: string
@@ -36,13 +37,20 @@ export function useLoginForm(redirectPath: string = '/admin'): UseLoginFormRetur
     setError('')
 
     try {
+      // SECURITY: Get tenant ID for multi-tenant isolation
+      const tenantId = getTenantId()
+
       // Use apiFetch to ensure basePath is added (Next.js doesn't add it for client fetch)
       const response = await apiFetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({
+          username,
+          password,
+          tenant_id: tenantId  // SECURITY: Send tenant ID to backend
+        }),
         credentials: 'include',
       })
 
@@ -67,11 +75,14 @@ export function useLoginForm(redirectPath: string = '/admin'): UseLoginFormRetur
         const maxAge = 60 * 60 * 24 // 24 hours in seconds
         const expires = new Date(Date.now() + maxAge * 1000).toUTCString()
 
+        // SECURITY: Prefix cookies with tenant ID for multi-tenant isolation
+        const cookiePrefix = tenantId !== 'default' ? `${tenantId}_` : ''
+
         // Set admin_token cookie (not HttpOnly because we can't set that from JS)
-        document.cookie = `admin_token=${data.token}; path=${basePath}; expires=${expires}; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`
+        document.cookie = `${cookiePrefix}admin_token=${data.token}; path=${basePath}; expires=${expires}; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`
 
         // Set admin_user_data cookie
-        document.cookie = `admin_user_data=${encodeURIComponent(JSON.stringify(data.user))}; path=${basePath}; expires=${expires}; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`
+        document.cookie = `${cookiePrefix}admin_user_data=${encodeURIComponent(JSON.stringify(data.user))}; path=${basePath}; expires=${expires}; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`
 
         router.push(redirectPath)
       } else {

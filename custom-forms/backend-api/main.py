@@ -283,11 +283,12 @@ async def admin_login(request: Request, credentials: AdminLoginRequest):
                 error="Access denied. User does not have administrator privileges."
             )
 
-        # 3. Generate session token
+        # 3. Generate session token (with tenant_id for multi-tenant isolation)
         session_token = generate_session_token(
             credentials.username,
             bizuit_login["token"],
-            validation["user_info"]
+            validation["user_info"],
+            credentials.tenant_id  # SECURITY: Include tenant in JWT
         )
 
         # 4. Return success response
@@ -297,7 +298,7 @@ async def admin_login(request: Request, credentials: AdminLoginRequest):
             **validation["user_info"]
         }
 
-        print(f"[Auth API] Login successful for '{sanitized_username}'")
+        print(f"[Auth API] Login successful for '{sanitized_username}' in tenant '{credentials.tenant_id}'")
 
         return AdminLoginResponse(
             success=True,

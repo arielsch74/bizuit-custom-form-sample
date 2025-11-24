@@ -7,6 +7,8 @@
  * In production (IIS): /arielschBIZUITCustomForms/api/auth/login
  */
 
+import { getTenantId as getTenantIdUtil } from './navigation'
+
 /**
  * Get the base path from runtime configuration
  * This allows basePath to be changed without rebuilding
@@ -129,9 +131,12 @@ export async function apiFetch(
 
       // Only redirect if NOT already on login page
       if (currentPath.startsWith(adminPrefix) && currentPath !== loginPath) {
-        // Clear admin cookies
-        document.cookie = `admin_token=; path=${basePath || '/'}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
-        document.cookie = `admin_user_data=; path=${basePath || '/'}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+        // SECURITY: Clear admin cookies with tenant prefix for multi-tenant isolation
+        const tenantId = getTenantIdUtil()
+        const cookiePrefix = tenantId !== 'default' ? `${tenantId}_` : ''
+
+        document.cookie = `${cookiePrefix}admin_token=; path=${basePath || '/'}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
+        document.cookie = `${cookiePrefix}admin_user_data=; path=${basePath || '/'}; expires=Thu, 01 Jan 1970 00:00:00 GMT`
 
         // Redirect to login with return URL
         window.location.href = `${loginPath}?expired=true`

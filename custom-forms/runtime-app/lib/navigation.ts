@@ -28,6 +28,34 @@ export function getBasePath(): string {
 }
 
 /**
+ * Extract tenant ID from basePath
+ *
+ * Used for multi-tenant cookie isolation. Parses the tenant identifier
+ * from deployment paths like '/arielschBIZUITCustomForms' or '/recubizBIZUITCustomForms'.
+ *
+ * @returns Tenant identifier (e.g., 'arielsch', 'recubiz', or 'default')
+ *
+ * @example
+ * getTenantId('/arielschBIZUITCustomForms') // 'arielsch'
+ * getTenantId('/recubizBIZUITCustomForms')  // 'recubiz'
+ * getTenantId('/')                          // 'default'
+ */
+export function getTenantId(): string {
+  const basePath = getBasePath()
+
+  // No basePath or root = default tenant
+  if (!basePath || basePath === '/' || basePath === '') {
+    return 'default'
+  }
+
+  // Match pattern: /XXXXBIZUITCustomForms
+  // Captures everything before "BIZUIT" as tenant ID
+  const match = basePath.match(/^\/([^/]+?)BIZUIT/)
+
+  return match ? match[1] : 'default'
+}
+
+/**
  * Add basePath to a relative URL
  *
  * @param path - Relative path (e.g., '/admin', '/form/my-form')

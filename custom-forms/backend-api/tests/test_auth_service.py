@@ -379,4 +379,119 @@ class TestExtractBearerToken:
         assert token is None
 
 
+class TestTenantValidation:
+    """Unit tests for tenant-based JWT token validation"""
+
+    def test_generate_token_with_tenant_id(self):
+        """Test JWT token generation with tenant_id"""
+        # Arrange
+        username = "test_user"
+        bizuit_token = "fake_bizuit_token"
+        user_info = {
+            "userId": 1,
+            "userName": "test_user",
+            "email": "test@example.com"
+        }
+        tenant_id = "arielsch"
+
+        # Act
+        token = generate_session_token(username, bizuit_token, user_info, tenant_id)
+
+        # Assert
+        assert isinstance(token, str)
+        assert len(token) > 100
+
+        # Decode and verify tenant_id is in payload
+        import os
+        from dotenv import load_dotenv
+        load_dotenv()
+
+        jwt_secret = os.getenv("JWT_SECRET_KEY", "change-this-secret-key")
+        decoded = jwt.decode(token, jwt_secret, algorithms=["HS256"])
+
+        assert decoded["username"] == username
+        assert decoded["tenant_id"] == tenant_id
+        assert decoded["type"] == "admin_session"
+
+    def test_verify_token_with_correct_tenant(self):
+        """Test token verification with correct tenant_id"""
+        # Arrange: Generate token with tenant_id
+        username = "test_user"
+        bizuit_token = "fake_token"
+        user_info = {"userId": 1, "userName": "test_user"}
+        tenant_id = "arielsch"
+
+        token = generate_session_token(username, bizuit_token, user_info, tenant_id)
+
+        # Act: Verify with matching tenant_id
+        payload = verify_session_token(token, tenant_id)
+
+        # Assert
+        assert payload is not None
+        assert payload["username"] == username
+        assert payload["tenant_id"] == tenant_id
+
+    def test_verify_token_with_incorrect_tenant(self):
+        """Test token verification with incorrect tenant_id"""
+        # Arrange: Generate token for arielsch
+        username = "test_user"
+        bizuit_token = "fake_token"
+        user_info = {"userId": 1, "userName": "test_user"}
+        tenant_id = "arielsch"
+
+        token = generate_session_token(username, bizuit_token, user_info, tenant_id)
+
+        # Act: Try to verify with different tenant_id (recubiz)
+        payload = verify_session_token(token, "recubiz")
+
+        # Assert: Should fail validation
+        assert payload is None
+
+    def test_verify_token_without_tenant_id_in_payload(self):
+        """Test token verification when payload doesn't have tenant_id"""
+        # Arrange: Create token WITHOUT tenant_id (legacy token)
+        import os
+        from dotenv import load_dotenv
+        load_dotenv()
+
+        jwt_secret = os.getenv("JWT_SECRET_KEY", "change-this-secret-key")
+
+        payload = {
+            "username": "test_user",
+            "bizuit_token": "fake_token",
+            "user_info": {},
+            "exp": datetime.utcnow() + timedelta(minutes=30),
+            "type": "admin_session"
+            # NO tenant_id
+        }
+        legacy_token = jwt.encode(payload, jwt_secret, algorithm="HS256")
+
+        # Act: Try to verify with expected tenant_id
+        result = verify_session_token(legacy_token, "arielsch")
+
+        # Assert: Should fail (missing tenant_id)
+        assert result is None
+
+    def test_generate_token_without_tenant_defaults_to_default(self):
+        """Test token generation without tenant_id uses 'default'"""
+        # Arrange
+        username = "test_user"
+        bizuit_token = "fake_token"
+        user_info = {"userId": 1}
+
+        # Act: Generate token without tenant_id (backward compatibility)
+        token = generate_session_token(username, bizuit_token, user_info)
+
+        # Assert
+        import os
+        from dotenv import load_dotenv
+        load_dotenv()
+
+        jwt_secret = os.getenv("JWT_SECRET_KEY", "change-this-secret-key")
+        decoded = jwt.decode(token, jwt_secret, algorithms=["HS256"])
+
+        # Should have default tenant_id
+        assert decoded.get("tenant_id") == "default"
+
+
 # Run with: pytest tests/test_auth_service.py -v

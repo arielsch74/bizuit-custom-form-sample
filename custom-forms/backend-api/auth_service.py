@@ -137,7 +137,7 @@ def validate_admin_user(username: str, bizuit_token: str) -> Dict[str, Any]:
         raise
 
 
-def generate_session_token(username: str, bizuit_token: str, user_info: Dict[str, Any]) -> str:
+def generate_session_token(username: str, bizuit_token: str, user_info: Dict[str, Any], tenant_id: str = "default") -> str:
     """
     Genera un JWT token para la sesión de administrador
 
@@ -145,6 +145,7 @@ def generate_session_token(username: str, bizuit_token: str, user_info: Dict[str
         username: Nombre de usuario
         bizuit_token: Token de Bizuit original
         user_info: Información del usuario
+        tenant_id: Identificador del tenant (para multi-tenant isolation)
 
     Returns:
         JWT token string
@@ -158,6 +159,7 @@ def generate_session_token(username: str, bizuit_token: str, user_info: Dict[str
             "username": username,
             "bizuit_token": bizuit_token,
             "user_info": user_info,
+            "tenant_id": tenant_id,  # SECURITY: Tenant isolation
             "exp": expiration,
             "iat": datetime.utcnow(),
             "type": "admin_session"
@@ -166,7 +168,7 @@ def generate_session_token(username: str, bizuit_token: str, user_info: Dict[str
         # Generar JWT
         token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 
-        print(f"[Auth Service] Generated session token for '{username}' (expires: {expiration})")
+        print(f"[Auth Service] Generated session token for '{username}' in tenant '{tenant_id}' (expires: {expiration})")
         return token
 
     except Exception as e:
@@ -174,15 +176,16 @@ def generate_session_token(username: str, bizuit_token: str, user_info: Dict[str
         raise
 
 
-def verify_session_token(token: str) -> Optional[Dict[str, Any]]:
+def verify_session_token(token: str, expected_tenant_id: str = "default") -> Optional[Dict[str, Any]]:
     """
     Verifica y decodifica un JWT session token
 
     Args:
         token: JWT token string
+        expected_tenant_id: Tenant ID esperado (para validación multi-tenant)
 
     Returns:
-        dict con payload del token o None si inválido/expirado
+        dict con payload del token o None si inválido/expirado/tenant incorrecto
     """
     try:
         # Decodificar y verificar JWT
@@ -193,7 +196,13 @@ def verify_session_token(token: str) -> Optional[Dict[str, Any]]:
             print("[Auth Service] Invalid token type")
             return None
 
-        print(f"[Auth Service] Token verified for user '{payload.get('username')}'")
+        # SECURITY: Verificar que el tenant_id coincida
+        token_tenant_id = payload.get("tenant_id", "default")
+        if token_tenant_id != expected_tenant_id:
+            print(f"[Auth Service] Tenant mismatch: token has '{token_tenant_id}' but expected '{expected_tenant_id}'")
+            return None
+
+        print(f"[Auth Service] Token verified for user '{payload.get('username')}' in tenant '{token_tenant_id}'")
         return payload
 
     except jwt.ExpiredSignatureError:
@@ -207,19 +216,20 @@ def verify_session_token(token: str) -> Optional[Dict[str, Any]]:
         return None
 
 
-def refresh_session_token(old_token: str) -> Optional[str]:
+def refresh_session_token(old_token: str, tenant_id: str = "default") -> Optional[str]:
     """
     Renueva un session token (útil para renovar con actividad)
 
     Args:
         old_token: Token actual
+        tenant_id: Tenant ID para validación
 
     Returns:
         Nuevo token o None si el token actual es inválido
     """
     try:
-        # Verificar token actual
-        payload = verify_session_token(old_token)
+        # Verificar token actual (con validación de tenant)
+        payload = verify_session_token(old_token, tenant_id)
 
         if not payload:
             return None
@@ -228,10 +238,11 @@ def refresh_session_token(old_token: str) -> Optional[str]:
         username = payload["username"]
         bizuit_token = payload["bizuit_token"]
         user_info = payload["user_info"]
+        token_tenant_id = payload.get("tenant_id", "default")
 
-        new_token = generate_session_token(username, bizuit_token, user_info)
+        new_token = generate_session_token(username, bizuit_token, user_info, token_tenant_id)
 
-        print(f"[Auth Service] Session token refreshed for '{username}'")
+        print(f"[Auth Service] Session token refreshed for '{username}' in tenant '{token_tenant_id}'")
         return new_token
 
     except Exception as e:

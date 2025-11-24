@@ -11,6 +11,7 @@ class AdminLoginRequest(BaseModel):
     """Request model for admin login"""
     username: str
     password: str
+    tenant_id: Optional[str] = "default"  # Tenant identifier for multi-tenant isolation
 
 
 class AdminLoginResponse(BaseModel):
