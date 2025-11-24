@@ -149,6 +149,82 @@ Genera:
 - **`dist/form.js`** - Bundle IIFE listo para carga dinámica
 - **`dist/form.meta.json`** - Metadata (nombre, versión, tamaño, fecha)
 
+## 🧪 Testing Local con Fat Bundle
+
+### Opción recomendada para desarrollo:
+
+El **fat bundle** incluye todas las dependencias (SDK + UI components) para testing standalone.
+
+#### 1. Compilar Fat Bundle:
+
+```bash
+cd form-template  # o tu form
+npm run build:dev
+```
+
+Genera `dist/form.dev.js` (~500 KB con todas las dependencias)
+
+#### 2. Configurar Credenciales (opcional):
+
+```bash
+# Copiar template
+cp dev-credentials.example.js dev-credentials.js
+
+# Editar con credenciales reales del Dashboard
+nano dev-credentials.js
+```
+
+**dev-credentials.js:**
+```javascript
+export const DEV_CREDENTIALS = {
+  username: 'tu-usuario',
+  password: 'tu-password',
+  apiUrl: 'https://test.bizuit.com/yourTenantBizuitDashboardapi/api'
+};
+```
+
+⚠️ Este archivo está en `.gitignore` - NO se commitea.
+
+#### 3. Levantar HTTP Server:
+
+```bash
+cd form-template
+http-server -p 8080 --cors
+```
+
+Si no tenés `http-server`:
+```bash
+npm install -g http-server
+```
+
+#### 4. Abrir en Navegador:
+
+```
+http://localhost:8080/dist/dev.html
+```
+
+El form se carga con:
+- ✅ React desde CDN (peer dependency)
+- ✅ SDK + UI components incluidos en fat bundle
+- ✅ Credenciales desde `dev-credentials.js`
+- ✅ Hot reload con F5 (cache buster automático)
+
+#### 5. Watch Mode (opcional):
+
+Para rebuild automático en cada cambio:
+
+```bash
+# Terminal 1: Watch mode
+npx nodemon --watch src --ext tsx,ts --exec "npm run build:dev"
+
+# Terminal 2: HTTP Server
+http-server -p 8080 --cors
+```
+
+Ahora cada cambio en `src/` recompila el fat bundle automáticamente.
+
+**Ver documentación completa:** [DEVELOPMENT.md](DEVELOPMENT.md)
+
 ## 📦 Deployment Offline
 
 ### Flujo Completo

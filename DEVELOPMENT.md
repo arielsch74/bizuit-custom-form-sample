@@ -276,30 +276,49 @@ npm run build:dev
 
 #### Usar dev.html con Fat Bundle:
 
-El archivo `dev.html` está configurado para usar automáticamente el fat bundle cuando está disponible:
+El archivo `dev.html` está configurado para cargar el fat bundle como módulo ES6:
 
 ```html
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Recubiz Gestión - Dev Mode</title>
+  <title>Form Template - Dev Mode</title>
+
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React & ReactDOM from CDN (peer dependencies) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 </head>
 <body>
   <div id="root"></div>
 
-  <!-- Fat bundle: incluye React, SDK, y todas las dependencias -->
-  <script src="./dist/form.dev.js"></script>
+  <!-- Load dev credentials (optional) -->
+  <script type="module" src="./dev-credentials.js"></script>
 
-  <script>
-    // El fat bundle expone window.RecubizGestion directamente
+  <!-- Load and mount the fat bundle -->
+  <script type="module">
+    // Import dev credentials (optional)
+    import { DEV_CREDENTIALS } from './dev-credentials.js';
+
+    // Import fat bundle (includes SDK + UI components)
+    const formModule = await import('./form.dev.js?v=' + Date.now());
+    const FormTemplate = formModule.default;
+
+    // Mount form
     const root = ReactDOM.createRoot(document.getElementById('root'));
+
+    // Mock dashboard params with dev credentials
     root.render(
-      React.createElement(window.RecubizGestion, {
+      React.createElement(FormTemplate, {
         dashboardParams: {
-          userName: 'Test User',
-          devMode: true
+          userName: 'Developer',
+          instanceId: 'dev-instance-001',
+          devUsername: DEV_CREDENTIALS.username,
+          devPassword: DEV_CREDENTIALS.password,
+          devApiUrl: DEV_CREDENTIALS.apiUrl
         }
       })
     );
@@ -307,6 +326,12 @@ El archivo `dev.html` está configurado para usar automáticamente el fat bundle
 </body>
 </html>
 ```
+
+**Notas importantes:**
+- ✅ React/ReactDOM se cargan desde CDN (peer dependencies del fat bundle)
+- ✅ Fat bundle se importa como módulo ES6 (`import`)
+- ✅ Credenciales de dev opcionales desde `dev-credentials.js`
+- ✅ Cache buster con `Date.now()` para recargas
 
 #### Levantar HTTP Server:
 
