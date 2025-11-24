@@ -111,6 +111,52 @@ export default function DocsPage() {
             </div>
           </div>
 
+          {/* Form Examples Repository Callout - PROMINENT PLACEMENT */}
+          <div className="mb-12">
+            <InfoBox type="info" title={t('docs.examplesRepo.title')}>
+              <div className="text-slate-300">
+                <p className="mb-3">
+                  {t('docs.examplesRepo.description')}{' '}
+                  <a
+                    href="https://github.com/TYCON-SA/bizuit-custom-form-sample"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-orange-400 hover:text-orange-300 underline font-semibold"
+                  >
+                    {t('docs.examplesRepo.link')}
+                  </a>
+                  {' '}{t('docs.examplesRepo.onGithub')}
+                </p>
+                <div className="grid md:grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="font-semibold text-white mb-2">{t('docs.examplesRepo.whatsIncluded')}</p>
+                    <ul className="space-y-1">
+                      <li>✅ {t('docs.examplesRepo.baseTemplate')} (<code className="text-orange-400">form-template/</code>)</li>
+                      <li>✅ {t('docs.examplesRepo.buildScripts')}</li>
+                      <li>✅ {t('docs.examplesRepo.fatBundle')}</li>
+                      <li>✅ {t('docs.examplesRepo.documentation')}</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white mb-2">{t('docs.examplesRepo.readyFor')}</p>
+                    <ul className="space-y-1">
+                      <li>🚀 {t('docs.examplesRepo.githubActions')}</li>
+                      <li>📦 {t('docs.examplesRepo.offlineDeployment')}</li>
+                      <li>🔄 {t('docs.examplesRepo.versioning')}</li>
+                      <li>📝 {t('docs.examplesRepo.semanticVersioning')}</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-600">
+                  <p className="text-sm">
+                    <strong>{t('docs.examplesRepo.localPath')}</strong> <code className="text-orange-400">custom-forms/bizuit-custom-form-sample/</code>
+                    {' '}{t('docs.examplesRepo.submodule')}
+                  </p>
+                </div>
+              </div>
+            </InfoBox>
+          </div>
+
           {/* Quick Start Section */}
           <Section id="quickstart" title={t('docs.quickstart.title')}>
             <p className="text-slate-300 mb-6">
@@ -160,52 +206,6 @@ cd ..
               </InfoBox>
             </SubSection>
           </Section>
-
-          {/* Form Examples Repository Callout */}
-          <div className="mb-12">
-            <InfoBox type="info" title="📦 Form Examples Repository">
-              <div className="text-slate-300">
-                <p className="mb-3">
-                  Complete working examples and a ready-to-use template are available in the{' '}
-                  <a
-                    href="https://github.com/TYCON-SA/bizuit-custom-form-sample"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-orange-400 hover:text-orange-300 underline font-semibold"
-                  >
-                    TYCON-SA/bizuit-custom-form-sample
-                  </a>
-                  {' '}repository on GitHub.
-                </p>
-                <div className="grid md:grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <p className="font-semibold text-white mb-2">What's included:</p>
-                    <ul className="space-y-1">
-                      <li>✅ Base form template (<code className="text-orange-400">form-template/</code>)</li>
-                      <li>✅ Build scripts with esbuild</li>
-                      <li>✅ Fat bundle workflow examples</li>
-                      <li>✅ Complete documentation</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-white mb-2">Ready for:</p>
-                    <ul className="space-y-1">
-                      <li>🚀 GitHub Actions CI/CD</li>
-                      <li>📦 Offline deployment workflow</li>
-                      <li>🔄 Independent versioning per form</li>
-                      <li>📝 Semantic versioning automation</li>
-                    </ul>
-                  </div>
-                </div>
-                <div className="mt-4 pt-3 border-t border-slate-600">
-                  <p className="text-sm">
-                    <strong>Local path:</strong> <code className="text-orange-400">custom-forms/bizuit-custom-form-sample/</code>
-                    {' '}(Git submodule)
-                  </p>
-                </div>
-              </div>
-            </InfoBox>
-          </div>
 
           {/* Architecture Section */}
           <Section id="architecture" title={t('docs.architecture.title')}>
