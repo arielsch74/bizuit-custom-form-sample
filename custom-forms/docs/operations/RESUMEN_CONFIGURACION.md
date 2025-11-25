@@ -261,13 +261,13 @@ pm2 restart all
 ## Documentación
 
 ### Para administradores del servidor:
-1. **[SERVIDOR_PASOS_FINALES.md](docs/deployment/SERVIDOR_PASOS_FINALES.md)** - Guía paso a paso para configuración inicial
-2. **[COMANDOS_SERVIDOR.md](./COMANDOS_SERVIDOR.md)** - Referencia rápida de comandos PowerShell
+1. **[SERVIDOR_PASOS_FINALES.md](../deployment/SERVIDOR_PASOS_FINALES.md)** - Guía paso a paso para configuración inicial
+2. **[COMANDOS_SERVIDOR.md](../deployment/COMANDOS_SERVIDOR.md)** - Referencia rápida de comandos PowerShell
 
 ### Para developers y DevOps:
-1. **[IIS_CONFIGURATION_GUIDE.md](docs/infrastructure/IIS_CONFIGURATION_GUIDE.md)** - Guía técnica completa de arquitectura
-2. **[custom-forms/bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md](./custom-forms/bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md)** - Documentación de deployment con PM2
-3. **[custom-forms/docs/infrastructure/PM2_WINDOWS_SETUP.md](./custom-forms/docs/infrastructure/PM2_WINDOWS_SETUP.md)** - Setup de PM2 en Windows
+1. **[IIS_CONFIGURATION_GUIDE.md](../infrastructure/IIS_CONFIGURATION_GUIDE.md)** - Guía técnica completa de arquitectura
+2. **[DEPLOYMENT_GUIDE.md](../../bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md)** - Documentación de deployment con PM2
+3. **[PM2_WINDOWS_SETUP.md](../infrastructure/PM2_WINDOWS_SETUP.md)** - Setup de PM2 en Windows
 
 ### Configuración de ejemplo:
 - **[.env.production.example](./custom-forms/runtime-app/.env.production.example)** - Template para .env.local del runtime

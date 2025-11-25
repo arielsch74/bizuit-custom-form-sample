@@ -29,15 +29,6 @@
 | **[Runtime App Security](runtime-app/SECURITY.md)** | Medidas de seguridad implementadas en runtime-app | `docs/runtime-app/` |
 | **[Runtime Configuration Guide](setup/RUNTIME_CONFIG.md)** | Configuración build-time vs runtime en Next.js | `docs/setup/` |
 | **[Development Guide (Forms)](../bizuit-custom-form-sample/DEVELOPMENT.md)** | Desarrollo local de custom forms, testing, debugging | `bizuit-custom-form-sample/` |
-
-### 📋 Planes y Propuestas
-
-| Documento | Descripción | Ubicación |
-|-----------|-------------|-----------|
-| **[Dynamic Forms Implementation Plan](planning/DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md)** | Plan propuesto de arquitectura del sistema | `docs/planning/` |
-| **[Dynamic Forms Implementation Part 2](planning/DYNAMIC_FORMS_IMPLEMENTATION_PLAN_PART2.md)** | Fases de implementación detalladas | `docs/planning/` |
-| **[Multi-Environment Implementation](planning/MULTI_ENVIRONMENT_IMPLEMENTATION_PLAN.md)** | Plan multi-ambiente (dev/test/prod) | `docs/planning/` |
-| **[IIS Deployment](deployment/IIS_DEPLOYMENT.md)** | Deployment con IIS + reverse proxy | `docs/deployment/` |
 | **[Offline Deployment](deployment/OFFLINE_DEPLOYMENT.md)** | Deployment offline en entornos sin internet | `docs/deployment/` |
 
 ### ⚙️ CI/CD
@@ -91,7 +82,6 @@ custom-forms/
 │   ├── deployment/                    # Deployment y configuración
 │   │   ├── CHECKLIST_SERVIDOR.md
 │   │   ├── COMANDOS_SERVIDOR.md
-│   │   ├── IIS_DEPLOYMENT.md
 │   │   ├── MULTI_CLIENT_DEPLOYMENT.md
 │   │   ├── OFFLINE_DEPLOYMENT.md
 │   │   └── SERVIDOR_PASOS_FINALES.md
@@ -117,11 +107,6 @@ custom-forms/
 │   │   ├── OVERVIEW.md                # Arquitectura de runtime-app
 │   │   ├── EXTERNALS_CONFIG.md        # React externals config
 │   │   └── SECURITY.md                # Security guidelines
-│   │
-│   ├── planning/                      # Planes y propuestas futuras
-│   │   ├── DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md
-│   │   ├── DYNAMIC_FORMS_IMPLEMENTATION_PLAN_PART2.md
-│   │   └── MULTI_ENVIRONMENT_IMPLEMENTATION_PLAN.md
 │   │
 │   ├── README.md                      # Índice de documentación
 │   └── DEVELOPER_GUIDE.md             # Guía completa para developers
@@ -164,14 +149,8 @@ custom-forms/
 - [Multi-Client Deployment](deployment/MULTI_CLIENT_DEPLOYMENT.md) - Múltiples clientes
 - [Servidor - Pasos Finales](deployment/SERVIDOR_PASOS_FINALES.md) - Guía detallada
 - [Comandos del Servidor](deployment/COMANDOS_SERVIDOR.md) - PowerShell reference
-- [IIS Deployment](deployment/IIS_DEPLOYMENT.md) - IIS + reverse proxy
 - [Offline Deployment](deployment/OFFLINE_DEPLOYMENT.md) - Entornos sin internet
 - [Deployment Guide](../bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md) - Deploy de forms
-
-### Planes y Propuestas
-- [Dynamic Forms Implementation](planning/DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md) - Plan propuesto de arquitectura
-- [Dynamic Forms Part 2](planning/DYNAMIC_FORMS_IMPLEMENTATION_PLAN_PART2.md) - Fases de implementación
-- [Multi-Environment Plan](planning/MULTI_ENVIRONMENT_IMPLEMENTATION_PLAN.md) - Plan multi-ambiente
 
 ### Security
 - [Tenant Isolation](security/TENANT_ISOLATION_GUIDE.md) - Aislamiento multi-tenant
@@ -202,7 +181,6 @@ custom-forms/
 
 - **custom-forms/**: README.md + QUICK_START.md (overview y getting started)
 - **docs/**: Documentación técnica organizada por categorías
-- **docs/planning/**: Planes y propuestas para futuro desarrollo
 - **docs/deployment/**: Deployment y configuración de servidores
 - **docs/infrastructure/**: Infraestructura (PM2, IIS, basePath)
 - **docs/security/**: Seguridad y aislamiento multi-tenant

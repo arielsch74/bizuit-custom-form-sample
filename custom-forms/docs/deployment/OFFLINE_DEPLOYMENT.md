@@ -58,15 +58,15 @@ Este sistema permite hacer deployments de custom forms dinámicos en servidores 
 
 ### 1. GitHub Action: `build-deployment-package.yml`
 
-**Ubicación**: `/forms-examples/.github/workflows/build-deployment-package.yml`
+**Ubicación**: `custom-forms/bizuit-custom-form-sample/.github/workflows/build-deployment-package.yml`
 
 **Triggers**:
-- Push a `main` o `release/*` que modifique `/forms-examples/**`
+- Push a `main` o `release/*` que modifique archivos en el repositorio del submodule
 - Manual (`workflow_dispatch`) con versión customizable
 
 **Proceso**:
 1. Instala Node.js y dependencias
-2. Compila todos los forms encontrados en `forms-examples/`
+2. Compila todos los forms encontrados en el repositorio del submodule
 3. Genera `manifest.json` dinámicamente con metadata
 4. Crea estructura:
    ```
@@ -190,7 +190,7 @@ Este sistema permite hacer deployments de custom forms dinámicos en servidores 
 ### Paso 1: Developer hace cambios
 
 ```bash
-cd forms-examples/aprobacion-gastos
+cd custom-forms/bizuit-custom-form-sample/form-template
 
 # Editar form
 vim src/index.tsx
@@ -200,7 +200,7 @@ npm run build
 
 # Commit y push
 git add .
-git commit -m "feat: add new validation to aprobacion-gastos"
+git commit -m "feat: add new validation to form"
 git push origin main
 ```
 
@@ -258,10 +258,10 @@ API sirve código desde BD:
 #### Crear un nuevo form
 
 ```bash
-cd forms-examples
+cd custom-forms/bizuit-custom-form-sample
 
 # Copiar template
-cp -r aprobacion-gastos mi-nuevo-form
+cp -r form-template mi-nuevo-form
 cd mi-nuevo-form
 
 # Editar package.json
@@ -278,7 +278,7 @@ npm run build
 ls dist/
 # Debe existir: form.js, form.js.map, form.meta.json
 
-# Commit y push
+# Commit y push (dentro del submodule)
 git add .
 git commit -m "feat: add mi-nuevo-form"
 git push
@@ -450,7 +450,7 @@ WHERE cf.FormName = 'aprobacion-gastos'
 
 ```bash
 # Test local de form
-cd forms-examples/aprobacion-gastos
+cd custom-forms/bizuit-custom-form-sample/form-template
 npm run build
 node -e "console.log(require('fs').readFileSync('dist/form.js', 'utf8').substring(0, 200))"
 
