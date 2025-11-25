@@ -55,20 +55,20 @@ El POC del backend .NET Core está **100% funcional** y validado:
 | 3 | `/api/auth/login` | POST | Authentication | ✅ | ✅ | Completado | 4e4c138 |
 | 4 | `/api/auth/validate` | POST | Authentication | ✅ | ✅ | Completado | 4e4c138 |
 | 5 | `/api/auth/refresh` | POST | Authentication | ✅ | ✅ | Completado | 4e4c138 |
-| 6 | `/api/forms/validate-token` | POST | Form Tokens | ✅ | ✅ | **Completado** | *pending* |
-| 7 | `/api/forms/close-token/{token_id}` | DELETE | Form Tokens | ✅ | ✅ | **Completado** | *pending* |
-| 8 | `/api/dashboard/validate-token` | POST | Form Tokens | ✅ | ✅ | **Completado** | *pending* |
-| 9 | `/api/custom-forms` | GET | Custom Forms | ✅ | ❌ | Media | - |
-| 10 | `/api/custom-forms/{form_name}/code` | GET | Custom Forms | ✅ | ❌ | Media | - |
-| 11 | `/api/custom-forms/{form_name}/versions` | GET | Custom Forms | ✅ | ❌ | Media | - |
-| 12 | `/api/custom-forms/{form_name}/set-version` | POST | Custom Forms | ✅ | ❌ | Media | - |
+| 6 | `/api/forms/validate-token` | POST | Form Tokens | ✅ | ✅ | **Completado** | a3287f3 |
+| 7 | `/api/forms/close-token/{token_id}` | DELETE | Form Tokens | ✅ | ✅ | **Completado** | a3287f3 |
+| 8 | `/api/dashboard/validate-token` | POST | Form Tokens | ✅ | ✅ | **Completado** | a3287f3 |
+| 9 | `/api/custom-forms` | GET | Custom Forms | ✅ | ✅ | **Completado** | *pending* |
+| 10 | `/api/custom-forms/{form_name}/code` | GET | Custom Forms | ✅ | ✅ | **Completado** | *pending* |
+| 11 | `/api/custom-forms/{form_name}/versions` | GET | Custom Forms | ✅ | ✅ | **Completado** | *pending* |
+| 12 | `/api/custom-forms/{form_name}/set-version` | POST | Custom Forms | ✅ | ✅ | **Completado** | *pending* |
 | 13 | `/api/custom-forms/{form_name}` | DELETE | Custom Forms | ✅ | ❌ | Baja | - |
 | 14 | `/api/custom-forms/{form_name}/versions/{version}` | DELETE | Custom Forms | ✅ | ❌ | Baja | - |
 | 15 | `/api/deployment/upload` | POST | Deployment | ✅ | ❌ | Media | - |
 
 **Total:** 15 endpoints
-- **Completados:** 8 (53%) ✅
-- **Pendientes:** 7 (47%)
+- **Completados:** 12 (80%) ✅✅
+- **Pendientes:** 3 (20%)
 
 ---
 

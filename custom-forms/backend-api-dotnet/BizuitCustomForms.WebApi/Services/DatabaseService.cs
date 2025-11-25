@@ -276,6 +276,291 @@ public class DatabaseService : IDatabaseService
         if (string.IsNullOrEmpty(value)) return "***";
         return value.Length > 3 ? $"{value[..3]}***" : "***";
     }
+
+    /// <summary>
+    /// Validate form name format (alphanumeric, dash, underscore)
+    /// </summary>
+    private bool IsValidFormName(string formName)
+    {
+        return !string.IsNullOrWhiteSpace(formName) &&
+               formName.Length <= 100 &&
+               formName.All(c => char.IsLetterOrDigit(c) || c == '-' || c == '_');
+    }
+
+    /// <summary>
+    /// Validate version format (semantic versioning: 1.0.0)
+    /// </summary>
+    private bool IsValidVersion(string version)
+    {
+        return !string.IsNullOrWhiteSpace(version) &&
+               version.Length <= 20 &&
+               System.Text.RegularExpressions.Regex.IsMatch(version, @"^\d+\.\d+\.\d+(-[\w.]+)?$");
+    }
+
+    // ==============================================================================
+    // Custom Forms Management
+    // ==============================================================================
+
+    /// <summary>
+    /// Get all custom forms with their current version
+    /// </summary>
+    public async Task<List<CustomFormInfo>> GetAllCustomFormsAsync()
+    {
+        try
+        {
+            using var connection = new SqlConnection(_dashboardConnectionString);
+            await connection.OpenAsync();
+
+            var query = @"
+                SELECT
+                    cf.FormId,
+                    cf.FormName,
+                    cf.ProcessName,
+                    cf.Status,
+                    cf.CurrentVersion,
+                    cf.Description,
+                    cf.Author,
+                    cfv.SizeBytes,
+                    cf.CreatedAt,
+                    cf.UpdatedAt
+                FROM CustomForms cf
+                LEFT JOIN CustomFormVersions cfv ON cf.FormId = cfv.FormId AND cfv.IsCurrent = 1
+                WHERE cf.Status = 'active'
+                ORDER BY cf.FormName";
+
+            var results = await connection.QueryAsync<dynamic>(query);
+
+            var forms = results.Select(row => new CustomFormInfo(
+                Id: row.FormId,
+                FormName: row.FormName,
+                ProcessName: row.ProcessName,
+                Status: row.Status,
+                CurrentVersion: row.CurrentVersion,
+                Description: row.Description,
+                Author: row.Author,
+                SizeBytes: row.SizeBytes,
+                PublishedAt: row.CreatedAt != null ? ((DateTime)row.CreatedAt).ToString("o") : null,
+                UpdatedAt: row.UpdatedAt != null ? ((DateTime)row.UpdatedAt).ToString("o") : null
+            )).ToList();
+
+            _logger.LogInformation("[Database] Retrieved {Count} custom forms", forms.Count);
+            return forms;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[Database] Error retrieving custom forms");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Get compiled code for a specific form
+    /// </summary>
+    public async Task<FormCodeResponse?> GetFormCompiledCodeAsync(string formName, string? version = null)
+    {
+        try
+        {
+            // SECURITY: Validate inputs
+            if (!IsValidFormName(formName))
+            {
+                throw new ArgumentException($"Invalid form name format: {SanitizeForLogging(formName)}");
+            }
+
+            if (version != null && !IsValidVersion(version))
+            {
+                throw new ArgumentException($"Invalid version format: {SanitizeForLogging(version)}");
+            }
+
+            using var connection = new SqlConnection(_dashboardConnectionString);
+            await connection.OpenAsync();
+
+            string query;
+            object parameters;
+
+            if (version != null)
+            {
+                // Get specific version
+                query = @"
+                    SELECT
+                        cfv.CompiledCode,
+                        cfv.Version,
+                        cfv.PublishedAt,
+                        cfv.SizeBytes
+                    FROM CustomFormVersions cfv
+                    INNER JOIN CustomForms cf ON cfv.FormId = cf.FormId
+                    WHERE cf.FormName = @FormName AND cfv.Version = @Version";
+                parameters = new { FormName = formName, Version = version };
+            }
+            else
+            {
+                // Get current version
+                query = @"
+                    SELECT
+                        cfv.CompiledCode,
+                        cfv.Version,
+                        cfv.PublishedAt,
+                        cfv.SizeBytes
+                    FROM CustomFormVersions cfv
+                    INNER JOIN CustomForms cf ON cfv.FormId = cf.FormId
+                    WHERE cf.FormName = @FormName AND cfv.IsCurrent = 1";
+                parameters = new { FormName = formName };
+            }
+
+            var result = await connection.QuerySingleOrDefaultAsync<dynamic>(query, parameters);
+
+            if (result == null)
+            {
+                _logger.LogWarning("[Database] Form '{FormName}' version '{Version}' not found",
+                    formName, version ?? "current");
+                return null;
+            }
+
+            return new FormCodeResponse(
+                CompiledCode: result.CompiledCode,
+                Version: result.Version,
+                PublishedAt: ((DateTime)result.PublishedAt).ToString("o"),
+                SizeBytes: result.SizeBytes
+            );
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[Database] Error getting form code for '{FormName}'", formName);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Get all versions for a specific form
+    /// </summary>
+    public async Task<List<FormVersion>> GetFormVersionsAsync(string formName)
+    {
+        try
+        {
+            if (!IsValidFormName(formName))
+            {
+                throw new ArgumentException($"Invalid form name format: {SanitizeForLogging(formName)}");
+            }
+
+            using var connection = new SqlConnection(_dashboardConnectionString);
+            await connection.OpenAsync();
+
+            var query = @"
+                SELECT
+                    cfv.Version,
+                    cfv.SizeBytes,
+                    cfv.PublishedAt,
+                    cfv.IsCurrent
+                FROM CustomFormVersions cfv
+                INNER JOIN CustomForms cf ON cfv.FormId = cf.FormId
+                WHERE cf.FormName = @FormName
+                ORDER BY cfv.PublishedAt DESC";
+
+            var results = await connection.QueryAsync<dynamic>(query, new { FormName = formName });
+
+            var versions = results.Select(row => new FormVersion(
+                Version: row.Version,
+                SizeBytes: row.SizeBytes,
+                PublishedAt: ((DateTime)row.PublishedAt).ToString("o"),
+                IsCurrent: row.IsCurrent,
+                GitCommit: null,  // TODO: Add GitCommit column to CustomFormVersions table
+                GitBranch: null   // TODO: Add GitBranch column to CustomFormVersions table
+            )).ToList();
+
+            _logger.LogInformation("[Database] Retrieved {Count} versions for form '{FormName}'",
+                versions.Count, formName);
+
+            return versions;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[Database] Error getting versions for form '{FormName}'", formName);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Set a specific version as current/active
+    /// </summary>
+    public async Task<bool> SetCurrentFormVersionAsync(string formName, string version)
+    {
+        try
+        {
+            if (!IsValidFormName(formName))
+            {
+                throw new ArgumentException($"Invalid form name format: {SanitizeForLogging(formName)}");
+            }
+
+            if (!IsValidVersion(version))
+            {
+                throw new ArgumentException($"Invalid version format: {SanitizeForLogging(version)}");
+            }
+
+            using var connection = new SqlConnection(_dashboardConnectionString);
+            await connection.OpenAsync();
+
+            using var transaction = connection.BeginTransaction();
+
+            try
+            {
+                // 1. Get FormId
+                var formId = await connection.QuerySingleOrDefaultAsync<int?>(
+                    "SELECT FormId FROM CustomForms WHERE FormName = @FormName",
+                    new { FormName = formName },
+                    transaction);
+
+                if (formId == null)
+                {
+                    throw new ArgumentException($"Form '{formName}' not found");
+                }
+
+                // 2. Verify version exists
+                var versionExists = await connection.QuerySingleOrDefaultAsync<int?>(
+                    "SELECT 1 FROM CustomFormVersions WHERE FormId = @FormId AND Version = @Version",
+                    new { FormId = formId, Version = version },
+                    transaction);
+
+                if (versionExists == null)
+                {
+                    throw new ArgumentException($"Version '{version}' not found for form '{formName}'");
+                }
+
+                // 3. Unset all IsCurrent flags
+                await connection.ExecuteAsync(
+                    "UPDATE CustomFormVersions SET IsCurrent = 0 WHERE FormId = @FormId",
+                    new { FormId = formId },
+                    transaction);
+
+                // 4. Set new current version
+                await connection.ExecuteAsync(
+                    "UPDATE CustomFormVersions SET IsCurrent = 1 WHERE FormId = @FormId AND Version = @Version",
+                    new { FormId = formId, Version = version },
+                    transaction);
+
+                // 5. Update CustomForms.CurrentVersion
+                await connection.ExecuteAsync(
+                    "UPDATE CustomForms SET CurrentVersion = @Version, UpdatedAt = GETDATE() WHERE FormId = @FormId",
+                    new { FormId = formId, Version = version },
+                    transaction);
+
+                transaction.Commit();
+
+                _logger.LogInformation("[Database] Set form '{FormName}' to version '{Version}'",
+                    formName, version);
+
+                return true;
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[Database] Error setting version for form '{FormName}'", formName);
+            throw;
+        }
+    }
 }
 
 public interface IDatabaseService
@@ -288,6 +573,12 @@ public interface IDatabaseService
     // Security Tokens
     Task<SecurityToken?> ValidateSecurityTokenAsync(string tokenId);
     Task<bool> DeleteSecurityTokenAsync(string tokenId);
+
+    // Custom Forms
+    Task<List<CustomFormInfo>> GetAllCustomFormsAsync();
+    Task<FormCodeResponse?> GetFormCompiledCodeAsync(string formName, string? version = null);
+    Task<List<FormVersion>> GetFormVersionsAsync(string formName);
+    Task<bool> SetCurrentFormVersionAsync(string formName, string version);
 }
 
 public record UserInfo(
