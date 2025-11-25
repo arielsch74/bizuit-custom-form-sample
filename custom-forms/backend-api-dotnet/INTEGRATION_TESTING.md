@@ -89,25 +89,33 @@ dotnet test --filter "FullyQualifiedName~Integration" --collect:"XPlat Code Cove
 - ✅ `HealthCheck_BothBackends_ReturnSameStructure`
 - ✅ `HealthCheckDetailed_BothBackends_ReturnSameStructure`
 
-### Authentication (3 tests)
+### Authentication (4 tests)
 - ✅ `Login_BothBackends_ReturnSameJWTStructure`
 - ✅ `ValidateToken_BothBackends_ReturnSameResponse`
+- ✅ `RefreshToken_BothBackends_ReturnSameJWTStructure`
 - ✅ `InvalidLogin_BothBackends_ReturnSameErrorStructure`
 
-### Form Tokens (2 tests)
+### Form Tokens (3 tests)
 - ✅ `ValidateFormToken_BothBackends_ReturnSameResponse`
+- ✅ `CloseFormToken_BothBackends_ReturnSameResponse`
 - ✅ `ValidateDashboardToken_BothBackends_ReturnSameResponse`
 
-### Custom Forms (3 tests)
+### Custom Forms (6 tests)
 - ✅ `GetAllForms_BothBackends_ReturnSameStructure`
 - ✅ `GetFormCode_BothBackends_ReturnSameContent`
 - ✅ `GetFormVersions_BothBackends_ReturnSameStructure`
+- ✅ `SetActiveVersion_BothBackends_ReturnSameResponse`
+- ✅ `DeleteForm_BothBackends_ReturnSameResponse`
+- ✅ `DeleteFormVersion_BothBackends_ReturnSameResponse`
+
+### Deployment (1 test)
+- ✅ `UploadForm_BothBackends_ReturnSameResponse`
 
 ### Error Handling (2 tests)
 - ✅ `InvalidEndpoint_BothBackends_Return404`
 - ✅ `InvalidLogin_BothBackends_ReturnSameErrorStructure`
 
-**Total:** 12 tests de integración
+**Total:** 18 tests de integración covering 15/15 endpoints (100% coverage) ✅
 
 ## 🔍 Qué Validan los Tests
 

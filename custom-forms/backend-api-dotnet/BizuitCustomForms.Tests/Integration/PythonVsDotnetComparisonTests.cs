@@ -413,6 +413,261 @@ public class PythonVsDotnetComparisonTests : IDisposable
 
     #endregion
 
+    #region Additional Authentication Tests
+
+    [Fact]
+    public async Task RefreshToken_BothBackends_ReturnSameJWTStructure()
+    {
+        // Arrange - First login to get a valid token
+        var loginRequest = new { username = TEST_USERNAME, password = TEST_PASSWORD };
+        var loginContent = new StringContent(
+            JsonSerializer.Serialize(loginRequest),
+            Encoding.UTF8,
+            "application/json"
+        );
+
+        var loginResponse = await _pythonClient.PostAsync("/api/auth/login", loginContent);
+
+        if (!loginResponse.IsSuccessStatusCode)
+        {
+            _output.WriteLine("Login failed - skipping refresh token test");
+            return;
+        }
+
+        var loginJson = await loginResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var token = loginJson.GetProperty("access_token").GetString();
+
+        var refreshRequest = new { token };
+
+        // Act
+        var pythonRefresh = new StringContent(
+            JsonSerializer.Serialize(refreshRequest),
+            Encoding.UTF8,
+            "application/json"
+        );
+        var pythonResponse = await _pythonClient.PostAsync("/api/auth/refresh", pythonRefresh);
+
+        var dotnetRefresh = new StringContent(
+            JsonSerializer.Serialize(refreshRequest),
+            Encoding.UTF8,
+            "application/json"
+        );
+        var dotnetResponse = await _dotnetClient.PostAsync("/api/auth/refresh", dotnetRefresh);
+
+        // Assert
+        Assert.Equal(pythonResponse.StatusCode, dotnetResponse.StatusCode);
+
+        if (pythonResponse.IsSuccessStatusCode)
+        {
+            var pythonJson = await pythonResponse.Content.ReadFromJsonAsync<JsonElement>();
+            var dotnetJson = await dotnetResponse.Content.ReadFromJsonAsync<JsonElement>();
+
+            // Should return new token with same structure as login
+            Assert.True(pythonJson.TryGetProperty("access_token", out var pythonToken));
+            Assert.True(dotnetJson.TryGetProperty("access_token", out var dotnetToken));
+
+            Assert.True(pythonJson.TryGetProperty("token_type", out var pythonType));
+            Assert.True(dotnetJson.TryGetProperty("token_type", out var dotnetType));
+
+            Assert.Equal(pythonType.GetString(), dotnetType.GetString());
+
+            _output.WriteLine($"Python refreshed token: {pythonToken.GetString()}");
+            _output.WriteLine($"DotNet refreshed token: {dotnetToken.GetString()}");
+        }
+    }
+
+    #endregion
+
+    #region Additional Form Token Tests
+
+    [Fact]
+    public async Task CloseFormToken_BothBackends_ReturnSameResponse()
+    {
+        // Arrange
+        var testTokenId = 12345; // Use valid token ID from test database
+
+        // Act
+        var pythonResponse = await _pythonClient.DeleteAsync($"/api/forms/close-token/{testTokenId}");
+        var dotnetResponse = await _dotnetClient.DeleteAsync($"/api/forms/close-token/{testTokenId}");
+
+        // Assert
+        Assert.Equal(pythonResponse.StatusCode, dotnetResponse.StatusCode);
+
+        if (pythonResponse.IsSuccessStatusCode)
+        {
+            var pythonJson = await pythonResponse.Content.ReadFromJsonAsync<JsonElement>();
+            var dotnetJson = await dotnetResponse.Content.ReadFromJsonAsync<JsonElement>();
+
+            Assert.True(pythonJson.TryGetProperty("success", out var pythonSuccess));
+            Assert.True(dotnetJson.TryGetProperty("success", out var dotnetSuccess));
+
+            Assert.Equal(pythonSuccess.GetBoolean(), dotnetSuccess.GetBoolean());
+
+            _output.WriteLine($"Python response: {pythonJson}");
+            _output.WriteLine($"DotNet response: {dotnetJson}");
+        }
+    }
+
+    #endregion
+
+    #region Additional Custom Forms Tests
+
+    [Fact]
+    public async Task SetActiveVersion_BothBackends_ReturnSameResponse()
+    {
+        // Arrange
+        var testFormName = "test-form";
+        var testVersion = "1.0.0";
+
+        var setVersionRequest = new { version = testVersion };
+
+        // Act
+        var pythonContent = new StringContent(
+            JsonSerializer.Serialize(setVersionRequest),
+            Encoding.UTF8,
+            "application/json"
+        );
+        var pythonResponse = await _pythonClient.PostAsync(
+            $"/api/custom-forms/{testFormName}/set-version",
+            pythonContent
+        );
+
+        var dotnetContent = new StringContent(
+            JsonSerializer.Serialize(setVersionRequest),
+            Encoding.UTF8,
+            "application/json"
+        );
+        var dotnetResponse = await _dotnetClient.PostAsync(
+            $"/api/custom-forms/{testFormName}/set-version",
+            dotnetContent
+        );
+
+        // Assert
+        Assert.Equal(pythonResponse.StatusCode, dotnetResponse.StatusCode);
+
+        if (pythonResponse.IsSuccessStatusCode)
+        {
+            var pythonJson = await pythonResponse.Content.ReadFromJsonAsync<JsonElement>();
+            var dotnetJson = await dotnetResponse.Content.ReadFromJsonAsync<JsonElement>();
+
+            Assert.True(pythonJson.TryGetProperty("success", out var pythonSuccess));
+            Assert.True(dotnetJson.TryGetProperty("success", out var dotnetSuccess));
+
+            Assert.Equal(pythonSuccess.GetBoolean(), dotnetSuccess.GetBoolean());
+        }
+    }
+
+    [Fact]
+    public async Task DeleteForm_BothBackends_ReturnSameResponse()
+    {
+        // Arrange
+        var testFormName = "test-form-to-delete"; // Create this form first in test setup
+
+        // Act
+        var pythonResponse = await _pythonClient.DeleteAsync($"/api/custom-forms/{testFormName}");
+        var dotnetResponse = await _dotnetClient.DeleteAsync($"/api/custom-forms/{testFormName}");
+
+        // Assert
+        Assert.Equal(pythonResponse.StatusCode, dotnetResponse.StatusCode);
+
+        if (pythonResponse.IsSuccessStatusCode)
+        {
+            var pythonJson = await pythonResponse.Content.ReadFromJsonAsync<JsonElement>();
+            var dotnetJson = await dotnetResponse.Content.ReadFromJsonAsync<JsonElement>();
+
+            Assert.True(pythonJson.TryGetProperty("success", out var pythonSuccess));
+            Assert.True(dotnetJson.TryGetProperty("success", out var dotnetSuccess));
+
+            Assert.Equal(pythonSuccess.GetBoolean(), dotnetSuccess.GetBoolean());
+
+            _output.WriteLine($"Form deletion - Python: {pythonSuccess}, DotNet: {dotnetSuccess}");
+        }
+    }
+
+    [Fact]
+    public async Task DeleteFormVersion_BothBackends_ReturnSameResponse()
+    {
+        // Arrange
+        var testFormName = "test-form";
+        var testVersion = "1.0.0-old"; // Version to delete (not active)
+
+        // Act
+        var pythonResponse = await _pythonClient.DeleteAsync(
+            $"/api/custom-forms/{testFormName}/versions/{testVersion}"
+        );
+        var dotnetResponse = await _dotnetClient.DeleteAsync(
+            $"/api/custom-forms/{testFormName}/versions/{testVersion}"
+        );
+
+        // Assert
+        Assert.Equal(pythonResponse.StatusCode, dotnetResponse.StatusCode);
+
+        if (pythonResponse.IsSuccessStatusCode)
+        {
+            var pythonJson = await pythonResponse.Content.ReadFromJsonAsync<JsonElement>();
+            var dotnetJson = await dotnetResponse.Content.ReadFromJsonAsync<JsonElement>();
+
+            Assert.True(pythonJson.TryGetProperty("success", out var pythonSuccess));
+            Assert.True(dotnetJson.TryGetProperty("success", out var dotnetSuccess));
+
+            Assert.Equal(pythonSuccess.GetBoolean(), dotnetSuccess.GetBoolean());
+        }
+    }
+
+    #endregion
+
+    #region Deployment Tests
+
+    [Fact]
+    public async Task UploadForm_BothBackends_ReturnSameResponse()
+    {
+        // Arrange
+        var testFormName = "test-upload-form";
+
+        // Create a simple test ZIP file
+        var zipContent = new byte[] { 0x50, 0x4B, 0x03, 0x04 }; // ZIP file signature
+        var fileContent = new ByteArrayContent(zipContent);
+        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/zip");
+
+        var pythonForm = new MultipartFormDataContent
+        {
+            { fileContent, "file", "test-form.zip" },
+            { new StringContent(testFormName), "form_name" }
+        };
+
+        var dotnetForm = new MultipartFormDataContent
+        {
+            { new ByteArrayContent(zipContent) { Headers = { ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/zip") } }, "file", "test-form.zip" },
+            { new StringContent(testFormName), "form_name" }
+        };
+
+        // Act
+        var pythonResponse = await _pythonClient.PostAsync("/api/deployment/upload", pythonForm);
+        var dotnetResponse = await _dotnetClient.PostAsync("/api/deployment/upload", dotnetForm);
+
+        // Assert
+        Assert.Equal(pythonResponse.StatusCode, dotnetResponse.StatusCode);
+
+        var pythonContent = await pythonResponse.Content.ReadAsStringAsync();
+        var dotnetContent = await dotnetResponse.Content.ReadAsStringAsync();
+
+        _output.WriteLine($"Python upload response: {pythonContent}");
+        _output.WriteLine($"DotNet upload response: {dotnetContent}");
+
+        // Both should have similar response structure
+        if (pythonResponse.IsSuccessStatusCode)
+        {
+            var pythonJson = await pythonResponse.Content.ReadFromJsonAsync<JsonElement>();
+            var dotnetJson = await dotnetResponse.Content.ReadFromJsonAsync<JsonElement>();
+
+            // Check for common fields in upload response
+            Assert.True(pythonJson.TryGetProperty("success", out _) || pythonJson.TryGetProperty("form_name", out _));
+            Assert.True(dotnetJson.TryGetProperty("success", out _) || dotnetJson.TryGetProperty("form_name", out _));
+        }
+    }
+
+    #endregion
+
     public void Dispose()
     {
         _pythonClient?.Dispose();

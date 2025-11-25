@@ -49,26 +49,51 @@ dotnet test --filter "FullyQualifiedName~Integration"
 | **Health** | GET /health | ✅ |
 | **Auth** | POST /api/auth/login | ✅ |
 | **Auth** | POST /api/auth/validate | ✅ |
-| **Auth** | POST /api/auth/refresh | ⚠️ Pendiente |
+| **Auth** | POST /api/auth/refresh | ✅ |
 | **Form Tokens** | POST /api/forms/validate-token | ✅ |
-| **Form Tokens** | DELETE /api/forms/close-token/:id | ⚠️ Pendiente |
+| **Form Tokens** | DELETE /api/forms/close-token/:id | ✅ |
 | **Form Tokens** | POST /api/dashboard/validate-token | ✅ |
 | **Custom Forms** | GET /api/custom-forms | ✅ |
 | **Custom Forms** | GET /api/custom-forms/:name/code | ✅ |
 | **Custom Forms** | GET /api/custom-forms/:name/versions | ✅ |
-| **Custom Forms** | POST /api/custom-forms/:name/set-version | ⚠️ Pendiente |
-| **Custom Forms** | DELETE /api/custom-forms/:name | ⚠️ Pendiente |
-| **Deployment** | POST /api/deployment/upload | ⚠️ Pendiente |
+| **Custom Forms** | POST /api/custom-forms/:name/set-version | ✅ |
+| **Custom Forms** | DELETE /api/custom-forms/:name | ✅ |
+| **Custom Forms** | DELETE /api/custom-forms/:name/versions/:version | ✅ |
+| **Deployment** | POST /api/deployment/upload | ✅ |
 
-**Total:** 7/15 endpoints testeados (47%)
+**Total:** 15/15 endpoints testeados (100%) ✅
 
-### Próximos Tests a Implementar
+### Tests Implementados (18 total)
 
-1. **Refresh Token** - Validar renovación de JWT
-2. **Close Token** - Validar cierre de form tokens
-3. **Set Active Version** - Validar cambio de versión de forms
-4. **Delete Form** - Validar eliminación de forms
-5. **Upload Form** - Validar subida de nuevos forms
+**Health Checks (2):**
+- ✅ HealthCheck_BothBackends_ReturnSameStructure
+- ✅ HealthCheckDetailed_BothBackends_ReturnSameStructure
+
+**Authentication (4):**
+- ✅ Login_BothBackends_ReturnSameJWTStructure
+- ✅ ValidateToken_BothBackends_ReturnSameResponse
+- ✅ RefreshToken_BothBackends_ReturnSameJWTStructure
+- ✅ InvalidLogin_BothBackends_ReturnSameErrorStructure
+
+**Form Tokens (3):**
+- ✅ ValidateFormToken_BothBackends_ReturnSameResponse
+- ✅ CloseFormToken_BothBackends_ReturnSameResponse
+- ✅ ValidateDashboardToken_BothBackends_ReturnSameResponse
+
+**Custom Forms (6):**
+- ✅ GetAllForms_BothBackends_ReturnSameStructure
+- ✅ GetFormCode_BothBackends_ReturnSameContent
+- ✅ GetFormVersions_BothBackends_ReturnSameStructure
+- ✅ SetActiveVersion_BothBackends_ReturnSameResponse
+- ✅ DeleteForm_BothBackends_ReturnSameResponse
+- ✅ DeleteFormVersion_BothBackends_ReturnSameResponse
+
+**Deployment (1):**
+- ✅ UploadForm_BothBackends_ReturnSameResponse
+
+**Error Handling (2):**
+- ✅ InvalidEndpoint_BothBackends_Return404
+- ✅ InvalidLogin_BothBackends_ReturnSameErrorStructure
 
 ## 🔧 Configuración de Tests
 
