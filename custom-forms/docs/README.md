@@ -10,46 +10,47 @@
 
 | Documento | Descripción | Ubicación |
 |-----------|-------------|-----------|
-| **[PM2 Windows Setup](../PM2_WINDOWS_SETUP.md)** | Instalación y configuración de PM2 en Windows Server | `custom-forms/` |
-| **[Runtime basePath Setup](../RUNTIME_BASEPATH_SETUP.md)** | Configuración de basePath dinámico para Next.js | `custom-forms/` |
-| **[Setup Submodule](../SETUP_SUBMODULE.md)** | Configuración de `bizuit-custom-form-sample` como git submodule | `custom-forms/` |
-| **[Deployment Guide](../bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md)** | Guía completa de deployment de forms a entornos (arielsch, recubiz) | `custom-forms/bizuit-custom-form-sample/` |
+| **[PM2 Windows Setup](infrastructure/PM2_WINDOWS_SETUP.md)** | Instalación y configuración de PM2 en Windows Server | `docs/infrastructure/` |
+| **[Runtime basePath Setup](infrastructure/RUNTIME_BASEPATH_SETUP.md)** | Configuración de basePath dinámico para Next.js | `docs/infrastructure/` |
+| **[Setup Submodule](setup/SETUP_SUBMODULE.md)** | Configuración de `bizuit-custom-form-sample` como git submodule | `docs/setup/` |
+| **[Deployment Guide](../bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md)** | Guía completa de deployment de forms a entornos (arielsch, recubiz) | `bizuit-custom-form-sample/` |
 
 ### 👨‍💻 Desarrollo
 
 | Documento | Descripción | Ubicación |
 |-----------|-------------|-----------|
 | **[Developer Guide](../DEVELOPER_GUIDE.md)** | Guía general para developers del proyecto | `custom-forms/` |
-| **[Development Guide (Forms)](../bizuit-custom-form-sample/DEVELOPMENT.md)** | Desarrollo local de custom forms, testing, debugging | `custom-forms/bizuit-custom-form-sample/` |
-| **[Externals Config](../runtime-app/EXTERNALS_CONFIG.md)** | Configuración de externals (React, SDK, UI Components) en runtime | `custom-forms/runtime-app/` |
+| **[Development Guide (Forms)](../bizuit-custom-form-sample/DEVELOPMENT.md)** | Desarrollo local de custom forms, testing, debugging | `bizuit-custom-form-sample/` |
+| **[Externals Config](../runtime-app/EXTERNALS_CONFIG.md)** | Configuración de externals (React, SDK, UI Components) en runtime | `runtime-app/` |
 
 ### 🏗️ Arquitectura
 
 | Documento | Descripción | Ubicación |
 |-----------|-------------|-----------|
-| **[Backend Implementation](./BACKEND_IMPLEMENTATION.md)** | Arquitectura completa del backend (.NET + SQL Server) | `custom-forms/docs/` |
-| **[Dynamic Forms Implementation Plan](./DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md)** | Plan de implementación de formularios dinámicos | `custom-forms/docs/` |
+| **[Backend Implementation](./BACKEND_IMPLEMENTATION.md)** | Arquitectura completa del backend (.NET + SQL Server) | `docs/` |
+| **[IIS Deployment](./IIS_DEPLOYMENT.md)** | Deployment con IIS + reverse proxy | `docs/` |
+| **[Offline Deployment](./OFFLINE_DEPLOYMENT.md)** | Deployment offline en entornos sin internet | `docs/` |
 
 ### ⚙️ CI/CD
 
 | Documento | Descripción | Ubicación |
 |-----------|-------------|-----------|
-| **[Azure DevOps Setup](../bizuit-custom-form-sample/AZURE_DEVOPS_SETUP.md)** | Configuración de pipelines de Azure DevOps para builds automáticos | `custom-forms/bizuit-custom-form-sample/` |
-| **[Forms Sample README](../bizuit-custom-form-sample/README.md)** | README del repositorio de forms (GitHub Actions, estructura) | `custom-forms/bizuit-custom-form-sample/` |
+| **[Azure DevOps Setup](../bizuit-custom-form-sample/AZURE_DEVOPS_SETUP.md)** | Configuración de pipelines de Azure DevOps para builds automáticos | `bizuit-custom-form-sample/` |
+| **[Forms Sample README](../bizuit-custom-form-sample/README.md)** | README del repositorio de forms (GitHub Actions, estructura) | `bizuit-custom-form-sample/` |
 
 ### 🧪 Testing
 
 | Documento | Descripción | Ubicación |
 |-----------|-------------|-----------|
-| **[Backend Tests README](../backend-api/tests/README.md)** | Documentación de tests del backend Python | `custom-forms/backend-api/tests/` |
-| **[Test Results](../backend-api/TEST_RESULTS.md)** | Resultados de ejecución de tests | `custom-forms/backend-api/` |
+| **[Backend Tests README](../backend-api/tests/README.md)** | Documentación de tests del backend Python | `backend-api/tests/` |
+| **[Test Results](../backend-api/TEST_RESULTS.md)** | Resultados de ejecución de tests | `backend-api/` |
 
 ### 🔧 Backend .NET
 
 | Documento | Descripción | Ubicación |
 |-----------|-------------|-----------|
-| **[Migration Status](../backend-api-dotnet/MIGRATION_STATUS.md)** | Estado de migración Python → .NET | `custom-forms/backend-api-dotnet/` |
-| **[Backend .NET README](../backend-api-dotnet/README.md)** | README del backend .NET | `custom-forms/backend-api-dotnet/` |
+| **[Migration Status](../backend-api-dotnet/MIGRATION_STATUS.md)** | Estado de migración Python → .NET | `backend-api-dotnet/` |
+| **[Backend .NET README](../backend-api-dotnet/README.md)** | README del backend .NET | `backend-api-dotnet/` |
 
 ---
 
@@ -57,43 +58,56 @@
 
 ```
 custom-forms/
-├── docs/                              # Documentación de arquitectura
-│   ├── README.md                      # ← Este archivo
-│   ├── BACKEND_IMPLEMENTATION.md
-│   └── DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md
-│
-├── PM2_WINDOWS_SETUP.md               # Setup de PM2
-├── RUNTIME_BASEPATH_SETUP.md          # basePath dinámico
-├── SETUP_SUBMODULE.md                 # Git submodule setup
 ├── DEVELOPER_GUIDE.md                 # Guía general de desarrollo
+├── README.md                          # Overview del proyecto
+│
+├── docs/                              # Documentación técnica
+│   ├── README.md                      # ← Este archivo
+│   │
+│   ├── setup/                         # Setup y configuración inicial
+│   │   └── SETUP_SUBMODULE.md
+│   │
+│   ├── infrastructure/                # Infraestructura (PM2, IIS, basePath)
+│   │   ├── PM2_WINDOWS_SETUP.md
+│   │   └── RUNTIME_BASEPATH_SETUP.md
+│   │
+│   ├── BACKEND_IMPLEMENTATION.md      # Arquitectura backend
+│   ├── IIS_DEPLOYMENT.md              # IIS deployment
+│   └── OFFLINE_DEPLOYMENT.md          # Offline deployment
 │
 ├── runtime-app/
-│   └── EXTERNALS_CONFIG.md            # Configuración de externals
+│   ├── EXTERNALS_CONFIG.md            # React externals config
+│   └── SECURITY.md                    # Security guidelines
 │
 ├── backend-api/
-│   ├── TEST_RESULTS.md                # Resultados de tests
+│   ├── TEST_RESULTS.md
 │   └── tests/
-│       └── README.md                  # Docs de tests
+│       └── README.md
 │
 ├── backend-api-dotnet/
-│   ├── MIGRATION_STATUS.md            # Status de migración
-│   └── README.md                      # README del backend .NET
+│   ├── MIGRATION_STATUS.md
+│   └── README.md
 │
 └── bizuit-custom-form-sample/         # Git submodule - Sample forms
-    ├── README.md                      # README del repo de forms
-    ├── DEVELOPMENT.md                 # Guía de desarrollo de forms
-    ├── DEPLOYMENT_GUIDE.md            # Deployment de forms a entornos
-    └── AZURE_DEVOPS_SETUP.md          # Setup de Azure DevOps
+    ├── README.md
+    ├── DEVELOPMENT.md                 # Desarrollo de forms
+    ├── DEPLOYMENT_GUIDE.md            # Deployment de forms
+    └── AZURE_DEVOPS_SETUP.md          # CI/CD setup
 ```
 
 ---
 
 ## 🔍 Buscar por Tema
 
+### Setup y Configuración
+- [PM2 Windows Setup](infrastructure/PM2_WINDOWS_SETUP.md) - Instalar PM2 en Windows
+- [Runtime basePath Setup](infrastructure/RUNTIME_BASEPATH_SETUP.md) - Configurar basePath dinámico
+- [Setup Submodule](setup/SETUP_SUBMODULE.md) - Git submodule setup
+
 ### Deployment
-- [PM2 Windows Setup](../PM2_WINDOWS_SETUP.md) - Instalar PM2
-- [Runtime basePath Setup](../RUNTIME_BASEPATH_SETUP.md) - Configurar basePath
-- [Deployment Guide](../bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md) - Deploy completo
+- [Deployment Guide](../bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md) - Deploy completo de forms
+- [IIS Deployment](./IIS_DEPLOYMENT.md) - IIS + reverse proxy
+- [Offline Deployment](./OFFLINE_DEPLOYMENT.md) - Entornos sin internet
 
 ### Desarrollo de Forms
 - [Development Guide](../bizuit-custom-form-sample/DEVELOPMENT.md) - Desarrollo local
@@ -107,15 +121,18 @@ custom-forms/
 
 ### CI/CD
 - [Azure DevOps Setup](../bizuit-custom-form-sample/AZURE_DEVOPS_SETUP.md) - Pipelines
+- [Forms Sample README](../bizuit-custom-form-sample/README.md) - GitHub Actions
 
 ---
 
 ## 📝 Convenciones
 
-- **Documentos en inglés**: Arquitectura, implementación técnica
-- **Documentos en español**: Guías de deployment, desarrollo
-- **README.md**: Overview del componente/directorio
-- **docs/**: Documentación de arquitectura y diseño
+- **custom-forms/**: Solo README.md y DEVELOPER_GUIDE.md (overview general)
+- **docs/**: Documentación técnica organizada por categorías
+- **docs/setup/**: Configuración inicial y setup
+- **docs/infrastructure/**: Infraestructura (PM2, IIS, basePath)
+- **runtime-app/** y **backend-*/**: Docs específicos de cada componente
+- **bizuit-custom-form-sample/**: Docs del git submodule (forms)
 
 ---
 
