@@ -20,6 +20,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<ICryptoService, CryptoService>();
 builder.Services.AddScoped<IDatabaseService, DatabaseService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IFormTokenService, FormTokenService>();
 
 // Add HttpClient factory
 builder.Services.AddHttpClient();
