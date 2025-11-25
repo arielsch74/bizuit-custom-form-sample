@@ -27,6 +27,7 @@
 | **[Runtime App Overview](runtime-app/OVERVIEW.md)** | Overview de la Runtime App (carga dinámica de forms desde CDN/npm) | `docs/runtime-app/` |
 | **[Externals Config](runtime-app/EXTERNALS_CONFIG.md)** | Configuración de externals (React, SDK, UI Components) en runtime | `docs/runtime-app/` |
 | **[Runtime App Security](runtime-app/SECURITY.md)** | Medidas de seguridad implementadas en runtime-app | `docs/runtime-app/` |
+| **[Runtime Configuration Guide](setup/RUNTIME_CONFIG.md)** | Configuración build-time vs runtime en Next.js | `docs/setup/` |
 | **[Development Guide (Forms)](../bizuit-custom-form-sample/DEVELOPMENT.md)** | Desarrollo local de custom forms, testing, debugging | `bizuit-custom-form-sample/` |
 
 ### 🏗️ Arquitectura
@@ -36,6 +37,7 @@
 | **[Authentication Flow](architecture/AUTHENTICATION_FLOW.md)** | Flujo de autenticación HTTP Basic con tokens | `docs/architecture/` |
 | **[Backend Implementation](architecture/BACKEND_IMPLEMENTATION.md)** | Arquitectura completa del backend (.NET + SQL Server) | `docs/architecture/` |
 | **[Dynamic Forms Implementation Plan](architecture/DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md)** | Plan completo de arquitectura del sistema | `docs/architecture/` |
+| **[Custom Forms Implementation Status](architecture/CUSTOM_FORMS_IMPLEMENTATION_STATUS.md)** | Análisis de carga dinámica de forms y alternativas (CDN, Module Federation) | `docs/architecture/` |
 | **[Multi-Environment Implementation](architecture/MULTI_ENVIRONMENT_IMPLEMENTATION_PLAN.md)** | Plan multi-ambiente (dev/test/prod) | `docs/architecture/` |
 | **[IIS Deployment](deployment/IIS_DEPLOYMENT.md)** | Deployment con IIS + reverse proxy | `docs/deployment/` |
 | **[Offline Deployment](deployment/OFFLINE_DEPLOYMENT.md)** | Deployment offline en entornos sin internet | `docs/deployment/` |
@@ -91,6 +93,7 @@ custom-forms/
 │   ├── architecture/                  # Arquitectura y diseño
 │   │   ├── AUTHENTICATION_FLOW.md
 │   │   ├── BACKEND_IMPLEMENTATION.md
+│   │   ├── CUSTOM_FORMS_IMPLEMENTATION_STATUS.md
 │   │   ├── DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md
 │   │   ├── DYNAMIC_FORMS_IMPLEMENTATION_PLAN_PART2.md
 │   │   ├── IMPLEMENTATION_SUMMARY.md
@@ -123,6 +126,7 @@ custom-forms/
 │   │   ├── GITHUB_WORKFLOW_SETUP_INSTRUCTIONS.md
 │   │   ├── IIS_SETUP.md
 │   │   ├── IISNODE_SETUP.md
+│   │   ├── RUNTIME_CONFIG.md
 │   │   └── SETUP_SUBMODULE.md
 │   │
 │   ├── runtime-app/                   # Runtime App específico
@@ -164,6 +168,7 @@ custom-forms/
 - [PM2 Windows Setup](infrastructure/PM2_WINDOWS_SETUP.md) - Instalar PM2 en Windows
 - [IIS Configuration](infrastructure/IIS_CONFIGURATION_GUIDE.md) - IIS + PM2 setup
 - [Runtime basePath Setup](infrastructure/RUNTIME_BASEPATH_SETUP.md) - Configurar basePath dinámico
+- [Runtime Configuration](setup/RUNTIME_CONFIG.md) - Build-time vs runtime configuration
 - [Setup Submodule](setup/SETUP_SUBMODULE.md) - Git submodule setup
 
 ### Deployment
@@ -178,6 +183,7 @@ custom-forms/
 - [Authentication Flow](architecture/AUTHENTICATION_FLOW.md) - Flujo de auth
 - [Backend Implementation](architecture/BACKEND_IMPLEMENTATION.md) - Arquitectura backend
 - [Dynamic Forms Implementation](architecture/DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md) - Plan de arquitectura
+- [Custom Forms Implementation Status](architecture/CUSTOM_FORMS_IMPLEMENTATION_STATUS.md) - Análisis de carga dinámica de forms
 
 ### Security
 - [Tenant Isolation](security/TENANT_ISOLATION_GUIDE.md) - Aislamiento multi-tenant
