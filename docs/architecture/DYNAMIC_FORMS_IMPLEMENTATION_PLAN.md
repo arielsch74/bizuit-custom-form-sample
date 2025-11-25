@@ -54,7 +54,6 @@ El **Bizuit Custom Forms System** permite que los desarrolladores creen y despli
 │ GitHub Actions CI/CD                                       │
 │   ├─ Detecta cambios en forms                             │
 │   ├─ Build con esbuild (<50ms)                            │
-│   ├─ Auto version bump (patch)                            │
 │   └─ POST /api/forms/publish                              │
 │       (código compilado + metadata)                        │
 └──────────────────────┬──────────────────────────────────────┘
@@ -119,9 +118,24 @@ El **Bizuit Custom Forms System** permite que los desarrolladores creen y despli
 - ❌ **Eliminado:** npm registry (público/privado)
 - ❌ **Eliminado:** Azure Blob Storage
 - ❌ **Eliminado:** CDN públicos (unpkg, esm.sh)
+- ❌ **Eliminado:** Versionado semántico automático (npm version)
 - ✅ **Agregado:** Storage directo en SQL Server
 - ✅ **Simplificado:** 2 repos en vez de 3
 - ✅ **Reducido:** Costos de $150/mes a $0/mes
+
+**Nota sobre versionado:**
+El versionado de formularios se maneja automáticamente mediante **auto-incremento PATCH** en el pipeline/workflow. El sistema:
+1. Lee la versión anterior del `package.json` desde el commit previo (usando `git show HEAD~1`)
+2. Incrementa automáticamente el número PATCH (ej: `1.0.5` → `1.0.6`)
+3. Si es el primer deployment, inicia en `v1.0.0`
+4. Actualiza el `package.json` con la nueva versión
+5. Commitea el cambio de vuelta al repositorio con `[skip ci]`
+
+**Importante:**
+- NO se usa `npm version` - el pipeline usa `jq` para modificar directamente el JSON
+- Cada formulario tiene versionado **independiente** (no hay versión global del paquete)
+- El versionado es **simple y predecible**: solo incremento PATCH automático
+- Para cambios MINOR o MAJOR, se debe editar manualmente el `package.json` antes del commit
 
 ---
 
@@ -199,8 +213,7 @@ El **Bizuit Custom Forms System** permite que los desarrolladores creen y despli
        │ 3. Detect changes (git diff)
        │ 4. npm install
        │ 5. npm run build (esbuild)
-       │ 6. version bump (npm version patch)
-       │ 7. Read compiled files:
+       │ 6. Read compiled files:
        │    - index.tsx (source)
        │    - dist/index.mjs (compiled)
        │
@@ -555,11 +568,6 @@ jobs:
           cd forms/${{ matrix.form }}
           pnpm build
 
-      - name: Version bump (patch)
-        run: |
-          cd forms/${{ matrix.form }}
-          npm version patch --no-git-tag-version
-
       - name: Prepare payload
         id: payload
         run: |
@@ -598,14 +606,6 @@ jobs:
               "author": "${{ github.actor }}",
               "commitHash": "${{ github.sha }}"
             }'
-
-      - name: Commit version bump
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add forms/${{ matrix.form }}/package.json
-          git commit -m "chore: bump ${{ matrix.form }} to ${{ steps.payload.outputs.version }} [skip ci]"
-          git push
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
