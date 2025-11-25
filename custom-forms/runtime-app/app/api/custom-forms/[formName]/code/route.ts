@@ -50,6 +50,9 @@ export async function GET(
 
     console.log(`[Form Code API] ✅ Proxied ${formName}@${formVersion} (${sizeBytes} bytes)`)
 
+    // Check if download is requested
+    const shouldDownload = request.nextUrl.searchParams.get('download') === 'true'
+
     // Return JavaScript code with metadata headers
     return new NextResponse(compiledCode, {
       headers: {
@@ -58,6 +61,10 @@ export async function GET(
         'X-Form-Version': formVersion || '1.0.0',
         'X-Published-At': publishedAt || new Date().toISOString(),
         'X-Size-Bytes': sizeBytes || compiledCode.length.toString(),
+        // Force download if requested
+        ...(shouldDownload && {
+          'Content-Disposition': `attachment; filename="${formName}-${formVersion || 'latest'}.js"`,
+        }),
       },
     })
 

@@ -24,7 +24,7 @@ BizuitFormTemplate/
 
 ## 🚀 Inicio Rápido
 
-> 📖 **Para una guía completa de inicio**, ver [QUICK_START.md](./QUICK_START.md) - Incluye fat bundle workflow y desarrollo paso a paso.
+> 📖 **Para una guía completa de inicio con custom forms**, ver [QUICK_START.md](custom-forms/QUICK_START.md) - Incluye fat bundle workflow y desarrollo paso a paso.
 
 ### Opción 1: Iniciar Todos los Servicios (Recomendado)
 
@@ -436,16 +436,16 @@ Next.js Runtime            FastAPI
 ### Documentación de Deployment
 
 **📋 Para administradores del servidor:**
-- **[CHECKLIST_SERVIDOR.md](./CHECKLIST_SERVIDOR.md)** ⭐ - Checklist imprimible con pasos de configuración (~10 min)
-- **[SERVIDOR_PASOS_FINALES.md](./SERVIDOR_PASOS_FINALES.md)** - Guía paso a paso en español
-- **[COMANDOS_SERVIDOR.md](./COMANDOS_SERVIDOR.md)** - Referencia rápida de comandos PowerShell
+- **[CHECKLIST_SERVIDOR.md](custom-forms/docs/deployment/CHECKLIST_SERVIDOR.md)** ⭐ - Checklist imprimible con pasos de configuración (~10 min)
+- **[SERVIDOR_PASOS_FINALES.md](custom-forms/docs/deployment/SERVIDOR_PASOS_FINALES.md)** - Guía paso a paso en español
+- **[COMANDOS_SERVIDOR.md](custom-forms/docs/deployment/COMANDOS_SERVIDOR.md)** - Referencia rápida de comandos PowerShell
 
 **🔧 Para DevOps y desarrolladores:**
-- **[RESUMEN_CONFIGURACION.md](./RESUMEN_CONFIGURACION.md)** - Estado completo del proyecto y problemas resueltos
-- **[IIS_CONFIGURATION_GUIDE.md](./IIS_CONFIGURATION_GUIDE.md)** - Guía técnica de arquitectura IIS + PM2
-- **[MULTI_CLIENT_DEPLOYMENT.md](./MULTI_CLIENT_DEPLOYMENT.md)** ⭐ - Deploy de múltiples clientes en el mismo servidor
-- **[custom-forms/DEPLOYMENT.md](./custom-forms/DEPLOYMENT.md)** - Documentación detallada de deployment
-- **[custom-forms/PM2_WINDOWS_SETUP.md](./custom-forms/PM2_WINDOWS_SETUP.md)** - Setup de PM2 en Windows
+- **[RESUMEN_CONFIGURACION.md](custom-forms/docs/operations/RESUMEN_CONFIGURACION.md)** - Estado completo del proyecto y problemas resueltos
+- **[IIS_CONFIGURATION_GUIDE.md](custom-forms/docs/infrastructure/IIS_CONFIGURATION_GUIDE.md)** - Guía técnica de arquitectura IIS + PM2
+- **[MULTI_CLIENT_DEPLOYMENT.md](custom-forms/docs/deployment/MULTI_CLIENT_DEPLOYMENT.md)** ⭐ - Deploy de múltiples clientes en el mismo servidor
+- **[custom-forms/bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md](./custom-forms/bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md)** - Documentación detallada de deployment
+- **[custom-forms/docs/infrastructure/PM2_WINDOWS_SETUP.md](./custom-forms/docs/infrastructure/PM2_WINDOWS_SETUP.md)** - Setup de PM2 en Windows
 
 ### Inicio Rápido - Configuración del Servidor
 
@@ -461,7 +461,7 @@ Next.js Runtime            FastAPI
 - ✅ .env.local files (runtime y backend)
 - ✅ PM2 processes (restart automático)
 
-**Ver:** [CHECKLIST_SERVIDOR.md](./CHECKLIST_SERVIDOR.md) para instrucciones paso a paso.
+**Ver:** [CHECKLIST_SERVIDOR.md](custom-forms/docs/deployment/CHECKLIST_SERVIDOR.md) para instrucciones paso a paso.
 
 ### Deployments Futuros
 

@@ -8,6 +8,31 @@
 import { NextRequest } from 'next/server'
 
 /**
+ * Extract tenant ID from request URL
+ * Used for multi-tenant cookie isolation
+ */
+function getTenantIdFromRequest(request: NextRequest): string {
+  const url = new URL(request.url)
+  const pathname = url.pathname
+
+  // Match pattern: /XXXXBIZUITCustomForms/...
+  const match = pathname.match(/^\/([^/]+?)BIZUIT/)
+  return match ? match[1] : 'default'
+}
+
+/**
+ * Get tenant-aware cookie name
+ * @param baseName - Base cookie name (e.g., 'admin_token')
+ * @param request - Next.js request object
+ * @returns Tenant-prefixed cookie name (e.g., 'arielsch_admin_token')
+ */
+export function getTenantCookieName(baseName: string, request: NextRequest): string {
+  const tenantId = getTenantIdFromRequest(request)
+  const cookiePrefix = tenantId !== 'default' ? `${tenantId}_` : ''
+  return `${cookiePrefix}${baseName}`
+}
+
+/**
  * Validates admin session from cookies
  *
  * @param request - Next.js request object
@@ -21,9 +46,13 @@ export async function validateAdminSession(request: NextRequest): Promise<{
     // Read cookies from request headers (IIS compatibility)
     const cookieHeader = request.headers.get('cookie') || ''
 
-    // Parse admin_token and admin_user_data from cookie string
-    const tokenMatch = cookieHeader.match(/admin_token=([^;]+)/)
-    const userDataMatch = cookieHeader.match(/admin_user_data=([^;]+)/)
+    // SECURITY: Get tenant-aware cookie names
+    const tokenCookieName = getTenantCookieName('admin_token', request)
+    const userDataCookieName = getTenantCookieName('admin_user_data', request)
+
+    // Parse admin_token and admin_user_data from cookie string (with tenant prefix)
+    const tokenMatch = cookieHeader.match(new RegExp(`${tokenCookieName}=([^;]+)`))
+    const userDataMatch = cookieHeader.match(new RegExp(`${userDataCookieName}=([^;]+)`))
 
     if (!tokenMatch || !userDataMatch) {
       return null

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAdminAuth } from '@/lib/auth-server'
+import { requireAdminAuth, getTenantCookieName } from '@/lib/auth-server'
 
 const FASTAPI_URL = process.env.FASTAPI_URL
 if (!FASTAPI_URL) {
@@ -23,9 +23,12 @@ export async function DELETE(
 
     const { formName, version } = await params
 
+    // SECURITY: Get tenant-aware cookie name
+    const cookieName = getTenantCookieName('admin_token', request)
+
     // Extract JWT token from cookie to forward to backend
     const cookieHeader = request.headers.get('cookie') || ''
-    const tokenMatch = cookieHeader.match(/admin_token=([^;]+)/)
+    const tokenMatch = cookieHeader.match(new RegExp(`${cookieName}=([^;]+)`))
     const adminToken = tokenMatch ? tokenMatch[1] : null
 
     if (!adminToken) {

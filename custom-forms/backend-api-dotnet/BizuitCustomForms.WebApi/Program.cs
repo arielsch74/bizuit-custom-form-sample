@@ -1,0 +1,76 @@
+using BizuitCustomForms.WebApi.Services;
+using Serilog;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File("logs/api-.log", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
+// Add services to the container
+builder.Services.AddControllers();
+
+// Register application services
+builder.Services.AddScoped<ICryptoService, CryptoService>();
+builder.Services.AddScoped<IDatabaseService, DatabaseService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IFormTokenService, FormTokenService>();
+
+// Add HttpClient factory
+builder.Services.AddHttpClient();
+
+// Configure CORS
+var corsOrigins = builder.Configuration["Cors:AllowedOrigins"];
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        if (corsOrigins == "*")
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        }
+        else
+        {
+            var origins = corsOrigins?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                ?? Array.Empty<string>();
+
+            policy.WithOrigins(origins)
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        }
+    });
+});
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline
+if (app.Environment.IsDevelopment())
+{
+    Log.Warning("⚠️  WARNING: CORS is allowing ALL origins (*) - Use only for development!");
+}
+
+app.UseCors();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+// Get port from configuration
+var port = builder.Configuration["ApiSettings:Port"] ?? "8001";
+
+Log.Information("==================================================");
+Log.Information("Starting ASP.NET Core API");
+Log.Information("Port: {Port}", port);
+Log.Information("Environment: {Environment}", app.Environment.EnvironmentName);
+Log.Information("==================================================");
+
+app.Run($"http://0.0.0.0:{port}");

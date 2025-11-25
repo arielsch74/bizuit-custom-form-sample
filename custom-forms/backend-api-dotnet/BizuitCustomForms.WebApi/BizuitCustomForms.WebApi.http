@@ -1,0 +1,6 @@
+@BizuitCustomForms.WebApi_HostAddress = http://localhost:5243
+
+GET {{BizuitCustomForms.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

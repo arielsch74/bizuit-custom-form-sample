@@ -344,7 +344,6 @@ export default function UploadFormsPage() {
             <li>{t('upload.instruction2')}</li>
             <li>{t('upload.instruction3')}</li>
             <li>{t('upload.instruction4')}</li>
-            <li>{t('upload.instruction5')}</li>
           </ol>
         </div>
     </div>

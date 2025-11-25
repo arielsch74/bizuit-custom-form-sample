@@ -1,0 +1,47 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]uild/
+bld/
+[Bb]in/
+[Oo]bj/
+
+## Visual Studio cache/options
+.vs/
+.vscode/
+
+## Logs
+logs/
+*.log
+
+## NuGet
+*.nupkg
+*.snupkg
+packages/
+!**/packages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Test results
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+## Rider
+.idea/
+*.sln.iml
+
+## User-specific files
+launchSettings.json
