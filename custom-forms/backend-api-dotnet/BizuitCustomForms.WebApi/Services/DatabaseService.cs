@@ -84,7 +84,7 @@ public class DatabaseService : IDatabaseService
 
             // Query to get user roles
             const string query = @"
-                SELECT DISTINCT r.Name
+                SELECT DISTINCT r.RoleName
                 FROM [dbo].[Users] u
                 INNER JOIN [dbo].[UserRoles] ur ON u.UserID = ur.UserID
                 INNER JOIN [dbo].[Roles] r ON ur.RoleID = r.RoleID

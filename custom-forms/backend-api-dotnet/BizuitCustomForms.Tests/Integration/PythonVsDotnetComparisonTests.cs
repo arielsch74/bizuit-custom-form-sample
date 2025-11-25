@@ -22,8 +22,8 @@ public class PythonVsDotnetComparisonTests : IDisposable
     private const string DOTNET_BASE_URL = "http://localhost:8001";
 
     // Credenciales de test
-    private const string TEST_USERNAME = "test_user";
-    private const string TEST_PASSWORD = "test_password";
+    private const string TEST_USERNAME = "admin";
+    private const string TEST_PASSWORD = "admin123";
 
     public PythonVsDotnetComparisonTests(ITestOutputHelper output)
     {
