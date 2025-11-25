@@ -57,7 +57,6 @@ public class CustomFormsController : ControllerBase
     /// <response code="200">Returns the compiled JavaScript code</response>
     /// <response code="404">Form not found</response>
     [HttpGet("{formName}/code")]
-    [Produces("application/javascript")]
     public async Task<IActionResult> GetFormCompiledCode(string formName, [FromQuery] string? version = null)
     {
         try
