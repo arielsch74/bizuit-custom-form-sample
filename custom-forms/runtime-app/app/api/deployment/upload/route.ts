@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { getTenantCookieName } from '@/lib/auth-server';
 
 const FASTAPI_URL = process.env.FASTAPI_URL
 if (!FASTAPI_URL) {
@@ -8,12 +9,15 @@ if (!FASTAPI_URL) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Get the admin_token from HttpOnly cookie
+    // SECURITY: Get tenant-aware cookie name
+    const cookieName = getTenantCookieName('admin_token', request)
+
+    // Get the admin_token from HttpOnly cookie (with tenant prefix)
     const cookieStore = await cookies();
-    const adminToken = cookieStore.get('admin_token');
+    const adminToken = cookieStore.get(cookieName);
 
     if (!adminToken) {
-      console.log('[Deployment Proxy] No admin_token cookie found');
+      console.log(`[Deployment Proxy] No ${cookieName} cookie found`);
       return NextResponse.json(
         {
           success: false,
@@ -24,7 +28,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('[Deployment Proxy] Found admin_token, forwarding to backend...');
+    console.log(`[Deployment Proxy] Found ${cookieName}, forwarding to backend...`);
 
     // Get the form data from the request
     const formData = await request.formData();
