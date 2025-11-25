@@ -75,6 +75,7 @@ export const translations = {
     'docs.routes.standard': 'Route 1: /form/[formName] (Standard)',
     'docs.routes.standalone': 'Route 2: /formsa/[formName] (Standalone)',
     'docs.routes.purpose': 'Purpose',
+    'docs.routes.standardPurpose': 'Standard form loading from BIZUIT Dashboard Task List',
     'docs.routes.securityModel': 'Security Model',
     'docs.routes.urlExamples': 'URL Examples',
     'docs.routes.parameters': 'Parameters Received by Form',
@@ -103,12 +104,22 @@ export const translations = {
     'docs.examplesRepo.fatBundle': 'Fat bundle workflow examples',
     'docs.examplesRepo.documentation': 'Complete documentation',
     'docs.examplesRepo.readyFor': 'Ready for:',
-    'docs.examplesRepo.githubActions': 'GitHub Actions CI/CD',
+    'docs.examplesRepo.cicd': 'GitHub Actions or Azure DevOps CI/CD',
     'docs.examplesRepo.offlineDeployment': 'Offline deployment workflow',
     'docs.examplesRepo.versioning': 'Independent versioning per form',
-    'docs.examplesRepo.semanticVersioning': 'Semantic versioning automation',
-    'docs.examplesRepo.localPath': 'Local path:',
-    'docs.examplesRepo.submodule': '(Git submodule)',
+
+    // Deployment section
+    'docs.deployment.deploymentFlow': 'Deployment Flow',
+    'docs.deployment.versioning': 'Versioning',
+    'docs.deployment.versioningDescription': 'Forms are versioned independently. Each deployment creates a new version entry in the database.',
+
+    // Troubleshooting section
+    'docs.troubleshooting.title': '🐛 Troubleshooting',
+    'docs.troubleshooting.portInUse': 'Port Already in Use',
+    'docs.troubleshooting.formNotLoading': 'Form Not Loading',
+    'docs.troubleshooting.formLoadingReminder': 'Remember: Runtime loads from DATABASE!',
+    'docs.troubleshooting.authFailed': 'Authentication Failed',
+    'docs.troubleshooting.changesNotReflecting': 'Changes Not Reflecting',
 
     // Footer
     'docs.footer.help': 'Need help? Check the',
@@ -311,6 +322,7 @@ export const translations = {
     'docs.routes.standard': 'Ruta 1: /form/[formName] (Estándar)',
     'docs.routes.standalone': 'Ruta 2: /formsa/[formName] (Standalone)',
     'docs.routes.purpose': 'Propósito',
+    'docs.routes.standardPurpose': 'Carga estándar de formularios desde la Bandeja de Tareas de BIZUIT Dashboard',
     'docs.routes.securityModel': 'Modelo de Seguridad',
     'docs.routes.urlExamples': 'Ejemplos de URL',
     'docs.routes.parameters': 'Parámetros que Recibe tu Form',
@@ -329,7 +341,7 @@ export const translations = {
     'docs.resources.newTab': 'Abre en nueva pestaña',
 
     // Form Examples Repository Callout
-    'docs.examplesRepo.title': '📦 Repositorio de Ejemplos de Forms',
+    'docs.examplesRepo.title': '📦 Repositorio de Ejemplos de Formularios',
     'docs.examplesRepo.description': 'Ejemplos completos funcionando y un template listo para usar están disponibles en el repositorio',
     'docs.examplesRepo.link': 'TYCON-SA/bizuit-custom-form-sample',
     'docs.examplesRepo.onGithub': 'en GitHub.',
@@ -339,12 +351,22 @@ export const translations = {
     'docs.examplesRepo.fatBundle': 'Ejemplos de workflow fat bundle',
     'docs.examplesRepo.documentation': 'Documentación completa',
     'docs.examplesRepo.readyFor': 'Listo para:',
-    'docs.examplesRepo.githubActions': 'GitHub Actions CI/CD',
+    'docs.examplesRepo.cicd': 'GitHub Actions o Azure DevOps CI/CD',
     'docs.examplesRepo.offlineDeployment': 'Workflow deployment offline',
-    'docs.examplesRepo.versioning': 'Versionado independiente por form',
-    'docs.examplesRepo.semanticVersioning': 'Versionado semántico automatizado',
-    'docs.examplesRepo.localPath': 'Path local:',
-    'docs.examplesRepo.submodule': '(Git submodule)',
+    'docs.examplesRepo.versioning': 'Versionado independiente por formulario',
+
+    // Deployment section
+    'docs.deployment.deploymentFlow': 'Flujo de Deployment',
+    'docs.deployment.versioning': 'Versionado',
+    'docs.deployment.versioningDescription': 'Los formularios se versionan de forma independiente. Cada deployment crea una nueva versión en la base de datos.',
+
+    // Troubleshooting section
+    'docs.troubleshooting.title': '🐛 Solución de Problemas',
+    'docs.troubleshooting.portInUse': 'Puerto Ya en Uso',
+    'docs.troubleshooting.formNotLoading': 'Formulario No Carga',
+    'docs.troubleshooting.formLoadingReminder': 'Recordá: Runtime carga desde la BASE DE DATOS!',
+    'docs.troubleshooting.authFailed': 'Fallo de Autenticación',
+    'docs.troubleshooting.changesNotReflecting': 'Los Cambios No Se Reflejan',
 
     // Footer
     'docs.footer.help': '¿Necesitás ayuda? Consultá el',
@@ -370,7 +392,7 @@ export const translations = {
     'admin.subtitle': 'Panel de Administración',
     'admin.dashboard': 'Dashboard',
     'admin.formsManagement': 'Gestión de Forms',
-    'admin.uploadForms': 'Upload Forms',
+    'admin.uploadForms': 'Subir Formularios',
     'admin.logout': 'Salir',
     'admin.administratorAccount': 'Administrador Account',
 
@@ -381,7 +403,7 @@ export const translations = {
     'dashboard.updates': 'Actualizaciones (7d)',
     'dashboard.totalSpace': 'Espacio Total',
     'dashboard.avgSize': 'Tamaño Promedio',
-    'dashboard.uploadForms.title': 'Upload Forms',
+    'dashboard.uploadForms.title': 'Subir Formularios',
     'dashboard.uploadForms.subtitle': 'Subir paquete de deployment',
     'dashboard.manageForms.title': 'Gestionar Forms',
     'dashboard.manageForms.subtitle': 'Ver y administrar formularios',
@@ -394,7 +416,7 @@ export const translations = {
     // Navigation
     'nav.dashboard': 'Dashboard',
     'nav.formsManagement': 'Gestión de Forms',
-    'nav.uploadForms': 'Upload Forms',
+    'nav.uploadForms': 'Subir Formularios',
 
     // Upload Forms page
     'upload.title': 'Upload de Formularios',
