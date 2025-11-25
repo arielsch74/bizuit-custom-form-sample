@@ -5,7 +5,6 @@ trigger:
   branches:
     include:
       - main
-      - dev
   paths:
     include:
       - custom-forms/backend-api/**
