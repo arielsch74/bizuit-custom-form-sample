@@ -8,8 +8,6 @@ Central index for all showcase-specific documentation.
 
 | Document | Description | Location |
 |----------|-------------|----------|
-| **[Getting Started](GETTING_STARTED.md)** | Comprehensive getting started guide | `docs/` |
-| **[Quick Reference](QUICK_REFERENCE.md)** | Quick code snippets and patterns | `docs/` |
 | **[Runtime App Overview](RUNTIME_APP_OVERVIEW.md)** | Complete guide to the Runtime App architecture | `docs/` |
 
 ---
@@ -55,8 +53,6 @@ custom-forms-showcase/
 │
 ├── docs/                              # Documentation
 │   ├── README.md                      # ← This file
-│   ├── GETTING_STARTED.md             # Getting started guide
-│   ├── QUICK_REFERENCE.md             # Quick reference
 │   ├── RUNTIME_APP_OVERVIEW.md        # Runtime App architecture
 │   │
 │   ├── architecture/                  # Architecture and design
@@ -83,9 +79,8 @@ custom-forms-showcase/
 
 ### Getting Started
 - [Main README](../README.md) - Project overview and quick start
-- [Getting Started Guide](GETTING_STARTED.md) - Comprehensive setup guide
-- [Quick Reference](QUICK_REFERENCE.md) - Quick code snippets
 - [Runtime App Overview](RUNTIME_APP_OVERVIEW.md) - Deep dive into runtime architecture
+- **[Packages Documentation](../../packages/docs/)** - SDK and UI Components guides (GETTING_STARTED, QUICK_REFERENCE)
 
 ### Development
 - [Runtime Configuration](setup/RUNTIME_CONFIG.md) - Configure the app for dev/prod

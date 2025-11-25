@@ -126,7 +126,6 @@ custom-forms/
 │   │   ├── GITHUB_WORKFLOW_SETUP_INSTRUCTIONS.md
 │   │   ├── IIS_SETUP.md
 │   │   ├── IISNODE_SETUP.md
-│   │   ├── RUNTIME_CONFIG.md
 │   │   └── SETUP_SUBMODULE.md
 │   │
 │   ├── README.md                      # Índice de documentación
