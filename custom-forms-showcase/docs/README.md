@@ -1,129 +1,103 @@
-# 📚 Documentación de Bizuit Form Template
+# 📚 Bizuit Forms Showcase - Documentation
 
-Bienvenido a la documentación del template de formularios de Bizuit BPM.
-
-## 🚀 Empezar Rápido
-
-### Página Interactiva Getting Started (RECOMENDADO)
-👉 **[http://localhost:3000/getting-started](http://localhost:3000/getting-started)**
-
-Esta es la **forma recomendada** de aprender sobre Bizuit Form SDK. Incluye:
-- ✅ Guía visual e interactiva
-- ✅ Diagrama del ciclo de vida del proceso
-- ✅ Ejemplos de código con snippets
-- ✅ Enlaces a demos en vivo
-- ✅ Soporte bilingüe (Español/English)
+Central index for all showcase-specific documentation.
 
 ---
 
-## 📖 Documentación en este Directorio
+## 📖 Main Documentation
 
-### 1. [GETTING_STARTED.md](./GETTING_STARTED.md)
-Guía completa para desarrolladores que crea su primera pantalla en Bizuit.
-
-**Incluye:**
-- Conceptos básicos de procesos BPM
-- Instalación y configuración
-- Autenticación y parámetros de URL
-- Crear formularios dinámicos y manuales
-- Iniciar y continuar procesos
-- Ejemplos completos de código
-
-**Cuándo usar:** Para entender a fondo los conceptos y ver ejemplos de código completos.
-
-### 2. [QUICK_REFERENCE.md](./QUICK_REFERENCE.md)
-Referencia rápida para consultar tareas comunes.
-
-**Incluye:**
-- Autenticación
-- Iniciar proceso
-- Continuar proceso
-- Obtener datos de instancia
-- Formularios dinámicos vs manuales
-
-**Cuándo usar:** Como cheatsheet cuando ya sabes lo básico y necesitas recordar sintaxis.
-
-### 3. [examples/](./examples/)
-Ejemplos de código copiables y reutilizables.
-
-**Archivos:**
-- `01-dynamic-form-simple.tsx` - Formulario dinámico básico
-- `06-get-instance-data.tsx` - Obtener datos de una instancia
-
-**Cuándo usar:** Para copiar y pegar código funcional en tu proyecto.
+| Document | Description | Location |
+|----------|-------------|----------|
+| **[Getting Started](GETTING_STARTED.md)** | Comprehensive getting started guide | `docs/` |
+| **[Quick Reference](QUICK_REFERENCE.md)** | Quick code snippets and patterns | `docs/` |
+| **[Runtime App Overview](RUNTIME_APP_OVERVIEW.md)** | Complete guide to the Runtime App architecture | `docs/` |
 
 ---
 
-## 🔧 Documentación Adicional
+## 🏗️ Architecture
 
-### [Repositorio de Ejemplos](../../../custom-forms/bizuit-custom-form-sample)
-**👉 Ubicación local:** `custom-forms/bizuit-custom-form-sample/`
-**👉 GitHub:** [TYCON-SA/bizuit-custom-form-sample](https://github.com/TYCON-SA/bizuit-custom-form-sample)
-
-Repositorio con ejemplos completos de custom forms listos para compilar y deployar.
-
-**Incluye:**
-- ✅ Plantilla base (`form-template/`) con estructura completa
-- ✅ Scripts de compilación con esbuild
-- ✅ Ejemplos de testing local con fat bundle
-- ✅ Guías de deployment offline via GitHub Actions
-- ✅ Documentación de versionado independiente por form
-- ✅ Setup de pipelines CI/CD
-
-**Documentación disponible:**
-- [README.md](../../../custom-forms/bizuit-custom-form-sample/README.md) - Inicio rápido y estructura
-- [DEVELOPMENT.md](../../../custom-forms/bizuit-custom-form-sample/DEVELOPMENT.md) - Desarrollo local y debugging
-- [DEPLOYMENT_GUIDE.md](../../../custom-forms/bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md) - Deployment a diferentes entornos
-- [VERSIONING.md](../../../custom-forms/bizuit-custom-form-sample/VERSIONING.md) - Sistema de versionado
-
-**Cuándo usar:** Para ver ejemplos completos de forms en producción, aprender el flujo de deployment, o crear tu propio form desde la plantilla base.
+| Document | Description | Location |
+|----------|-------------|----------|
+| **[Custom Forms Implementation Status](architecture/CUSTOM_FORMS_IMPLEMENTATION_STATUS.md)** | Analysis of dynamic form loading challenges and solutions | `docs/architecture/` |
 
 ---
 
-### [RUNTIME_CONFIG.md](../RUNTIME_CONFIG.md)
-Guía completa sobre configuración dinámica vs estática.
+## ⚙️ Setup & Configuration
 
-**Incluye:**
-- Diferencia entre variables `NEXT_PUBLIC_*` y variables de runtime
-- Cómo cambiar configuración sin rebuild
-- Variables de timeout y token expiration
-- Troubleshooting
-
-**Cuándo usar:** Cuando necesites cambiar configuración en producción.
+| Document | Description | Location |
+|----------|-------------|----------|
+| **[Runtime Configuration Guide](setup/RUNTIME_CONFIG.md)** | Build-time vs runtime configuration explained | `docs/setup/` |
 
 ---
 
-## 🎯 Rutas Recomendadas de Aprendizaje
+## 📋 Guides & Testing
 
-### Para Principiantes
-1. 📱 Visita la [página Getting Started](http://localhost:3000/getting-started) interactiva
-2. 📖 Lee [GETTING_STARTED.md](./GETTING_STARTED.md) para profundizar conceptos
-3. 🧪 Prueba los [ejemplos en vivo](http://localhost:3000):
-   - [Example 1: Dynamic Fields](http://localhost:3000/example-1-dynamic)
-   - [Example 2: Manual + Send All](http://localhost:3000/example-2-manual-all)
-   - [Example 3: Selective Mapping](http://localhost:3000/example-3-manual-selective) ⭐ Recomendado
-
-### Para Desarrolladores Experimentados
-1. 📋 Consulta [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) como cheatsheet
-2. 📦 Revisa la [documentación de NPM](https://www.npmjs.com/package/@tyconsa/bizuit-form-sdk)
-3. 💻 Copia código de [examples/](./examples/)
-4. 🧪 Clona el [repositorio de ejemplos](../../../custom-forms/bizuit-custom-form-sample) para ver forms completos
-5. 🔧 Lee [RUNTIME_CONFIG.md](../RUNTIME_CONFIG.md) para configuración avanzada
+| Document | Description | Location |
+|----------|-------------|----------|
+| **[Hot Reload Demo](guides/HOT_RELOAD_DEMO.md)** | Testing guide for form hot reload mechanism | `docs/guides/` |
 
 ---
 
-## 🌐 Recursos Externos
+## 💻 Code Examples
 
-- 📦 [SDK en NPM](https://www.npmjs.com/package/@tyconsa/bizuit-form-sdk)
-- 🎨 [UI Components en NPM](https://www.npmjs.com/package/@tyconsa/bizuit-ui-components)
-- 💻 [Repositorio GitHub](https://github.com/bizuit/form-template)
-- 🧪 [Demo de Componentes](http://localhost:3000/components-demo)
+| Example | Description | Location |
+|---------|-------------|----------|
+| **[Dynamic Form Simple](examples/01-dynamic-form-simple.tsx)** | Basic dynamic form example | `docs/examples/` |
+| **[Get Instance Data](examples/06-get-instance-data.tsx)** | Fetch process instance data | `docs/examples/` |
 
 ---
 
-## 📝 Notas
+## 🗂️ Directory Structure
 
-- Esta documentación se actualiza regularmente
-- Si encuentras algo desactualizado, por favor reporta un issue
-- Para cambios de configuración en producción, consulta [RUNTIME_CONFIG.md](../RUNTIME_CONFIG.md)
-- La página Getting Started es la fuente de verdad más actualizada
+```
+custom-forms-showcase/
+├── README.md                          # Main project README
+│
+├── docs/                              # Documentation
+│   ├── README.md                      # ← This file
+│   ├── GETTING_STARTED.md             # Getting started guide
+│   ├── QUICK_REFERENCE.md             # Quick reference
+│   ├── RUNTIME_APP_OVERVIEW.md        # Runtime App architecture
+│   │
+│   ├── architecture/                  # Architecture and design
+│   │   └── CUSTOM_FORMS_IMPLEMENTATION_STATUS.md
+│   │
+│   ├── setup/                         # Setup and configuration
+│   │   └── RUNTIME_CONFIG.md
+│   │
+│   ├── guides/                        # Guides and testing
+│   │   └── HOT_RELOAD_DEMO.md
+│   │
+│   └── examples/                      # Code examples
+│       ├── 01-dynamic-form-simple.tsx
+│       └── 06-get-instance-data.tsx
+│
+├── app/                               # Next.js app
+├── components/                        # React components
+└── lib/                               # Utilities
+```
+
+---
+
+## 🔍 Quick Navigation
+
+### Getting Started
+- [Main README](../README.md) - Project overview and quick start
+- [Getting Started Guide](GETTING_STARTED.md) - Comprehensive setup guide
+- [Quick Reference](QUICK_REFERENCE.md) - Quick code snippets
+- [Runtime App Overview](RUNTIME_APP_OVERVIEW.md) - Deep dive into runtime architecture
+
+### Development
+- [Runtime Configuration](setup/RUNTIME_CONFIG.md) - Configure the app for dev/prod
+- [Hot Reload Demo](guides/HOT_RELOAD_DEMO.md) - Test dynamic form reloading
+
+### Code Examples
+- [Dynamic Form Simple](examples/01-dynamic-form-simple.tsx) - Basic dynamic form
+- [Get Instance Data](examples/06-get-instance-data.tsx) - Fetch process instance data
+
+### Technical Analysis
+- [Implementation Status](architecture/CUSTOM_FORMS_IMPLEMENTATION_STATUS.md) - CDN loading challenges and alternatives
+
+---
+
+**Last updated:** 2025-11-25
