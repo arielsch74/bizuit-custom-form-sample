@@ -400,33 +400,33 @@ NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=true`}</CodeBlock>
           </Section>
 
           {/* Authentication Section */}
-          <Section id="authentication" title="🔐 Authentication System">
+          <Section id="authentication" title={t('docs.authentication.title')}>
             <p className="text-slate-300 mb-6">
-              Forms use JWT tokens from the Dashboard. Dev mode bypasses this for local development.
+              {t('docs.authentication.description')}
             </p>
 
-            <SubSection title="Production Flow">
+            <SubSection title={t('docs.authentication.productionFlow')}>
               <div className="space-y-4">
-                <Step number={1} title="User in Dashboard clicks 'Open Form'">
-                  Dashboard generates JWT token with user context
+                <Step number={1} title={t('docs.authentication.step1Title')}>
+                  {t('docs.authentication.step1Desc')}
                 </Step>
-                <Step number={2} title="Form loads with token in URL">
+                <Step number={2} title={t('docs.authentication.step2Title')}>
                   <code className="text-orange-400 text-sm">
                     /forms/my-form?token=eyJhbGc...
                   </code>
                 </Step>
-                <Step number={3} title="Runtime validates token">
-                  Backend API verifies token authenticity
+                <Step number={3} title={t('docs.authentication.step3Title')}>
+                  {t('docs.authentication.step3Desc')}
                 </Step>
-                <Step number={4} title="Form executes with user context">
-                  userName, roles, processName available in form
+                <Step number={4} title={t('docs.authentication.step4Title')}>
+                  {t('docs.authentication.step4Desc')}
                 </Step>
               </div>
             </SubSection>
 
-            <SubSection title="Development Mode">
+            <SubSection title={t('docs.authentication.devMode')}>
               <p className="text-slate-300 mb-4">
-                For local development, use dev credentials instead of Dashboard tokens:
+                {t('docs.authentication.devModeDesc')}
               </p>
               <CodeBlock language="javascript">{`// dev-credentials.js
 export const DEV_CREDENTIALS = {
@@ -435,47 +435,47 @@ export const DEV_CREDENTIALS = {
   apiUrl: 'https://test.bizuit.com/tenantBizuitDashboardapi/api/'
 }`}</CodeBlock>
 
-              <InfoBox type="warning" title="Security Warning">
+              <InfoBox type="warning" title={t('docs.authentication.securityWarning')}>
                 <ul className="space-y-1 text-sm">
-                  <li>⚠️ <code className="text-orange-400">ALLOW_DEV_MODE=true</code> ONLY for local development</li>
-                  <li>⚠️ Production MUST have <code className="text-orange-400">ALLOW_DEV_MODE=false</code></li>
-                  <li>✅ Server-side variable (different per environment, no rebuild)</li>
+                  <li>⚠️ <code className="text-orange-400">ALLOW_DEV_MODE=true</code> {t('docs.authentication.devModeWarning1')}</li>
+                  <li>⚠️ {t('docs.authentication.devModeWarning2')} <code className="text-orange-400">ALLOW_DEV_MODE=false</code></li>
+                  <li>✅ {t('docs.authentication.devModeWarning3')}</li>
                 </ul>
               </InfoBox>
             </SubSection>
           </Section>
 
           {/* Environment Configuration Section */}
-          <Section id="environment" title="🔧 Environment Configuration">
+          <Section id="environment" title={t('docs.environment.title')}>
             <p className="text-slate-300 mb-6">
-              Next.js has two types of environment variables with different behaviors.
+              {t('docs.environment.description')}
             </p>
 
-            <SubSection title="Build-Time vs Server-Side">
+            <SubSection title={t('docs.environment.buildVsServer')}>
               <div className="grid md:grid-cols-2 gap-4 mb-6">
                 <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-                  <h4 className="text-blue-400 font-semibold mb-2">Build-Time (NEXT_PUBLIC_*)</h4>
+                  <h4 className="text-blue-400 font-semibold mb-2">{t('docs.environment.buildTime')}</h4>
                   <ul className="space-y-1 text-sm text-slate-300">
-                    <li>✅ Client-side accessible</li>
-                    <li>⚠️ Baked into JavaScript</li>
-                    <li>🔄 Rebuild required on change</li>
+                    <li>✅ {t('docs.environment.buildTimeDesc1')}</li>
+                    <li>⚠️ {t('docs.environment.buildTimeDesc2')}</li>
+                    <li>🔄 {t('docs.environment.buildTimeDesc3')}</li>
                   </ul>
                   <CodeBlock language="typescript" className="mt-3">{`const url = process.env.NEXT_PUBLIC_API_URL`}</CodeBlock>
                 </div>
 
                 <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-                  <h4 className="text-purple-400 font-semibold mb-2">Server-Side (no prefix)</h4>
+                  <h4 className="text-purple-400 font-semibold mb-2">{t('docs.environment.serverSide')}</h4>
                   <ul className="space-y-1 text-sm text-slate-300">
-                    <li>✅ Server-only access</li>
-                    <li>✅ Runtime changeable</li>
-                    <li>🔄 Restart only (no rebuild)</li>
+                    <li>✅ {t('docs.environment.serverSideDesc1')}</li>
+                    <li>✅ {t('docs.environment.serverSideDesc2')}</li>
+                    <li>🔄 {t('docs.environment.serverSideDesc3')}</li>
                   </ul>
                   <CodeBlock language="typescript" className="mt-3">{`const url = process.env.FASTAPI_URL`}</CodeBlock>
                 </div>
               </div>
             </SubSection>
 
-            <SubSection title="Complete .env.local Reference">
+            <SubSection title={t('docs.environment.envReference')}>
               <CodeBlock language="bash">{`# =============================================================================
 # BIZUIT Dashboard API
 # =============================================================================
@@ -527,15 +527,15 @@ NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=true
 # Generate: openssl rand -hex 32
 WEBHOOK_SECRET=your-webhook-secret-here`}</CodeBlock>
 
-              <InfoBox type="info" title="Remember">
+              <InfoBox type="info" title={t('docs.environment.remember')}>
                 <ul className="space-y-1 text-sm">
-                  <li>🔄 Changed <code className="text-orange-400">NEXT_PUBLIC_*</code>? → <strong>Rebuild</strong></li>
-                  <li>🔄 Changed server variable? → <strong>Restart</strong> only</li>
+                  <li>🔄 {t('docs.environment.remember1')} <code className="text-orange-400">NEXT_PUBLIC_*</code>? → <strong>{t('docs.environment.remember1Action')}</strong></li>
+                  <li>🔄 {t('docs.environment.remember2')} → <strong>{t('docs.environment.remember2Action')}</strong> only</li>
                 </ul>
               </InfoBox>
             </SubSection>
 
-            <SubSection title="Environment Variables Reference Table">
+            <SubSection title={t('docs.environment.envTable')}>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-slate-900/50 border-b border-slate-700">
@@ -585,9 +585,9 @@ WEBHOOK_SECRET=your-webhook-secret-here`}</CodeBlock>
           </Section>
 
           {/* Deployment Section */}
-          <Section id="deployment" title="📦 Deployment Process">
+          <Section id="deployment" title={t('docs.deployment.title')}>
             <p className="text-slate-300 mb-6">
-              Automated deployment via GitHub Actions with semantic versioning.
+              {t('docs.deployment.description')}
             </p>
 
             <SubSection title={t('docs.deployment.deploymentFlow')}>
@@ -617,10 +617,10 @@ Upload to Admin Panel
               </p>
             </SubSection>
 
-            <SubSection title="Download Artifact">
+            <SubSection title={t('docs.deployment.downloadArtifact')}>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-slate-900/50 rounded-lg p-4">
-                  <h4 className="text-white font-semibold mb-3">Option A: GitHub Actions</h4>
+                  <h4 className="text-white font-semibold mb-3">{t('docs.deployment.optionA')}</h4>
                   <CodeBlock language="bash">{`# Via web UI
 # Actions → Latest run → Artifacts
 
@@ -630,7 +630,7 @@ gh run download <run-id>`}</CodeBlock>
                 </div>
 
                 <div className="bg-slate-900/50 rounded-lg p-4">
-                  <h4 className="text-white font-semibold mb-3">Option B: Repository</h4>
+                  <h4 className="text-white font-semibold mb-3">{t('docs.deployment.optionB')}</h4>
                   <CodeBlock language="bash">{`# Pull latest
 git pull origin main
 
