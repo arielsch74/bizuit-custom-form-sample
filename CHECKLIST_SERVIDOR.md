@@ -239,10 +239,10 @@ Si todos los checks anteriores pasaron:
 
 Para más información, consultar:
 
-- **[SERVIDOR_PASOS_FINALES.md](./SERVIDOR_PASOS_FINALES.md)** - Guía detallada con explicaciones
+- **[SERVIDOR_PASOS_FINALES.md](docs/deployment/SERVIDOR_PASOS_FINALES.md)** - Guía detallada con explicaciones
 - **[COMANDOS_SERVIDOR.md](./COMANDOS_SERVIDOR.md)** - Referencia de comandos PowerShell
 - **[RESUMEN_CONFIGURACION.md](./RESUMEN_CONFIGURACION.md)** - Estado completo del proyecto
-- **[IIS_CONFIGURATION_GUIDE.md](./IIS_CONFIGURATION_GUIDE.md)** - Guía técnica de arquitectura
+- **[IIS_CONFIGURATION_GUIDE.md](docs/infrastructure/IIS_CONFIGURATION_GUIDE.md)** - Guía técnica de arquitectura
 
 ---
 

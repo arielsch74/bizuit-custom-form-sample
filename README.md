@@ -437,13 +437,13 @@ Next.js Runtime            FastAPI
 
 **📋 Para administradores del servidor:**
 - **[CHECKLIST_SERVIDOR.md](./CHECKLIST_SERVIDOR.md)** ⭐ - Checklist imprimible con pasos de configuración (~10 min)
-- **[SERVIDOR_PASOS_FINALES.md](./SERVIDOR_PASOS_FINALES.md)** - Guía paso a paso en español
+- **[SERVIDOR_PASOS_FINALES.md](docs/deployment/SERVIDOR_PASOS_FINALES.md)** - Guía paso a paso en español
 - **[COMANDOS_SERVIDOR.md](./COMANDOS_SERVIDOR.md)** - Referencia rápida de comandos PowerShell
 
 **🔧 Para DevOps y desarrolladores:**
 - **[RESUMEN_CONFIGURACION.md](./RESUMEN_CONFIGURACION.md)** - Estado completo del proyecto y problemas resueltos
-- **[IIS_CONFIGURATION_GUIDE.md](./IIS_CONFIGURATION_GUIDE.md)** - Guía técnica de arquitectura IIS + PM2
-- **[MULTI_CLIENT_DEPLOYMENT.md](./MULTI_CLIENT_DEPLOYMENT.md)** ⭐ - Deploy de múltiples clientes en el mismo servidor
+- **[IIS_CONFIGURATION_GUIDE.md](docs/infrastructure/IIS_CONFIGURATION_GUIDE.md)** - Guía técnica de arquitectura IIS + PM2
+- **[MULTI_CLIENT_DEPLOYMENT.md](docs/deployment/MULTI_CLIENT_DEPLOYMENT.md)** ⭐ - Deploy de múltiples clientes en el mismo servidor
 - **[custom-forms/bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md](./custom-forms/bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md)** - Documentación detallada de deployment
 - **[custom-forms/docs/infrastructure/PM2_WINDOWS_SETUP.md](./custom-forms/docs/infrastructure/PM2_WINDOWS_SETUP.md)** - Setup de PM2 en Windows
 
