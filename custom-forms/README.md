@@ -120,7 +120,7 @@ Features:
 
 ### Markdown Guide
 
-For offline reading: [`DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md)
+For offline reading: [`DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md)
 
 **Topics covered:**
 - Quick Start (5 minutes)

@@ -19,7 +19,7 @@
 
 | Documento | Descripción | Ubicación |
 |-----------|-------------|-----------|
-| **[Developer Guide](../DEVELOPER_GUIDE.md)** | Guía general para developers del proyecto | `custom-forms/` |
+| **[Developer Guide](DEVELOPER_GUIDE.md)** | Guía general para developers del proyecto | `custom-forms/docs/` |
 | **[Development Guide (Forms)](../bizuit-custom-form-sample/DEVELOPMENT.md)** | Desarrollo local de custom forms, testing, debugging | `bizuit-custom-form-sample/` |
 | **[Externals Config](../runtime-app/EXTERNALS_CONFIG.md)** | Configuración de externals (React, SDK, UI Components) en runtime | `runtime-app/` |
 
@@ -58,7 +58,6 @@
 
 ```
 custom-forms/
-├── DEVELOPER_GUIDE.md                 # Guía general de desarrollo
 ├── README.md                          # Overview del proyecto
 │
 ├── docs/                              # Documentación técnica
@@ -71,6 +70,7 @@ custom-forms/
 │   │   ├── PM2_WINDOWS_SETUP.md
 │   │   └── RUNTIME_BASEPATH_SETUP.md
 │   │
+│   ├── DEVELOPER_GUIDE.md             # Guía completa para developers
 │   ├── BACKEND_IMPLEMENTATION.md      # Arquitectura backend
 │   ├── IIS_DEPLOYMENT.md              # IIS deployment
 │   └── OFFLINE_DEPLOYMENT.md          # Offline deployment
@@ -127,7 +127,7 @@ custom-forms/
 
 ## 📝 Convenciones
 
-- **custom-forms/**: Solo README.md y DEVELOPER_GUIDE.md (overview general)
+- **custom-forms/**: Solo README.md (overview general)
 - **docs/**: Documentación técnica organizada por categorías
 - **docs/setup/**: Configuración inicial y setup
 - **docs/infrastructure/**: Infraestructura (PM2, IIS, basePath)

@@ -470,7 +470,7 @@ npm run build -- --verbose
 
 **After this quick start:**
 
-1. **Read Full Developer Guide** → [DEVELOPER_GUIDE.md](custom-forms/DEVELOPER_GUIDE.md)
+1. **Read Full Developer Guide** → [DEVELOPER_GUIDE.md](custom-forms/docs/DEVELOPER_GUIDE.md)
    - Complete architecture explanation
    - Environment configuration details
    - Authentication deep dive
@@ -547,7 +547,7 @@ dist/form.js                       # Fat bundle (after build)
 
 **🎉 Congratulations!** You're ready to build BIZUIT Custom Forms!
 
-**Need help?** Check [DEVELOPER_GUIDE.md](custom-forms/DEVELOPER_GUIDE.md) for detailed documentation.
+**Need help?** Check [DEVELOPER_GUIDE.md](custom-forms/docs/DEVELOPER_GUIDE.md) for detailed documentation.
 
 **Questions?** Contact your team lead or open an issue in the repository.
 
