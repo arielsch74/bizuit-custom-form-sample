@@ -31,20 +31,14 @@ public class FormTokensController : ControllerBase
     public async Task<ActionResult<ValidateFormTokenResponse>> ValidateFormToken(
         [FromBody] ValidateFormTokenRequest request)
     {
-        try
-        {
-            _logger.LogInformation("[Form Tokens API] Validating token '{TokenId}'", request.TokenId);
+        // NOTE: ArgumentException is NOT caught to match Python behavior (HTTP 500)
+        // Python's validate_security_token raises ValueError which becomes HTTP 500
+        _logger.LogInformation("[Form Tokens API] Validating token '{TokenId}'", request.TokenId);
 
-            var (valid, token, error) = await _formTokenService.ValidateFormTokenAsync(request.TokenId);
+        var (valid, token, error) = await _formTokenService.ValidateFormTokenAsync(request.TokenId);
 
-            var response = new ValidateFormTokenResponse(valid, token, error);
-            return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "[Form Tokens API] Error validating token");
-            return Ok(new ValidateFormTokenResponse(false, null, "Internal server error"));
-        }
+        var response = new ValidateFormTokenResponse(valid, token, error);
+        return Ok(response);
     }
 
     /// <summary>
