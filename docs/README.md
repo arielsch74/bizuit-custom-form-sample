@@ -13,9 +13,9 @@
   - Tu primer formulario
 
 ### Para Administradores
-- **[Checklist de Servidor](../CHECKLIST_SERVIDOR.md)** - Lista de verificación post-deployment (1 paso manual)
-- **[Comandos del Servidor](../COMANDOS_SERVIDOR.md)** - Referencia rápida de comandos PowerShell
-- **[Resumen de Configuración](../RESUMEN_CONFIGURACION.md)** - Estado completo del sistema
+- **[Checklist de Servidor](deployment/CHECKLIST_SERVIDOR.md)** - Lista de verificación post-deployment (1 paso manual)
+- **[Comandos del Servidor](deployment/COMANDOS_SERVIDOR.md)** - Referencia rápida de comandos PowerShell
+- **[Resumen de Configuración](RESUMEN_CONFIGURACION.md)** - Estado completo del sistema
 
 ---
 
@@ -26,11 +26,22 @@ docs/
 ├── README.md                          # ← Este archivo
 │
 ├── deployment/                        # Deployment y configuración
+│   ├── CHECKLIST_SERVIDOR.md          # Lista de verificación post-deployment
+│   ├── COMANDOS_SERVIDOR.md           # Comandos PowerShell para administración
 │   ├── MULTI_CLIENT_DEPLOYMENT.md     # Setup multi-cliente (arielsch, recubiz, etc.)
 │   └── SERVIDOR_PASOS_FINALES.md      # Guía detallada de configuración servidor
 │
-└── infrastructure/                    # Infraestructura y arquitectura
-    └── IIS_CONFIGURATION_GUIDE.md     # Guía técnica de IIS + PM2
+├── infrastructure/                    # Infraestructura y arquitectura
+│   └── IIS_CONFIGURATION_GUIDE.md     # Guía técnica de IIS + PM2
+│
+└── RESUMEN_CONFIGURACION.md           # Estado completo del sistema
+
+scripts/
+├── deployment/                        # Scripts de deployment y troubleshooting
+│   └── clear-iis-cache.ps1           # Limpieza completa de caché IIS
+│
+└── diagnostics/                       # Scripts de diagnóstico
+    └── diagnose-production.ps1       # Verificación de estado de deployment
 ```
 
 ---
@@ -41,9 +52,9 @@ docs/
 
 | Documento | Descripción | Audiencia |
 |-----------|-------------|-----------|
-| **[Checklist de Servidor](../CHECKLIST_SERVIDOR.md)** | Lista de verificación post-deployment (5 min) | Admin |
-| **[Comandos del Servidor](../COMANDOS_SERVIDOR.md)** | Quick reference de PowerShell commands | Admin / DevOps |
-| **[Resumen de Configuración](../RESUMEN_CONFIGURACION.md)** | Estado del sistema, URLs, troubleshooting | Todos |
+| **[Checklist de Servidor](deployment/CHECKLIST_SERVIDOR.md)** | Lista de verificación post-deployment (5 min) | Admin |
+| **[Comandos del Servidor](deployment/COMANDOS_SERVIDOR.md)** | Quick reference de PowerShell commands | Admin / DevOps |
+| **[Resumen de Configuración](RESUMEN_CONFIGURACION.md)** | Estado del sistema, URLs, troubleshooting | Todos |
 | **[Servidor - Pasos Finales](deployment/SERVIDOR_PASOS_FINALES.md)** | Guía detallada paso a paso | Admin |
 | **[Multi-Client Deployment](deployment/MULTI_CLIENT_DEPLOYMENT.md)** | Setup para múltiples clientes en mismo servidor | DevOps |
 
@@ -75,10 +86,10 @@ Incluye:
 
 ### Setup Inicial
 - [Quick Start](../QUICK_START.md) - Para developers
-- [Checklist de Servidor](../CHECKLIST_SERVIDOR.md) - Para admins
+- [Checklist de Servidor](deployment/CHECKLIST_SERVIDOR.md) - Para admins
 
 ### Deployment
-- [Resumen de Configuración](../RESUMEN_CONFIGURACION.md) - Estado completo
+- [Resumen de Configuración](RESUMEN_CONFIGURACION.md) - Estado completo
 - [Servidor - Pasos Finales](deployment/SERVIDOR_PASOS_FINALES.md) - Guía detallada
 - [Multi-Client](deployment/MULTI_CLIENT_DEPLOYMENT.md) - Múltiples clientes
 
@@ -86,7 +97,7 @@ Incluye:
 - [IIS Configuration](infrastructure/IIS_CONFIGURATION_GUIDE.md) - Arquitectura IIS + PM2
 
 ### Comandos Rápidos
-- [Comandos del Servidor](../COMANDOS_SERVIDOR.md) - PowerShell reference
+- [Comandos del Servidor](deployment/COMANDOS_SERVIDOR.md) - PowerShell reference
 
 ### Forms Development
 - [custom-forms/docs/](../custom-forms/docs/) - Documentación de forms
@@ -120,9 +131,9 @@ Los siguientes archivos fueron consolidados o eliminados en esta reorganización
 - [ ] Explorar [custom-forms examples](../custom-forms/bizuit-custom-form-sample/)
 
 ### Para Admin de Servidor
-- [ ] Leer [Resumen de Configuración](../RESUMEN_CONFIGURACION.md)
-- [ ] Completar [Checklist de Servidor](../CHECKLIST_SERVIDOR.md)
-- [ ] Bookmark [Comandos del Servidor](../COMANDOS_SERVIDOR.md)
+- [ ] Leer [Resumen de Configuración](RESUMEN_CONFIGURACION.md)
+- [ ] Completar [Checklist de Servidor](deployment/CHECKLIST_SERVIDOR.md)
+- [ ] Bookmark [Comandos del Servidor](deployment/COMANDOS_SERVIDOR.md)
 - [ ] Revisar [Pasos Finales](deployment/SERVIDOR_PASOS_FINALES.md) si hay problemas
 
 ### Para DevOps
