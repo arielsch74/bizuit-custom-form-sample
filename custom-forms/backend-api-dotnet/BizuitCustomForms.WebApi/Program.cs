@@ -14,7 +14,16 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 // Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        // Change automatic model validation response from 400 BadRequest to 422 UnprocessableEntity
+        // This matches Python FastAPI behavior for validation errors
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            return new Microsoft.AspNetCore.Mvc.UnprocessableEntityObjectResult(context.ModelState);
+        };
+    });
 
 // Register application services
 builder.Services.AddScoped<ICryptoService, CryptoService>();
