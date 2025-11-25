@@ -39,7 +39,7 @@ export default function GettingStartedPage() {
             </div>
           </a>
           <a
-            href="https://github.com/bizuit/form-template"
+            href="https://github.com/TYCON-SA/bizuit-custom-form-sample"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 p-4 rounded-lg border border-border hover:border-primary transition-colors bg-card"
