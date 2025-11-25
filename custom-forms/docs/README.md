@@ -24,6 +24,7 @@
 | Documento | Descripción | Ubicación |
 |-----------|-------------|-----------|
 | **[Developer Guide](DEVELOPER_GUIDE.md)** | Guía general para developers del proyecto | `custom-forms/docs/` |
+| **[Runtime App Overview](../runtime-app/OVERVIEW.md)** | Overview de la Runtime App (carga dinámica de forms desde CDN/npm) | `runtime-app/` |
 | **[Development Guide (Forms)](../bizuit-custom-form-sample/DEVELOPMENT.md)** | Desarrollo local de custom forms, testing, debugging | `bizuit-custom-form-sample/` |
 | **[Externals Config](../runtime-app/EXTERNALS_CONFIG.md)** | Configuración de externals (React, SDK, UI Components) en runtime | `runtime-app/` |
 
@@ -132,6 +133,7 @@ custom-forms/
 │   └── DEVELOPER_GUIDE.md             # Guía completa para developers
 │
 ├── runtime-app/
+│   ├── OVERVIEW.md                    # Runtime App architecture overview
 │   ├── EXTERNALS_CONFIG.md            # React externals config
 │   └── SECURITY.md                    # Security guidelines
 │
@@ -184,6 +186,7 @@ custom-forms/
 - [Tenant Isolation](security/TENANT_ISOLATION_GUIDE.md) - Aislamiento multi-tenant
 
 ### Desarrollo de Forms
+- [Runtime App Overview](../runtime-app/OVERVIEW.md) - Arquitectura de carga dinámica de forms
 - [Development Guide](../bizuit-custom-form-sample/DEVELOPMENT.md) - Desarrollo local
 - [Externals Config](../runtime-app/EXTERNALS_CONFIG.md) - React externals
 - [Forms Sample README](../bizuit-custom-form-sample/README.md) - Estructura y workflow

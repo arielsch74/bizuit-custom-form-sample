@@ -4,12 +4,6 @@ Central index for all showcase-specific documentation.
 
 ---
 
-## 📖 Main Documentation
-
-| Document | Description | Location |
-|----------|-------------|----------|
-| **[Runtime App Overview](RUNTIME_APP_OVERVIEW.md)** | Complete guide to the Runtime App architecture | `docs/` |
-
 ---
 
 ## 🏗️ Architecture
@@ -53,7 +47,6 @@ custom-forms-showcase/
 │
 ├── docs/                              # Documentation
 │   ├── README.md                      # ← This file
-│   ├── RUNTIME_APP_OVERVIEW.md        # Runtime App architecture
 │   │
 │   ├── architecture/                  # Architecture and design
 │   │   └── CUSTOM_FORMS_IMPLEMENTATION_STATUS.md
@@ -79,8 +72,8 @@ custom-forms-showcase/
 
 ### Getting Started
 - [Main README](../README.md) - Project overview and quick start
-- [Runtime App Overview](RUNTIME_APP_OVERVIEW.md) - Deep dive into runtime architecture
 - **[Packages Documentation](../../packages/docs/)** - SDK and UI Components guides (GETTING_STARTED, QUICK_REFERENCE)
+- **[Runtime App Overview](../../custom-forms/runtime-app/OVERVIEW.md)** - Runtime App architecture (custom-forms project)
 
 ### Development
 - [Runtime Configuration](setup/RUNTIME_CONFIG.md) - Configure the app for dev/prod
