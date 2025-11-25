@@ -220,7 +220,7 @@ public class PythonVsDotnetComparisonTests : IDisposable
         // Arrange
         var testToken = "test_encrypted_token_here"; // Usar token de test válido
 
-        var request = new { token = testToken };
+        var request = new { tokenId = testToken };
 
         // Act
         var pythonContent = new StringContent(
@@ -407,8 +407,18 @@ public class PythonVsDotnetComparisonTests : IDisposable
 
         // Assert
         Assert.Equal(pythonResponse.StatusCode, dotnetResponse.StatusCode);
-        Assert.False(pythonResponse.IsSuccessStatusCode);
-        Assert.False(dotnetResponse.IsSuccessStatusCode);
+
+        // Both return HTTP 200 with success:false in body (not HTTP error status)
+        Assert.True(pythonResponse.IsSuccessStatusCode);
+        Assert.True(dotnetResponse.IsSuccessStatusCode);
+
+        var pythonJson = await pythonResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var dotnetJson = await dotnetResponse.Content.ReadFromJsonAsync<JsonElement>();
+
+        Assert.True(pythonJson.TryGetProperty("success", out var pythonSuccess));
+        Assert.True(dotnetJson.TryGetProperty("success", out var dotnetSuccess));
+        Assert.False(pythonSuccess.GetBoolean());
+        Assert.False(dotnetSuccess.GetBoolean());
     }
 
     #endregion
