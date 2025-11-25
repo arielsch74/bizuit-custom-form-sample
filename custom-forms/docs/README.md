@@ -32,11 +32,11 @@
 | Documento | Descripción | Ubicación |
 |-----------|-------------|-----------|
 | **[Authentication Flow](architecture/AUTHENTICATION_FLOW.md)** | Flujo de autenticación HTTP Basic con tokens | `docs/architecture/` |
+| **[Backend Implementation](architecture/BACKEND_IMPLEMENTATION.md)** | Arquitectura completa del backend (.NET + SQL Server) | `docs/architecture/` |
 | **[Dynamic Forms Implementation Plan](architecture/DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md)** | Plan completo de arquitectura del sistema | `docs/architecture/` |
 | **[Multi-Environment Implementation](architecture/MULTI_ENVIRONMENT_IMPLEMENTATION_PLAN.md)** | Plan multi-ambiente (dev/test/prod) | `docs/architecture/` |
-| **[Backend Implementation](BACKEND_IMPLEMENTATION.md)** | Arquitectura completa del backend (.NET + SQL Server) | `docs/` |
-| **[IIS Deployment](IIS_DEPLOYMENT.md)** | Deployment con IIS + reverse proxy | `docs/` |
-| **[Offline Deployment](OFFLINE_DEPLOYMENT.md)** | Deployment offline en entornos sin internet | `docs/` |
+| **[IIS Deployment](deployment/IIS_DEPLOYMENT.md)** | Deployment con IIS + reverse proxy | `docs/deployment/` |
+| **[Offline Deployment](deployment/OFFLINE_DEPLOYMENT.md)** | Deployment offline en entornos sin internet | `docs/deployment/` |
 
 ### ⚙️ CI/CD
 
@@ -70,10 +70,10 @@
 
 | Documento | Descripción | Ubicación |
 |-----------|-------------|-----------|
+| **[Resumen de Configuración](operations/RESUMEN_CONFIGURACION.md)** | Estado completo del sistema | `docs/operations/` |
+| **[Deployment Troubleshooting](operations/DEPLOYMENT_TROUBLESHOOTING.md)** | Troubleshooting común de deployment | `docs/operations/` |
+| **[Deployment Fix](operations/DEPLOYMENT_FIX.md)** | Fixes aplicados a deployments | `docs/operations/` |
 | **[Progress Tracking](operations/PROGRESS.md)** | Estado de tareas y progreso del proyecto | `docs/operations/` |
-| **[Deployment Troubleshooting](DEPLOYMENT_TROUBLESHOOTING.md)** | Troubleshooting común de deployment | `docs/` |
-| **[Deployment Fix](DEPLOYMENT_FIX.md)** | Fixes aplicados a deployments | `docs/` |
-| **[Resumen de Configuración](RESUMEN_CONFIGURACION.md)** | Estado completo del sistema | `docs/` |
 | **[Comandos del Servidor](deployment/COMANDOS_SERVIDOR.md)** | Quick reference de PowerShell commands | `docs/deployment/` |
 
 ---
@@ -90,6 +90,7 @@ custom-forms/
 │   │
 │   ├── architecture/                  # Arquitectura y diseño
 │   │   ├── AUTHENTICATION_FLOW.md
+│   │   ├── BACKEND_IMPLEMENTATION.md
 │   │   ├── DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md
 │   │   ├── DYNAMIC_FORMS_IMPLEMENTATION_PLAN_PART2.md
 │   │   ├── IMPLEMENTATION_SUMMARY.md
@@ -98,7 +99,9 @@ custom-forms/
 │   ├── deployment/                    # Deployment y configuración
 │   │   ├── CHECKLIST_SERVIDOR.md
 │   │   ├── COMANDOS_SERVIDOR.md
+│   │   ├── IIS_DEPLOYMENT.md
 │   │   ├── MULTI_CLIENT_DEPLOYMENT.md
+│   │   ├── OFFLINE_DEPLOYMENT.md
 │   │   └── SERVIDOR_PASOS_FINALES.md
 │   │
 │   ├── infrastructure/                # Infraestructura (PM2, IIS, basePath)
@@ -111,7 +114,10 @@ custom-forms/
 │   │   └── TENANT_ISOLATION_GUIDE.md
 │   │
 │   ├── operations/                    # Operaciones y troubleshooting
-│   │   └── PROGRESS.md
+│   │   ├── DEPLOYMENT_FIX.md
+│   │   ├── DEPLOYMENT_TROUBLESHOOTING.md
+│   │   ├── PROGRESS.md
+│   │   └── RESUMEN_CONFIGURACION.md
 │   │
 │   ├── setup/                         # Setup y configuración inicial
 │   │   ├── AZURE_WEBAPP_DEPLOYMENT.md
@@ -120,16 +126,11 @@ custom-forms/
 │   │   ├── GITHUB_WORKFLOW_SETUP_INSTRUCTIONS.md
 │   │   ├── IIS_SETUP.md
 │   │   ├── IISNODE_SETUP.md
+│   │   ├── RUNTIME_CONFIG.md
 │   │   └── SETUP_SUBMODULE.md
 │   │
-│   ├── BACKEND_IMPLEMENTATION.md      # Arquitectura backend
-│   ├── DEPLOYMENT_FIX.md              # Fixes de deployment
-│   ├── DEPLOYMENT_TROUBLESHOOTING.md  # Troubleshooting
-│   ├── DEVELOPER_GUIDE.md             # Guía completa para developers
-│   ├── IIS_DEPLOYMENT.md              # IIS deployment
-│   ├── OFFLINE_DEPLOYMENT.md          # Offline deployment
-│   ├── RESUMEN_CONFIGURACION.md       # Estado completo del sistema
-│   └── RUNTIME_CONFIG.md              # Configuración de runtime
+│   ├── README.md                      # Índice de documentación
+│   └── DEVELOPER_GUIDE.md             # Guía completa para developers
 │
 ├── runtime-app/
 │   ├── EXTERNALS_CONFIG.md            # React externals config
@@ -170,14 +171,14 @@ custom-forms/
 - [Multi-Client Deployment](deployment/MULTI_CLIENT_DEPLOYMENT.md) - Múltiples clientes
 - [Servidor - Pasos Finales](deployment/SERVIDOR_PASOS_FINALES.md) - Guía detallada
 - [Comandos del Servidor](deployment/COMANDOS_SERVIDOR.md) - PowerShell reference
+- [IIS Deployment](deployment/IIS_DEPLOYMENT.md) - IIS + reverse proxy
+- [Offline Deployment](deployment/OFFLINE_DEPLOYMENT.md) - Entornos sin internet
 - [Deployment Guide](../bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md) - Deploy de forms
-- [IIS Deployment](IIS_DEPLOYMENT.md) - IIS + reverse proxy
-- [Offline Deployment](OFFLINE_DEPLOYMENT.md) - Entornos sin internet
 
 ### Arquitectura
 - [Authentication Flow](architecture/AUTHENTICATION_FLOW.md) - Flujo de auth
+- [Backend Implementation](architecture/BACKEND_IMPLEMENTATION.md) - Arquitectura backend
 - [Dynamic Forms Implementation](architecture/DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md) - Plan de arquitectura
-- [Backend Implementation](BACKEND_IMPLEMENTATION.md) - Arquitectura backend
 
 ### Security
 - [Security Audit](security/SECURITY_AUDIT_2025-11-19.md) - Auditoría 2025
@@ -189,13 +190,14 @@ custom-forms/
 - [Forms Sample README](../bizuit-custom-form-sample/README.md) - Estructura y workflow
 
 ### Backend
-- [Backend Implementation](BACKEND_IMPLEMENTATION.md) - Arquitectura backend
+- [Backend Implementation](architecture/BACKEND_IMPLEMENTATION.md) - Arquitectura backend
 - [Migration Status](../backend-api-dotnet/MIGRATION_STATUS.md) - Status Python → .NET
 - [Backend Tests](../backend-api/tests/README.md) - Testing
 
 ### Operations
-- [Resumen de Configuración](RESUMEN_CONFIGURACION.md) - Estado completo
-- [Deployment Troubleshooting](DEPLOYMENT_TROUBLESHOOTING.md) - Troubleshooting
+- [Resumen de Configuración](operations/RESUMEN_CONFIGURACION.md) - Estado completo
+- [Deployment Troubleshooting](operations/DEPLOYMENT_TROUBLESHOOTING.md) - Troubleshooting
+- [Deployment Fix](operations/DEPLOYMENT_FIX.md) - Fixes aplicados
 - [Progress Tracking](operations/PROGRESS.md) - Estado del proyecto
 
 ### CI/CD

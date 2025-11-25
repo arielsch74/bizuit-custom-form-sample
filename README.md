@@ -441,7 +441,7 @@ Next.js Runtime            FastAPI
 - **[COMANDOS_SERVIDOR.md](custom-forms/docs/deployment/COMANDOS_SERVIDOR.md)** - Referencia rápida de comandos PowerShell
 
 **🔧 Para DevOps y desarrolladores:**
-- **[RESUMEN_CONFIGURACION.md](custom-forms/docs/RESUMEN_CONFIGURACION.md)** - Estado completo del proyecto y problemas resueltos
+- **[RESUMEN_CONFIGURACION.md](custom-forms/docs/operations/RESUMEN_CONFIGURACION.md)** - Estado completo del proyecto y problemas resueltos
 - **[IIS_CONFIGURATION_GUIDE.md](custom-forms/docs/infrastructure/IIS_CONFIGURATION_GUIDE.md)** - Guía técnica de arquitectura IIS + PM2
 - **[MULTI_CLIENT_DEPLOYMENT.md](custom-forms/docs/deployment/MULTI_CLIENT_DEPLOYMENT.md)** ⭐ - Deploy de múltiples clientes en el mismo servidor
 - **[custom-forms/bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md](./custom-forms/bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md)** - Documentación detallada de deployment
