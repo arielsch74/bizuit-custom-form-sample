@@ -312,9 +312,16 @@ export default function FormsManagementPage() {
   }
 
   const handleDownload = (formName: string, version: string) => {
-    // Use Next.js API route (proxies to FastAPI backend)
-    const url = getApiUrl(`/api/custom-forms/${formName}/code?version=${version}`)
-    window.open(url, '_blank')
+    // Use Next.js API route (proxies to FastAPI backend) with download=true
+    const url = getApiUrl(`/api/custom-forms/${formName}/code?version=${version}&download=true`)
+
+    // Create a temporary anchor element to trigger download
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${formName}-${version}.js`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   const handleDeleteForm = async (form: CustomForm) => {

@@ -99,7 +99,7 @@ export default function AdminLoginPage() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="admin"
+              placeholder="Ingrese su usuario"
               required
               disabled={loading}
               className="w-full px-4 py-3 bg-slate-700 dark:bg-slate-700 border border-slate-600 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-white dark:text-white placeholder:text-slate-400 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -114,7 +114,7 @@ export default function AdminLoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="Ingrese su contraseña"
               required
               disabled={loading}
               className="w-full px-4 py-3 bg-slate-700 dark:bg-slate-700 border border-slate-600 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-white dark:text-white placeholder:text-slate-400 disabled:opacity-50 disabled:cursor-not-allowed"
