@@ -24,7 +24,7 @@ BizuitFormTemplate/
 
 ## 🚀 Inicio Rápido
 
-> 📖 **Para una guía completa de inicio**, ver [QUICK_START.md](./QUICK_START.md) - Incluye fat bundle workflow y desarrollo paso a paso.
+> 📖 **Para una guía completa de inicio con custom forms**, ver [QUICK_START.md](custom-forms/QUICK_START.md) - Incluye fat bundle workflow y desarrollo paso a paso.
 
 ### Opción 1: Iniciar Todos los Servicios (Recomendado)
 

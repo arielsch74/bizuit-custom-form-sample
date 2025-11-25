@@ -7,7 +7,7 @@
 ## 🚀 **Inicio Rápido**
 
 ### Para Developers
-- **[Quick Start Guide](../QUICK_START.md)** - Comienza en 5 minutos con fat bundle workflow
+- **[Quick Start Guide](../custom-forms/QUICK_START.md)** - Comienza en 5 minutos con fat bundle workflow
   - Setup inicial
   - Fat bundle vs full stack workflow
   - Tu primer formulario
@@ -68,7 +68,7 @@ scripts/
 
 | Documento | Descripción | Audiencia |
 |-----------|-------------|-----------|
-| **[Quick Start](../QUICK_START.md)** | Inicio rápido para developers (5 min setup) | Developer |
+| **[Quick Start](../custom-forms/QUICK_START.md)** | Inicio rápido para developers (5 min setup) | Developer |
 
 ### 📦 **Custom Forms (Submodule)**
 
@@ -85,7 +85,7 @@ Incluye:
 ## 🔍 **Buscar por Tema**
 
 ### Setup Inicial
-- [Quick Start](../QUICK_START.md) - Para developers
+- [Quick Start](../custom-forms/QUICK_START.md) - Para developers
 - [Checklist de Servidor](deployment/CHECKLIST_SERVIDOR.md) - Para admins
 
 ### Deployment
@@ -125,7 +125,7 @@ Los siguientes archivos fueron consolidados o eliminados en esta reorganización
 ## ✅ **Checklist de Documentación**
 
 ### Para New Developer
-- [ ] Leer [Quick Start](../QUICK_START.md)
+- [ ] Leer [Quick Start](../custom-forms/QUICK_START.md)
 - [ ] Setup environment (5 min)
 - [ ] Crear primer form con fat bundle
 - [ ] Explorar [custom-forms examples](../custom-forms/bizuit-custom-form-sample/)
