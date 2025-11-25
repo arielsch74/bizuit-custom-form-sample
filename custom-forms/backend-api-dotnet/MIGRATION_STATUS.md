@@ -339,7 +339,7 @@ FASTAPI_URL=http://localhost:8000  # Python (default)
 - Backend Python: `custom-forms/backend-api/main.py`
 - Backend .NET: `custom-forms/backend-api-dotnet/`
 - POC commit: `4e4c138`
-- Documentación deployment: `custom-forms/DEPLOYMENT.md`
+- Documentación deployment: `custom-forms/bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md`
 
 ---
 

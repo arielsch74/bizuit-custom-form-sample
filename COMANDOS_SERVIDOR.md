@@ -243,4 +243,4 @@ pm2 logs --timestamp
 
 ---
 
-**Guía completa:** Ver [SERVIDOR_PASOS_FINALES.md](./SERVIDOR_PASOS_FINALES.md)
+**Guía completa:** Ver [SERVIDOR_PASOS_FINALES.md](docs/deployment/SERVIDOR_PASOS_FINALES.md)

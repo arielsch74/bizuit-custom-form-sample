@@ -522,8 +522,8 @@ PRÓXIMOS PASOS MANUALES:
 
 - [IIS_CONFIGURATION_GUIDE.md](./IIS_CONFIGURATION_GUIDE.md) - Arquitectura IIS + PM2
 - [SERVIDOR_PASOS_FINALES.md](./SERVIDOR_PASOS_FINALES.md) - Configuración inicial
-- [PM2_WINDOWS_SETUP.md](./custom-forms/PM2_WINDOWS_SETUP.md) - Setup de PM2
-- [DEPLOYMENT.md](./custom-forms/DEPLOYMENT.md) - Deployment detallado
+- [PM2_WINDOWS_SETUP.md](./custom-forms/docs/infrastructure/PM2_WINDOWS_SETUP.md) - Setup de PM2
+- [DEPLOYMENT.md](./custom-forms/bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md) - Deployment detallado
 
 ---
 

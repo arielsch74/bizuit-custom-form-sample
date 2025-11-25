@@ -481,12 +481,12 @@ npm run build -- --verbose
    - Learn best practices
    - Copy patterns for your forms
 
-3. **Review Deployment Guide** → [DEPLOYMENT.md](custom-forms/DEPLOYMENT.md)
+3. **Review Deployment Guide** → [DEPLOYMENT.md](custom-forms/bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md)
    - Production deployment process
    - Multi-tenant configuration
    - CI/CD pipeline details
 
-4. **Check Submodule Setup** → [SETUP_SUBMODULE.md](custom-forms/SETUP_SUBMODULE.md)
+4. **Check Submodule Setup** → [SETUP_SUBMODULE.md](custom-forms/docs/setup/SETUP_SUBMODULE.md)
    - Understanding git submodules
    - GitHub Actions integration
    - Versioning strategy

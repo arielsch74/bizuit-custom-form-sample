@@ -266,8 +266,8 @@ pm2 restart all
 
 ### Para developers y DevOps:
 1. **[IIS_CONFIGURATION_GUIDE.md](./IIS_CONFIGURATION_GUIDE.md)** - Guía técnica completa de arquitectura
-2. **[custom-forms/DEPLOYMENT.md](./custom-forms/DEPLOYMENT.md)** - Documentación de deployment con PM2
-3. **[custom-forms/PM2_WINDOWS_SETUP.md](./custom-forms/PM2_WINDOWS_SETUP.md)** - Setup de PM2 en Windows
+2. **[custom-forms/bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md](./custom-forms/bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md)** - Documentación de deployment con PM2
+3. **[custom-forms/docs/infrastructure/PM2_WINDOWS_SETUP.md](./custom-forms/docs/infrastructure/PM2_WINDOWS_SETUP.md)** - Setup de PM2 en Windows
 
 ### Configuración de ejemplo:
 - **[.env.production.example](./custom-forms/runtime-app/.env.production.example)** - Template para .env.local del runtime

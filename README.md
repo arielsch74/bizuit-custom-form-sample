@@ -444,8 +444,8 @@ Next.js Runtime            FastAPI
 - **[RESUMEN_CONFIGURACION.md](./RESUMEN_CONFIGURACION.md)** - Estado completo del proyecto y problemas resueltos
 - **[IIS_CONFIGURATION_GUIDE.md](./IIS_CONFIGURATION_GUIDE.md)** - Guía técnica de arquitectura IIS + PM2
 - **[MULTI_CLIENT_DEPLOYMENT.md](./MULTI_CLIENT_DEPLOYMENT.md)** ⭐ - Deploy de múltiples clientes en el mismo servidor
-- **[custom-forms/DEPLOYMENT.md](./custom-forms/DEPLOYMENT.md)** - Documentación detallada de deployment
-- **[custom-forms/PM2_WINDOWS_SETUP.md](./custom-forms/PM2_WINDOWS_SETUP.md)** - Setup de PM2 en Windows
+- **[custom-forms/bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md](./custom-forms/bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md)** - Documentación detallada de deployment
+- **[custom-forms/docs/infrastructure/PM2_WINDOWS_SETUP.md](./custom-forms/docs/infrastructure/PM2_WINDOWS_SETUP.md)** - Setup de PM2 en Windows
 
 ### Inicio Rápido - Configuración del Servidor
 
