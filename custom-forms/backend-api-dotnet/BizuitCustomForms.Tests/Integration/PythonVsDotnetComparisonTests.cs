@@ -243,11 +243,11 @@ public class PythonVsDotnetComparisonTests : IDisposable
         var pythonJson = await pythonResponse.Content.ReadFromJsonAsync<JsonElement>();
         var dotnetJson = await dotnetResponse.Content.ReadFromJsonAsync<JsonElement>();
 
-        // Validar estructura de respuesta
-        Assert.True(pythonJson.TryGetProperty("success", out var pythonSuccess));
-        Assert.True(dotnetJson.TryGetProperty("success", out var dotnetSuccess));
+        // Validar estructura de respuesta (ambos usan 'valid', no 'success')
+        Assert.True(pythonJson.TryGetProperty("valid", out var pythonValid));
+        Assert.True(dotnetJson.TryGetProperty("valid", out var dotnetValid));
 
-        Assert.Equal(pythonSuccess.GetBoolean(), dotnetSuccess.GetBoolean());
+        Assert.Equal(pythonValid.GetBoolean(), dotnetValid.GetBoolean());
 
         _output.WriteLine($"Python response: {pythonJson}");
         _output.WriteLine($"DotNet response: {dotnetJson}");
@@ -282,9 +282,9 @@ public class PythonVsDotnetComparisonTests : IDisposable
         var pythonJson = await pythonResponse.Content.ReadFromJsonAsync<JsonElement>();
         var dotnetJson = await dotnetResponse.Content.ReadFromJsonAsync<JsonElement>();
 
-        // Validar estructura
-        Assert.True(pythonJson.TryGetProperty("success", out _));
-        Assert.True(dotnetJson.TryGetProperty("success", out _));
+        // Validar estructura (ambos usan 'valid', no 'success')
+        Assert.True(pythonJson.TryGetProperty("valid", out _));
+        Assert.True(dotnetJson.TryGetProperty("valid", out _));
     }
 
     #endregion

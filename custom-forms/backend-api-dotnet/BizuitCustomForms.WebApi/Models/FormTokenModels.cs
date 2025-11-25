@@ -57,8 +57,8 @@ public record ValidateDashboardTokenRequest(
 /// Merges SecurityTokens data with query string parameters
 /// </summary>
 public record ValidateDashboardTokenResponse(
-    bool Success,
-    DashboardTokenData? Data = null,
+    bool Valid,
+    DashboardTokenData? Parameters = null,
     string? Error = null
 );
 
