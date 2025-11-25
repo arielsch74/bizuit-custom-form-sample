@@ -55,7 +55,12 @@ npm run dev
    - `01-dynamic-form-simple.tsx` - Easiest way to start a process
    - `06-get-instance-data.tsx` - Query instance information
 
-4. **[Hot Reload Demo](./docs/guides/HOT_RELOAD_DEMO.md)** - Testing guide for form hot reload mechanism
+4. **[Authentication Flow](./docs/AUTHENTICATION_FLOW.md)** - Complete guide to authentication in Bizuit apps
+   - HTTP Basic Authentication with tokens
+   - Manual login and URL token flows
+   - 401 error handling
+
+5. **[Hot Reload Demo](./docs/guides/HOT_RELOAD_DEMO.md)** - Testing guide for form hot reload mechanism
 
 ---
 
@@ -125,6 +130,7 @@ example/
 │   └── config.ts                # Bizuit SDK configuration
 │
 ├── docs/                         # 📚 Showcase-specific documentation
+│   ├── AUTHENTICATION_FLOW.md   # Complete auth guide
 │   ├── guides/                  # Testing and demo guides
 │   │   └── HOT_RELOAD_DEMO.md
 │   └── examples/                # Full code examples
@@ -301,6 +307,7 @@ npm run start
 ### Official Documentation
 - **[Getting Started Guide](../packages/docs/GETTING_STARTED.md)** - Learn everything step-by-step about the SDK
 - **[Quick Reference](../packages/docs/QUICK_REFERENCE.md)** - Code snippets for common SDK tasks
+- **[Authentication Flow](./docs/AUTHENTICATION_FLOW.md)** - Complete guide to authentication
 - **[Code Examples](./docs/examples/)** - Full working examples in this showcase
 - **[Hot Reload Demo](./docs/guides/HOT_RELOAD_DEMO.md)** - Form hot reload testing guide
 
@@ -320,9 +327,10 @@ npm run start
 
 **Issues or questions?**
 1. Check the **[Getting Started Guide](../packages/docs/GETTING_STARTED.md)** for SDK usage
-2. Review **[Code Examples](./docs/examples/)** in this showcase
-3. Consult **[Quick Reference](../packages/docs/QUICK_REFERENCE.md)** for SDK snippets
-4. See **[Hot Reload Demo](./docs/guides/HOT_RELOAD_DEMO.md)** for testing forms
+2. Review **[Authentication Flow](./docs/AUTHENTICATION_FLOW.md)** for auth issues
+3. Review **[Code Examples](./docs/examples/)** in this showcase
+4. Consult **[Quick Reference](../packages/docs/QUICK_REFERENCE.md)** for SDK snippets
+5. See **[Hot Reload Demo](./docs/guides/HOT_RELOAD_DEMO.md)** for testing forms
 
 ---
 
@@ -335,10 +343,11 @@ MIT
 ## 🚀 Next Steps
 
 1. **Read** [Getting Started Guide](../packages/docs/GETTING_STARTED.md) for complete SDK walkthrough
-2. **Explore** the live pages at http://localhost:3000
-3. **Review** code examples in [docs/examples/](./docs/examples/)
-4. **Test** hot reload with [Hot Reload Demo](./docs/guides/HOT_RELOAD_DEMO.md)
-5. **Build** your first Bizuit process screen!
+2. **Understand** [Authentication Flow](./docs/AUTHENTICATION_FLOW.md) for auth setup
+3. **Explore** the live pages at http://localhost:3000
+4. **Review** code examples in [docs/examples/](./docs/examples/)
+5. **Test** hot reload with [Hot Reload Demo](./docs/guides/HOT_RELOAD_DEMO.md)
+6. **Build** your first Bizuit process screen!
 
 ---
 

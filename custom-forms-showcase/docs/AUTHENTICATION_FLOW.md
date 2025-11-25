@@ -75,7 +75,7 @@ async login(credentials: ILoginRequest): Promise<ILoginResponse>
 ---
 
 ### 4. **RequireAuth** (Route Guard)
-**Ubicación:** `example/components/require-auth.tsx`
+**Ubicación:** `custom-forms-showcase/components/require-auth.tsx`
 
 **Funcionalidad:**
 - Protege rutas que requieren autenticación
@@ -337,9 +337,9 @@ $ curl -v -H "Authorization: Basic ZMdufWTdCsSYUXj7..." https://test.bizuit.com/
 | `auth-provider.tsx` | `packages/bizuit-ui-components/src/providers/` | Context Provider de autenticación |
 | `auth-service.ts` | `packages/bizuit-form-sdk/src/lib/api/` | Servicio de login y validación |
 | `BizuitLogin.tsx` | `packages/bizuit-ui-components/src/components/` | Componente UI de login |
-| `require-auth.tsx` | `example/components/` | Route guard |
-| `login/page.tsx` | `example/app/login/` | Página de login |
-| `route.ts` | `example/app/api/bizuit/[...path]/` | Proxy Next.js → Bizuit API |
+| `require-auth.tsx` | `custom-forms-showcase/components/` | Route guard |
+| `login/page.tsx` | `custom-forms-showcase/app/login/` | Página de login |
+| `route.ts` | `custom-forms-showcase/app/api/bizuit/[...path]/` | Proxy Next.js → Bizuit API |
 
 ---
 
@@ -351,7 +351,7 @@ Se ha implementado un sistema de detección automática de tokens expirados que 
 
 #### **Hook: `useBizuitSDKWithAuth()`**
 
-**Ubicación:** `example/hooks/use-bizuit-sdk-with-auth.ts`
+**Ubicación:** `custom-forms-showcase/hooks/use-bizuit-sdk-with-auth.ts`
 
 **Uso:**
 ```typescript
@@ -373,7 +373,7 @@ await sdk.process.getProcessParameters(...) // Auto-logout + redirect en 401
 
 #### **Hook: `useAuthErrorHandler()`**
 
-**Ubicación:** `example/hooks/use-auth-error-handler.ts`
+**Ubicación:** `custom-forms-showcase/hooks/use-auth-error-handler.ts`
 
 **Uso manual (alternativa):**
 ```typescript
@@ -397,8 +397,8 @@ try {
 
 | Archivo | Ubicación | Función |
 |---------|-----------|---------|
-| `use-auth-error-handler.ts` | `example/hooks/` | Hook para manejar errores 401 manualmente |
-| `use-bizuit-sdk-with-auth.ts` | `example/hooks/` | Wrapper del SDK con manejo automático de 401 |
+| `use-auth-error-handler.ts` | `custom-forms-showcase/hooks/` | Hook para manejar errores 401 manualmente |
+| `use-bizuit-sdk-with-auth.ts` | `custom-forms-showcase/hooks/` | Wrapper del SDK con manejo automático de 401 |
 
 ### Archivos Core
 
@@ -407,9 +407,9 @@ try {
 | `auth-provider.tsx` | `packages/bizuit-ui-components/src/providers/` | Context Provider de autenticación |
 | `auth-service.ts` | `packages/bizuit-form-sdk/src/lib/api/` | Servicio de login y validación |
 | `BizuitLogin.tsx` | `packages/bizuit-ui-components/src/components/` | Componente UI de login |
-| `require-auth.tsx` | `example/components/` | Route guard |
-| `login/page.tsx` | `example/app/login/` | Página de login |
-| `route.ts` | `example/app/api/bizuit/[...path]/` | Proxy Next.js → Bizuit API |
+| `require-auth.tsx` | `custom-forms-showcase/components/` | Route guard |
+| `login/page.tsx` | `custom-forms-showcase/app/login/` | Página de login |
+| `route.ts` | `custom-forms-showcase/app/api/bizuit/[...path]/` | Proxy Next.js → Bizuit API |
 
 ---
 
@@ -423,6 +423,6 @@ try {
 ---
 
 **Documentado:** 2025-11-09
-**Última Actualización:** 2025-11-09 22:30
+**Última Actualización:** 2025-11-25
 **Autor:** Claude (Investigación e implementación)
 **Estado:** Completo con manejo automático de expiración

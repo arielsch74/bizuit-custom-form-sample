@@ -30,15 +30,13 @@
 | **[Runtime Configuration Guide](setup/RUNTIME_CONFIG.md)** | Configuración build-time vs runtime en Next.js | `docs/setup/` |
 | **[Development Guide (Forms)](../bizuit-custom-form-sample/DEVELOPMENT.md)** | Desarrollo local de custom forms, testing, debugging | `bizuit-custom-form-sample/` |
 
-### 🏗️ Arquitectura
+### 📋 Planes y Propuestas
 
 | Documento | Descripción | Ubicación |
 |-----------|-------------|-----------|
-| **[Authentication Flow](architecture/AUTHENTICATION_FLOW.md)** | Flujo de autenticación HTTP Basic con tokens | `docs/architecture/` |
-| **[Backend Implementation](architecture/BACKEND_IMPLEMENTATION.md)** | Arquitectura completa del backend (.NET + SQL Server) | `docs/architecture/` |
-| **[Dynamic Forms Implementation Plan](architecture/DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md)** | Plan completo de arquitectura del sistema | `docs/architecture/` |
-| **[Custom Forms Implementation Status](architecture/CUSTOM_FORMS_IMPLEMENTATION_STATUS.md)** | Análisis de carga dinámica de forms y alternativas (CDN, Module Federation) | `docs/architecture/` |
-| **[Multi-Environment Implementation](architecture/MULTI_ENVIRONMENT_IMPLEMENTATION_PLAN.md)** | Plan multi-ambiente (dev/test/prod) | `docs/architecture/` |
+| **[Dynamic Forms Implementation Plan](planning/DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md)** | Plan propuesto de arquitectura del sistema | `docs/planning/` |
+| **[Dynamic Forms Implementation Part 2](planning/DYNAMIC_FORMS_IMPLEMENTATION_PLAN_PART2.md)** | Fases de implementación detalladas | `docs/planning/` |
+| **[Multi-Environment Implementation](planning/MULTI_ENVIRONMENT_IMPLEMENTATION_PLAN.md)** | Plan multi-ambiente (dev/test/prod) | `docs/planning/` |
 | **[IIS Deployment](deployment/IIS_DEPLOYMENT.md)** | Deployment con IIS + reverse proxy | `docs/deployment/` |
 | **[Offline Deployment](deployment/OFFLINE_DEPLOYMENT.md)** | Deployment offline en entornos sin internet | `docs/deployment/` |
 
@@ -90,15 +88,6 @@ custom-forms/
 ├── docs/                              # Documentación técnica
 │   ├── README.md                      # ← Este archivo
 │   │
-│   ├── architecture/                  # Arquitectura y diseño
-│   │   ├── AUTHENTICATION_FLOW.md
-│   │   ├── BACKEND_IMPLEMENTATION.md
-│   │   ├── CUSTOM_FORMS_IMPLEMENTATION_STATUS.md
-│   │   ├── DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md
-│   │   ├── DYNAMIC_FORMS_IMPLEMENTATION_PLAN_PART2.md
-│   │   ├── IMPLEMENTATION_SUMMARY.md
-│   │   └── MULTI_ENVIRONMENT_IMPLEMENTATION_PLAN.md
-│   │
 │   ├── deployment/                    # Deployment y configuración
 │   │   ├── CHECKLIST_SERVIDOR.md
 │   │   ├── COMANDOS_SERVIDOR.md
@@ -128,6 +117,11 @@ custom-forms/
 │   │   ├── OVERVIEW.md                # Arquitectura de runtime-app
 │   │   ├── EXTERNALS_CONFIG.md        # React externals config
 │   │   └── SECURITY.md                # Security guidelines
+│   │
+│   ├── planning/                      # Planes y propuestas futuras
+│   │   ├── DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md
+│   │   ├── DYNAMIC_FORMS_IMPLEMENTATION_PLAN_PART2.md
+│   │   └── MULTI_ENVIRONMENT_IMPLEMENTATION_PLAN.md
 │   │
 │   ├── README.md                      # Índice de documentación
 │   └── DEVELOPER_GUIDE.md             # Guía completa para developers
@@ -174,11 +168,10 @@ custom-forms/
 - [Offline Deployment](deployment/OFFLINE_DEPLOYMENT.md) - Entornos sin internet
 - [Deployment Guide](../bizuit-custom-form-sample/DEPLOYMENT_GUIDE.md) - Deploy de forms
 
-### Arquitectura
-- [Authentication Flow](architecture/AUTHENTICATION_FLOW.md) - Flujo de auth
-- [Backend Implementation](architecture/BACKEND_IMPLEMENTATION.md) - Arquitectura backend
-- [Dynamic Forms Implementation](architecture/DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md) - Plan de arquitectura
-- [Custom Forms Implementation Status](architecture/CUSTOM_FORMS_IMPLEMENTATION_STATUS.md) - Análisis de carga dinámica de forms
+### Planes y Propuestas
+- [Dynamic Forms Implementation](planning/DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md) - Plan propuesto de arquitectura
+- [Dynamic Forms Part 2](planning/DYNAMIC_FORMS_IMPLEMENTATION_PLAN_PART2.md) - Fases de implementación
+- [Multi-Environment Plan](planning/MULTI_ENVIRONMENT_IMPLEMENTATION_PLAN.md) - Plan multi-ambiente
 
 ### Security
 - [Tenant Isolation](security/TENANT_ISOLATION_GUIDE.md) - Aislamiento multi-tenant
@@ -191,7 +184,6 @@ custom-forms/
 - [Forms Sample README](../bizuit-custom-form-sample/README.md) - Estructura y workflow
 
 ### Backend
-- [Backend Implementation](architecture/BACKEND_IMPLEMENTATION.md) - Arquitectura backend
 - [Migration Status](../backend-api-dotnet/MIGRATION_STATUS.md) - Status Python → .NET
 - [Backend Tests](../backend-api/tests/README.md) - Testing
 
@@ -210,7 +202,7 @@ custom-forms/
 
 - **custom-forms/**: README.md + QUICK_START.md (overview y getting started)
 - **docs/**: Documentación técnica organizada por categorías
-- **docs/architecture/**: Planes de arquitectura y diseño
+- **docs/planning/**: Planes y propuestas para futuro desarrollo
 - **docs/deployment/**: Deployment y configuración de servidores
 - **docs/infrastructure/**: Infraestructura (PM2, IIS, basePath)
 - **docs/security/**: Seguridad y aislamiento multi-tenant
