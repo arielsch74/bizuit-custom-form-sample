@@ -1,3 +1,9 @@
 [submodule "custom-forms/bizuit-custom-form-sample"]
 	path = custom-forms/bizuit-custom-form-sample
 	url = https://github.com/TYCON-SA/bizuit-custom-form-sample.git
+[submodule "packages/bizuit-form-sdk"]
+	path = packages/bizuit-form-sdk
+	url = https://github.com/TYCON-SA/bizuit-form-sdk.git
+[submodule "packages/bizuit-ui-components"]
+	path = packages/bizuit-ui-components
+	url = https://github.com/TYCON-SA/bizuit-ui-components.git
