@@ -185,4 +185,112 @@ public class CustomFormsController : ControllerBase
             ));
         }
     }
+
+    /// <summary>
+    /// Delete a form and all its versions
+    /// </summary>
+    /// <remarks>
+    /// **⚠️ Requires admin authentication** - This endpoint would require Bearer token in production.
+    ///
+    /// Deletes the form entry from CustomForms table and all associated versions
+    /// from CustomFormVersions table in a single transaction.
+    /// </remarks>
+    /// <param name="formName">Name of the form to delete</param>
+    /// <response code="200">Form deleted successfully</response>
+    /// <response code="404">Form not found</response>
+    [HttpDelete("{formName}")]
+    public async Task<IActionResult> DeleteForm(string formName)
+    {
+        try
+        {
+            _logger.LogInformation("[Delete Form API] Deleting form '{FormName}'", formName);
+
+            var (success, message, versionsDeleted) = await _databaseService.DeleteFormAsync(formName);
+
+            if (success)
+            {
+                _logger.LogInformation("[Delete Form API] Deleted form '{FormName}' - {Count} version(s)",
+                    formName, versionsDeleted);
+
+                return Ok(new
+                {
+                    success = true,
+                    message = message,
+                    versionsDeleted = versionsDeleted
+                });
+            }
+
+            return BadRequest(new { success = false, message = message });
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning("[Delete Form API] Invalid input or not found: {Message}", ex.Message);
+            return NotFound(new { success = false, message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[Delete Form API] Error deleting form");
+            return StatusCode(500, new
+            {
+                success = false,
+                message = $"Failed to delete form: {ex.Message}"
+            });
+        }
+    }
+
+    /// <summary>
+    /// Delete a specific version of a form
+    /// </summary>
+    /// <remarks>
+    /// **⚠️ Requires admin authentication** - This endpoint would require Bearer token in production.
+    ///
+    /// Cannot delete the current/active version. Set a different version as current first.
+    /// </remarks>
+    /// <param name="formName">Name of the form</param>
+    /// <param name="version">Version number to delete</param>
+    /// <response code="200">Version deleted successfully</response>
+    /// <response code="400">Cannot delete current version or invalid input</response>
+    /// <response code="404">Form or version not found</response>
+    [HttpDelete("{formName}/versions/{version}")]
+    public async Task<IActionResult> DeleteFormVersion(string formName, string version)
+    {
+        try
+        {
+            _logger.LogInformation("[Delete Version API] Deleting version '{Version}' of form '{FormName}'",
+                version, formName);
+
+            var (success, message) = await _databaseService.DeleteFormVersionAsync(formName, version);
+
+            if (success)
+            {
+                _logger.LogInformation("[Delete Version API] Successfully deleted version '{Version}' of form '{FormName}'",
+                    version, formName);
+
+                return Ok(new { success = true, message = message });
+            }
+
+            return BadRequest(new { success = false, message = message });
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning("[Delete Version API] Invalid input: {Message}", ex.Message);
+
+            // Check if it's a "not found" error or "cannot delete current version" error
+            if (ex.Message.Contains("not found"))
+            {
+                return NotFound(new { success = false, message = ex.Message });
+            }
+
+            return BadRequest(new { success = false, message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[Delete Version API] Error deleting version");
+            return StatusCode(500, new
+            {
+                success = false,
+                message = $"Failed to delete version: {ex.Message}"
+            });
+        }
+    }
 }

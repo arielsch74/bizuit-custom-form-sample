@@ -561,6 +561,155 @@ public class DatabaseService : IDatabaseService
             throw;
         }
     }
+
+    /// <summary>
+    /// Delete a form and all its versions
+    /// </summary>
+    public async Task<(bool Success, string Message, int VersionsDeleted)> DeleteFormAsync(string formName)
+    {
+        try
+        {
+            if (!IsValidFormName(formName))
+            {
+                throw new ArgumentException($"Invalid form name format: {SanitizeForLogging(formName)}");
+            }
+
+            using var connection = new SqlConnection(_dashboardConnectionString);
+            await connection.OpenAsync();
+
+            using var transaction = connection.BeginTransaction();
+
+            try
+            {
+                // 1. Get FormId and verify form exists
+                var formId = await connection.QuerySingleOrDefaultAsync<int?>(
+                    "SELECT FormId FROM CustomForms WHERE FormName = @FormName",
+                    new { FormName = formName },
+                    transaction);
+
+                if (formId == null)
+                {
+                    throw new ArgumentException($"Form '{formName}' not found");
+                }
+
+                // 2. Count versions that will be deleted
+                var versionsCount = await connection.QuerySingleAsync<int>(
+                    "SELECT COUNT(*) FROM CustomFormVersions WHERE FormId = @FormId",
+                    new { FormId = formId },
+                    transaction);
+
+                // 3. Delete all versions
+                await connection.ExecuteAsync(
+                    "DELETE FROM CustomFormVersions WHERE FormId = @FormId",
+                    new { FormId = formId },
+                    transaction);
+
+                // 4. Delete form
+                await connection.ExecuteAsync(
+                    "DELETE FROM CustomForms WHERE FormId = @FormId",
+                    new { FormId = formId },
+                    transaction);
+
+                transaction.Commit();
+
+                _logger.LogInformation("[Database] Deleted form '{FormName}' and {Count} version(s)",
+                    formName, versionsCount);
+
+                return (true, $"Form '{formName}' deleted successfully", versionsCount);
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[Database] Error deleting form '{FormName}'", formName);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Delete a specific version of a form
+    /// Cannot delete the current/active version
+    /// </summary>
+    public async Task<(bool Success, string Message)> DeleteFormVersionAsync(string formName, string version)
+    {
+        try
+        {
+            if (!IsValidFormName(formName))
+            {
+                throw new ArgumentException($"Invalid form name format: {SanitizeForLogging(formName)}");
+            }
+
+            if (!IsValidVersion(version))
+            {
+                throw new ArgumentException($"Invalid version format: {SanitizeForLogging(version)}");
+            }
+
+            using var connection = new SqlConnection(_dashboardConnectionString);
+            await connection.OpenAsync();
+
+            using var transaction = connection.BeginTransaction();
+
+            try
+            {
+                // 1. Get FormId
+                var formId = await connection.QuerySingleOrDefaultAsync<int?>(
+                    "SELECT FormId FROM CustomForms WHERE FormName = @FormName",
+                    new { FormName = formName },
+                    transaction);
+
+                if (formId == null)
+                {
+                    throw new ArgumentException($"Form '{formName}' not found");
+                }
+
+                // 2. Check if version exists and is current
+                var versionInfo = await connection.QuerySingleOrDefaultAsync<dynamic>(
+                    "SELECT IsCurrent FROM CustomFormVersions WHERE FormId = @FormId AND Version = @Version",
+                    new { FormId = formId, Version = version },
+                    transaction);
+
+                if (versionInfo == null)
+                {
+                    throw new ArgumentException($"Version '{version}' not found for form '{formName}'");
+                }
+
+                if (versionInfo.IsCurrent)
+                {
+                    throw new ArgumentException(
+                        $"Cannot delete version '{version}' because it is the current active version. " +
+                        "Set a different version as current before deleting this one.");
+                }
+
+                // 3. Delete version
+                await connection.ExecuteAsync(
+                    "DELETE FROM CustomFormVersions WHERE FormId = @FormId AND Version = @Version",
+                    new { FormId = formId, Version = version },
+                    transaction);
+
+                transaction.Commit();
+
+                _logger.LogInformation("[Database] Deleted version '{Version}' of form '{FormName}'",
+                    version, formName);
+
+                return (true, $"Version '{version}' of form '{formName}' deleted successfully");
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[Database] Error deleting version '{Version}' of form '{FormName}'",
+                version, formName);
+            throw;
+        }
+    }
 }
 
 public interface IDatabaseService
@@ -579,6 +728,8 @@ public interface IDatabaseService
     Task<FormCodeResponse?> GetFormCompiledCodeAsync(string formName, string? version = null);
     Task<List<FormVersion>> GetFormVersionsAsync(string formName);
     Task<bool> SetCurrentFormVersionAsync(string formName, string version);
+    Task<(bool Success, string Message, int VersionsDeleted)> DeleteFormAsync(string formName);
+    Task<(bool Success, string Message)> DeleteFormVersionAsync(string formName, string version);
 }
 
 public record UserInfo(

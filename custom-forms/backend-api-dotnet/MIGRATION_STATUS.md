@@ -61,14 +61,14 @@ El POC del backend .NET Core está **100% funcional** y validado:
 | 9 | `/api/custom-forms` | GET | Custom Forms | ✅ | ✅ | **Completado** | *pending* |
 | 10 | `/api/custom-forms/{form_name}/code` | GET | Custom Forms | ✅ | ✅ | **Completado** | *pending* |
 | 11 | `/api/custom-forms/{form_name}/versions` | GET | Custom Forms | ✅ | ✅ | **Completado** | *pending* |
-| 12 | `/api/custom-forms/{form_name}/set-version` | POST | Custom Forms | ✅ | ✅ | **Completado** | *pending* |
-| 13 | `/api/custom-forms/{form_name}` | DELETE | Custom Forms | ✅ | ❌ | Baja | - |
-| 14 | `/api/custom-forms/{form_name}/versions/{version}` | DELETE | Custom Forms | ✅ | ❌ | Baja | - |
+| 12 | `/api/custom-forms/{form_name}/set-version` | POST | Custom Forms | ✅ | ✅ | **Completado** | 8b42d7a |
+| 13 | `/api/custom-forms/{form_name}` | DELETE | Custom Forms | ✅ | ✅ | **Completado** | *pending* |
+| 14 | `/api/custom-forms/{form_name}/versions/{version}` | DELETE | Custom Forms | ✅ | ✅ | **Completado** | *pending* |
 | 15 | `/api/deployment/upload` | POST | Deployment | ✅ | ❌ | Media | - |
 
 **Total:** 15 endpoints
-- **Completados:** 12 (80%) ✅✅
-- **Pendientes:** 3 (20%)
+- **Completados:** 14 (93%) ✅✅✅
+- **Pendientes:** 1 (7%)
 
 ---
 
