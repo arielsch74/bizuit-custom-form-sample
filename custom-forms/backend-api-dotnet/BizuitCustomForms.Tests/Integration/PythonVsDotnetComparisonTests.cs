@@ -126,14 +126,14 @@ public class PythonVsDotnetComparisonTests : IDisposable
             var pythonJson = await pythonResponse.Content.ReadFromJsonAsync<JsonElement>();
             var dotnetJson = await dotnetResponse.Content.ReadFromJsonAsync<JsonElement>();
 
-            // Validar estructura del token
-            Assert.True(pythonJson.TryGetProperty("access_token", out var pythonToken));
-            Assert.True(dotnetJson.TryGetProperty("access_token", out var dotnetToken));
+            // Validar estructura del token (ambos usan 'token', no 'access_token')
+            Assert.True(pythonJson.TryGetProperty("success", out var pythonSuccess));
+            Assert.True(dotnetJson.TryGetProperty("success", out var dotnetSuccess));
+            Assert.True(pythonSuccess.GetBoolean());
+            Assert.True(dotnetSuccess.GetBoolean());
 
-            Assert.True(pythonJson.TryGetProperty("token_type", out var pythonType));
-            Assert.True(dotnetJson.TryGetProperty("token_type", out var dotnetType));
-
-            Assert.Equal(pythonType.GetString(), dotnetType.GetString());
+            Assert.True(pythonJson.TryGetProperty("token", out var pythonToken));
+            Assert.True(dotnetJson.TryGetProperty("token", out var dotnetToken));
 
             // Los tokens deben ser JWT válidos
             var pythonTokenStr = pythonToken.GetString();
@@ -176,7 +176,7 @@ public class PythonVsDotnetComparisonTests : IDisposable
         }
 
         var loginJson = await loginResponse.Content.ReadFromJsonAsync<JsonElement>();
-        var token = loginJson.GetProperty("access_token").GetString();
+        var token = loginJson.GetProperty("token").GetString();
 
         var validateRequest = new { token };
 
@@ -435,7 +435,7 @@ public class PythonVsDotnetComparisonTests : IDisposable
         }
 
         var loginJson = await loginResponse.Content.ReadFromJsonAsync<JsonElement>();
-        var token = loginJson.GetProperty("access_token").GetString();
+        var token = loginJson.GetProperty("token").GetString();
 
         var refreshRequest = new { token };
 
@@ -462,14 +462,14 @@ public class PythonVsDotnetComparisonTests : IDisposable
             var pythonJson = await pythonResponse.Content.ReadFromJsonAsync<JsonElement>();
             var dotnetJson = await dotnetResponse.Content.ReadFromJsonAsync<JsonElement>();
 
-            // Should return new token with same structure as login
-            Assert.True(pythonJson.TryGetProperty("access_token", out var pythonToken));
-            Assert.True(dotnetJson.TryGetProperty("access_token", out var dotnetToken));
+            // Should return new token with same structure as login (ambos usan 'token', no 'access_token')
+            Assert.True(pythonJson.TryGetProperty("success", out var pythonSuccess));
+            Assert.True(dotnetJson.TryGetProperty("success", out var dotnetSuccess));
+            Assert.True(pythonSuccess.GetBoolean());
+            Assert.True(dotnetSuccess.GetBoolean());
 
-            Assert.True(pythonJson.TryGetProperty("token_type", out var pythonType));
-            Assert.True(dotnetJson.TryGetProperty("token_type", out var dotnetType));
-
-            Assert.Equal(pythonType.GetString(), dotnetType.GetString());
+            Assert.True(pythonJson.TryGetProperty("token", out var pythonToken));
+            Assert.True(dotnetJson.TryGetProperty("token", out var dotnetToken));
 
             _output.WriteLine($"Python refreshed token: {pythonToken.GetString()}");
             _output.WriteLine($"DotNet refreshed token: {dotnetToken.GetString()}");
