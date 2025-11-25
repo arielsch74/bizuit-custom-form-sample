@@ -121,11 +121,6 @@ custom-forms/
 │   │   └── RESUMEN_CONFIGURACION.md
 │   │
 │   ├── setup/                         # Setup y configuración inicial
-│   │   ├── AZURE_WEBAPP_DEPLOYMENT.md
-│   │   ├── DEPLOYMENT.md
-│   │   ├── GITHUB_WORKFLOW_SETUP_INSTRUCTIONS.md
-│   │   ├── IIS_SETUP.md
-│   │   ├── IISNODE_SETUP.md
 │   │   ├── RUNTIME_CONFIG.md
 │   │   └── SETUP_SUBMODULE.md
 │   │
