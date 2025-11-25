@@ -63,6 +63,17 @@ public class DeploymentController : ControllerBase
     [HttpPost("upload")]
     public async Task<ActionResult<UploadDeploymentResponse>> UploadDeploymentPackage(IFormFile file)
     {
+        // Validate admin authentication (matches Python behavior)
+        var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+        if (string.IsNullOrEmpty(authHeader))
+        {
+            return Unauthorized(new
+            {
+                error = "Unauthorized",
+                message = "Missing Authorization header"
+            });
+        }
+
         // Validations
         if (file == null || file.Length == 0)
         {
