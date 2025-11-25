@@ -64,7 +64,6 @@
 
 | Documento | Descripción | Ubicación |
 |-----------|-------------|-----------|
-| **[Security Audit 2025-11-19](security/SECURITY_AUDIT_2025-11-19.md)** | Auditoría de seguridad y recomendaciones | `docs/security/` |
 | **[Tenant Isolation Guide](security/TENANT_ISOLATION_GUIDE.md)** | Guía de aislamiento multi-tenant | `docs/security/` |
 
 ### 📊 Operations
@@ -74,7 +73,6 @@
 | **[Resumen de Configuración](operations/RESUMEN_CONFIGURACION.md)** | Estado completo del sistema | `docs/operations/` |
 | **[Deployment Troubleshooting](operations/DEPLOYMENT_TROUBLESHOOTING.md)** | Troubleshooting común de deployment | `docs/operations/` |
 | **[Deployment Fix](operations/DEPLOYMENT_FIX.md)** | Fixes aplicados a deployments | `docs/operations/` |
-| **[Progress Tracking](operations/PROGRESS.md)** | Estado de tareas y progreso del proyecto | `docs/operations/` |
 | **[Comandos del Servidor](deployment/COMANDOS_SERVIDOR.md)** | Quick reference de PowerShell commands | `docs/deployment/` |
 
 ---
@@ -111,19 +109,16 @@ custom-forms/
 │   │   └── RUNTIME_BASEPATH_SETUP.md
 │   │
 │   ├── security/                      # Seguridad y aislamiento
-│   │   ├── SECURITY_AUDIT_2025-11-19.md
 │   │   └── TENANT_ISOLATION_GUIDE.md
 │   │
 │   ├── operations/                    # Operaciones y troubleshooting
 │   │   ├── DEPLOYMENT_FIX.md
 │   │   ├── DEPLOYMENT_TROUBLESHOOTING.md
-│   │   ├── PROGRESS.md
 │   │   └── RESUMEN_CONFIGURACION.md
 │   │
 │   ├── setup/                         # Setup y configuración inicial
 │   │   ├── AZURE_WEBAPP_DEPLOYMENT.md
 │   │   ├── DEPLOYMENT.md
-│   │   ├── GITHUB_SAMPLE_REPOSITORY_SETUP.md
 │   │   ├── GITHUB_WORKFLOW_SETUP_INSTRUCTIONS.md
 │   │   ├── IIS_SETUP.md
 │   │   ├── IISNODE_SETUP.md
@@ -182,7 +177,6 @@ custom-forms/
 - [Dynamic Forms Implementation](architecture/DYNAMIC_FORMS_IMPLEMENTATION_PLAN.md) - Plan de arquitectura
 
 ### Security
-- [Security Audit](security/SECURITY_AUDIT_2025-11-19.md) - Auditoría 2025
 - [Tenant Isolation](security/TENANT_ISOLATION_GUIDE.md) - Aislamiento multi-tenant
 
 ### Desarrollo de Forms
@@ -200,7 +194,6 @@ custom-forms/
 - [Resumen de Configuración](operations/RESUMEN_CONFIGURACION.md) - Estado completo
 - [Deployment Troubleshooting](operations/DEPLOYMENT_TROUBLESHOOTING.md) - Troubleshooting
 - [Deployment Fix](operations/DEPLOYMENT_FIX.md) - Fixes aplicados
-- [Progress Tracking](operations/PROGRESS.md) - Estado del proyecto
 
 ### CI/CD
 - [Azure DevOps Setup](../bizuit-custom-form-sample/AZURE_DEVOPS_SETUP.md) - Pipelines
