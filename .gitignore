@@ -92,3 +92,7 @@ logs/
 custom-forms/backend-api/create_orphan_test.py
 custom-forms/backend-api/*.db
 
+# End-to-end test scripts (local testing only)
+test-*.js
+test-*.html
+
