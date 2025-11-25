@@ -31,7 +31,7 @@ export const translations = {
     // Documentation page
     'docs.title': 'Developer Documentation',
     'docs.subtitle': 'Complete guide for building and deploying custom forms for BIZUIT BPM',
-    'docs.targetAudience': 'Target: Junior Developers',
+    'docs.targetAudience': 'Target: Developers',
     'docs.readingTime': 'Reading Time: 30-45 min',
     'docs.updated': 'Updated: Nov 2025',
     'docs.backToHome': '← Home',
@@ -321,7 +321,7 @@ export const translations = {
     // Documentation page
     'docs.title': 'Documentación para Desarrolladores',
     'docs.subtitle': 'Guía completa para construir y deployar formularios customizados para BIZUIT BPM',
-    'docs.targetAudience': 'Audiencia: Desarrolladores Junior',
+    'docs.targetAudience': 'Audiencia: Desarrolladores',
     'docs.readingTime': 'Tiempo de Lectura: 30-45 min',
     'docs.updated': 'Actualizado: Nov 2025',
     'docs.backToHome': '← Inicio',
