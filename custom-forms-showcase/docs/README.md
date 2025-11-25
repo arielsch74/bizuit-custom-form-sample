@@ -73,7 +73,7 @@ custom-forms-showcase/
 ### Getting Started
 - [Main README](../README.md) - Project overview and quick start
 - **[Packages Documentation](../../packages/docs/)** - SDK and UI Components guides (GETTING_STARTED, QUICK_REFERENCE)
-- **[Runtime App Overview](../../custom-forms/runtime-app/OVERVIEW.md)** - Runtime App architecture (custom-forms project)
+- **[Runtime App Overview](../../custom-forms/docs/runtime-app/OVERVIEW.md)** - Runtime App architecture (custom-forms project)
 
 ### Development
 - [Runtime Configuration](setup/RUNTIME_CONFIG.md) - Configure the app for dev/prod
