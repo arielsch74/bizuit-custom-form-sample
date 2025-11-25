@@ -66,25 +66,29 @@ public record SetVersionResponse(
 /// <summary>
 /// Deployment manifest from ZIP package
 /// </summary>
-public record DeploymentManifest(
-    string Version,
-    string GitCommit,
-    string GitBranch,
-    string BuildDate,
-    Dictionary<string, FormDeploymentInfo> Forms
-);
+public class DeploymentManifest
+{
+    public required string PackageVersion { get; set; }
+    public required string CommitHash { get; set; }
+    public required string CommitBranch { get; set; }
+    public required string BuildDate { get; set; }
+    public required List<FormDeploymentInfo> Forms { get; set; }
+}
 
 /// <summary>
 /// Individual form deployment info from manifest
 /// </summary>
-public record FormDeploymentInfo(
-    string FormName,
-    string ProcessName,
-    string Version,
-    string? Description = null,
-    string? Author = null,
-    int SizeBytes = 0
-);
+public class FormDeploymentInfo
+{
+    public required string FormName { get; set; }
+    public required string ProcessName { get; set; }
+    public required string Version { get; set; }
+    public required string Path { get; set; }
+    public string? Description { get; set; }
+    public string? Author { get; set; }
+    public int SizeBytes { get; set; }
+    public string? ReleaseNotes { get; set; }
+}
 
 /// <summary>
 /// Result of deploying a single form
@@ -93,14 +97,15 @@ public record FormDeploymentResult(
     string FormName,
     bool Success,
     string Action,  // "inserted", "updated", "skipped", "error"
-    string? Error = null,
-    int? FormId = null
+    string? Error = null
 );
 
 /// <summary>
 /// Response from deployment upload
 /// </summary>
 public record UploadDeploymentResponse(
+    bool Success,
+    string Message,
     int FormsProcessed,
     int FormsInserted,
     int FormsUpdated,

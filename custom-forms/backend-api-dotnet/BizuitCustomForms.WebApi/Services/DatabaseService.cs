@@ -710,6 +710,124 @@ public class DatabaseService : IDatabaseService
             throw;
         }
     }
+
+    /// <summary>
+    /// Upsert a custom form (insert or update) using stored procedure
+    /// </summary>
+    public async Task<(bool Success, string Action)> UpsertFormAsync(
+        string formName, string processName, string version, string description,
+        string author, string compiledCode, int sizeBytes, string packageVersion,
+        string commitHash, DateTime buildDate, string releaseNotes)
+    {
+        // SECURITY: Validate all inputs to prevent SQL injection
+        if (!IsValidFormName(formName))
+            throw new ArgumentException($"Invalid form_name format: {formName}");
+
+        if (!IsValidProcessName(processName))
+            throw new ArgumentException($"Invalid process_name format: {processName}");
+
+        if (!IsValidVersion(version))
+            throw new ArgumentException($"Invalid version format: {version}");
+
+        if (!IsValidUsername(author)) // author uses same validation as username
+            throw new ArgumentException($"Invalid author format: {author}");
+
+        if (!IsValidVersion(packageVersion))
+            throw new ArgumentException($"Invalid package_version format: {packageVersion}");
+
+        if (!IsValidCommitHash(commitHash))
+            throw new ArgumentException($"Invalid commit_hash format: {commitHash}");
+
+        // Description and compiled_code are large text fields - validate length only
+        if (string.IsNullOrEmpty(description) || description.Length > 1000)
+            throw new ArgumentException("Description must be 1-1000 characters");
+
+        if (string.IsNullOrEmpty(compiledCode) || compiledCode.Length > 10_000_000) // 10MB limit
+            throw new ArgumentException("Compiled code must be non-empty and less than 10MB");
+
+        if (sizeBytes < 0)
+            throw new ArgumentException("size_bytes must be a positive integer");
+
+        try
+        {
+            using var connection = new SqlConnection(_dashboardConnectionString);
+            await connection.OpenAsync();
+
+            _logger.LogInformation("[Database] Executing sp_UpsertCustomForm for '{FormName}'", formName);
+
+            // Execute stored procedure
+            var parameters = new DynamicParameters();
+            parameters.Add("@FormName", formName);
+            parameters.Add("@ProcessName", processName);
+            parameters.Add("@Version", version);
+            parameters.Add("@Description", description);
+            parameters.Add("@Author", author);
+            parameters.Add("@CompiledCode", compiledCode);
+            parameters.Add("@SizeBytes", sizeBytes);
+            parameters.Add("@PackageVersion", packageVersion);
+            parameters.Add("@CommitHash", commitHash);
+            parameters.Add("@BuildDate", buildDate);
+            parameters.Add("@ReleaseNotes", releaseNotes ?? "");
+            parameters.Add("@Action", dbType: DbType.String, direction: ParameterDirection.Output, size: 50);
+
+            await connection.ExecuteAsync(
+                "sp_UpsertCustomForm",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            var action = parameters.Get<string>("@Action");
+
+            _logger.LogInformation("[Database] Form '{FormName}' {Action}", formName, action);
+
+            return (true, action);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[Database] Error upserting form '{FormName}'", formName);
+            throw;
+        }
+    }
+
+    // ======================================================================
+    // Validation Helpers
+    // ======================================================================
+
+    private bool IsValidProcessName(string processName)
+    {
+        if (string.IsNullOrWhiteSpace(processName) || processName.Length > 255)
+            return false;
+
+        // Allow letters, numbers, spaces, underscores, hyphens
+        return System.Text.RegularExpressions.Regex.IsMatch(
+            processName,
+            @"^[a-zA-Z0-9 _\-]+$"
+        );
+    }
+
+    private bool IsValidCommitHash(string commitHash)
+    {
+        if (string.IsNullOrWhiteSpace(commitHash))
+            return false;
+
+        // Git commit hash: 40 hex characters
+        return System.Text.RegularExpressions.Regex.IsMatch(
+            commitHash,
+            @"^[a-f0-9]{7,40}$"
+        );
+    }
+
+    private bool IsValidUsername(string username)
+    {
+        if (string.IsNullOrWhiteSpace(username) || username.Length > 100)
+            return false;
+
+        // Allow letters, numbers, dots, underscores, hyphens, @
+        return System.Text.RegularExpressions.Regex.IsMatch(
+            username,
+            @"^[a-zA-Z0-9._\-@]+$"
+        );
+    }
 }
 
 public interface IDatabaseService
@@ -730,6 +848,10 @@ public interface IDatabaseService
     Task<bool> SetCurrentFormVersionAsync(string formName, string version);
     Task<(bool Success, string Message, int VersionsDeleted)> DeleteFormAsync(string formName);
     Task<(bool Success, string Message)> DeleteFormVersionAsync(string formName, string version);
+    Task<(bool Success, string Action)> UpsertFormAsync(
+        string formName, string processName, string version, string description,
+        string author, string compiledCode, int sizeBytes, string packageVersion,
+        string commitHash, DateTime buildDate, string releaseNotes);
 }
 
 public record UserInfo(
