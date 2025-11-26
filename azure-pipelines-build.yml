@@ -94,7 +94,7 @@ stages:
                 "# Build-time configuration" | Out-File -FilePath ".env.local" -Encoding utf8
                 "NEXT_PUBLIC_BASE_PATH=$(basePath)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                "NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://test.bizuit.com/arielschBIZUITCustomFormsBackendDotNet" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://test.bizuit.com/arielschBIZUITCustomFormsBackEnd" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "# Standalone Forms (Iframe) Configuration" | Out-File -FilePath ".env.local" -Append -Encoding utf8
@@ -102,7 +102,7 @@ stages:
                 "NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=$(allowLocalhostIframe)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "# Runtime configuration (server-side only - .NET backend)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                "FASTAPI_URL=https://test.bizuit.com/arielschBIZUITCustomFormsBackendDotNet" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "FASTAPI_URL=https://test.bizuit.com/arielschBIZUITCustomFormsBackEnd" | Out-File -FilePath ".env.local" -Append -Encoding utf8
 
                 Write-Host "✓ .env.local created successfully"
             displayName: 'Create Build Environment Configuration'
