@@ -20,7 +20,7 @@ variables:
   pm2BackendApp: 'recubiz-backend'
 
   # IIS site names for .NET backend
-  iisSiteName: 'RecuBiz'
+  iisSiteName: 'Default Web Site'
   iisAppPoolName: 'recubizBIZUITCustomFormsBackEnd'
   iisHostname: 'test.bizuit.com'
 
