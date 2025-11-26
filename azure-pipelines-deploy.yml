@@ -748,10 +748,10 @@ stages:
 
                       $deployPath = "$(backendDotNetDeployPath)"
 
-                      # Clean deployment directory (preserve appsettings.Production.json and logs)
+                      # Clean deployment directory (preserve logs and temp-uploads only)
                       if (Test-Path $deployPath) {
                           Write-Host "Cleaning deployment directory: $deployPath" -ForegroundColor Gray
-                          Get-ChildItem $deployPath -Exclude @('appsettings.Production.json', 'logs', 'temp-uploads') | Remove-Item -Recurse -Force
+                          Get-ChildItem $deployPath -Exclude @('logs', 'temp-uploads') | Remove-Item -Recurse -Force
                           Write-Host "✓ Directory cleaned" -ForegroundColor Green
                       } else {
                           Write-Host "Creating deployment directory: $deployPath" -ForegroundColor Gray
@@ -770,7 +770,11 @@ stages:
                 - task: CopyFiles@2
                   inputs:
                     SourceFolder: '$(System.ArtifactsDirectory)/backend-dotnet-drop'
-                    Contents: '**'
+                    Contents: |
+                      **
+                      !**/.env.local
+                      !**/appsettings.Development.json
+                      !**/appsettings.Production.json
                     TargetFolder: '$(backendDotNetDeployPath)'
                     OverWrite: true
                     flattenFolders: false
@@ -824,54 +828,39 @@ stages:
                       }
                   displayName: 'Flatten .NET Publish Structure'
 
-                # Step 5: Configure appsettings.Production.json (if not exists)
+                # Step 5: Verify deployment (appsettings.*.json excluded from artifact)
                 - task: PowerShell@2
                   inputs:
                     targetType: 'inline'
                     workingDirectory: '$(backendDotNetDeployPath)'
                     script: |
-                      Write-Host "Configuring .NET backend for production..." -ForegroundColor Cyan
+                      Write-Host "Verifying .NET backend deployment..." -ForegroundColor Cyan
 
-                      $appSettingsPath = "appsettings.Production.json"
-
-                      if (-not (Test-Path $appSettingsPath)) {
-                          Write-Host "⚠️  appsettings.Production.json not found, creating default..." -ForegroundColor Yellow
-
-                          $appSettings = @{
-                              "Logging" = @{
-                                  "LogLevel" = @{
-                                      "Default" = "Information"
-                                      "Microsoft.AspNetCore" = "Warning"
-                                  }
-                              }
-                              "AllowedHosts" = "*"
-                              "ConnectionStrings" = @{
-                                  "DashboardDb" = "Server=test.bizuit.com;Database=arielschBIZUITDashboard;User Id=BIZUITarielsch;Password=Th3Qu33n1sD34d`$;TrustServerCertificate=True;Encrypt=True"
-                                  "PersistenceDb" = "Server=test.bizuit.com;Database=arielschBizuitPersistenceStore;User Id=BIZUITarielsch;Password=Th3Qu33n1sD34d`$;TrustServerCertificate=True;Encrypt=True"
-                              }
-                              "BizuitSettings" = @{
-                                  "DashboardApiUrl" = "https://test.bizuit.com/arielschbizuitdashboardapi/api"
-                                  "AdminAllowedRoles" = "Administrators,BIZUIT Admins,SuperAdmin,FormManager"
-                                  "SessionTimeoutMinutes" = 30
-                                  "JwtSecretKey" = "CHANGE_THIS_IN_PRODUCTION_" + (New-Guid).ToString() + "_" + (Get-Date).ToString('yyyyMMddHHmmss')
-                                  "EncryptionTokenKey" = "Vq2ixrmV6oUGhQfIPWiCBk0S"
-                                  "MaxUploadSizeMB" = 50
-                                  "TempUploadPath" = "./temp-uploads"
-                              }
-                              "CorsSettings" = @{
-                                  "AllowedOrigins" = @("https://test.bizuit.com")
-                              }
-                          } | ConvertTo-Json -Depth 10
-
-                          $appSettings | Out-File -FilePath $appSettingsPath -Encoding UTF8
-                          Write-Host "✓ Created appsettings.Production.json" -ForegroundColor Green
-                          Write-Host "⚠️  IMPORTANT: Review and update production secrets!" -ForegroundColor Yellow
+                      # Verify appsettings.json exists (base configuration)
+                      if (Test-Path "appsettings.json") {
+                          Write-Host "✓ appsettings.json found" -ForegroundColor Green
                       } else {
-                          Write-Host "✓ appsettings.Production.json already exists" -ForegroundColor Green
+                          Write-Host "❌ appsettings.json NOT found - deployment may fail!" -ForegroundColor Red
+                          exit 1
                       }
 
-                      Write-Host "✓ .NET backend configured" -ForegroundColor Green
-                  displayName: 'Configure .NET Backend'
+                      # Verify environment-specific files are NOT present
+                      if (Test-Path "appsettings.Development.json") {
+                          Write-Host "❌ appsettings.Development.json found - should be excluded!" -ForegroundColor Red
+                          exit 1
+                      } else {
+                          Write-Host "✓ appsettings.Development.json correctly excluded" -ForegroundColor Green
+                      }
+
+                      if (Test-Path "appsettings.Production.json") {
+                          Write-Host "❌ appsettings.Production.json found - should be excluded!" -ForegroundColor Red
+                          exit 1
+                      } else {
+                          Write-Host "✓ appsettings.Production.json correctly excluded" -ForegroundColor Green
+                      }
+
+                      Write-Host "✓ Deployment verification complete" -ForegroundColor Green
+                  displayName: 'Verify Deployment Files'
 
                 # Step 6: Create/Update IIS App Pool and Application
                 - task: PowerShell@2

@@ -199,6 +199,31 @@ stages:
               zipAfterPublish: false
             displayName: 'Publish .NET Backend'
 
+          # Remove appsettings.*.json files (configuration managed per deployment)
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              workingDirectory: '$(Build.ArtifactStagingDirectory)/backend-dotnet'
+              script: |
+                Write-Host "Removing appsettings.Development.json and appsettings.Production.json..." -ForegroundColor Cyan
+
+                if (Test-Path "appsettings.Development.json") {
+                    Remove-Item "appsettings.Development.json" -Force
+                    Write-Host "✓ Removed appsettings.Development.json" -ForegroundColor Green
+                } else {
+                    Write-Host "- appsettings.Development.json not found" -ForegroundColor Gray
+                }
+
+                if (Test-Path "appsettings.Production.json") {
+                    Remove-Item "appsettings.Production.json" -Force
+                    Write-Host "✓ Removed appsettings.Production.json" -ForegroundColor Green
+                } else {
+                    Write-Host "- appsettings.Production.json not found" -ForegroundColor Gray
+                }
+
+                Write-Host "✓ Artifact cleaned" -ForegroundColor Green
+            displayName: 'Remove Environment-Specific Settings'
+
           # Copy SQL Migration Scripts (from Python backend, still used)
           - task: CopyFiles@2
             inputs:
