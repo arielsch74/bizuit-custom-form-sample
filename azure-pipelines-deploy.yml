@@ -13,7 +13,7 @@ variables:
   # Deployment paths
   runtimeDeployPath: 'E:\BIZUITSites\arielsch\arielschBIZUITCustomForms'
   backendDeployPath: 'E:\BIZUITSites\arielsch\arielschBIZUITCustomFormsBackEnd'
-  backendDotNetDeployPath: 'E:\BIZUITSites\arielsch\arielschBIZUITCustomFormsBackEndDotNet'
+  backendDotNetDeployPath: 'E:\BIZUITSites\arielsch\arielschBIZUITCustomFormsBackEnd'
 
   # PM2 app names
   pm2RuntimeApp: 'arielsch-runtime'
