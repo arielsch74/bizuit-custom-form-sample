@@ -13,15 +13,21 @@ variables:
   # Deployment paths
   runtimeDeployPath: 'E:\BIZUITSites\arielsch\arielschBIZUITCustomForms'
   backendDeployPath: 'E:\BIZUITSites\arielsch\arielschBIZUITCustomFormsBackEnd'
+  backendDotNetDeployPath: 'E:\BIZUITSites\arielsch\arielschBIZUITCustomFormsBackEndDotNet'
 
   # PM2 app names
   pm2RuntimeApp: 'arielsch-runtime'
   pm2BackendApp: 'arielsch-backend'
 
+  # IIS site names for .NET backend
+  iisSiteName: 'test.bizuit.com'
+  iisAppPoolName: 'arielschBIZUITCustomFormsBackEndDotNet'
+
   # Runtime configuration
   runtimeBasePath: '/arielschBIZUITCustomForms'
   runtimePort: '3001'
   backendPort: '8000'
+  backendDotNetPort: '8001'
 
   # Standalone Forms (Iframe) Configuration
   allowedIframeOrigins: 'https://test.bizuit.com,https://*.bizuit.com'
@@ -538,13 +544,13 @@ stages:
                               "# MUST be absolute URL for browser requests",
                               "NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api",
                               "",
-                              "# Custom Forms Backend API URL (browser connects to FastAPI backend)",
+                              "# Custom Forms Backend API URL (.NET Core backend)",
                               "# MUST be absolute URL for browser requests",
-                              "NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://test.bizuit.com/arielschBIZUITCustomFormsbackend",
+                              "NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://test.bizuit.com/arielschBIZUITCustomFormsBackendDotNet",
                               "",
-                              "# FastAPI Backend URL (REQUIRED - server-side only, used by Next.js API routes)",
-                              "# Points to localhost where PM2 runs the FastAPI backend on port 8000",
-                              "FASTAPI_URL=http://127.0.0.1:8000",
+                              "# Backend API URL (REQUIRED - server-side only, used by Next.js API routes)",
+                              "# Points to IIS-hosted .NET backend",
+                              "FASTAPI_URL=https://test.bizuit.com/arielschBIZUITCustomFormsBackendDotNet",
                               "",
                               "# Timeouts and configuration",
                               "NEXT_PUBLIC_BIZUIT_TIMEOUT=30000",
@@ -560,7 +566,7 @@ stages:
                               "# Server-side only - can be changed per deployment without rebuild",
                               "# Set to 'true' for testing environments, 'false' for production",
                               "# If undefined or false, direct access to forms is BLOCKED (secure by default)",
-                              "ALLOW_DEV_MODE=true",
+                              "NEXT_PUBLIC_ALLOW_DEV_MODE=true",
                               "",
                               "# 🔒 Standalone Forms (Iframe) Configuration",
                               "# Allowed origins for iframe embedding (/formsa/* routes)",
@@ -664,103 +670,23 @@ stages:
                   displayName: 'Runtime Health Check'
 
   # ==========================================================================
-  # STAGE 5: Deploy Backend API
+  # STAGE 5: Deploy Backend API (.NET Core)
   # ==========================================================================
   - stage: DeployBackend
-    displayName: 'Deploy Backend API'
+    displayName: 'Deploy Backend API (.NET)'
     dependsOn: RunMigrations
     condition: succeeded()
     pool:
       name: Testbizuitcom
     jobs:
       - deployment: DeployBackendJob
-        displayName: 'Deploy FastAPI to PM2'
+        displayName: 'Deploy .NET Core Backend to IIS'
         environment: 'Production'
         strategy:
           runOnce:
             deploy:
               steps:
-                # Step 0: Checkout source code to get ecosystem.config.js
-                - checkout: self
-                  clean: true
-                  displayName: 'Checkout Repository'
-
-                # Step 1: Check/Install PM2 FIRST (fast, fails early)
-                - task: PowerShell@2
-                  inputs:
-                    targetType: 'inline'
-                    script: |
-                      Write-Host "Checking PM2 installation..." -ForegroundColor Cyan
-
-                      # Set HOMEPATH and HOME BEFORE any PM2 command (required on Windows)
-                      if (-not $env:HOMEPATH) {
-                          $env:HOMEPATH = $env:USERPROFILE
-                          Write-Host "Set HOMEPATH to: $env:HOMEPATH" -ForegroundColor Gray
-                      }
-                      if (-not $env:HOME) {
-                          $env:HOME = $env:USERPROFILE
-                          Write-Host "Set HOME to: $env:HOME" -ForegroundColor Gray
-                      }
-
-                      # Get npm global bin path
-                      $npmBin = npm config get prefix
-                      $pm2CmdPath = Join-Path $npmBin "pm2.cmd"
-
-                      # Check if PM2 exists in npm global directory (more reliable than Get-Command)
-                      if (Test-Path $pm2CmdPath) {
-                          Write-Host "✓ PM2 is already installed" -ForegroundColor Green
-                          $version = & $pm2CmdPath --version 2>&1
-                          Write-Host "Version: $version" -ForegroundColor Gray
-                      } else {
-                          Write-Host "⚠️  PM2 not found at $pm2CmdPath" -ForegroundColor Yellow
-                          Write-Host "Installing PM2 globally..." -ForegroundColor Yellow
-                          npm install -g pm2
-
-                          # Verify installation
-                          if (Test-Path $pm2CmdPath) {
-                              $version = & $pm2CmdPath --version 2>&1
-                              Write-Host "✓ PM2 installed successfully" -ForegroundColor Green
-                              Write-Host "Version: $version" -ForegroundColor Gray
-                          } else {
-                              throw "Failed to install PM2 - file not found at $pm2CmdPath"
-                          }
-                      }
-
-                      # Ensure npm bin is in PATH for subsequent tasks
-                      if ($env:Path -notlike "*$npmBin*") {
-                          $env:Path = "$npmBin;$env:Path"
-                          Write-Host "Added npm global bin to PATH: $npmBin" -ForegroundColor Gray
-                      }
-                  displayName: 'Ensure PM2 is Installed'
-
-                # Step 2: Stop PM2 process BEFORE downloading (fast, fails early)
-                - task: PowerShell@2
-                  inputs:
-                    targetType: 'inline'
-                    script: |
-                      # Set HOMEPATH for PM2 (required on Windows)
-                      if (-not $env:HOMEPATH) { $env:HOMEPATH = $env:USERPROFILE }
-                      if (-not $env:HOME) { $env:HOME = $env:USERPROFILE }
-
-                      # Add npm global bin to PATH
-                      $npmBin = npm config get prefix
-                      $env:Path = "$npmBin;$env:Path"
-
-                      Write-Host "Stopping PM2 process: $(pm2BackendApp)"
-
-                      # Stop process (ignore all errors - process may not exist on first deployment)
-                      try {
-                          pm2 stop $(pm2BackendApp) 2>&1 | Out-Null
-                          Write-Host "✓ Process stopped successfully"
-                      } catch {
-                          Write-Host "Process was not running (this is expected on first deployment)"
-                      }
-
-                      # Always exit with success
-                      exit 0
-                  displayName: 'Stop PM2 Backend Process'
-
-                # Step 3: Download artifacts AFTER PM2 is ready
+                # Step 1: Download .NET backend artifacts
                 - task: DownloadBuildArtifacts@0
                   inputs:
                     buildType: 'specific'
@@ -768,183 +694,231 @@ stages:
                     pipeline: 'Custom Forms - Build'
                     buildVersionToDownload: 'latest'
                     downloadType: 'single'
-                    artifactName: 'backend-drop'
+                    artifactName: 'backend-dotnet-drop'
                     downloadPath: '$(System.ArtifactsDirectory)'
-                  displayName: 'Download Backend Artifacts'
+                  displayName: 'Download .NET Backend Artifacts'
 
-                # Copy PM2 ecosystem.config.js to server (if not already there from runtime deployment)
-                - task: CopyFiles@2
-                  inputs:
-                    SourceFolder: '$(Build.SourcesDirectory)/custom-forms'
-                    Contents: 'ecosystem.config.js'
-                    TargetFolder: 'E:\BIZUITSites\arielsch'
-                    OverWrite: true
-                  displayName: 'Copy PM2 Ecosystem Config'
-
+                # Step 2: Stop IIS App Pool
                 - task: PowerShell@2
                   inputs:
                     targetType: 'inline'
                     script: |
-                      Write-Host "Preparing deployment directory..."
+                      Write-Host "Stopping IIS App Pool: $(iisAppPoolName)" -ForegroundColor Cyan
 
-                      # Clean deployment directory (preserve .env.local and logs)
-                      if (Test-Path "$(backendDeployPath)") {
-                          Write-Host "Cleaning deployment directory..."
-                          Get-ChildItem "$(backendDeployPath)" -Exclude @('.env.local', 'logs', 'temp-uploads') | Remove-Item -Recurse -Force
+                      # Import IIS module
+                      Import-Module WebAdministration
+
+                      # Check if app pool exists
+                      $appPool = Get-Item "IIS:\AppPools\$(iisAppPoolName)" -ErrorAction SilentlyContinue
+
+                      if ($appPool) {
+                          # Stop app pool if running
+                          if ($appPool.State -eq 'Started') {
+                              Stop-WebAppPool -Name "$(iisAppPoolName)"
+                              Write-Host "✓ App pool stopped" -ForegroundColor Green
+
+                              # Wait for app pool to fully stop
+                              $maxWait = 30
+                              $waited = 0
+                              while ((Get-WebAppPoolState -Name "$(iisAppPoolName)").Value -ne 'Stopped' -and $waited -lt $maxWait) {
+                                  Start-Sleep -Seconds 1
+                                  $waited++
+                              }
+
+                              if ($waited -ge $maxWait) {
+                                  Write-Warning "⚠️  App pool did not stop within $maxWait seconds"
+                              } else {
+                                  Write-Host "✓ App pool fully stopped" -ForegroundColor Green
+                              }
+                          } else {
+                              Write-Host "✓ App pool already stopped" -ForegroundColor Gray
+                          }
                       } else {
-                          Write-Host "Creating deployment directory..."
-                          New-Item -ItemType Directory -Path "$(backendDeployPath)" -Force | Out-Null
+                          Write-Host "ℹ️  App pool does not exist yet (first deployment)" -ForegroundColor Gray
+                      }
+                  displayName: 'Stop IIS App Pool'
+
+                # Step 3: Prepare deployment directory
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      Write-Host "Preparing .NET backend deployment directory..." -ForegroundColor Cyan
+
+                      $deployPath = "$(backendDotNetDeployPath)"
+
+                      # Clean deployment directory (preserve appsettings.Production.json and logs)
+                      if (Test-Path $deployPath) {
+                          Write-Host "Cleaning deployment directory: $deployPath" -ForegroundColor Gray
+                          Get-ChildItem $deployPath -Exclude @('appsettings.Production.json', 'logs', 'temp-uploads') | Remove-Item -Recurse -Force
+                          Write-Host "✓ Directory cleaned" -ForegroundColor Green
+                      } else {
+                          Write-Host "Creating deployment directory: $deployPath" -ForegroundColor Gray
+                          New-Item -ItemType Directory -Path $deployPath -Force | Out-Null
+                          Write-Host "✓ Directory created" -ForegroundColor Green
                       }
 
                       # Ensure required directories exist
-                      New-Item -ItemType Directory -Path "$(backendDeployPath)\logs" -Force -ErrorAction SilentlyContinue | Out-Null
-                      New-Item -ItemType Directory -Path "$(backendDeployPath)\temp-uploads" -Force -ErrorAction SilentlyContinue | Out-Null
+                      New-Item -ItemType Directory -Path "$deployPath\logs" -Force -ErrorAction SilentlyContinue | Out-Null
+                      New-Item -ItemType Directory -Path "$deployPath\temp-uploads" -Force -ErrorAction SilentlyContinue | Out-Null
 
-                      Write-Host "✓ Deployment directory prepared"
+                      Write-Host "✓ Deployment directory prepared" -ForegroundColor Green
                   displayName: 'Prepare Deployment Directory'
 
+                # Step 4: Copy .NET backend files
                 - task: CopyFiles@2
                   inputs:
-                    SourceFolder: '$(System.ArtifactsDirectory)/backend-drop'
+                    SourceFolder: '$(System.ArtifactsDirectory)/backend-dotnet-drop'
                     Contents: '**'
-                    TargetFolder: '$(backendDeployPath)'
+                    TargetFolder: '$(backendDotNetDeployPath)'
                     OverWrite: true
-                  displayName: 'Copy Backend Files'
+                  displayName: 'Copy .NET Backend Files'
 
-                # Install Python dependencies
+                # Step 5: Configure appsettings.Production.json (if not exists)
                 - task: PowerShell@2
                   inputs:
                     targetType: 'inline'
-                    workingDirectory: '$(backendDeployPath)'
+                    workingDirectory: '$(backendDotNetDeployPath)'
                     script: |
-                      Write-Host "Installing Python dependencies..."
+                      Write-Host "Configuring .NET backend for production..." -ForegroundColor Cyan
 
-                      # Check if requirements.txt exists
-                      if (-not (Test-Path "requirements.txt")) {
-                          Write-Error "❌ requirements.txt not found in $(backendDeployPath)"
+                      $appSettingsPath = "appsettings.Production.json"
+
+                      if (-not (Test-Path $appSettingsPath)) {
+                          Write-Host "⚠️  appsettings.Production.json not found, creating default..." -ForegroundColor Yellow
+
+                          $appSettings = @{
+                              "Logging" = @{
+                                  "LogLevel" = @{
+                                      "Default" = "Information"
+                                      "Microsoft.AspNetCore" = "Warning"
+                                  }
+                              }
+                              "AllowedHosts" = "*"
+                              "ConnectionStrings" = @{
+                                  "DashboardDb" = "Server=test.bizuit.com;Database=arielschBIZUITDashboard;User Id=BIZUITarielsch;Password=Th3Qu33n1sD34d`$;TrustServerCertificate=True;Encrypt=True"
+                                  "PersistenceDb" = "Server=test.bizuit.com;Database=arielschBizuitPersistenceStore;User Id=BIZUITarielsch;Password=Th3Qu33n1sD34d`$;TrustServerCertificate=True;Encrypt=True"
+                              }
+                              "BizuitSettings" = @{
+                                  "DashboardApiUrl" = "https://test.bizuit.com/arielschbizuitdashboardapi/api"
+                                  "AdminAllowedRoles" = "Administrators,BIZUIT Admins,SuperAdmin,FormManager"
+                                  "SessionTimeoutMinutes" = 30
+                                  "JwtSecretKey" = "CHANGE_THIS_IN_PRODUCTION_" + (New-Guid).ToString() + "_" + (Get-Date).ToString('yyyyMMddHHmmss')
+                                  "EncryptionTokenKey" = "Vq2ixrmV6oUGhQfIPWiCBk0S"
+                                  "MaxUploadSizeMB" = 50
+                                  "TempUploadPath" = "./temp-uploads"
+                              }
+                              "CorsSettings" = @{
+                                  "AllowedOrigins" = @("https://test.bizuit.com")
+                              }
+                          } | ConvertTo-Json -Depth 10
+
+                          $appSettings | Out-File -FilePath $appSettingsPath -Encoding UTF8
+                          Write-Host "✓ Created appsettings.Production.json" -ForegroundColor Green
+                          Write-Host "⚠️  IMPORTANT: Review and update production secrets!" -ForegroundColor Yellow
+                      } else {
+                          Write-Host "✓ appsettings.Production.json already exists" -ForegroundColor Green
+                      }
+
+                      Write-Host "✓ .NET backend configured" -ForegroundColor Green
+                  displayName: 'Configure .NET Backend'
+
+                # Step 6: Create/Update IIS App Pool and Application
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      Write-Host "Configuring IIS App Pool and Application..." -ForegroundColor Cyan
+
+                      Import-Module WebAdministration
+
+                      $appPoolName = "$(iisAppPoolName)"
+                      $siteName = "$(iisSiteName)"
+                      $appName = "arielschBIZUITCustomFormsBackendDotNet"
+                      $deployPath = "$(backendDotNetDeployPath)"
+
+                      # Create App Pool if it doesn't exist
+                      if (-not (Test-Path "IIS:\AppPools\$appPoolName")) {
+                          Write-Host "Creating App Pool: $appPoolName" -ForegroundColor Gray
+                          New-WebAppPool -Name $appPoolName
+                          Write-Host "✓ App Pool created" -ForegroundColor Green
+                      } else {
+                          Write-Host "✓ App Pool already exists: $appPoolName" -ForegroundColor Gray
+                      }
+
+                      # Configure App Pool for .NET Core
+                      Write-Host "Configuring App Pool settings..." -ForegroundColor Gray
+                      Set-ItemProperty -Path "IIS:\AppPools\$appPoolName" -Name "managedRuntimeVersion" -Value ""
+                      Set-ItemProperty -Path "IIS:\AppPools\$appPoolName" -Name "enable32BitAppOnWin64" -Value $false
+                      Write-Host "✓ App Pool configured for .NET Core" -ForegroundColor Green
+
+                      # Create IIS Application if it doesn't exist
+                      $appPath = "IIS:\Sites\$siteName\$appName"
+                      if (-not (Test-Path $appPath)) {
+                          Write-Host "Creating IIS Application: $appName under site $siteName" -ForegroundColor Gray
+                          New-WebApplication -Name $appName -Site $siteName -PhysicalPath $deployPath -ApplicationPool $appPoolName
+                          Write-Host "✓ IIS Application created" -ForegroundColor Green
+                      } else {
+                          Write-Host "✓ IIS Application already exists" -ForegroundColor Gray
+                          # Update physical path and app pool in case they changed
+                          Set-ItemProperty -Path $appPath -Name "physicalPath" -Value $deployPath
+                          Set-ItemProperty -Path $appPath -Name "applicationPool" -Value $appPoolName
+                          Write-Host "✓ IIS Application updated" -ForegroundColor Green
+                      }
+
+                      Write-Host "✓ IIS configuration complete" -ForegroundColor Green
+                      Write-Host "Application URL: https://$siteName/$appName" -ForegroundColor Cyan
+                  displayName: 'Configure IIS App Pool and Application'
+
+                # Step 7: Start IIS App Pool
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      Write-Host "Starting IIS App Pool: $(iisAppPoolName)" -ForegroundColor Cyan
+
+                      Import-Module WebAdministration
+
+                      Start-WebAppPool -Name "$(iisAppPoolName)"
+
+                      # Wait for app pool to start
+                      $maxWait = 30
+                      $waited = 0
+                      while ((Get-WebAppPoolState -Name "$(iisAppPoolName)").Value -ne 'Started' -and $waited -lt $maxWait) {
+                          Start-Sleep -Seconds 1
+                          $waited++
+                      }
+
+                      if ($waited -ge $maxWait) {
+                          Write-Error "❌ App pool did not start within $maxWait seconds"
                           exit 1
                       }
 
-                      # Install dependencies with pip
-                      Write-Host "Running: python -m pip install -r requirements.txt"
-                      python -m pip install -r requirements.txt --upgrade
+                      Write-Host "✓ App pool started successfully" -ForegroundColor Green
+                  displayName: 'Start IIS App Pool'
 
-                      if ($LASTEXITCODE -ne 0) {
-                          Write-Error "❌ Failed to install Python dependencies"
-                          exit 1
-                      }
-
-                      Write-Host "✓ Python dependencies installed successfully"
-                  displayName: 'Install Python Dependencies'
-
-                - task: PowerShell@2
-                  inputs:
-                    targetType: 'inline'
-                    workingDirectory: '$(backendDeployPath)'
-                    script: |
-                      Write-Host "Configuring backend API for production..."
-
-                      # Copy production web.config for IIS reverse proxy
-                      if (Test-Path "web.config.production") {
-                          Copy-Item "web.config.production" "web.config" -Force
-                          Write-Host "✓ web.config.production copied as web.config"
-
-                          # Validate web.config is valid XML
-                          try {
-                              [xml]$webConfig = Get-Content "web.config"
-                              Write-Host "✓ web.config is valid XML"
-                          } catch {
-                              Write-Error "❌ web.config is not valid XML: $($_.Exception.Message)"
-                              Write-Host "`nweb.config content:"
-                              Get-Content "web.config" | Select-Object -First 20
-                              exit 1
-                          }
-
-                          # Remove web.config.production from deployment directory
-                          Remove-Item "web.config.production" -Force
-                          Write-Host "✓ web.config.production removed (no longer needed)"
-                      } else {
-                          Write-Warning "⚠️  web.config.production not found for backend"
-                      }
-
-                      # Verify .env.local exists (should be manually created on server)
-                      if (-not (Test-Path ".env.local")) {
-                          Write-Warning "⚠️  .env.local not found!"
-                          Write-Warning "Backend will not have configuration."
-                          Write-Warning "Create .env.local manually on server with production secrets."
-                      } else {
-                          Write-Host "✓ .env.local found"
-                      }
-
-                      # Move installed libs to Python path (if using libs folder)
-                      if (Test-Path "libs") {
-                          Write-Host "Python dependencies installed in libs/"
-                      }
-
-                      Write-Host "✓ Backend API configured"
-                  displayName: 'Configure Backend API'
-
+                # Step 8: Health Check
                 - task: PowerShell@2
                   inputs:
                     targetType: 'inline'
                     script: |
-                      # Set HOMEPATH for PM2 (required on Windows)
-                      if (-not $env:HOMEPATH) { $env:HOMEPATH = $env:USERPROFILE }
-                      if (-not $env:HOME) { $env:HOME = $env:USERPROFILE }
+                      Write-Host "Health check: Testing .NET backend API..." -ForegroundColor Cyan
 
-                      # Add npm global bin to PATH
-                      $npmBin = npm config get prefix
-                      $env:Path = "$npmBin;$env:Path"
-
-                      Write-Host "Starting PM2 process: $(pm2BackendApp)"
-
-                      # Set environment variable for production mode
-                      $env:PYTHON_ENV = "production"
-
-                      # Try to restart (if exists) or start (if new)
-                      try {
-                          pm2 restart $(pm2BackendApp) 2>&1 | Out-Null
-                          if ($LASTEXITCODE -eq 0) {
-                              Write-Host "✓ Process restarted successfully"
-                          } else {
-                              throw "Restart failed, will start new instance"
-                          }
-                      } catch {
-                          Write-Host "Process not found, starting new instance..."
-                          pm2 start E:\BIZUITSites\arielsch\ecosystem.config.js --only $(pm2BackendApp)
-                      }
-
-                      # Save PM2 configuration
-                      pm2 save --force
-
-                      Write-Host "✓ PM2 process started"
-                  displayName: 'Start PM2 Backend Process'
-
-                - task: PowerShell@2
-                  inputs:
-                    targetType: 'inline'
-                    script: |
-                      # Set HOMEPATH for PM2 (required on Windows)
-                      if (-not $env:HOMEPATH) { $env:HOMEPATH = $env:USERPROFILE }
-                      if (-not $env:HOME) { $env:HOME = $env:USERPROFILE }
-
-                      # Add npm global bin to PATH for pm2 logs command
-                      $npmBin = npm config get prefix
-                      $env:Path = "$npmBin;$env:Path"
-
-                      Write-Host "Health check: Testing backend API..."
-
-                      $maxAttempts = 10
+                      $maxAttempts = 15
                       $success = $false
+                      $siteName = "$(iisSiteName)"
+                      $appName = "arielschBIZUITCustomFormsBackendDotNet"
 
                       for ($i = 1; $i -le $maxAttempts; $i++) {
-                          Write-Host "Attempt $i of $maxAttempts..."
+                          Write-Host "Attempt $i of $maxAttempts..." -ForegroundColor Gray
                           Start-Sleep -Seconds 5
 
                           try {
-                              $response = Invoke-WebRequest -Uri "http://localhost:8000/health" -UseBasicParsing -TimeoutSec 10
+                              # Try health endpoint
+                              $response = Invoke-WebRequest -Uri "https://$siteName/$appName/" -UseBasicParsing -TimeoutSec 10
                               if ($response.StatusCode -eq 200) {
-                                  Write-Host "✅ Backend API is healthy!" -ForegroundColor Green
+                                  Write-Host "✅ .NET Backend API is healthy!" -ForegroundColor Green
+                                  Write-Host "Response: $($response.Content)" -ForegroundColor Gray
                                   $success = $true
                                   break
                               }
@@ -954,9 +928,12 @@ stages:
                       }
 
                       if (-not $success) {
-                          Write-Host "`n=== PM2 Logs ===" -ForegroundColor Red
-                          pm2 logs $(pm2BackendApp) --lines 50 --nostream
-                          Write-Error "❌ Backend API failed health check"
+                          Write-Host "`n=== IIS Application Event Log ===" -ForegroundColor Red
+                          Get-EventLog -LogName Application -Source "IIS*" -Newest 20 | Format-Table -AutoSize
+                          Write-Error "❌ .NET backend failed health check"
                           exit 1
                       }
-                  displayName: 'Backend Health Check'
+
+                      Write-Host "`n✅ Deployment Complete!" -ForegroundColor Green
+                      Write-Host "Backend API URL: https://$siteName/$appName" -ForegroundColor Cyan
+                  displayName: '.NET Backend Health Check'
