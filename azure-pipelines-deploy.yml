@@ -529,10 +529,13 @@ stages:
                           Write-Warning "⚠️  web.config.production not found"
                       }
 
-                      # Create or verify .env.local for runtime
+                      # Create or update .env.local for runtime (always overwrite to ensure latest configuration)
                       $envPath = ".env.local"
-                      if (-not (Test-Path $envPath)) {
-                          Write-Host "Creating .env.local for runtime with production configuration..." -ForegroundColor Yellow
+                      if (Test-Path $envPath) {
+                          Write-Host "Removing existing .env.local to update with latest configuration..." -ForegroundColor Yellow
+                          Remove-Item $envPath -Force
+                      }
+                      Write-Host "Creating .env.local for runtime with production configuration..." -ForegroundColor Yellow
 
                           $envLines = @(
                               "# Production Environment Variables for Runtime App",
@@ -582,11 +585,8 @@ stages:
                               "DEPLOY_ENV=production"
                           )
 
-                          $envLines | Out-File -FilePath $envPath -Encoding utf8
-                          Write-Host "✓ Created $envPath" -ForegroundColor Green
-                      } else {
-                          Write-Host "✓ .env.local already exists, preserving existing configuration" -ForegroundColor Green
-                      }
+                      $envLines | Out-File -FilePath $envPath -Encoding utf8
+                      Write-Host "✓ Created/Updated $envPath with latest configuration" -ForegroundColor Green
 
                       # Install production dependencies
                       Write-Host "Installing production dependencies..."
