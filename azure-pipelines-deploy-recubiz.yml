@@ -32,6 +32,14 @@ variables:
   allowedIframeOrigins: 'https://test.bizuit.com,https://*.bizuit.com'
   allowLocalhostIframe: 'false'
 
+  # .NET Backend deployment paths
+  backendDotNetDeployPath: 'E:\BIZUITSites\recubiz\recubizBIZUITCustomFormsBackEnd'
+
+  # IIS site names for .NET backend
+  iisSiteName: 'Default Web Site'
+  iisAppPoolName: 'recubizBIZUITCustomFormsBackEnd'
+  iisHostname: 'test.bizuit.com'
+
 stages:
   # ==========================================================================
   # STAGE 3: Run Database Migrations
