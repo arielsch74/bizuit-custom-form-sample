@@ -80,10 +80,21 @@ if (app.Environment.IsDevelopment())
 }
 
 // Enable Swagger in all environments (useful for testing/documentation)
-app.UseSwagger();
+app.UseSwagger(options =>
+{
+    options.PreSerializeFilters.Add((swagger, httpReq) =>
+    {
+        swagger.Servers = new List<Microsoft.OpenApi.Models.OpenApiServer>
+        {
+            new Microsoft.OpenApi.Models.OpenApiServer { Url = $"{httpReq.Scheme}://{httpReq.Host.Value}{httpReq.PathBase.Value}" }
+        };
+    });
+});
+
 app.UseSwaggerUI(options =>
 {
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "BIZUIT Custom Forms API v1");
+    // Use relative path - works with IIS virtual applications
+    options.SwaggerEndpoint("./v1/swagger.json", "BIZUIT Custom Forms API v1");
     options.RoutePrefix = "swagger";  // Access at /swagger
 });
 
