@@ -7,10 +7,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **BIZUIT Custom Forms** is a monorepo template for building web forms integrated with Bizuit BPMS. The project consists of published npm packages for SDK and UI components, plus example applications demonstrating their usage.
 
 **Published Packages:**
-- [@tyconsa/bizuit-form-sdk](https://www.npmjs.com/package/@tyconsa/bizuit-form-sdk) v2.0.0 - Core SDK for Bizuit BPM integration
+- [@tyconsa/bizuit-form-sdk](https://www.npmjs.com/package/@tyconsa/bizuit-form-sdk) v2.1.1 - Core SDK for Bizuit BPM integration
 - [@tyconsa/bizuit-ui-components](https://www.npmjs.com/package/@tyconsa/bizuit-ui-components) v1.7.0 - UI component library
 
-**Testing:** 77 unit tests (100% passing) with Vitest
+**Testing:** 138 unit tests (100% passing) with Vitest
 
 ## Architecture
 
@@ -18,10 +18,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The project runs three concurrent services:
 
-1. **Backend API (FastAPI)** - Port 8000
-   - Python-based REST API
-   - Handles auth, data encryption, form definitions
-   - Located in `custom-forms/backend-api/`
+1. **Backend API** - Port 8000
+   - **Python FastAPI** (`custom-forms/backend-api/`) - Currently active backend
+     - Handles auth, data encryption, form definitions
+     - Has unit tests (pytest)
+   - **.NET 9 Alternative** (`custom-forms/backend-api-dotnet/`) - Migration in progress
+     - Same API endpoints as Python version
+     - Has unit tests (xUnit)
 
 2. **Showcase App (Next.js)** - Port 3000
    - Next.js 15 demonstration application
@@ -43,8 +46,9 @@ packages/
 │   │   ├── instanceLock/    # Pessimistic locking for process instances
 │   │   ├── client/          # HTTP client with custom BZ-* headers
 │   │   ├── hooks/           # React hooks (useBizuitSDK, useAuth)
-│   │   └── utils/           # Parameter parsers (JSON/XML)
-│   └── src/__tests__/       # 36 unit tests
+│   │   ├── models/          # XmlParameter class for mutable XML objects
+│   │   └── utils/           # Parameter parsers (JSON/XML), XSD parser
+│   └── src/__tests__/       # 97 unit tests (including XmlParameter Phase 2)
 │
 └── bizuit-ui-components/    # UI Components (@tyconsa/bizuit-ui-components)
     ├── src/components/      # React components
@@ -168,24 +172,39 @@ npm run use:npm       # Use npm registry packages (for testing)
 
 ### Deployment
 
-**Showcase App (IISNode):**
-- Pipeline: `azure-pipelines.yml`
+**Showcase App:**
+- Pipeline: `azure-pipelines-showcase.yml`
 - Triggers on: `custom-forms-showcase/**` or `packages/**`
 - Deployment: IIS with IISNode (manages Node.js process)
 - Target: `E:\DevSites\BIZUITCustomForms`
 - Environment: `test.bizuit.com/BIZUITCustomForms`
 
-**Custom Forms (PM2 + IIS Reverse Proxy):**
-- Pipeline: `azure-pipelines-customforms.yml`
-- Triggers on: `custom-forms/**`
-- Deployment: PM2 for process management + IIS as reverse proxy
-- Architecture:
-  - Runtime (Next.js): PM2 on port 3001
-  - Backend (FastAPI): PM2 on port 8000
-  - IIS: Reverse proxy routing (/api/* → 8000, /* → 3001)
-- Target: `E:\BIZUITSites\arielsch\arielschBIZUITCustomForms` (runtime) and `E:\BIZUITSites\arielsch\arielschBIZUITCustomFormsBackEnd` (backend)
-- Environment: `test.bizuit.com/arielschBIZUITCustomForms`
-- Documentation: See `custom-forms/DEPLOYMENT.md` and `custom-forms/PM2_WINDOWS_SETUP.md`
+**Custom Forms - Multi-Client Deployments:**
+
+1. **Build Pipeline** (`azure-pipelines-build.yml`):
+   - Builds runtime app for arielsch tenant
+   - Creates artifact with `/arielschBIZUITCustomForms` basepath
+   - Triggers on: `custom-forms/runtime-app/**`, `packages/**`
+
+2. **Main Deployment** (`azure-pipelines-deploy.yml`):
+   - Deploys to arielsch tenant
+   - Uses artifact from build pipeline
+   - Target: `E:\BIZUITSites\arielsch\arielschBIZUITCustomForms`
+
+3. **Recubiz Deployment** (`azure-pipelines-deploy-recubiz.yml`):
+   - Deploys to recubiz tenant (reuses arielsch build artifact)
+   - Runs `prepare-deployment.js` to update basepath to `/recubizBIZUITCustomForms`
+   - Target: `E:\BIZUITSites\recubiz\recubizBIZUITCustomForms`
+
+4. **Azure Web Apps Deployment**:
+   - **Backend** (`azure-pipelines-backend-webapp.yml`):
+     - Deploys Python FastAPI to Azure Web App
+     - Triggers on: `custom-forms/backend-api/**`
+   - **Frontend** (`azure-pipelines-frontend-webapp.yml`):
+     - Deploys Next.js runtime to Azure Web App
+     - Triggers on: `custom-forms/runtime-app/**`, `packages/**`
+
+**Documentation:** See [custom-forms/docs/](/Users/arielschwindt/SourceCode/BIZUITCustomForms/custom-forms/docs/) for all deployment guides
 
 ## Key Implementation Details
 
@@ -288,9 +307,14 @@ All services use `.env.local` files (see `.env.example` in each directory).
 - React Hook Form + Zod validation
 
 **Backend:**
-- Python FastAPI
-- SQLite database
-- Pydantic models
+- **Python FastAPI** (active) - Port 8000
+  - SQLite database
+  - Pydantic models
+  - pytest for testing
+- **.NET 9 WebAPI** (migration in progress)
+  - Entity Framework Core
+  - SQLite database
+  - xUnit for testing
 
 **Build Tools:**
 - tsup (package bundler)
@@ -303,8 +327,8 @@ All services use `.env.local` files (see `.env.example` in each directory).
 
 ## Documentation Structure
 
-Comprehensive developer docs in `custom-forms-showcase/docs/`:
-- `GETTING_STARTED.md` - Step-by-step guide (600+ lines)
+**SDK Documentation** (`packages/docs/`):
+- `GETTING_STARTED.md` - Step-by-step guide for SDK usage
 - `QUICK_REFERENCE.md` - Quick code snippets
 - `examples/` - 6 complete working examples:
   - `example1-simple-start.md` - Basic process start
@@ -313,6 +337,41 @@ Comprehensive developer docs in `custom-forms-showcase/docs/`:
   - `example4-dynamic-form.md` - Auto-generated forms
   - `example5-file-upload.md` - File handling
   - `example6-advanced-locking.md` - Manual lock management
+
+**XmlParameter Documentation** (`packages/bizuit-form-sdk/`):
+- `XMLPARAMETER_GUIDE.md` - Complete guide for working with XML parameters as mutable objects
+- `EXAMPLES_XMLPARAMETER.md` - 6 real-world XmlParameter usage examples
+
+**Custom Forms Documentation** (`custom-forms/docs/`):
+- `README.md` - Documentation index
+- `DEVELOPER_GUIDE.md` - Developer guide for custom forms
+- `deployment/` - Deployment guides:
+  - `MULTI_CLIENT_DEPLOYMENT.md` - Multi-tenant deployment
+  - `OFFLINE_DEPLOYMENT.md` - Offline deployment
+  - `CHECKLIST_SERVIDOR.md` - Server checklist
+  - `COMANDOS_SERVIDOR.md` - Server commands
+  - `SERVIDOR_PASOS_FINALES.md` - Final server steps
+- `infrastructure/` - Infrastructure setup:
+  - `PM2_WINDOWS_SETUP.md` - PM2 setup on Windows
+  - `IIS_CONFIGURATION_GUIDE.md` - IIS configuration
+  - `RUNTIME_BASEPATH_SETUP.md` - Runtime basepath configuration
+- `operations/` - Operations and troubleshooting:
+  - `DEPLOYMENT_TROUBLESHOOTING.md` - Deployment issues
+  - `DEPLOYMENT_FIX.md` - Deployment fixes
+  - `RESUMEN_CONFIGURACION.md` - Configuration summary
+- `runtime-app/` - Runtime app documentation:
+  - `OVERVIEW.md` - Runtime app overview
+  - `SECURITY.md` - Security considerations
+  - `EXTERNALS_CONFIG.md` - External dependencies config
+- `security/` - Security documentation:
+  - `TENANT_ISOLATION_GUIDE.md` - Multi-tenant isolation
+- `setup/` - Setup guides:
+  - `RUNTIME_CONFIG.md` - Runtime configuration
+  - `SETUP_SUBMODULE.md` - Git submodule setup
+
+**Showcase Documentation** (`custom-forms-showcase/docs/`):
+- `AUTHENTICATION_FLOW.md` - Authentication flow documentation
+- `guides/HOT_RELOAD_DEMO.md` - Hot reload demo guide
 
 ## Important Notes
 
@@ -398,7 +457,7 @@ All components support latest versions of:
      - Comprehensive comments
      - README explaining structure
   4. Archive or remove outdated examples
-  5. Update `DEVELOPER_GUIDE.md` to reference new base template
+  5. Update [custom-forms/docs/DEVELOPER_GUIDE.md](custom-forms/docs/DEVELOPER_GUIDE.md) to reference new base template
 
 #### 3. Admin Token Authentication - Multi-Tenant Collision
 **Priority:** High

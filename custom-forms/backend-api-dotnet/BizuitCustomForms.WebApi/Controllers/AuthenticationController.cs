@@ -80,7 +80,6 @@ public class AuthenticationController : ControllerBase
 
             // 5. Return success response
             var userData = new UserData(
-                Username: request.Username,
                 Roles: userRoles,
                 UserId: userInfo.UserId,
                 UserName: userInfo.UserName,

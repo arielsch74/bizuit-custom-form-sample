@@ -18,7 +18,6 @@ public record AdminLoginResponse(
 );
 
 public record UserData(
-    string Username,
     List<string> Roles,
     int UserId,
     string UserName,

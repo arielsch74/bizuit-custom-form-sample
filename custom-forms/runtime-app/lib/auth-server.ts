@@ -63,13 +63,15 @@ export async function validateAdminSession(request: NextRequest): Promise<{
       const userData = JSON.parse(decodeURIComponent(userDataMatch[1]))
 
       // Validate required fields
-      if (!userData.username || !Array.isArray(userData.roles)) {
-        console.error('[Auth Server] Invalid user data structure')
+      // Support both 'username' (Python backend) and 'userName' (.NET backend)
+      const username = userData.username || userData.userName
+      if (!username || !Array.isArray(userData.roles)) {
+        console.error('[Auth Server] Invalid user data structure', userData)
         return null
       }
 
       return {
-        username: userData.username,
+        username: username,
         roles: userData.roles
       }
     } catch (parseError) {

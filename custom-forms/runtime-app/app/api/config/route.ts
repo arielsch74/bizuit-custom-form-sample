@@ -12,6 +12,9 @@ export async function GET() {
   // @ts-ignore - __basePath is set by Next.js
   const basePath = process.env.__NEXT_ROUTER_BASEPATH || process.env.BASE_PATH || ''
 
+  // Check NEXT_PUBLIC_ALLOW_DEV_MODE (client-side env var accessible on server)
+  const allowDevMode = process.env.NEXT_PUBLIC_ALLOW_DEV_MODE === 'true'
+
   return NextResponse.json({
     basePath,
     // Add other runtime configs here as needed
@@ -19,11 +22,11 @@ export async function GET() {
     environment: process.env.NODE_ENV || 'development',
     // Allow dev mode (direct form access without Dashboard token)
     // Defaults to false if not set (secure by default)
-    allowDevMode: process.env.ALLOW_DEV_MODE === 'true',
+    allowDevMode,
     // Dashboard API URL (for forms to connect to Bizuit BPM)
     dashboardApiUrl: process.env.DASHBOARD_API_URL || '',
     // Dev credentials (only sent if allowDevMode=true)
-    ...(process.env.ALLOW_DEV_MODE === 'true' && {
+    ...(allowDevMode && {
       devCredentials: {
         username: process.env.DEV_USERNAME || '',
         password: process.env.DEV_PASSWORD || '',

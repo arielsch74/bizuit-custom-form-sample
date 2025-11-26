@@ -57,7 +57,6 @@ public class CustomFormsController : ControllerBase
     /// <response code="200">Returns the compiled JavaScript code</response>
     /// <response code="404">Form not found</response>
     [HttpGet("{formName}/code")]
-    [Produces("application/javascript")]
     public async Task<IActionResult> GetFormCompiledCode(string formName, [FromQuery] string? version = null)
     {
         try
@@ -201,6 +200,17 @@ public class CustomFormsController : ControllerBase
     [HttpDelete("{formName}")]
     public async Task<IActionResult> DeleteForm(string formName)
     {
+        // Validate admin authentication (matches Python behavior)
+        var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+        if (string.IsNullOrEmpty(authHeader))
+        {
+            return Unauthorized(new
+            {
+                error = "Unauthorized",
+                message = "Missing Authorization header"
+            });
+        }
+
         try
         {
             _logger.LogInformation("[Delete Form API] Deleting form '{FormName}'", formName);
@@ -254,6 +264,17 @@ public class CustomFormsController : ControllerBase
     [HttpDelete("{formName}/versions/{version}")]
     public async Task<IActionResult> DeleteFormVersion(string formName, string version)
     {
+        // Validate admin authentication (matches Python behavior)
+        var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+        if (string.IsNullOrEmpty(authHeader))
+        {
+            return Unauthorized(new
+            {
+                error = "Unauthorized",
+                message = "Missing Authorization header"
+            });
+        }
+
         try
         {
             _logger.LogInformation("[Delete Version API] Deleting version '{Version}' of form '{FormName}'",

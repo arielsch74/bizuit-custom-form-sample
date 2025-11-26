@@ -70,7 +70,8 @@ public class DeploymentManifest
 {
     public required string PackageVersion { get; set; }
     public required string CommitHash { get; set; }
-    public required string CommitBranch { get; set; }
+    // Optional for backwards compatibility with existing deployment packages
+    public string? CommitBranch { get; set; }
     public required string BuildDate { get; set; }
     public required List<FormDeploymentInfo> Forms { get; set; }
 }

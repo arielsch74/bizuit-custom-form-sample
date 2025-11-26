@@ -84,7 +84,7 @@ public class DatabaseService : IDatabaseService
 
             // Query to get user roles
             const string query = @"
-                SELECT DISTINCT r.Name
+                SELECT DISTINCT r.RoleName
                 FROM [dbo].[Users] u
                 INNER JOIN [dbo].[UserRoles] ur ON u.UserID = ur.UserID
                 INNER JOIN [dbo].[Roles] r ON ur.RoleID = r.RoleID
@@ -768,15 +768,16 @@ public class DatabaseService : IDatabaseService
             parameters.Add("@CommitHash", commitHash);
             parameters.Add("@BuildDate", buildDate);
             parameters.Add("@ReleaseNotes", releaseNotes ?? "");
-            parameters.Add("@Action", dbType: DbType.String, direction: ParameterDirection.Output, size: 50);
 
-            await connection.ExecuteAsync(
+            // COMPATIBILITY: Python SP returns result set (SELECT @Action AS Action, @FormId AS FormId)
+            // NOT an OUTPUT parameter
+            var result = await connection.QueryFirstOrDefaultAsync<UpsertResult>(
                 "sp_UpsertCustomForm",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
 
-            var action = parameters.Get<string>("@Action");
+            var action = result?.Action ?? "executed";
 
             _logger.LogInformation("[Database] Form '{FormName}' {Action}", formName, action);
 
@@ -828,6 +829,16 @@ public class DatabaseService : IDatabaseService
             @"^[a-zA-Z0-9._\-@]+$"
         );
     }
+}
+
+/// <summary>
+/// Result from sp_UpsertCustomForm stored procedure
+/// Maps to: SELECT @Action AS Action, @FormId AS FormId
+/// </summary>
+internal record UpsertResult
+{
+    public string Action { get; init; } = string.Empty;
+    public int FormId { get; init; }
 }
 
 public interface IDatabaseService

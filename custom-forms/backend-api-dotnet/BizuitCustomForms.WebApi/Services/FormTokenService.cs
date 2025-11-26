@@ -26,38 +26,29 @@ public class FormTokenService : IFormTokenService
     /// Validate form security token
     /// Checks if token exists and hasn't expired
     /// </summary>
+    /// <remarks>
+    /// IMPORTANT: ArgumentException is NOT caught to match Python behavior (returns HTTP 500)
+    /// </remarks>
     public async Task<(bool Valid, SecurityToken? Token, string? Error)> ValidateFormTokenAsync(string tokenId)
     {
-        try
+        _logger.LogInformation("[Form Token Service] Validating token '{TokenId}'", tokenId);
+
+        // NOTE: ArgumentException is intentionally NOT caught here to match Python behavior
+        // Python's validate_security_token raises ValueError which becomes HTTP 500
+        var token = await _databaseService.ValidateSecurityTokenAsync(tokenId);
+
+        if (token == null)
         {
-            _logger.LogInformation("[Form Token Service] Validating token '{TokenId}'", tokenId);
-
-            var token = await _databaseService.ValidateSecurityTokenAsync(tokenId);
-
-            if (token == null)
-            {
-                return (false, null, "Token not found");
-            }
-
-            if (!token.IsValid)
-            {
-                return (false, token, "Token expired");
-            }
-
-            _logger.LogInformation("[Form Token Service] Token '{TokenId}' is valid", tokenId);
-            return (true, token, null);
+            return (false, null, "Token not found");
         }
-        catch (ArgumentException ex)
+
+        if (!token.IsValid)
         {
-            // Invalid token format
-            _logger.LogWarning("[Form Token Service] Invalid token format: {Message}", ex.Message);
-            return (false, null, "Invalid token format");
+            return (false, token, "Token expired");
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "[Form Token Service] Error validating token");
-            return (false, null, "Validation error");
-        }
+
+        _logger.LogInformation("[Form Token Service] Token '{TokenId}' is valid", tokenId);
+        return (true, token, null);
     }
 
     /// <summary>

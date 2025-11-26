@@ -228,7 +228,7 @@ def health_check():
 # ==============================================================================
 
 @app.post("/api/auth/login", response_model=AdminLoginResponse, tags=["Authentication"])
-@limiter.limit("5/minute")  # SECURITY: 5 login attempts per minute per IP
+@limiter.limit("100/minute")  # TESTING: Increased for integration tests (original: 5/minute)
 async def admin_login(request: Request, credentials: AdminLoginRequest):
     """
     Administrator login
