@@ -26,7 +26,7 @@ variables:
 
   # Runtime configuration
   runtimeBasePath: '/recubizBIZUITCustomForms'
-  runtimePort: '3001'
+  runtimePort: '3002'
   backendPort: '8000'
   backendDotNetPort: '8001'
 
