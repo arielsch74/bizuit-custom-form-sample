@@ -1,13 +1,8 @@
 # Azure DevOps Pipeline - Frontend (Next.js) to Azure Web App Linux
 # Deploys custom-forms/runtime-app to Azure Web App: bizuit-custom-forms
+# MANUAL TRIGGER ONLY
 
-trigger:
-  branches:
-    include:
-      - main
-  paths:
-    include:
-      - custom-forms/runtime-app/**
+trigger: none  # Manual trigger only
 
 variables:
   nodeVersion: '22.x'
