@@ -787,26 +787,39 @@ stages:
 
                       if (Test-Path $projectSubdir) {
                           Write-Host "Found project subdirectory: $projectSubdir" -ForegroundColor Gray
+                          Write-Host "Moving files to root: $deployPath" -ForegroundColor Gray
 
-                          # Move all files from subdirectory to parent
-                          Get-ChildItem -Path $projectSubdir -Recurse | ForEach-Object {
-                              $targetPath = $_.FullName.Replace($projectSubdir, $deployPath)
-                              $targetDir = Split-Path $targetPath -Parent
+                          # Create temporary directory for safe move
+                          $tempDir = Join-Path $deployPath "temp_move_$(Get-Date -Format 'yyyyMMddHHmmss')"
+                          New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
 
-                              if (-not (Test-Path $targetDir)) {
-                                  New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
-                              }
-
-                              if ($_.PSIsContainer -eq $false) {
-                                  Move-Item -Path $_.FullName -Destination $targetPath -Force
-                              }
+                          # Move all contents to temp directory
+                          Write-Host "Moving to temp directory..." -ForegroundColor Gray
+                          Get-ChildItem -Path $projectSubdir -Force | ForEach-Object {
+                              Move-Item -Path $_.FullName -Destination $tempDir -Force
                           }
 
-                          # Remove empty subdirectory
-                          Remove-Item -Path $projectSubdir -Recurse -Force
+                          # Remove empty project directory
+                          Remove-Item -Path $projectSubdir -Force
+                          Write-Host "✓ Removed project directory" -ForegroundColor Green
+
+                          # Move from temp to root
+                          Write-Host "Moving to root..." -ForegroundColor Gray
+                          Get-ChildItem -Path $tempDir -Force | ForEach-Object {
+                              Move-Item -Path $_.FullName -Destination $deployPath -Force
+                          }
+
+                          # Remove temp directory
+                          Remove-Item -Path $tempDir -Force
                           Write-Host "✓ Files moved to root directory" -ForegroundColor Green
                       } else {
-                          Write-Host "✓ Files already in root directory" -ForegroundColor Green
+                          Write-Host "✓ Files already in root directory (no BizuitCustomForms.WebApi subdirectory found)" -ForegroundColor Green
+                      }
+
+                      # Verify final structure
+                      Write-Host "`nFinal directory structure:" -ForegroundColor Cyan
+                      Get-ChildItem -Path $deployPath | Select-Object -First 10 | ForEach-Object {
+                          Write-Host "  - $($_.Name)" -ForegroundColor Gray
                       }
                   displayName: 'Flatten .NET Publish Structure'
 
