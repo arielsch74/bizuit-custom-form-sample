@@ -73,13 +73,10 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Get port from configuration
-var port = builder.Configuration["ApiSettings:Port"] ?? "8001";
-
 Log.Information("==================================================");
 Log.Information("Starting ASP.NET Core API");
-Log.Information("Port: {Port}", port);
+Log.Information("Hosting Model: IIS In-Process");
 Log.Information("Environment: {Environment}", app.Environment.EnvironmentName);
 Log.Information("==================================================");
 
-app.Run($"http://0.0.0.0:{port}");
+app.Run();
