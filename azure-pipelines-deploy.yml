@@ -884,7 +884,7 @@ stages:
 
                       $appPoolName = "$(iisAppPoolName)"
                       $siteName = "$(iisSiteName)"
-                      $appName = "arielschBIZUITCustomFormsBackendDotNet"
+                      $appName = "arielschBIZUITCustomFormsBackEnd"
                       $deployPath = "$(backendDotNetDeployPath)"
 
                       # Create App Pool if it doesn't exist
