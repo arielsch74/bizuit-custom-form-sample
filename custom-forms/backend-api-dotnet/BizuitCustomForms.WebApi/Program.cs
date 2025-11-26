@@ -25,6 +25,18 @@ builder.Services.AddControllers()
         };
     });
 
+// Add Swagger/OpenAPI
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "BIZUIT Custom Forms API",
+        Version = "v1",
+        Description = "Backend API for BIZUIT Custom Forms (.NET implementation)"
+    });
+});
+
 // Register application services
 builder.Services.AddScoped<ICryptoService, CryptoService>();
 builder.Services.AddScoped<IDatabaseService, DatabaseService>();
@@ -66,6 +78,14 @@ if (app.Environment.IsDevelopment())
 {
     Log.Warning("⚠️  WARNING: CORS is allowing ALL origins (*) - Use only for development!");
 }
+
+// Enable Swagger in all environments (useful for testing/documentation)
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "BIZUIT Custom Forms API v1");
+    options.RoutePrefix = "swagger";  // Access at /swagger
+});
 
 app.UseCors();
 
