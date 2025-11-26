@@ -765,14 +765,50 @@ stages:
                       Write-Host "✓ Deployment directory prepared" -ForegroundColor Green
                   displayName: 'Prepare Deployment Directory'
 
-                # Step 4: Copy .NET backend files
+                # Step 4: Copy .NET backend files (from publish output subdirectory)
                 - task: CopyFiles@2
                   inputs:
                     SourceFolder: '$(System.ArtifactsDirectory)/backend-dotnet-drop'
                     Contents: '**'
                     TargetFolder: '$(backendDotNetDeployPath)'
                     OverWrite: true
+                    flattenFolders: false
                   displayName: 'Copy .NET Backend Files'
+
+                # Step 4b: Move files from subdirectory to root (dotnet publish creates project folder)
+                - task: PowerShell@2
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      Write-Host "Flattening .NET publish structure..." -ForegroundColor Cyan
+
+                      $deployPath = "$(backendDotNetDeployPath)"
+                      $projectSubdir = Join-Path $deployPath "BizuitCustomForms.WebApi"
+
+                      if (Test-Path $projectSubdir) {
+                          Write-Host "Found project subdirectory: $projectSubdir" -ForegroundColor Gray
+
+                          # Move all files from subdirectory to parent
+                          Get-ChildItem -Path $projectSubdir -Recurse | ForEach-Object {
+                              $targetPath = $_.FullName.Replace($projectSubdir, $deployPath)
+                              $targetDir = Split-Path $targetPath -Parent
+
+                              if (-not (Test-Path $targetDir)) {
+                                  New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+                              }
+
+                              if ($_.PSIsContainer -eq $false) {
+                                  Move-Item -Path $_.FullName -Destination $targetPath -Force
+                              }
+                          }
+
+                          # Remove empty subdirectory
+                          Remove-Item -Path $projectSubdir -Recurse -Force
+                          Write-Host "✓ Files moved to root directory" -ForegroundColor Green
+                      } else {
+                          Write-Host "✓ Files already in root directory" -ForegroundColor Green
+                      }
+                  displayName: 'Flatten .NET Publish Structure'
 
                 # Step 5: Configure appsettings.Production.json (if not exists)
                 - task: PowerShell@2
