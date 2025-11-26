@@ -1,19 +1,14 @@
 # Azure DevOps Pipeline - Backend (FastAPI) to Azure Web App Linux
 # Deploys custom-forms/backend-api to Azure Web App: bizuit-custom-forms-api
+# MANUAL TRIGGER ONLY
 
-trigger:
-  branches:
-    include:
-      - main
-  paths:
-    include:
-      - custom-forms/backend-api/**
+trigger: none  # Manual trigger only
 
 resources:
   pipelines:
     - pipeline: frontendPipeline
       source: 'Custom Forms - Azure Front'
-      trigger: true  # Trigger this pipeline when frontend completes successfully
+      trigger: false  # Do not auto-trigger when frontend completes
 
 variables:
   pythonVersion: '3.10'
