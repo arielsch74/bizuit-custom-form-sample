@@ -22,6 +22,7 @@ variables:
   # IIS site names for .NET backend
   iisSiteName: 'Default Web Site'
   iisAppPoolName: 'arielschBIZUITCustomFormsBackEndDotNet'
+  iisHostname: 'test.bizuit.com'
 
   # Runtime configuration
   runtimeBasePath: '/arielschBIZUITCustomForms'
@@ -941,7 +942,7 @@ stages:
                       }
 
                       Write-Host "✓ IIS configuration complete" -ForegroundColor Green
-                      Write-Host "Application URL: https://$siteName/$appName" -ForegroundColor Cyan
+                      Write-Host "Application URL: https://$(iisHostname)/$appName" -ForegroundColor Cyan
                   displayName: 'Configure IIS App Pool and Application'
 
                 # Step 7: Start IIS App Pool
@@ -980,8 +981,10 @@ stages:
 
                       $maxAttempts = 15
                       $success = $false
-                      $siteName = "$(iisSiteName)"
-                      $appName = "arielschBIZUITCustomFormsBackendDotNet"
+                      $hostname = "$(iisHostname)"
+                      $appName = "arielschBIZUITCustomFormsBackEnd"
+
+                      Write-Host "Testing URL: https://$hostname/$appName/" -ForegroundColor Gray
 
                       for ($i = 1; $i -le $maxAttempts; $i++) {
                           Write-Host "Attempt $i of $maxAttempts..." -ForegroundColor Gray
@@ -989,7 +992,7 @@ stages:
 
                           try {
                               # Try health endpoint
-                              $response = Invoke-WebRequest -Uri "https://$siteName/$appName/" -UseBasicParsing -TimeoutSec 10
+                              $response = Invoke-WebRequest -Uri "https://$hostname/$appName/" -UseBasicParsing -TimeoutSec 10
                               if ($response.StatusCode -eq 200) {
                                   Write-Host "✅ .NET Backend API is healthy!" -ForegroundColor Green
                                   Write-Host "Response: $($response.Content)" -ForegroundColor Gray
@@ -1009,5 +1012,5 @@ stages:
                       }
 
                       Write-Host "`n✅ Deployment Complete!" -ForegroundColor Green
-                      Write-Host "Backend API URL: https://$siteName/$appName" -ForegroundColor Cyan
+                      Write-Host "Backend API URL: https://$hostname/$appName" -ForegroundColor Cyan
                   displayName: '.NET Backend Health Check'
