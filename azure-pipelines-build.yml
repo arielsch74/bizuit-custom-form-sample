@@ -1,11 +1,12 @@
-# Azure DevOps Pipeline - Build Only (Runtime + Backend) - OPTIMIZED
-# Deploys to E:\BIZUITSites\arielsch\arielschBIZUITCustomForms (runtime) and arielschBIZUITCustomFormsBackEnd (backend)
+# Azure DevOps Pipeline - Build Only (Runtime + .NET Backend) - OPTIMIZED
+# Deploys to E:\BIZUITSites\arielsch\arielschBIZUITCustomForms (runtime) and arielschBIZUITCustomFormsBackEndDotNet (backend)
 #
 # OPTIMIZATIONS:
 # 1. Parallel execution of BuildRuntime and BuildBackend stages
-# 2. Enhanced caching for npm, Next.js, and pip packages
+# 2. Enhanced caching for npm and Next.js packages
 # 3. Reduced artifact size by excluding unnecessary files
 # 4. Faster npm install with --prefer-offline flag
+# 5. .NET publish creates deployment-ready output
 
 trigger:
   branches:
@@ -13,21 +14,22 @@ trigger:
       - main
   paths:
     include:
-      - custom-forms/**
+      - custom-forms/runtime-app/**
+      - custom-forms/backend-api-dotnet/**
+      - custom-forms/backend-api/migrations/**
       - azure-pipelines-build.yml
 
 variables:
-  # Node.js and Python versions
+  # Framework versions
   nodeVersion: '22.x'
-  pythonVersion: '3.12'
+  dotnetVersion: '8.x'
 
   # Deployment paths
   runtimeDeployPath: 'E:\BIZUITSites\arielsch\arielschBIZUITCustomForms'
-  backendDeployPath: 'E:\BIZUITSites\arielsch\arielschBIZUITCustomFormsBackEnd'
+  backendDotNetDeployPath: 'E:\BIZUITSites\arielsch\arielschBIZUITCustomFormsBackEndDotNet'
 
-  # PM2 app names
+  # PM2 app names (for runtime only)
   pm2RuntimeApp: 'arielsch-runtime'
-  pm2BackendApp: 'arielsch-backend'
 
   # Base path for Next.js
   basePath: '/arielschBIZUITCustomForms'
@@ -91,15 +93,15 @@ stages:
                 "# Build-time configuration" | Out-File -FilePath ".env.local" -Encoding utf8
                 "NEXT_PUBLIC_BASE_PATH=$(basePath)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/arielschbizuitdashboardapi/api" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                "NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://test.bizuit.com/arielschBIZUITCustomFormsbackend" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://test.bizuit.com/arielschBIZUITCustomFormsBackendDotNet" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "NEXT_PUBLIC_SESSION_TIMEOUT_MINUTES=30" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "# Standalone Forms (Iframe) Configuration" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "NEXT_PUBLIC_ALLOWED_IFRAME_ORIGINS=$(allowedIframeOrigins)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "NEXT_PUBLIC_ALLOW_LOCALHOST_IFRAME=$(allowLocalhostIframe)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
                 "" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                "# Runtime configuration (server-side only)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
-                "FASTAPI_URL=http://127.0.0.1:8000" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "# Runtime configuration (server-side only - .NET backend)" | Out-File -FilePath ".env.local" -Append -Encoding utf8
+                "FASTAPI_URL=https://test.bizuit.com/arielschBIZUITCustomFormsBackendDotNet" | Out-File -FilePath ".env.local" -Append -Encoding utf8
 
                 Write-Host "✓ .env.local created successfully"
             displayName: 'Create Build Environment Configuration'
@@ -148,49 +150,55 @@ stages:
             displayName: 'Publish Runtime Artifacts'
 
   # ==========================================================================
-  # STAGE 2: Build Backend API (FastAPI) - PARALLEL with Runtime
+  # STAGE 2: Build Backend API (.NET Core) - PARALLEL with Runtime
   # ==========================================================================
   - stage: BuildBackend
-    displayName: 'Build Backend API (FastAPI)'
+    displayName: 'Build Backend API (.NET Core)'
     dependsOn: []  # ⚡ No dependencies - run in PARALLEL
     pool:
       vmImage: 'windows-latest'
     jobs:
       - job: BuildBackendJob
-        displayName: 'Prepare FastAPI Backend'
+        displayName: 'Build .NET Core Backend'
         steps:
           - checkout: self
             clean: 'true'
             displayName: 'Checkout Repository'
 
-          - task: UsePythonVersion@0
+          # Install .NET SDK
+          - task: UseDotNet@2
             inputs:
-              versionSpec: '$(pythonVersion)'
-            displayName: 'Use Python $(pythonVersion)'
+              packageType: 'sdk'
+              version: '8.x'
+              installationPath: $(Agent.ToolsDirectory)/dotnet
+            displayName: 'Install .NET 8 SDK'
 
-          # ⚡ OPTIMIZATION: Skip libs installation in build
-          # Dependencies will be installed during deployment (faster artifact publish)
-          # This reduces artifact size from ~200MB to ~2MB
-
-          - task: CopyFiles@2
+          # Restore NuGet packages
+          - task: DotNetCoreCLI@2
             inputs:
-              SourceFolder: '$(Build.SourcesDirectory)/custom-forms/backend-api'
-              Contents: |
-                **/*.py
-                requirements.txt
-                web.config.production
-                migrations/**
-                !venv/**
-                !libs/**
-                !__pycache__/**
-                !*.pyc
-                !.env
-                !.env.local
-                !tests/**
-                !test_*.py
-              TargetFolder: '$(Build.ArtifactStagingDirectory)/backend-api'
-            displayName: 'Copy Backend Files (Source Only - No libs)'
+              command: 'restore'
+              projects: 'custom-forms/backend-api-dotnet/BizuitCustomForms.WebApi/BizuitCustomForms.WebApi.csproj'
+            displayName: 'Restore NuGet Packages'
 
+          # Build .NET project
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: 'build'
+              projects: 'custom-forms/backend-api-dotnet/BizuitCustomForms.WebApi/BizuitCustomForms.WebApi.csproj'
+              arguments: '--configuration Release --no-restore'
+            displayName: 'Build .NET Backend'
+
+          # Publish .NET application (creates deployment-ready output)
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: 'publish'
+              publishWebProjects: false
+              projects: 'custom-forms/backend-api-dotnet/BizuitCustomForms.WebApi/BizuitCustomForms.WebApi.csproj'
+              arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/backend-dotnet --no-restore --no-build'
+              zipAfterPublish: false
+            displayName: 'Publish .NET Backend'
+
+          # Copy SQL Migration Scripts (from Python backend, still used)
           - task: CopyFiles@2
             inputs:
               SourceFolder: '$(Build.SourcesDirectory)/custom-forms/backend-api'
@@ -199,16 +207,18 @@ stages:
               TargetFolder: '$(Build.ArtifactStagingDirectory)/migrations'
             displayName: 'Copy SQL Migration Scripts'
 
+          # Publish .NET backend artifacts
           - task: PublishBuildArtifacts@1
             inputs:
-              PathtoPublish: '$(Build.ArtifactStagingDirectory)/backend-api'
-              ArtifactName: 'backend-drop'
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)/backend-dotnet'
+              ArtifactName: 'backend-dotnet-drop'
               publishLocation: 'Container'
-            displayName: 'Publish Backend Artifacts'
+            displayName: 'Publish .NET Backend Artifacts'
 
+          # Publish Migration Scripts (separate artifact)
           - task: PublishBuildArtifacts@1
             inputs:
               PathtoPublish: '$(Build.ArtifactStagingDirectory)/migrations'
               ArtifactName: 'migrations-drop'
               publishLocation: 'Container'
-            displayName: 'Publish Migration Scripts (separate artifact)'
+            displayName: 'Publish Migration Scripts'
