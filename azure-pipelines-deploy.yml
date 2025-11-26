@@ -1005,8 +1005,29 @@ stages:
                       }
 
                       if (-not $success) {
-                          Write-Host "`n=== IIS Application Event Log ===" -ForegroundColor Red
-                          Get-EventLog -LogName Application -Source "IIS*" -Newest 20 | Format-Table -AutoSize
+                          Write-Host "`n=== Diagnostics ===" -ForegroundColor Red
+
+                          # Show stdout logs from ASP.NET Core
+                          $logsPath = "$(backendDotNetDeployPath)\logs"
+                          if (Test-Path $logsPath) {
+                              Write-Host "`n--- ASP.NET Core stdout logs ---" -ForegroundColor Yellow
+                              Get-ChildItem $logsPath -Filter "stdout*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 2 | ForEach-Object {
+                                  Write-Host "`nFile: $($_.Name)" -ForegroundColor Cyan
+                                  Get-Content $_.FullName -Tail 50
+                              }
+                          } else {
+                              Write-Host "⚠️  No logs directory found at: $logsPath" -ForegroundColor Yellow
+                              Write-Host "This means ASP.NET Core Module may not be installed or configured correctly" -ForegroundColor Yellow
+                          }
+
+                          # Show IIS Event Logs
+                          Write-Host "`n--- IIS Application Event Log ---" -ForegroundColor Yellow
+                          Get-EventLog -LogName Application -Source "IIS*" -Newest 10 -ErrorAction SilentlyContinue | Format-Table -AutoSize
+
+                          # Show deployed files
+                          Write-Host "`n--- Deployed Files ---" -ForegroundColor Yellow
+                          Get-ChildItem "$(backendDotNetDeployPath)" | Select-Object Name, Length, LastWriteTime | Format-Table -AutoSize
+
                           Write-Error "❌ .NET backend failed health check"
                           exit 1
                       }
