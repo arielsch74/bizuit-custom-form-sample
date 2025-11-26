@@ -1,5 +1,9 @@
-# Azure DevOps Pipeline - Migrations and Deployment
+# Azure DevOps Pipeline - RecuBiz Deployment
 # Deploys to E:\DevSites\RecuBiz\recubizBIZUITCustomForms (runtime) and recubizBIZUITCustomFormsBackEnd (backend)
+#
+# IMPORTANT: This pipeline must be triggered MANUALLY
+# It uses the same build artifacts as arielsch (from 'BIZUIT Custom Forms - Build')
+# but applies different runtime configuration for RecuBiz
 
 trigger: none  # Manual only
 
@@ -7,28 +11,22 @@ resources:
   pipelines:
     - pipeline: buildPipeline
       source: 'Custom Forms - Build'
-      trigger: true
+      trigger:
+        enabled: false  # Manual only - arielsch has auto-trigger
 
 variables:
   # Deployment paths
   runtimeDeployPath: 'E:\DevSites\RecuBiz\recubizBIZUITCustomForms'
   backendDeployPath: 'E:\DevSites\RecuBiz\recubizBIZUITCustomFormsBackEnd'
-  backendDotNetDeployPath: 'E:\DevSites\RecuBiz\recubizBIZUITCustomFormsBackEnd'
 
   # PM2 app names
   pm2RuntimeApp: 'recubiz-runtime'
   pm2BackendApp: 'recubiz-backend'
 
-  # IIS site names for .NET backend
-  iisSiteName: 'Default Web Site'
-  iisAppPoolName: 'recubizBIZUITCustomFormsBackEnd'
-  iisHostname: 'test.bizuit.com'
-
   # Runtime configuration
   runtimeBasePath: '/recubizBIZUITCustomForms'
   runtimePort: '3002'
-  backendPort: '8000'
-  backendDotNetPort: '8001'
+  backendPort: '8001'
 
   # Standalone Forms (Iframe) Configuration
   allowedIframeOrigins: 'https://test.bizuit.com,https://*.bizuit.com'
@@ -462,7 +460,8 @@ stages:
                           # Verify replacements were made
                           Write-Host "Verifying basePath replacements..." -ForegroundColor Gray
                           $serverJs = Get-Content "server.js" -Raw
-                          if ($serverJs -match "__RUNTIME_BASEPATH__") {
+                          if ($serverJs -match "__BACKEND_PORT__', ''
+                          $content = $content -replace '__RUNTIME_BASEPATH__") {
                               Write-Error "❌ Placeholder still found in server.js after replacement!"
                               Write-Host "This indicates the prepare-deployment script failed silently."
                               exit 1
@@ -500,7 +499,7 @@ stages:
                           Copy-Item "web.config.production" "web.config" -Force
                           Write-Host "✓ web.config.production copied as web.config"
 
-                          # Replace placeholders in web.config
+                          # Replace placeholders in web.config for RecuBiz
                           Write-Host "Configuring web.config with runtime values..." -ForegroundColor Gray
                           $content = Get-Content "web.config" -Raw
                           # Remove leading slash from basePath for replacement (template already has /)
@@ -529,13 +528,10 @@ stages:
                           Write-Warning "⚠️  web.config.production not found"
                       }
 
-                      # Create or update .env.local for runtime (always overwrite to ensure latest configuration)
+                      # Create or verify .env.local for runtime
                       $envPath = ".env.local"
-                      if (Test-Path $envPath) {
-                          Write-Host "Removing existing .env.local to update with latest configuration..." -ForegroundColor Yellow
-                          Remove-Item $envPath -Force
-                      }
-                      Write-Host "Creating .env.local for runtime with production configuration..." -ForegroundColor Yellow
+                      if (-not (Test-Path $envPath)) {
+                          Write-Host "Creating .env.local for runtime with production configuration..." -ForegroundColor Yellow
 
                           $envLines = @(
                               "# Production Environment Variables for Runtime App",
@@ -548,13 +544,13 @@ stages:
                               "# MUST be absolute URL for browser requests",
                               "NEXT_PUBLIC_BIZUIT_DASHBOARD_API_URL=https://test.bizuit.com/recubizbizuitdashboardapi/api",
                               "",
-                              "# Custom Forms Backend API URL (.NET Core backend)",
+                              "# Custom Forms Backend API URL (browser connects to FastAPI backend)",
                               "# MUST be absolute URL for browser requests",
-                              "NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://test.bizuit.com/recubizBIZUITCustomFormsBackEnd",
+                              "NEXT_PUBLIC_BIZUIT_FORMS_API_URL=https://test.bizuit.com/recubizBIZUITCustomFormsbackend",
                               "",
-                              "# Backend API URL (REQUIRED - server-side only, used by Next.js API routes)",
-                              "# Points to IIS-hosted .NET backend",
-                              "FASTAPI_URL=https://test.bizuit.com/recubizBIZUITCustomFormsBackEnd",
+                              "# FastAPI Backend URL (REQUIRED - server-side only, used by Next.js API routes)",
+                              "# Points to localhost where PM2 runs the FastAPI backend on port 8001",
+                              "FASTAPI_URL=http://127.0.0.1:8001",
                               "",
                               "# Timeouts and configuration",
                               "NEXT_PUBLIC_BIZUIT_TIMEOUT=30000",
@@ -570,7 +566,7 @@ stages:
                               "# Server-side only - can be changed per deployment without rebuild",
                               "# Set to 'true' for testing environments, 'false' for production",
                               "# If undefined or false, direct access to forms is BLOCKED (secure by default)",
-                              "NEXT_PUBLIC_ALLOW_DEV_MODE=true",
+                              "ALLOW_DEV_MODE=false",
                               "",
                               "# 🔒 Standalone Forms (Iframe) Configuration",
                               "# Allowed origins for iframe embedding (/formsa/* routes)",
@@ -585,8 +581,11 @@ stages:
                               "DEPLOY_ENV=production"
                           )
 
-                      $envLines | Out-File -FilePath $envPath -Encoding utf8
-                      Write-Host "✓ Created/Updated $envPath with latest configuration" -ForegroundColor Green
+                          $envLines | Out-File -FilePath $envPath -Encoding utf8
+                          Write-Host "✓ Created $envPath" -ForegroundColor Green
+                      } else {
+                          Write-Host "✓ .env.local already exists, preserving existing configuration" -ForegroundColor Green
+                      }
 
                       # Install production dependencies
                       Write-Host "Installing production dependencies..."
@@ -651,7 +650,7 @@ stages:
 
                           try {
                               # IMPORTANT: Check with basePath included (Next.js requires full path)
-                              $response = Invoke-WebRequest -Uri "http://localhost:3001$(runtimeBasePath)" -UseBasicParsing -TimeoutSec 10
+                              $response = Invoke-WebRequest -Uri "http://localhost:$(runtimePort)$(runtimeBasePath)" -UseBasicParsing -TimeoutSec 10
                               if ($response.StatusCode -eq 200) {
                                   Write-Host "✅ Runtime app is healthy!" -ForegroundColor Green
                                   $success = $true
@@ -670,8 +669,6 @@ stages:
                       }
                   displayName: 'Runtime Health Check'
 
-  # ==========================================================================
-  # STAGE 5: Deploy Backend API (.NET Core)
   # ==========================================================================
   - stage: DeployBackend
     displayName: 'Deploy Backend API (.NET)'
