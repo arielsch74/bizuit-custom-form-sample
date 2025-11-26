@@ -7,6 +7,7 @@
 # 3. Reduced artifact size by excluding unnecessary files
 # 4. Faster npm install with --prefer-offline flag
 # 5. .NET publish creates deployment-ready output
+# 6. .NET 9 SDK for latest framework support
 
 trigger:
   branches:
