@@ -20,7 +20,7 @@ variables:
   pm2BackendApp: 'arielsch-backend'
 
   # IIS site names for .NET backend
-  iisSiteName: 'test.bizuit.com'
+  iisSiteName: 'Default Web Site'
   iisAppPoolName: 'arielschBIZUITCustomFormsBackEndDotNet'
 
   # Runtime configuration
