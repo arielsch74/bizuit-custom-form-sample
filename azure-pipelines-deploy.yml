@@ -852,12 +852,37 @@ stages:
                       Set-ItemProperty -Path "IIS:\AppPools\$appPoolName" -Name "enable32BitAppOnWin64" -Value $false
                       Write-Host "✓ App Pool configured for .NET Core" -ForegroundColor Green
 
+                      # Verify site exists first
+                      $siteExists = Test-Path "IIS:\Sites\$siteName"
+                      if (-not $siteExists) {
+                          Write-Error "❌ IIS Site '$siteName' does not exist"
+                          Write-Host "Available sites:" -ForegroundColor Yellow
+                          Get-ChildItem "IIS:\Sites" | ForEach-Object { Write-Host "  - $($_.Name)" }
+                          exit 1
+                      }
+
                       # Create IIS Application if it doesn't exist
                       $appPath = "IIS:\Sites\$siteName\$appName"
                       if (-not (Test-Path $appPath)) {
                           Write-Host "Creating IIS Application: $appName under site $siteName" -ForegroundColor Gray
-                          New-WebApplication -Name $appName -Site $siteName -PhysicalPath $deployPath -ApplicationPool $appPoolName
-                          Write-Host "✓ IIS Application created" -ForegroundColor Green
+
+                          try {
+                              # Try to create as Application first
+                              New-WebApplication -Name $appName -Site $siteName -PhysicalPath $deployPath -ApplicationPool $appPoolName -ErrorAction Stop
+                              Write-Host "✓ IIS Application created" -ForegroundColor Green
+                          } catch {
+                              Write-Host "⚠️  Could not create as Application, trying Virtual Directory..." -ForegroundColor Yellow
+                              Write-Host "Error: $($_.Exception.Message)" -ForegroundColor DarkGray
+
+                              # Fallback: Create as Virtual Directory, then convert to Application
+                              New-Item -Path "IIS:\Sites\$siteName" -Name $appName -Type VirtualDirectory -PhysicalPath $deployPath -Force
+                              Write-Host "✓ Virtual Directory created" -ForegroundColor Green
+
+                              # Convert to Application and assign app pool
+                              ConvertTo-WebApplication -ApplicationPath "/$appName" -PSPath "IIS:\Sites\$siteName"
+                              Set-ItemProperty -Path $appPath -Name "applicationPool" -Value $appPoolName
+                              Write-Host "✓ Converted to Application with app pool" -ForegroundColor Green
+                          }
                       } else {
                           Write-Host "✓ IIS Application already exists" -ForegroundColor Gray
                           # Update physical path and app pool in case they changed
