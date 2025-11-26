@@ -100,13 +100,13 @@ stages:
                     $envLines = @(
                       "# SQL Server Connection - Dashboard Database",
                       "DB_SERVER=test.bizuit.com",
-                      "DB_DATABASE=recubizBIZUITDashboard",
+                      "DB_DATABASE=recubizBIZUIT",
                       "DB_USER=BIZUITrecubiz",
                       "DB_PASSWORD=Th3Qu33n1sD34d$",
                       "",
                       "# SQL Server Connection - Persistence Store Database",
                       "PERSISTENCE_DB_SERVER=test.bizuit.com",
-                      "PERSISTENCE_DB_DATABASE=recubizBizuitPersistenceStore",
+                      "PERSISTENCE_DB_DATABASE=recubizBIZUIT",
                       "PERSISTENCE_DB_USER=BIZUITrecubiz",
                       "PERSISTENCE_DB_PASSWORD=Th3Qu33n1sD34d$",
                       "",
@@ -846,8 +846,8 @@ stages:
                               }
                               "AllowedHosts" = "*"
                               "ConnectionStrings" = @{
-                                  "DashboardDb" = "Server=test.bizuit.com;Database=recubizBIZUITDashboard;User Id=BIZUITrecubiz;Password=Th3Qu33n1sD34d`$;TrustServerCertificate=True;Encrypt=True"
-                                  "PersistenceDb" = "Server=test.bizuit.com;Database=recubizBizuitPersistenceStore;User Id=BIZUITrecubiz;Password=Th3Qu33n1sD34d`$;TrustServerCertificate=True;Encrypt=True"
+                                  "DashboardDb" = "Server=test.bizuit.com;Database=recubizBIZUIT;User Id=BIZUITrecubiz;Password=Th3Qu33n1sD34d`$;TrustServerCertificate=True;Encrypt=True"
+                                  "PersistenceDb" = "Server=test.bizuit.com;Database=recubizBIZUIT;User Id=BIZUITrecubiz;Password=Th3Qu33n1sD34d`$;TrustServerCertificate=True;Encrypt=True"
                               }
                               "BizuitSettings" = @{
                                   "DashboardApiUrl" = "https://test.bizuit.com/recubizbizuitdashboardapi/api"
