@@ -21,7 +21,7 @@ variables:
 
   # IIS site names for .NET backend
   iisSiteName: 'Default Web Site'
-  iisAppPoolName: 'arielschBIZUITCustomFormsBackEndDotNet'
+  iisAppPoolName: 'arielschBIZUITCustomFormsBackEnd'
   iisHostname: 'test.bizuit.com'
 
   # Runtime configuration
